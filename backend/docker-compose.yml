@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vynlotaste-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vynlo_taste
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "96043020"
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Ajuste o caminho se o init.sql estiver em outro local
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/backups:/backups
+    networks:
+      - vynlotaste-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vynlo_taste"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: vynlotaste-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - vynlotaste-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # pgAdmin (Interface web para PostgreSQL)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: vynlotaste-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@vynlotaste.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - vynlotaste-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Redis Commander (Interface web para Redis)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: vynlotaste-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - vynlotaste-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  vynlotaste-network:
+    driver: bridge
+    name: vynlotaste-network
+

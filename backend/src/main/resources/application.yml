@@ -1,0 +1,207 @@
+spring:
+  application:
+    name: vynlo-taste-backend
+  
+  profiles:
+    active: dev
+  
+  # Desabilitar serviços pesados
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  elasticsearch:
+    enabled: false
+  kafka:
+    enabled: false
+  devtools:
+    restart:
+      enabled: false
+  
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:vynlo_taste}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 100          # Aumentado para melhor performance
+          fetch_size: 100          # Aumentado para melhor performance
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+        connection:
+          provider_disables_autocommit: true
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        statistics:
+          enabled: false           # Desabilitado para produção
+        generate_statistics: false # Desabilitado para produção
+  
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    database: 0
+    timeout: 1000ms
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 10
+        min-idle: 5
+        max-wait: 1000ms
+      shutdown-timeout: 100ms
+  
+  session:
+    store-type: redis
+    redis:
+      namespace: vynlo:sessions
+      flush-mode: on_save
+  
+  security:
+    oauth2:
+      client:
+        registration:
+          firebase:
+            client-id: ${FIREBASE_CLIENT_ID:}
+            client-secret: ${FIREBASE_CLIENT_SECRET:}
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 900000 # 15 minutos
+      cache-null-values: false
+      enable-statistics: true
+  
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+      fail-on-null-for-primitives: false
+
+# Configurações de métricas simplificadas
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never
+  security:
+    enabled: false
+  metrics:
+    export:
+      prometheus:
+        enabled: false
+
+# Configurações de logging ultra-otimizadas
+logging:
+  level:
+    root: ERROR
+    com.vynlotaste: ERROR
+    org.springframework: ERROR
+    org.hibernate: ERROR
+    com.zaxxer.hikari: ERROR
+    org.apache: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/vynlo-taste.log
+    max-size: 100MB
+    max-history: 30
+
+# Configurações de auditoria
+audit:
+  enabled: true
+  log-level: INFO
+  retention-days: 90
+  sensitive-fields: password,creditCard,ssn
+
+# Configurações de cache otimizadas
+cache:
+  user:
+    ttl: 900 # 15 minutos
+    max-size: 2000
+  order:
+    ttl: 300 # 5 minutos
+    max-size: 1000
+  product:
+    ttl: 1800 # 30 minutos
+    max-size: 5000
+
+# Configurações de rate limiting
+rate-limit:
+  enabled: true
+  default-limit: 100 # requests por minuto
+  auth-endpoints: 10 # login/register por minuto
+  api-endpoints: 1000 # API geral por minuto
+
+# Configurações de segurança
+security:
+  jwt:
+    secret: ${JWT_SECRET:your-secret-key-here}
+    expiration: 86400000 # 24 horas
+
+# Configurações do Firebase
+firebase:
+  project-id: vynlo-sistema
+  service-account:
+    path: firebase-service-account.json
+  storage:
+    bucket: vynlo-sistema.firebasestorage.app
+  auth:
+    domain: vynlo-sistema.firebaseapp.com
+
+# Configurações de performance otimizadas
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+  tomcat:
+    threads:
+      max: 500
+      min-spare: 50
+    max-connections: 10000
+    accept-count: 200
+    connection-timeout: 5000
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+
+# Configurações de CORS
+cors:
+  allowed-origins: 
+    - http://localhost:3000
+    - https://vynlotaste.com
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "*"
+  allow-credentials: true
+  max-age: 3600

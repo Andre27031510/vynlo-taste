@@ -1,0 +1,92 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'docker-compose.prod.yml'
+      - '.github/workflows/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      TAG: ${{ github.sha }}
+    outputs:
+      backend_changed: ${{ steps.changes.outputs.backend_any_changed }}
+      frontend_changed: ${{ steps.changes.outputs.frontend_any_changed }}
+      infra_changed: ${{ steps.changes.outputs.infra_any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changes
+        id: changes
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            infra:
+              - 'docker-compose.prod.yml'
+              - '.github/workflows/**'
+
+      - name: Login to Docker Hub
+        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend image
+        if: ${{ steps.changes.outputs.backend_any_changed == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKERHUB_USERNAME }}/vynlotaste-backend:${{ env.TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/vynlotaste-backend:latest
+
+      - name: Build and push frontend image
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKERHUB_USERNAME }}/vynlotaste-frontend:${{ env.TAG }}
+            ${{ env.DOCKERHUB_USERNAME }}/vynlotaste-frontend:latest
+          build-args: |
+            NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+            NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' }}
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/vynlo
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} || true
+            docker compose -f docker-compose.prod.yml pull || true
+            docker compose -f docker-compose.prod.yml up -d
+            docker system prune -f

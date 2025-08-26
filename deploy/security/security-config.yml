@@ -1,0 +1,238 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Vynlo Taste - Configurações de Segurança'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+  
+  DomainName:
+    Type: String
+    Description: Domain name for SSL certificate
+    Default: vynlotaste.com
+
+Resources:
+  # WAF Web ACL
+  WebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Sub 'vynlo-taste-waf-${Environment}'
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      Rules:
+        # Rate Limiting
+        - Name: RateLimitRule
+          Priority: 1
+          Statement:
+            RateBasedStatement:
+              Limit: 2000
+              AggregateKeyType: IP
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: RateLimitRule
+        
+        # SQL Injection Protection
+        - Name: SQLInjectionRule
+          Priority: 2
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesSQLiRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: SQLInjectionRule
+        
+        # XSS Protection
+        - Name: XSSRule
+          Priority: 3
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: XSSRule
+        
+        # Known Bad Inputs
+        - Name: KnownBadInputsRule
+          Priority: 4
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: KnownBadInputsRule
+
+  # SSL Certificate
+  SSLCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Sub 'www.${DomainName}'
+        - !Sub 'api.${DomainName}'
+      ValidationMethod: DNS
+      Tags:
+        - Key: Name
+          Value: !Sub 'vynlo-taste-ssl-${Environment}'
+
+  # Security Headers Lambda@Edge
+  SecurityHeadersFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub 'vynlo-taste-security-headers-${Environment}'
+      FunctionCode: |
+        function handler(event) {
+          var response = event.response;
+          var headers = response.headers;
+          
+          // Security Headers
+          headers['strict-transport-security'] = { value: 'max-age=31536000; includeSubDomains; preload' };
+          headers['content-type-options'] = { value: 'nosniff' };
+          headers['frame-options'] = { value: 'DENY' };
+          headers['xss-protection'] = { value: '1; mode=block' };
+          headers['referrer-policy'] = { value: 'strict-origin-when-cross-origin' };
+          headers['content-security-policy'] = { 
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https://api.vynlotaste.com;" 
+          };
+          
+          return response;
+        }
+      FunctionConfig:
+        Comment: 'Add security headers to responses'
+        Runtime: cloudfront-js-1.0
+
+  # Secrets Manager for Database Password
+  DatabaseSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub 'vynlo-taste-db-password-${Environment}'
+      Description: 'Database password for Vynlo Taste'
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "vynlo_user"}'
+        GenerateStringKey: 'password'
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\'
+
+  # IAM Role for Application
+  ApplicationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'vynlo-taste-app-role-${Environment}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      Policies:
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub 'arn:aws:s3:::vynlo-taste-uploads-${Environment}/*'
+        - PolicyName: SecretsManagerAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Ref DatabaseSecret
+
+  ApplicationInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref ApplicationRole
+
+  # VPC Flow Logs
+  VPCFlowLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: vpc-flow-logs.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudWatchLogPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: '*'
+
+  VPCFlowLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/vpc/flowlogs/${Environment}'
+      RetentionInDays: 30
+
+  # Config Rules for Compliance
+  ConfigRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: config.amazonaws.com
+
+  # GuardDuty
+  GuardDutyDetector:
+    Type: AWS::GuardDuty::Detector
+    Properties:
+      Enable: true
+      FindingPublishingFrequency: FIFTEEN_MINUTES
+
+Outputs:
+  WebACLArn:
+    Description: WAF Web ACL ARN
+    Value: !GetAtt WebACL.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-WebACL-Arn'
+
+  SSLCertificateArn:
+    Description: SSL Certificate ARN
+    Value: !Ref SSLCertificate
+    Export:
+      Name: !Sub '${AWS::StackName}-SSL-Certificate'
+
+  DatabaseSecretArn:
+    Description: Database Secret ARN
+    Value: !Ref DatabaseSecret
+    Export:
+      Name: !Sub '${AWS::StackName}-DB-Secret'
+
+  ApplicationRoleArn:
+    Description: Application IAM Role ARN
+    Value: !GetAtt ApplicationRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-App-Role'
