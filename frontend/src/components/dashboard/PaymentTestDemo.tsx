@@ -14,8 +14,8 @@ import {
 } from 'lucide-react'
 
 /**
- * Componente de demonstração para testar webhooks de pagamento
- * Simula transações das máquinas de cartão
+ * Componente para testar webhooks de pagamento em ambiente de desenvolvimento
+ * Permite testar integrações com provedores de pagamento
  */
 export default function PaymentTestDemo() {
   const [testProvider, setTestProvider] = useState('stone')
@@ -332,13 +332,12 @@ export default function PaymentTestDemo() {
           <div className="bg-blue-50 rounded-lg p-4">
             <div className="flex items-center space-x-2 mb-2">
               <Globe className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">URLs de Teste</span>
+              <span className="text-sm font-medium text-blue-900">URLs de Webhook</span>
             </div>
             <div className="space-y-1 text-xs text-blue-800">
-              <div>Stone: <code className="bg-blue-100 px-1 rounded">/api/webhooks/payment/stone</code></div>
-              <div>Cielo: <code className="bg-blue-100 px-1 rounded">/api/webhooks/payment/cielo</code></div>
-              <div>Rede: <code className="bg-blue-100 px-1 rounded">/api/webhooks/payment/rede</code></div>
-              <div>Sicred: <code className="bg-blue-100 px-1 rounded">/api/webhooks/payment/sicred</code></div>
+              <div>Configurar URLs reais dos provedores</div>
+              <div>Verificar documentação da API</div>
+              <div>Testar conectividade</div>
             </div>
           </div>
           

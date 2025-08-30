@@ -175,25 +175,6 @@ export default function LoginForm() {
                 )}
               </button>
             </form>
-
-            {/* Usuários de Demonstração */}
-            <div className="mt-8 pt-6 border-t border-white/20">
-              <p className="text-center text-sm text-blue-200 mb-4 font-semibold">
-                Contas de Teste:
-              </p>
-              <div className="space-y-2">
-                <div className="bg-purple-800/40 rounded-lg p-3 text-center border border-purple-500/30">
-                  <p className="text-xs text-purple-100">
-                    <strong>👑 Super Admin:</strong> superadmin@vynlotaste.com | <strong>Senha:</strong> SuperVynlo2024!@#
-                  </p>
-                </div>
-                <div className="bg-blue-800/40 rounded-lg p-3 text-center border border-blue-500/30">
-                  <p className="text-xs text-blue-100">
-                    <strong>Admin:</strong> admin@vynlotaste.com | <strong>Senha:</strong> AdminVynlo2024!
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Footer */}

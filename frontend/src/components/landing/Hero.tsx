@@ -105,11 +105,11 @@ export default function Hero() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-800">
               <div className="text-center">
-                <div className="text-3xl font-manrope font-bold text-white">500+</div>
+                <div className="text-3xl font-manrope font-bold text-white">-</div>
                 <div className="text-gray-400 font-manrope text-sm">Restaurantes</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-manrope font-bold text-white">99.9%</div>
+                <div className="text-3xl font-manrope font-bold text-white">-</div>
                 <div className="text-gray-400 font-manrope text-sm">Uptime</div>
               </div>
               <div className="text-center">
@@ -135,13 +135,13 @@ export default function Hero() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="h-20 bg-gray-800 rounded-lg flex items-center justify-center">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-white">R$ 12.5k</div>
+                        <div className="text-2xl font-bold text-white">-</div>
                         <div className="text-xs text-gray-400">Vendas Hoje</div>
                       </div>
                     </div>
                     <div className="h-20 bg-gray-800 rounded-lg flex items-center justify-center">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-white">147</div>
+                        <div className="text-2xl font-bold text-white">-</div>
                         <div className="text-xs text-gray-400">Pedidos</div>
                       </div>
                     </div>

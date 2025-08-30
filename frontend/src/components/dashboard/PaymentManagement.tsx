@@ -52,50 +52,7 @@ import { FinancialTransaction } from './CashFlowManagement'
 export default function PaymentManagement() {
   const { currentTheme } = useThemeContext()
   // Estado para transações de pagamento (integrado com fluxo de caixa)
-  const [paymentTransactions, setPaymentTransactions] = useState<FinancialTransaction[]>([
-    { 
-      id: 'p1', 
-      type: 'INCOME', 
-      amount: 45.90, 
-      description: 'Venda Online',
-      category: 'Vendas',
-      date: new Date().toISOString().split('T')[0],
-      paymentMethod: 'CREDIT_CARD', 
-      status: 'COMPLETED',
-      source: 'PAYMENT_SYSTEM',
-      paymentId: 'p1',
-      provider: 'Stone',
-      customer: 'Cliente Online'
-    },
-    { 
-      id: 'p2', 
-      type: 'INCOME', 
-      amount: 32.50, 
-      description: 'Serviço PIX',
-      category: 'Serviços',
-      date: new Date().toISOString().split('T')[0],
-      paymentMethod: 'PIX', 
-      status: 'COMPLETED',
-      source: 'PAYMENT_SYSTEM',
-      paymentId: 'p2',
-      provider: 'Banco Central',
-      customer: 'Cliente PIX'
-    },
-    { 
-      id: 'p3', 
-      type: 'INCOME', 
-      amount: 67.80, 
-      description: 'Venda Débito',
-      category: 'Vendas',
-      date: new Date().toISOString().split('T')[0],
-      paymentMethod: 'DEBIT_CARD', 
-      status: 'PENDING',
-      source: 'PAYMENT_SYSTEM',
-      paymentId: 'p3',
-      provider: 'Cielo',
-      customer: 'Cliente Débito'
-    }
-  ])
+  const [paymentTransactions, setPaymentTransactions] = useState<FinancialTransaction[]>([])
 
   // Estado para sincronização com fluxo de caixa
   const [cashFlowSync, setCashFlowSync] = useState({
@@ -212,10 +169,7 @@ export default function PaymentManagement() {
     minAmount: '10.00',
     autoApprove: false
   })
-  const [refundRequests, setRefundRequests] = useState([
-    { id: 'REF001', amount: 150, status: 'pending', reason: 'Produto com defeito', date: new Date(), provider: 'Stone' },
-    { id: 'REF002', amount: 89.90, status: 'pending', reason: 'Cancelamento de pedido', date: new Date(), provider: 'Cielo' }
-  ])
+  const [refundRequests, setRefundRequests] = useState([])
 
   // Estados para auditoria com IA preditiva
   const [showAIRiskAnalysis, setShowAIRiskAnalysis] = useState(false)
@@ -274,62 +228,16 @@ export default function PaymentManagement() {
     }
   }, [showGenerateMenu])
 
-  // Simular webhook de pagamento recebido
-  const simulatePaymentWebhook = () => {
-    const providers = ['Stone', 'Cielo', 'PIX', 'PagSeguro']
-    const randomProvider = providers[Math.floor(Math.random() * providers.length)]
-    
-    // Simular diferentes cenários de pagamento
-    const scenarios = [
-      {
-                  status: 'success',
-        message: 'Pagamento aprovado',
-        orderId: `#${Math.floor(Math.random() * 10000)}`,
-        amount: Math.random() * 200 + 20,
-        customerName: 'Cliente Online'
-      },
-      {
-                  status: 'pending',
-        message: 'Pagamento em processamento',
-        orderId: `#${Math.floor(Math.random() * 10000)}`,
-        amount: Math.random() * 150 + 30,
-        customerName: 'Cliente PIX'
-      },
-      {
-                  status: 'error',
-        message: 'Erro no processamento',
-        orderId: `#${Math.floor(Math.random() * 10000)}`,
-        amount: Math.random() * 100 + 25,
-        customerName: 'Cliente Cartão'
-      }
-    ]
-
-    const randomScenario = scenarios[Math.floor(Math.random() * scenarios.length)]
-    
-    const webhookLog = {
-      id: `webhook-${Date.now()}`,
-      timestamp: new Date(),
-      provider: randomProvider,
-      status: randomScenario.status as 'success' | 'error' | 'pending',
-      message: randomScenario.message,
-      orderId: randomScenario.orderId,
-      amount: randomScenario.amount,
-      customerName: randomScenario.customerName
-    }
-
-    setWebhookLogs(prev => [webhookLog, ...prev.slice(0, 9)]) // Manter apenas os 10 últimos
-    
-    // Atualizar estatísticas
-    setProcessingStats(prev => ({
-      totalReceived: prev.totalReceived + 1,
-      totalProcessed: randomScenario.status === 'success' ? prev.totalProcessed + 1 : prev.totalProcessed,
-      totalErrors: randomScenario.status === 'error' ? prev.totalErrors + 1 : prev.totalErrors,
-      lastProcessing: new Date()
-    }))
-
-    // Se o pagamento foi aprovado, processar automaticamente
-    if (randomScenario.status === 'success') {
-      processSuccessfulPayment(webhookLog)
+  // Carregar webhooks reais da API
+  const loadWebhooks = async () => {
+    try {
+      // TODO: Implementar chamada para API real
+      // const response = await fetch('/api/webhooks');
+      // const data = await response.json();
+      // setWebhookLogs(data);
+      console.log('Carregando webhooks da API...');
+    } catch (error) {
+      console.error('Erro ao carregar webhooks:', error);
     }
   }
 

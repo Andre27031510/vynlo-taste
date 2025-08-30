@@ -83,3 +83,5 @@ next-env.d.ts
 Thumbs.dbbackend/src/main/resources/firebase-service-account.json
 .env*
 *.pem
+vynlo-key.json
+*.bat

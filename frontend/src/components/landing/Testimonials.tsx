@@ -8,37 +8,15 @@ export default function Testimonials() {
 
   const testimonials = [
     {
-      name: "Carlos Mendes",
+      name: "Cliente",
       role: "Proprietário",
-      restaurant: "Bistrô Gourmet",
-      location: "São Paulo - SP",
-      image: "/testimonial-1.jpg",
+      restaurant: "Restaurante",
+      location: "Localização",
+      image: "/testimonial-placeholder.jpg",
       rating: 5,
-      text: "O Vynlo Taste revolucionou completamente nosso restaurante. Aumentamos nossa receita em 40% no primeiro trimestre e reduzimos o desperdício em 60%. A equipe se adaptou rapidamente e agora não conseguimos mais trabalhar sem ele.",
-      metrics: { revenue: "+40%", waste: "-60%", efficiency: "+35%" },
-      video: true
-    },
-    {
-      name: "Marina Silva",
-      role: "Gerente Operacional",
-      restaurant: "Pizzaria Bella Vista",
-      location: "Rio de Janeiro - RJ",
-      image: "/testimonial-2.jpg",
-      rating: 5,
-      text: "Impressionante como conseguimos otimizar nossos pedidos de delivery. O sistema integrado nos permitiu atender 3x mais pedidos com a mesma equipe. Os relatórios em tempo real são um diferencial incrível.",
-      metrics: { orders: "+300%", time: "-45%", satisfaction: "98%" },
+      text: "Depoimento do cliente sobre a experiência com o sistema.",
+      metrics: { revenue: "-", waste: "-", efficiency: "-" },
       video: false
-    },
-    {
-      name: "Roberto Oliveira",
-      role: "Chef Executivo",
-      restaurant: "Rede Sabor & Arte",
-      location: "Belo Horizonte - MG",
-      image: "/testimonial-3.jpg",
-      rating: 5,
-      text: "Gerenciar 5 unidades nunca foi tão fácil. O dashboard centralizado me permite acompanhar tudo em tempo real. A análise de ingredientes me ajudou a reduzir custos em 25% mantendo a qualidade.",
-      metrics: { cost: "-25%", units: "5", growth: "+50%" },
-      video: true
     }
   ]
 

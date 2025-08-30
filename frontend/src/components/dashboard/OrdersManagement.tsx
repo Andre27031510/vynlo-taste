@@ -44,32 +44,7 @@ interface Order {
 }
 
 export default function OrdersManagement() {
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: '#1234',
-      customer: { name: 'João Silva', phone: '(11) 99999-9999', address: 'Rua das Flores, 123' },
-      items: [{ name: 'Pizza Margherita', quantity: 1, price: 45.90 }],
-      total: 45.90,
-      status: 'preparing',
-      createdAt: new Date(Date.now() - 300000),
-      estimatedTime: 25,
-      paymentMethod: 'Cartão',
-      paymentStatus: 'paid',
-      paymentId: 'p1'
-    },
-    {
-      id: '#1235',
-      customer: { name: 'Maria Santos', phone: '(11) 88888-8888', address: 'Av. Principal, 456' },
-      items: [{ name: 'Hambúrguer Especial', quantity: 2, price: 32.50 }],
-      total: 65.00,
-      status: 'ready',
-      createdAt: new Date(Date.now() - 600000),
-      estimatedTime: 15,
-      paymentMethod: 'PIX',
-      paymentStatus: 'paid',
-      paymentId: 'p2'
-    }
-  ])
+  const [orders, setOrders] = useState<Order[]>([])
   
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all')
@@ -111,41 +86,17 @@ export default function OrdersManagement() {
     updateProcessingStats()
   }, [orders])
 
-  // Simular novo pedido recebido
-  const simulateNewOrder = () => {
-    const newOrder: Order = {
-      id: `#${Math.floor(Math.random() * 10000)}`,
-      customer: {
-        name: `Cliente ${Math.floor(Math.random() * 100)}`,
-        phone: `(11) ${Math.floor(Math.random() * 90000) + 10000}-${Math.floor(Math.random() * 9000) + 1000}`,
-        address: `Endereço ${Math.floor(Math.random() * 100)}`
-      },
-      items: [
-        {
-          name: ['Pizza Margherita', 'Hambúrguer Especial', 'Combo Família', 'Salada Caesar'][Math.floor(Math.random() * 4)],
-          quantity: Math.floor(Math.random() * 3) + 1,
-          price: Math.random() * 50 + 20
-        }
-      ],
-      total: 0,
-      status: 'pending',
-      createdAt: new Date(),
-      estimatedTime: Math.floor(Math.random() * 30) + 15,
-      paymentMethod: ['Cartão', 'PIX', 'Dinheiro'][Math.floor(Math.random() * 3)],
-      paymentStatus: 'pending'
+  // Carregar pedidos reais da API
+  const loadOrders = async () => {
+    try {
+      // TODO: Implementar chamada para API real
+      // const response = await fetch('/api/orders');
+      // const data = await response.json();
+      // setOrders(data);
+      console.log('Carregando pedidos da API...');
+    } catch (error) {
+      console.error('Erro ao carregar pedidos:', error);
     }
-
-    // Calcular total
-    newOrder.total = newOrder.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-
-    // Adicionar pedido
-    setOrders(prev => [newOrder, ...prev])
-    
-    // Em um sistema real, aqui enviaríamos para o módulo de pagamentos
-    console.log('Novo pedido recebido:', newOrder)
-    
-    // Atualizar estatísticas
-    updateProcessingStats()
   }
 
   // Processar pagamentos pendentes automaticamente

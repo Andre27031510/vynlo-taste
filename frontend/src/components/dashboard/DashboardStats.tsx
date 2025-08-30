@@ -19,16 +19,21 @@ export default function DashboardStats() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simular carregamento de dados
-    setTimeout(() => {
-      setStats({
-        totalOrders: 1247,
-        totalRevenue: 45890.50,
-        activeProducts: 156,
-        totalCustomers: 892
-      });
-      setLoading(false);
-    }, 1000);
+    // Carregar dados reais da API
+    const fetchStats = async () => {
+      try {
+        // TODO: Implementar chamada para API real
+        // const response = await fetch('/api/dashboard/stats');
+        // const data = await response.json();
+        // setStats(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchStats();
   }, []);
 
   const formatCurrency = (value: number) => {

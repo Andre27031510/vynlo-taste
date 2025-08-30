@@ -40,83 +40,20 @@ export default function ClientsManagement() {
     status: 'active'
   })
 
-  const clients = [
-    { 
-      id: 1, 
-      name: 'João Silva', 
-      phone: '(11) 99999-9999', 
-      email: 'joao@email.com', 
-      address: 'Rua das Flores, 123 - Centro, São Paulo',
-      birthDate: '1985-03-15',
-      preferences: 'Sem glúten, vegetariano',
-      status: 'active',
-      orders: 47, 
-      total: 2340.50, 
-      lastOrder: '2 dias atrás',
-      rating: 4.8,
-      joinDate: '2022-01-15'
-    },
-    { 
-      id: 2, 
-      name: 'Maria Santos', 
-      phone: '(11) 88888-8888', 
-      email: 'maria@email.com', 
-      address: 'Av. Paulista, 456 - Bela Vista, São Paulo',
-      birthDate: '1990-07-22',
-      preferences: 'Sem lactose',
-      status: 'active',
-      orders: 38, 
-      total: 1890.30, 
-      lastOrder: '1 dia atrás',
-      rating: 4.6,
-      joinDate: '2022-03-10'
-    },
-    { 
-      id: 3, 
-      name: 'Pedro Costa', 
-      phone: '(11) 77777-7777', 
-      email: 'pedro@email.com', 
-      address: 'Rua Augusta, 789 - Consolação, São Paulo',
-      birthDate: '1988-11-08',
-      preferences: 'Sem restrições',
-      status: 'inactive',
-      orders: 32, 
-      total: 1650.80, 
-      lastOrder: '3 dias atrás',
-      rating: 4.4,
-      joinDate: '2022-05-20'
-    },
-    { 
-      id: 4, 
-      name: 'Ana Lima', 
-      phone: '(11) 66666-6666', 
-      email: 'ana@email.com', 
-      address: 'Rua Oscar Freire, 321 - Jardins, São Paulo',
-      birthDate: '1992-04-12',
-      preferences: 'Vegana',
-      status: 'active',
-      orders: 28, 
-      total: 1420.90, 
-      lastOrder: 'Hoje',
-      rating: 4.9,
-      joinDate: '2022-08-05'
-    },
-    { 
-      id: 5, 
-      name: 'Carlos Oliveira', 
-      phone: '(11) 55555-5555', 
-      email: 'carlos@email.com', 
-      address: 'Rua Haddock Lobo, 654 - Cerqueira César, São Paulo',
-      birthDate: '1983-09-30',
-      preferences: 'Sem açúcar',
-      status: 'active',
-      orders: 52, 
-      total: 2980.75, 
-      lastOrder: 'Ontem',
-      rating: 4.7,
-      joinDate: '2021-12-01'
+  const [clients, setClients] = useState([])
+
+  // Carregar clientes da API
+  const loadClients = async () => {
+    try {
+      // TODO: Implementar chamada para API real
+      // const response = await fetch('/api/clients');
+      // const data = await response.json();
+      // setClients(data);
+      console.log('Carregando clientes da API...');
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
     }
-  ]
+  }
 
   // Funções para gerenciar clientes
   const handleSubmit = (e: React.FormEvent) => {
