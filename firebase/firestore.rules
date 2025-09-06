@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Super Admin - Acesso total
+    match /{document=**} {
+      allow read, write: if request.auth != null && 
+        request.auth.token.isSuperAdmin == true;
+    }
+    
+    // Admin do Cliente - Acesso limitado aos seus dados
+    match /restaurants/{restaurantId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.token.isSuperAdmin == true ||
+         (request.auth.token.role == 'admin' && 
+          request.auth.token.companyId == restaurantId));
+    }
+    
+    // Produtos - Admin pode gerenciar se tiver permissão
+    match /products/{productId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        (request.auth.token.isSuperAdmin == true ||
+         'manage_products' in request.auth.token.permissions);
+    }
+    
+    // Pedidos - Admin pode gerenciar se tiver permissão
+    match /orders/{orderId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        (request.auth.token.isSuperAdmin == true ||
+         'manage_orders' in request.auth.token.permissions);
+    }
+    
+    // Clientes - Admin pode gerenciar se tiver permissão
+    match /customers/{customerId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        (request.auth.token.isSuperAdmin == true ||
+         'manage_customers' in request.auth.token.permissions);
+    }
+    
+    // Relatórios - Apenas com permissão
+    match /reports/{reportId} {
+      allow read: if request.auth != null && 
+        (request.auth.token.isSuperAdmin == true ||
+         'view_reports' in request.auth.token.permissions);
+      allow write: if request.auth.token.isSuperAdmin == true;
+    }
+    
+    // Configurações do sistema - Apenas Super Admin
+    match /system/{configId} {
+      allow read, write: if request.auth != null && 
+        request.auth.token.isSuperAdmin == true;
+    }
+    
+    // Usuários - Cada um vê apenas seus dados
+    match /users/{userId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid == userId || 
+         request.auth.token.isSuperAdmin == true);
+    }
+  }
+}

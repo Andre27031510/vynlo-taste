@@ -1,0 +1,1025 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.vynlotaste</groupId>
+    <artifactId>vynlo-taste-backend</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>Vynlo Taste Backend</name>
+    <description>Sistema de Delivery Empresarial com Spring Boot</description>
+
+    <modules>
+        <module>core-module</module>
+        <module>financial-module</module>
+    </modules>
+
+    <properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        
+        <!-- Dependency Versions -->
+        <postgresql.version>42.7.2</postgresql.version>
+        <firebase.version>9.3.0</firebase.version>
+        <jwt.version>0.12.3</jwt.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <lombok.version>1.18.30</lombok.version>
+        <swagger.version>2.2.0</swagger.version>
+        <bucket4j.version>8.10.1</bucket4j.version>
+        <wiremock.version>3.3.1</wiremock.version>
+        <owasp.version>9.0.7</owasp.version>
+        <maven.enforcer.version>3.4.1</maven.enforcer.version>
+        <twilio.version>9.15.0</twilio.version>
+        <guava.version>31.1-jre</guava.version>
+        <checker.version>3.41.0</checker.version>
+        <commons.io.version>2.13.0</commons.io.version>
+        <google.http.version>1.43.1</google.http.version>
+        <httpclient.version>4.5.14</httpclient.version>
+        <resilience4j.version>2.0.2</resilience4j.version>
+        
+        <!-- Plugin Versions -->
+        <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>3.1.2</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>3.1.2</maven.failsafe.plugin.version>
+        <maven.dependency.plugin.version>3.6.1</maven.dependency.plugin.version>
+        <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
+        <maven.clean.plugin.version>3.3.2</maven.clean.plugin.version>
+        <maven.install.plugin.version>3.1.1</maven.install.plugin.version>
+        <maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
+        <maven.site.plugin.version>4.0.0-M9</maven.site.plugin.version>
+        <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
+        <flyway.plugin.version>9.22.3</flyway.plugin.version>
+        
+        <!-- Security Thresholds -->
+        <security.cvss.threshold>7.0</security.cvss.threshold>
+        <security.cvss.critical.threshold>9.0</security.cvss.critical.threshold>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Resolução de conflitos de dependências transitivas -->
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>${checker.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client</artifactId>
+                <version>${google.http.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+            </dependency>
+            
+            <!-- Firebase BOM para consistência -->
+            <dependency>
+                <groupId>com.google.firebase</groupId>
+                <artifactId>firebase-admin</artifactId>
+                <version>${firebase.version}</version>
+            </dependency>
+            
+            <!-- Twilio SDK -->
+            <dependency>
+                <groupId>com.twilio.sdk</groupId>
+                <artifactId>twilio</artifactId>
+                <version>${twilio.version}</version>
+            </dependency>
+            
+            <!-- JWT Implementation -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            
+            <!-- MapStruct -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+            
+            <!-- Swagger/OpenAPI -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            
+            <!-- Stripe -->
+            <dependency>
+                <groupId>com.stripe</groupId>
+                <artifactId>stripe-java</artifactId>
+                <version>24.16.0</version>
+            </dependency>
+            
+            <!-- Apache POI -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>5.2.4</version>
+            </dependency>
+            
+            <!-- Netty - Resolução de conflitos -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport</artifactId>
+                <version>4.1.109.Final</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>4.1.109.Final</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>4.1.109.Final</version>
+            </dependency>
+            
+            <!-- Google J2ObjC -->
+            <dependency>
+                <groupId>com.google.j2objc</groupId>
+                <artifactId>j2objc-annotations</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+            
+            <!-- SLF4J -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>2.0.13</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Spring Boot Starters -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+
+
+        <!-- Redis e Session -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
+        <!-- Bucket4j para Rate Limiting -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>${bucket4j.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-redis</artifactId>
+            <version>${bucket4j.version}</version>
+        </dependency>
+
+
+
+
+
+        <!-- Database -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+
+
+
+
+        <!-- Firebase Admin -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>${firebase.version}</version>
+        </dependency>
+
+        <!-- JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Swagger/OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${swagger.version}</version>
+        </dependency>
+
+        <!-- Monitoring -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+
+        <!-- Spring Retry -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+        </dependency>
+
+        <!-- Resilience4j -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-circuitbreaker</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-retry</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-timelimiter</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-bulkhead</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-micrometer</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+
+        <!-- WebSocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+        <!-- File Upload - Removido: spring-boot-starter-web já inclui suporte seguro -->
+
+        <!-- QR Code -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+
+        <!-- WhatsApp Business API -->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+        </dependency>
+
+
+
+        <!-- Payment Gateway -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>24.5.0</version>
+        </dependency>
+
+
+
+        <!-- Excel -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.4</version>
+        </dependency>
+
+        <!-- Image Processing -->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.20</version>
+        </dependency>
+
+        <!-- Development Tools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Configuration Processor -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Dependências de teste removidas para produção -->
+        
+        <!-- Build trigger: 2025-01-04 19:56 - Runner vynlo-productor-runnerr ativo -->
+
+
+    </dependencies>
+
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/sun.nio.ch=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/java.lang.reflect=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/java.io=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/java.nio=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/sun.nio.fs=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/sun.security.util=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/java.security=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/java.util=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.base/java.text=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=java.desktop/java.awt.font=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>9.22.3</version>
+                <configuration>
+                    <url>${flyway.url}</url>
+                    <user>${flyway.user}</user>
+                    <password>${flyway.password}</password>
+                    <locations>
+                        <location>filesystem:src/main/resources/db/migration</location>
+                    </locations>
+                </configuration>
+            </plugin>
+
+            <!-- Plugins de teste removidos para produção -->
+
+            <!-- OWASP Dependency Check -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${owasp.version}</version>
+                <configuration>
+                    <!-- Falha de build para vulnerabilidades críticas -->
+                    <failBuildOnCVSS>${security.cvss.threshold}</failBuildOnCVSS>
+                    <failBuildOnAnyVulnerability>false</failBuildOnAnyVulnerability>
+                    
+                    <!-- Escopo de análise -->
+                    <skipProvidedScope>true</skipProvidedScope>
+                    <skipRuntimeScope>false</skipRuntimeScope>
+                    <skipTestScope>true</skipTestScope>
+                    <skipSystemScope>true</skipSystemScope>
+                    
+                    <!-- Formatos de relatório -->
+                    <formats>
+                        <format>HTML</format>
+                        <format>JSON</format>
+                        <format>XML</format>
+                        <format>CSV</format>
+                        <format>JUNIT</format>
+                    </formats>
+                    
+                    <!-- Configurações de API NVD -->
+                    <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+                    <nvdApiDelay>2000</nvdApiDelay>
+                    <nvdMaxRetryCount>3</nvdMaxRetryCount>
+                    <nvdValidForHours>24</nvdValidForHours>
+                    
+                    <!-- Cache e performance -->
+                    <dataDirectory>${project.build.directory}/dependency-check-data</dataDirectory>
+                    
+                    <!-- Analisadores habilitados -->
+                    <assemblyAnalyzerEnabled>true</assemblyAnalyzerEnabled>
+                    <jarAnalyzerEnabled>true</jarAnalyzerEnabled>
+                    <archiveAnalyzerEnabled>true</archiveAnalyzerEnabled>
+                    <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
+                    <nodeAuditAnalyzerEnabled>false</nodeAuditAnalyzerEnabled>
+                    <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+                    <composerAnalyzerEnabled>false</composerAnalyzerEnabled>
+                    <rubygemsAnalyzerEnabled>false</rubygemsAnalyzerEnabled>
+                    <cocoapodsAnalyzerEnabled>false</cocoapodsAnalyzerEnabled>
+                    
+                    <!-- Configurações avançadas -->
+                    <enableRetired>false</enableRetired>
+                    <enableExperimental>false</enableExperimental>
+                    <autoUpdate>true</autoUpdate>
+                    <prettyPrint>true</prettyPrint>
+                    
+                    <!-- Supressões -->
+                    <suppressionFiles>
+                        <suppressionFile>${project.basedir}/owasp-suppressions.xml</suppressionFile>
+                    </suppressionFiles>
+                    
+                    <!-- Hints para melhor detecção -->
+                    <hintsFile>${project.basedir}/owasp-hints.xml</hintsFile>
+                    
+                    <!-- Configurações de proxy se necessário -->
+                    <!-- 
+                    <proxyServer>${proxy.server}</proxyServer>
+                    <proxyPort>${proxy.port}</proxyPort>
+                    <proxyUsername>${proxy.username}</proxyUsername>
+                    <proxyPassword>${proxy.password}</proxyPassword>
+                    -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>security-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Enforcer Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions-and-security</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>validate</phase>
+                        <configuration>
+                            <rules>
+                                <!-- Versões mínimas obrigatórias -->
+                                <requireMavenVersion>
+                                    <version>[3.8.0,)</version>
+                                    <message>Maven 3.8.0 ou superior é obrigatório para segurança e compatibilidade!</message>
+                                </requireMavenVersion>
+                                
+                                <requireJavaVersion>
+                                    <version>[17,)</version>
+                                    <message>Java 17+ é obrigatório para este projeto.</message>
+                                </requireJavaVersion>
+                                
+                                <!-- Encoding obrigatório -->
+                                <requireProperty>
+                                    <property>project.build.sourceEncoding</property>
+                                    <message>Encoding UTF-8 é obrigatório!</message>
+                                    <regex>UTF-8</regex>
+                                </requireProperty>
+                                
+                                <!-- Dependências duplicadas -->
+                                <banDuplicatePomDependencyVersions/>
+                                
+                                <!-- Conflitos de versão -->
+                                <requireUpperBoundDeps>
+                                    <level>WARN</level>
+                                    <excludes>
+                                        <!-- Permitir versões diferentes para dependências transitívas conhecidas -->
+                                        <exclude>org.checkerframework:checker-qual</exclude>
+                                        <exclude>com.google.guava:guava</exclude>
+                                        <exclude>commons-io:commons-io</exclude>
+                                        <exclude>com.google.http-client:google-http-client</exclude>
+                                        <exclude>io.netty:netty-transport</exclude>
+                                        <exclude>io.netty:netty-codec-http</exclude>
+                                        <exclude>io.netty:netty-handler</exclude>
+                                        <exclude>com.google.j2objc:j2objc-annotations</exclude>
+                                        <exclude>org.slf4j:slf4j-api</exclude>
+                                        <exclude>com.google.errorprone:error_prone_annotations</exclude>
+                                    </excludes>
+                                </requireUpperBoundDeps>
+                                
+                                <!-- Dependências banidas por vulnerabilidades -->
+                                <bannedDependencies>
+                                    <excludes>
+                                        <!-- Log4j vulnerabilidades críticas -->
+                                        <exclude>org.apache.logging.log4j:log4j-core:[2.0,2.17.1)</exclude>
+                                        <exclude>org.apache.logging.log4j:log4j-api:[2.0,2.17.1)</exclude>
+                                        
+                                        <!-- Commons FileUpload vulnerabilidades -->
+                                        <exclude>commons-fileupload:commons-fileupload:[,1.5]</exclude>
+                                        
+                                        <!-- Spring Framework vulnerabilidades -->
+                                        <exclude>org.springframework:spring-core:[,5.3.21)</exclude>
+                                        <exclude>org.springframework:spring-web:[,5.3.21)</exclude>
+                                        <exclude>org.springframework:spring-webmvc:[,5.3.21)</exclude>
+                                        
+                                        <!-- Jackson vulnerabilidades -->
+                                        <exclude>com.fasterxml.jackson.core:jackson-databind:[,2.13.4.2)</exclude>
+                                        
+                                        <!-- Netty vulnerabilidades -->
+                                        <exclude>io.netty:netty-all:[,4.1.77.Final)</exclude>
+                                        <exclude>io.netty:netty-handler:[,4.1.77.Final)</exclude>
+                                        
+                                        <!-- Tomcat vulnerabilidades -->
+                                        <exclude>org.apache.tomcat.embed:tomcat-embed-core:[,9.0.65)</exclude>
+                                        
+                                        <!-- PostgreSQL vulnerabilidades -->
+                                        <exclude>org.postgresql:postgresql:[,42.4.1)</exclude>
+                                        
+                                        <!-- Versões antigas do Bucket4j -->
+                                        <exclude>com.bucket4j:bucket4j-core:[,8.10.0]</exclude>
+                                        
+                                        <!-- WireMock versões vulneráveis -->
+                                        <exclude>com.github.tomakehurst:wiremock-jre8</exclude>
+                                        <exclude>com.github.tomakehurst:wiremock:[,2.35.0)</exclude>
+                                        
+                                        <!-- Guava versões antigas -->
+                                        <exclude>com.google.guava:guava:[,30.0)</exclude>
+                                        
+                                        <!-- Commons IO vulnerabilidades -->
+                                        <exclude>commons-io:commons-io:[,2.11.0)</exclude>
+                                        
+                                        <!-- Snakeyaml vulnerabilidades -->
+                                        <exclude>org.yaml:snakeyaml:[,1.33)</exclude>
+                                        
+                                        <!-- H2 Database vulnerabilidades -->
+                                        <exclude>com.h2database:h2:[,2.1.214)</exclude>
+                                    </excludes>
+                                    <message>❌ DEPENDÊNCIA COM VULNERABILIDADE CONHECIDA DETECTADA! Atualize para versão segura.</message>
+                                </bannedDependencies>
+                                
+                                <!-- Dependências release apenas em produção -->
+                                <requireReleaseDeps>
+                                    <message>Apenas versões release são permitidas em produção!</message>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                </requireReleaseDeps>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Dependency Plugin para análise de conflitos -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven.dependency.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>analyze-dependencies</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <failOnWarning>false</failOnWarning>
+                            <ignoreNonCompile>true</ignoreNonCompile>
+                            <outputXML>true</outputXML>
+                            <ignoredDependencies>
+                                <!-- Dependências usadas via reflection ou runtime -->
+                                <ignoredDependency>org.springframework.boot:spring-boot-devtools</ignoredDependency>
+                                <ignoredDependency>org.projectlombok:lombok</ignoredDependency>
+                                <ignoredDependency>com.h2database:h2</ignoredDependency>
+                            </ignoredDependencies>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>analyze-duplicate</id>
+                        <goals>
+                            <goal>analyze-duplicate</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Versions Maven Plugin para verificar atualizações -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.16.1</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                    <allowSnapshots>false</allowSnapshots>
+                    <allowIncrementalUpdates>false</allowIncrementalUpdates>
+                    <allowMajorUpdates>false</allowMajorUpdates>
+                    <allowMinorUpdates>true</allowMinorUpdates>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-updates</id>
+                        <goals>
+                            <goal>display-dependency-updates</goal>
+                            <goal>display-plugin-updates</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- License Maven Plugin para verificar licenças -->
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>4.3</version>
+                <configuration>
+                    <properties>
+                        <owner>Vynlo Taste</owner>
+                        <email>dev@vynlotaste.com</email>
+                    </properties>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>com/mycila/maven/plugin/license/templates/MIT.txt</header>
+                            <excludes>
+                                <exclude>**/README</exclude>
+                                <exclude>src/test/resources/**</exclude>
+                                <exclude>src/main/resources/**</exclude>
+                                <exclude>**/*.xml</exclude>
+                                <exclude>**/*.yml</exclude>
+                                <exclude>**/*.yaml</exclude>
+                                <exclude>**/*.properties</exclude>
+                                <exclude>**/*.sql</exclude>
+                                <exclude>**/*.md</exclude>
+                                <exclude>**/target/**</exclude>
+                                <exclude>**/.mvn/**</exclude>
+                                <exclude>**/mvnw*</exclude>
+                            </excludes>
+                        </licenseSet>
+                    </licenseSets>
+                </configuration>
+            </plugin>
+            
+            <!-- Maven Resources Plugin com encoding -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>swf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>zip</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>gz</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                </configuration>
+            </plugin>
+            
+            <!-- Maven Clean Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven.clean.plugin.version}</version>
+            </plugin>
+            
+            <!-- Maven Install Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${maven.install.plugin.version}</version>
+            </plugin>
+            
+            <!-- Maven Deploy Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven.deploy.plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+                <flyway.url>jdbc:postgresql://localhost:5432/vynlo_taste_dev</flyway.url>
+                <flyway.user>postgres</flyway.user>
+                <flyway.password>postgres</flyway.password>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>staging</id>
+            <properties>
+                <spring.profiles.active>staging</spring.profiles.active>
+                <flyway.url>${FLYWAY_URL}</flyway.url>
+                <flyway.user>${FLYWAY_USER}</flyway.user>
+                <flyway.password>${FLYWAY_PASSWORD}</flyway.password>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+                <flyway.url>${FLYWAY_URL}</flyway.url>
+                <flyway.user>${FLYWAY_USER}</flyway.user>
+                <flyway.password>${FLYWAY_PASSWORD}</flyway.password>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>test</id>
+            <properties>
+                <spring.profiles.active>test</spring.profiles.active>
+                <flyway.url>jdbc:h2:mem:testdb</flyway.url>
+                <flyway.user>sa</flyway.user>
+                <flyway.password></flyway.password>
+            </properties>
+        </profile>
+
+        <!-- Profile para análise de segurança rigorosa -->
+        <profile>
+            <id>security-scan</id>
+            <properties>
+                <security.cvss.threshold>0.0</security.cvss.threshold>
+                <security.cvss.critical.threshold>7.0</security.cvss.critical.threshold>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <configuration>
+                            <failBuildOnCVSS>${security.cvss.critical.threshold}</failBuildOnCVSS>
+                            <failBuildOnAnyVulnerability>false</failBuildOnAnyVulnerability>
+                            <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+                            <cveValidForHours>1</cveValidForHours>
+                            <enableRetired>true</enableRetired>
+                            <enableExperimental>true</enableExperimental>
+                            <formats>
+                                <format>ALL</format>
+                            </formats>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>security-aggregate-scan</id>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile para análise contínua (CI/CD) -->
+        <profile>
+            <id>continuous-security</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <security.cvss.threshold>8.0</security.cvss.threshold>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <executions>
+                            <execution>
+                                <id>ci-security-check</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile para módulo financeiro -->
+        <profile>
+            <id>financial</id>
+            <modules>
+                <module>core-module</module>
+                <module>financial-module</module>
+            </modules>
+            <properties>
+                <financial.module.enabled>true</financial.module.enabled>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/*Test.java</include>
+                                <include>**/*Tests.java</include>
+                                <include>**/*FinancialTest.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile apenas core (sem financeiro) -->
+        <profile>
+            <id>core-only</id>
+            <modules>
+                <module>core-module</module>
+            </modules>
+            <properties>
+                <financial.module.enabled>false</financial.module.enabled>
+            </properties>
+        </profile>
+    </profiles>
+</project>
+
+
+

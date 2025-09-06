@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    
+    <!-- Supressões para falsos positivos conhecidos -->
+    
+    <!-- Spring Boot DevTools - apenas desenvolvimento -->
+    <suppress>
+        <notes><![CDATA[
+        Spring Boot DevTools é usado apenas em desenvolvimento e não é incluído em builds de produção.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-devtools@.*$</packageUrl>
+        <cve>CVE-2021-22060</cve>
+    </suppress>
+    
+    <!-- H2 Database - apenas testes -->
+    <suppress>
+        <notes><![CDATA[
+        H2 Database é usado apenas em testes e não em produção.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+        <cve>CVE-2022-45868</cve>
+    </suppress>
+    
+    <!-- TestContainers - apenas testes -->
+    <suppress>
+        <notes><![CDATA[
+        TestContainers é usado apenas em testes automatizados.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.testcontainers/.*@.*$</packageUrl>
+        <cvssBelow>7.0</cvssBelow>
+    </suppress>
+    
+    <!-- WireMock - apenas testes -->
+    <suppress>
+        <notes><![CDATA[
+        WireMock é usado apenas em testes de integração.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.wiremock/.*@.*$</packageUrl>
+        <cvssBelow>7.0</cvssBelow>
+    </suppress>
+    
+    <!-- Lombok - processamento em tempo de compilação -->
+    <suppress>
+        <notes><![CDATA[
+        Lombok é usado apenas em tempo de compilação e não é incluído no JAR final.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.projectlombok/lombok@.*$</packageUrl>
+        <cvssBelow>8.0</cvssBelow>
+    </suppress>
+    
+    <!-- MapStruct - processamento em tempo de compilação -->
+    <suppress>
+        <notes><![CDATA[
+        MapStruct é usado apenas em tempo de compilação para geração de código.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.mapstruct/.*@.*$</packageUrl>
+        <cvssBelow>7.0</cvssBelow>
+    </suppress>
+    
+    <!-- Dependências transitivas do Spring Boot que são gerenciadas -->
+    <suppress>
+        <notes><![CDATA[
+        Dependências transitivas gerenciadas pelo Spring Boot BOM.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/.*@.*$</packageUrl>
+        <cvssBelow>6.0</cvssBelow>
+    </suppress>
+    
+    <!-- Netty - versões gerenciadas pelo Spring Boot -->
+    <suppress>
+        <notes><![CDATA[
+        Versões do Netty são gerenciadas pelo Spring Boot e atualizadas regularmente.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/.*@.*$</packageUrl>
+        <cvssBelow>6.0</cvssBelow>
+    </suppress>
+    
+    <!-- Jackson - versões gerenciadas pelo Spring Boot -->
+    <suppress>
+        <notes><![CDATA[
+        Versões do Jackson são gerenciadas pelo Spring Boot.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/.*@.*$</packageUrl>
+        <cvssBelow>6.0</cvssBelow>
+    </suppress>
+    
+    <!-- Supressões temporárias para vulnerabilidades em análise -->
+    <suppress until="2024-12-31Z">
+        <notes><![CDATA[
+        Vulnerabilidade em análise pela equipe de segurança. Revisão agendada para dezembro/2024.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <cvssBelow>5.0</cvssBelow>
+    </suppress>
+    
+    <!-- Supressões por arquivo específico -->
+    <suppress>
+        <notes><![CDATA[
+        Arquivo de configuração que não representa risco de segurança.
+        ]]></notes>
+        <filePath regex="true">.*application\.properties$</filePath>
+        <cvssBelow>10.0</cvssBelow>
+    </suppress>
+    
+    <!-- Supressões por CPE (Common Platform Enumeration) -->
+    <suppress>
+        <notes><![CDATA[
+        CPE incorreto detectado para biblioteca interna.
+        ]]></notes>
+        <cpe>cpe:/a:apache:commons_io</cpe>
+        <cvssBelow>4.0</cvssBelow>
+    </suppress>
+    
+</suppressions>

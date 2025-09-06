@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: vynlo-taste-financial-module
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vynlo_taste
+    username: postgres
+    password: 96043020
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+# Firebase Configuration
+firebase:
+  config:
+    path: firebase-service-account.json
+
+# Security Configuration
+security:
+  jwt:
+    secret: vynlotaste-jwt-secret-key-2024-production-ready
+    expiration: 86400000 # 24 horas
+
+# Logging
+logging:
+  level:
+    com.vynlotaste.financial: DEBUG
+    org.springframework.security: DEBUG
+
+server:
+  port: 8080

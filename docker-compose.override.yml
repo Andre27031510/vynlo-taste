@@ -1,0 +1,21 @@
+services:
+  backend:
+    entrypoint: ["/opt/java/openjdk/bin/java"]
+    command: ["-Xmx512m","-Xms256m","-cp","app.jar:/app:/app/classes","-Dspring.profiles.active=prod","-Dloader.path=file:/app/,file:/app/classes/","-Dloader.main=com.vynlotaste.VynloTasteApplication","org.springframework.boot.loader.launch.PropertiesLauncher"]
+    environment:
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: ALWAYS
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_COMPONENTS: ALWAYS
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/vynlo_taste
+      SPRING_DATASOURCE_USERNAME: vynlo_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-vynlo_pass_2024}
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      SPRING_FLYWAY_BASELINE_VERSION: "0"
+      SPRING_FLYWAY_SCHEMAS: public
+      GOOGLE_APPLICATION_CREDENTIALS: /app/classes/firebase-service-account.json
+      FIREBASE_CONFIG: /app/classes/firebase-service-account.json
+      # Desativa o binder que está causando o NPE
+      MANAGEMENT_METRICS_BINDERS_TOMCAT_ENABLED: "false"
+    volumes:
+      - /opt/secrets/firebase-service-account.json:/app/classes/firebase-service-account.json:ro

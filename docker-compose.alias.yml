@@ -1,0 +1,7 @@
+services:
+  postgres:
+    networks:
+      vynlo-network:
+        aliases:
+          - vynlo-postgres-prod
+          - vynlo-postgres

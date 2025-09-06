@@ -1,0 +1,99 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers,env,configprops,beans,mappings,threaddump,heapdump
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+    redis:
+      enabled: true
+    db:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 30s
+        descriptions: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        vynlo.delivery.time: true
+      percentiles:
+        http.server.requests: 0.5,0.9,0.95,0.99
+        vynlo.delivery.time: 0.5,0.9,0.95,0.99
+    tags:
+      application: vynlo-taste
+      environment: ${ENVIRONMENT:dev}
+      version: ${BUILD_VERSION:1.0.0}
+
+logging:
+  level:
+    com.vynlotaste: ${LOG_LEVEL:INFO}
+    org.springframework.web: ${WEB_LOG_LEVEL:WARN}
+    org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
+    org.springframework.cache: ${CACHE_LOG_LEVEL:WARN}
+    org.springframework.data.redis: ${REDIS_LOG_LEVEL:WARN}
+    org.hibernate.SQL: ${SQL_LOG_LEVEL:WARN}
+    org.hibernate.type.descriptor.sql.BasicBinder: ${SQL_PARAMS_LOG_LEVEL:WARN}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId:-}] [%X{traceId:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId:-}] [%X{traceId:-}] %logger{36} - %msg%n"
+  file:
+    name: logs/vynlo-taste.log
+    max-size: 100MB
+    max-history: 30
+
+spring:
+  application:
+    name: vynlo-taste
+  jmx:
+    enabled: true
+
+# Tracing Configuration
+management.tracing:
+  sampling:
+    probability: 1.0
+  baggage:
+    correlation:
+      enabled: true
+    remote-fields:
+      - user-id
+      - request-type
+
+# Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+    instances:
+      firebase:
+        baseConfig: default
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+      database:
+        baseConfig: default
+        failureRateThreshold: 60
+        waitDurationInOpenState: 60s
+      redis:
+        baseConfig: default
+        failureRateThreshold: 40
+        waitDurationInOpenState: 20s

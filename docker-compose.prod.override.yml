@@ -1,0 +1,49 @@
+services:
+  backend:
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: "docker"
+      DB_HOST: "vynlo-postgres-prod"
+      DB_PORT: "5432"
+      DB_NAME: "vynlo_taste"
+      DB_USER: "postgres"
+      DB_PASSWORD: "96043020"
+      REDIS_HOST: "vynlo-redis-prod"
+      REDIS_PORT: "6379"
+      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING: "true"
+      FIREBASE_PROJECT_ID: "vynlo-sistema"
+      JWT_SECRET: "vynloTasteSecretKey2024EnterpriseSystem"
+      JWT_EXPIRATION: "86400000"
+    ports:
+      - "0.0.0.0:8082:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    ports:
+      - "0.0.0.0:15432:5432"
+
+  redis:
+    ports: []
+
+  frontend:
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:8082/api/v1"
+
+  grafana:
+    ports:
+      - "127.0.0.1:3002:3000"
+
+  prometheus:
+    ports:
+      - "127.0.0.1:9091:9090"
+
+networks:
+  default:
+    external: true
+    name: vynlo_vynlo-network

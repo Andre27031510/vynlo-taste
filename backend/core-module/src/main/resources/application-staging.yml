@@ -1,0 +1,103 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:staging-db.vynlotaste.com}:${DB_PORT:5432}/${DB_NAME:vynlo_taste_staging}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+
+  data:
+    redis:
+      host: ${REDIS_HOST:staging-redis.vynlotaste.com}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 15
+          max-idle: 8
+          min-idle: 3
+          max-wait: 3000ms
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  cache:
+    redis:
+      time-to-live: 900000 # 15 minutos para staging
+
+firebase:
+  project-id: ${FIREBASE_PROJECT_ID}
+  credentials-path: ${FIREBASE_CREDENTIALS}
+
+vynlo:
+  features:
+    new-ui: ${FEATURE_NEW_UI:true}
+    analytics: ${FEATURE_ANALYTICS:true}
+    beta-features: ${FEATURE_BETA:true}
+  
+  rate-limit:
+    requests-per-minute: ${RATE_LIMIT_RPM:500}
+    burst-capacity: ${RATE_LIMIT_BURST:50}
+  
+  cors:
+    allowed-origins:
+      - https://staging.vynlotaste.com
+      - https://staging-admin.vynlotaste.com
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - X-Requested-With
+    allow-credentials: true
+
+  ssl:
+    enabled: true
+    key-store: ${SSL_KEYSTORE_PATH}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+    key-store-type: PKCS12
+
+logging:
+  level:
+    com.vynlotaste: INFO
+    org.springframework.web: WARN
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN
+  file:
+    name: /var/log/vynlo-taste/application.log
+    max-size: 50MB
+    max-history: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store: ${SSL_KEYSTORE_PATH}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+    key-store-type: ${SSL_KEYSTORE_TYPE:PKCS12}

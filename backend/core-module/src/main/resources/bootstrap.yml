@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: vynlo-taste
+  
+  cloud:
+    config:
+      enabled: ${CONFIG_SERVER_ENABLED:false}
+      uri: ${CONFIG_SERVER_URL:http://localhost:8888}
+      fail-fast: ${CONFIG_SERVER_FAIL_FAST:false}
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        max-interval: 2000
+        multiplier: 1.1
+      
+encrypt:
+  key: ${CONFIG_ENCRYPT_KEY:vynlo-taste-secret-key}

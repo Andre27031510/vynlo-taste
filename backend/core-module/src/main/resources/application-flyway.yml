@@ -1,0 +1,60 @@
+spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
+    locations: classpath:db/migration
+    sql-migration-prefix: V
+    sql-migration-separator: __
+    sql-migration-suffixes: .sql
+    repeatable-sql-migration-prefix: R
+    placeholder-replacement: true
+    placeholders:
+      schema: ${DB_SCHEMA:public}
+      app_user: ${DB_APP_USER:vynlo_app}
+    baseline-version: 0
+    baseline-description: Initial baseline
+    
+  # Configurações específicas por ambiente
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  flyway:
+    clean-disabled: false # Permite clean em dev
+    validate-on-migrate: false # Menos rigoroso em dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  flyway:
+    clean-disabled: false
+    locations: classpath:db/migration,classpath:db/testdata
+
+---
+spring:
+  config:
+    activate:
+      on-profile: staging
+  flyway:
+    clean-disabled: true # Proteção em staging
+    validate-on-migrate: true
+    out-of-order: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  flyway:
+    clean-disabled: true # NUNCA permitir clean em produção
+    validate-on-migrate: true
+    out-of-order: false
+    baseline-on-migrate: false # Não criar baseline em prod

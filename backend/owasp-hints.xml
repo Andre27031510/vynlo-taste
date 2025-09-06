@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hints xmlns="https://jeremylong.github.io/DependencyCheck/dependency-hint.1.2.xsd">
+    
+    <!-- Hints para melhorar a detecção de dependências -->
+    
+    <!-- Vynlo Taste Core Module -->
+    <hint>
+        <given>
+            <fileName>core-module-*.jar</fileName>
+        </given>
+        <add>
+            <product>Vynlo Taste Core Module</product>
+            <vendor>Vynlo Taste</vendor>
+        </add>
+    </hint>
+    
+    <!-- Vynlo Taste Financial Module -->
+    <hint>
+        <given>
+            <fileName>financial-module-*.jar</fileName>
+        </given>
+        <add>
+            <product>Vynlo Taste Financial Module</product>
+            <vendor>Vynlo Taste</vendor>
+        </add>
+    </hint>
+    
+    <!-- Spring Boot Starters -->
+    <hint>
+        <given>
+            <artifactId>spring-boot-starter-*</artifactId>
+        </given>
+        <add>
+            <product>Spring Boot Starter</product>
+            <vendor>Pivotal Software</vendor>
+        </add>
+    </hint>
+    
+    <!-- Firebase Admin SDK -->
+    <hint>
+        <given>
+            <artifactId>firebase-admin</artifactId>
+        </given>
+        <add>
+            <product>Firebase Admin SDK</product>
+            <vendor>Google</vendor>
+        </add>
+    </hint>
+    
+    <!-- Resilience4j -->
+    <hint>
+        <given>
+            <artifactId regex="true">resilience4j-.*</artifactId>
+        </given>
+        <add>
+            <product>Resilience4j</product>
+            <vendor>Resilience4j</vendor>
+        </add>
+    </hint>
+    
+    <!-- MapStruct -->
+    <hint>
+        <given>
+            <artifactId>mapstruct</artifactId>
+        </given>
+        <add>
+            <product>MapStruct</product>
+            <vendor>MapStruct</vendor>
+        </add>
+    </hint>
+    
+    <!-- Bucket4j -->
+    <hint>
+        <given>
+            <artifactId regex="true">bucket4j-.*</artifactId>
+        </given>
+        <add>
+            <product>Bucket4j</product>
+            <vendor>Bucket4j</vendor>
+        </add>
+    </hint>
+    
+    <!-- Twilio SDK -->
+    <hint>
+        <given>
+            <artifactId>twilio</artifactId>
+        </given>
+        <add>
+            <product>Twilio Java SDK</product>
+            <vendor>Twilio</vendor>
+        </add>
+    </hint>
+    
+    <!-- Stripe Java -->
+    <hint>
+        <given>
+            <artifactId>stripe-java</artifactId>
+        </given>
+        <add>
+            <product>Stripe Java Library</product>
+            <vendor>Stripe</vendor>
+        </add>
+    </hint>
+    
+    <!-- Apache POI -->
+    <hint>
+        <given>
+            <artifactId regex="true">poi.*</artifactId>
+        </given>
+        <add>
+            <product>Apache POI</product>
+            <vendor>Apache Software Foundation</vendor>
+        </add>
+    </hint>
+    
+    <!-- TestContainers -->
+    <hint>
+        <given>
+            <artifactId regex="true">testcontainers.*</artifactId>
+        </given>
+        <add>
+            <product>Testcontainers</product>
+            <vendor>Testcontainers</vendor>
+        </add>
+    </hint>
+    
+    <!-- WireMock -->
+    <hint>
+        <given>
+            <artifactId regex="true">wiremock.*</artifactId>
+        </given>
+        <add>
+            <product>WireMock</product>
+            <vendor>WireMock</vendor>
+        </add>
+    </hint>
+    
+    <!-- ZXing (QR Code) -->
+    <hint>
+        <given>
+            <groupId>com.google.zxing</groupId>
+        </given>
+        <add>
+            <product>ZXing</product>
+            <vendor>Google</vendor>
+        </add>
+    </hint>
+    
+    <!-- Thumbnailator -->
+    <hint>
+        <given>
+            <artifactId>thumbnailator</artifactId>
+        </given>
+        <add>
+            <product>Thumbnailator</product>
+            <vendor>Chris Kroells</vendor>
+        </add>
+    </hint>
+    
+    <!-- JWT Libraries -->
+    <hint>
+        <given>
+            <artifactId regex="true">jjwt-.*</artifactId>
+        </given>
+        <add>
+            <product>JJWT</product>
+            <vendor>Stormpath</vendor>
+        </add>
+    </hint>
+    
+</hints>

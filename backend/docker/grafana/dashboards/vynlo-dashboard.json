@@ -1,0 +1,26 @@
+{
+  "dashboard": {
+    "title": "Vynlo Taste - Business Metrics",
+    "panels": [
+      {
+        "title": "Orders per Hour",
+        "type": "stat",
+        "targets": [{"expr": "vynlo_orders_per_hour"}],
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "title": "Average Delivery Time",
+        "type": "stat", 
+        "targets": [{"expr": "vynlo_delivery_average_time"}],
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "title": "Conversion Rate",
+        "type": "stat",
+        "targets": [{"expr": "vynlo_conversion_rate"}],
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      }
+    ],
+    "refresh": "30s"
+  }
+}

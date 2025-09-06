@@ -1,0 +1,80 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vynlo_taste_dev
+    username: ${DB_USERNAME:vynlo_dev}
+    password: ${DB_PASSWORD:dev123}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 0
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 4
+          min-idle: 1
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  cache:
+    redis:
+      time-to-live: 300000 # 5 minutos para dev
+
+firebase:
+  project-id: ${FIREBASE_PROJECT_ID:vynlo-taste-dev}
+  credentials-path: ${FIREBASE_CREDENTIALS:./config/firebase-dev.json}
+
+vynlo:
+  features:
+    new-ui: ${FEATURE_NEW_UI:true}
+    analytics: ${FEATURE_ANALYTICS:false}
+    beta-features: ${FEATURE_BETA:true}
+  
+  rate-limit:
+    requests-per-minute: 1000
+    burst-capacity: 100
+  
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:3001
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+
+logging:
+  level:
+    com.vynlotaste: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  error:
+    include-stacktrace: on-param

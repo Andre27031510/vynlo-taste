@@ -1,0 +1,857 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variáveis CSS para modo escuro */
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #8b5cf6;
+  --accent-color: #10b981;
+  --background-light: #ffffff;
+  --background-dark: #0f172a;
+  --text-light: #1f2937;
+  --text-dark: #f8fafc;
+  --border-light: #e5e7eb;
+  --border-dark: #334155;
+  --card-light: #ffffff;
+  --card-dark: #1e293b;
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --hover-light: #f9fafb;
+  --hover-dark: #1e293b;
+  --muted-light: #6b7280;
+  --muted-dark: #9ca3af;
+  
+  /* Novas variáveis para melhor contraste */
+  --button-primary: #3b82f6;
+  --button-primary-hover: #2563eb;
+  --button-secondary: #6b7280;
+  --button-secondary-hover: #4b5563;
+  --button-success: #10b981;
+  --button-success-hover: #059669;
+  --button-warning: #f59e0b;
+  --button-warning-hover: #d97706;
+  --button-danger: #ef4444;
+  --button-danger-hover: #dc2626;
+  --button-text: #ffffff;
+  --button-text-secondary: #1f2937;
+  --label-text: #374151;
+  --label-text-secondary: #6b7280;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-text: #1f2937;
+  --input-placeholder: #9ca3af;
+}
+
+/* Modo escuro */
+[data-theme="dark"] {
+  --primary-color: #60a5fa;
+  --secondary-color: #a78bfa;
+  --accent-color: #34d399;
+  --background-light: #0f172a;
+  --background-dark: #020617;
+  --text-light: #f8fafc;
+  --text-dark: #1e293b;
+  --border-light: #334155;
+  --border-dark: #1e293b;
+  --card-light: #1e293b;
+  --card-dark: #0f172a;
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --hover-light: #1e293b;
+  --hover-dark: #334155;
+  --muted-light: #9ca3af;
+  --muted-dark: #6b7280;
+  
+  /* Variáveis de contraste para modo escuro */
+  --button-primary: #60a5fa;
+  --button-primary-hover: #3b82f6;
+  --button-secondary: #9ca3af;
+  --button-secondary-hover: #6b7280;
+  --button-success: #34d399;
+  --button-success-hover: #10b981;
+  --button-warning: #fbbf24;
+  --button-warning-hover: #f59e0b;
+  --button-danger: #f87171;
+  --button-danger-hover: #ef4444;
+  --button-text: #ffffff;
+  --button-text-secondary: #f8fafc;
+  --label-text: #f1f5f9;
+  --label-text-secondary: #cbd5e1;
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  --input-text: #f8fafc;
+  --input-placeholder: #94a3b8;
+}
+
+/* Modo claro */
+[data-theme="light"] {
+  --primary-color: #3b82f6;
+  --secondary-color: #8b5cf6;
+  --accent-color: #10b981;
+  --background-light: #ffffff;
+  --background-dark: #f8fafc;
+  --text-light: #1f2937;
+  --text-dark: #374151;
+  --border-light: #e5e7eb;
+  --border-dark: #d1d5db;
+  --card-light: #ffffff;
+  --card-dark: #f9fafb;
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --hover-light: #f9fafb;
+  --hover-dark: #f3f4f6;
+  --muted-light: #6b7280;
+  --muted-dark: #9ca3af;
+  
+  /* Variáveis de contraste para modo claro */
+  --button-primary: #3b82f6;
+  --button-primary-hover: #2563eb;
+  --button-secondary: #6b7280;
+  --button-secondary-hover: #4b5563;
+  --button-success: #10b981;
+  --button-success-hover: #059669;
+  --button-warning: #f59e0b;
+  --button-warning-hover: #d97706;
+  --button-danger: #ef4444;
+  --button-danger-hover: #dc2626;
+  --button-text: #ffffff;
+  --button-text-secondary: #1f2937;
+  --label-text: #374151;
+  --label-text-secondary: #6b7280;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-text: #1f2937;
+  --input-placeholder: #9ca3af;
+}
+
+/* Modo automático - detecta preferência do sistema */
+[data-theme="auto"] {
+  @media (prefers-color-scheme: dark) {
+    --primary-color: #60a5fa;
+    --secondary-color: #a78bfa;
+    --accent-color: #34d399;
+    --background-light: #0f172a;
+    --background-dark: #020617;
+    --text-light: #f8fafc;
+    --text-dark: #1e293b;
+    --border-light: #334155;
+    --border-dark: #1e293b;
+    --card-light: #1e293b;
+    --card-dark: #0f172a;
+    --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --hover-light: #1e293b;
+    --hover-dark: #334155;
+    --muted-light: #9ca3af;
+    --muted-dark: #6b7280;
+    
+    /* Variáveis de contraste para modo escuro */
+    --button-primary: #60a5fa;
+    --button-primary-hover: #3b82f6;
+    --button-secondary: #9ca3af;
+    --button-secondary-hover: #6b7280;
+    --button-success: #34d399;
+    --button-success-hover: #10b981;
+    --button-warning: #fbbf24;
+    --button-warning-hover: #f59e0b;
+    --button-danger: #f87171;
+    --button-danger-hover: #ef4444;
+    --button-text: #ffffff;
+    --button-text-secondary: #f8fafc;
+    --label-text: #f1f5f9;
+    --label-text-secondary: #cbd5e1;
+    --input-bg: #1e293b;
+    --input-border: #475569;
+    --input-text: #f8fafc;
+    --input-placeholder: #94a3b8;
+  }
+  
+  @media (prefers-color-scheme: light) {
+    --primary-color: #3b82f6;
+    --secondary-color: #8b5cf6;
+    --accent-color: #10b981;
+    --background-light: #ffffff;
+    --background-dark: #f8fafc;
+    --text-light: #1f2937;
+    --text-dark: #374151;
+    --border-light: #e5e7eb;
+    --border-dark: #d1d5db;
+    --card-light: #ffffff;
+    --card-dark: #f9fafb;
+    --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    --hover-light: #f9fafb;
+    --hover-dark: #f3f4f6;
+    --muted-light: #6b7280;
+    --muted-dark: #9ca3af;
+    
+    /* Variáveis de contraste para modo claro */
+    --button-primary: #3b82f6;
+    --button-primary-hover: #2563eb;
+    --button-secondary: #6b7280;
+    --button-secondary-hover: #4b5563;
+    --button-success: #10b981;
+    --button-success-hover: #059669;
+    --button-warning: #f59e0b;
+    --button-warning-hover: #d97706;
+    --button-danger: #ef4444;
+    --button-danger-hover: #dc2626;
+    --button-text: #ffffff;
+    --button-text-secondary: #1f2937;
+    --label-text: #374151;
+    --label-text-secondary: #6b7280;
+    --input-bg: #ffffff;
+    --input-border: #d1d5db;
+    --input-text: #1f2937;
+    --input-placeholder: #9ca3af;
+  }
+}
+
+/* Estilos base para modo escuro */
+body {
+  background-color: var(--background-light);
+  color: var(--text-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Componentes com modo escuro */
+.dark-mode-card {
+  background-color: var(--card-light);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
+}
+
+.dark-mode-input {
+  background-color: var(--card-light);
+  border: 1px solid var(--border-light);
+  color: var(--text-light);
+  transition: all 0.3s ease;
+}
+
+.dark-mode-button {
+  background-color: var(--primary-color);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.dark-mode-button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Transições suaves para mudança de tema */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Scrollbar personalizada para modo escuro */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* Animações para mudança de tema */
+.theme-transition {
+  animation: themeChange 0.3s ease-in-out;
+}
+
+@keyframes themeChange {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utilitários para modo escuro - FORÇAR APLICAÇÃO */
+[data-theme="dark"] .dark\:bg-gray-900 {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .dark\:text-white {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dark\:text-gray-400 {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .dark\:bg-gray-800 {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .dark\:border-gray-700 {
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .dark\:bg-gray-700 {
+  background-color: #374151 !important;
+}
+
+[data-theme="dark"] .dark\:hover\:bg-gray-700:hover {
+  background-color: #374151 !important;
+}
+
+[data-theme="dark"] .dark\:hover\:text-white:hover {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dark\:text-gray-300 {
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .dark\:text-gray-500 {
+  color: #6b7280 !important;
+}
+
+[data-theme="dark"] .dark\:bg-gray-600 {
+  background-color: #4b5563 !important;
+}
+
+[data-theme="dark"] .dark\:bg-gray-100 {
+  background-color: #1f2937 !important;
+}
+
+[data-theme="dark"] .dark\:border-gray-600 {
+  border-color: #4b5563 !important;
+}
+
+/* Classes utilitárias para modo escuro - FORÇAR APLICAÇÃO */
+[data-theme="dark"] .bg-white {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+[data-theme="dark"] .border-gray-100 {
+  border-color: #1e2937 !important;
+}
+
+[data-theme="dark"] .border-gray-200 {
+  border-color: #1e2937 !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+  border-color: #4b5563 !important;
+}
+
+[data-theme="dark"] .hover\:bg-gray-50:hover {
+  background-color: #1e2937 !important;
+}
+
+[data-theme="dark"] .hover\:bg-gray-100:hover {
+  background-color: #1e2937 !important;
+}
+
+/* Modo claro - FORÇAR APLICAÇÃO */
+[data-theme="light"] .bg-white {
+  background-color: #ffffff !important;
+}
+
+[data-theme="light"] .text-gray-900 {
+  color: #1f2937 !important;
+}
+
+[data-theme="light"] .text-gray-600 {
+  color: #4b5563 !important;
+}
+
+[data-theme="light"] .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+[data-theme="light"] .border-gray-100 {
+  border-color: #f3f4f6 !important;
+}
+
+[data-theme="light"] .border-gray-200 {
+  border-color: #e5e7eb !important;
+}
+
+[data-theme="light"] .border-gray-300 {
+  border-color: #d1d5db !important;
+}
+
+[data-theme="light"] .hover\:bg-gray-50:hover {
+  background-color: #f9fafb !important;
+}
+
+[data-theme="light"] .hover\:bg-gray-100:hover {
+  background-color: #f3f4f6 !important;
+}
+
+/* Gradientes adaptativos */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+}
+
+/* Sombras adaptativas */
+.shadow-adaptive {
+  box-shadow: var(--shadow-light);
+}
+
+.shadow-adaptive-lg {
+  box-shadow: var(--shadow-dark);
+}
+
+/* Bordas adaptativas */
+.border-adaptive {
+  border-color: var(--border-light);
+}
+
+/* Texto adaptativo */
+.text-adaptive {
+  color: var(--text-light);
+}
+
+.text-adaptive-secondary {
+  color: var(--text-dark);
+}
+
+/* Cards adaptativos */
+.card-adaptive {
+  background-color: var(--card-light);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-light);
+}
+
+/* Inputs adaptativos */
+.input-adaptive {
+  background-color: var(--card-light);
+  border: 1px solid var(--border-light);
+  color: var(--text-light);
+}
+
+.input-adaptive::placeholder {
+  color: var(--muted-dark);
+}
+
+/* Botões adaptativos */
+.btn-adaptive {
+  background-color: var(--primary-color);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-adaptive:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Hover adaptativo */
+.hover-adaptive:hover {
+  background-color: var(--hover-light);
+}
+
+/* Transições suaves */
+.transition-theme {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Classes utilitárias para botões com melhor contraste */
+.btn-primary {
+  background-color: var(--button-primary);
+  color: var(--button-text);
+  border: 1px solid var(--button-primary);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--button-primary-hover);
+  border-color: var(--button-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--button-secondary);
+  color: var(--button-text);
+  border: 1px solid var(--button-secondary);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--button-secondary-hover);
+  border-color: var(--button-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background-color: var(--button-success);
+  color: var(--button-text);
+  border: 1px solid var(--button-success);
+  transition: all 0.2s ease;
+}
+
+.btn-success:hover {
+  background-color: var(--button-success-hover);
+  border-color: var(--button-success-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-warning {
+  background-color: var(--button-warning);
+  color: var(--button-text);
+  border: 1px solid var(--button-warning);
+  transition: all 0.2s ease;
+}
+
+.btn-warning:hover {
+  background-color: var(--button-warning-hover);
+  border-color: var(--button-warning-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-danger {
+  background-color: var(--button-danger);
+  color: var(--button-text);
+  border: 1px solid var(--button-danger);
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  background-color: var(--button-danger-hover);
+  border-color: var(--button-danger-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--button-primary);
+  border: 2px solid var(--button-primary);
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  background-color: var(--button-primary);
+  color: var(--button-text);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--label-text);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background-color: var(--hover-light);
+  color: var(--label-text);
+  border-color: var(--border-light);
+}
+
+/* Classes para labels com melhor contraste */
+.label-primary {
+  color: var(--label-text);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.label-secondary {
+  color: var(--label-text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.label-small {
+  color: var(--label-text-secondary);
+  font-weight: 400;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+/* Classes para inputs com melhor contraste */
+.input-primary {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-text);
+  transition: all 0.2s ease;
+}
+
+.input-primary:focus {
+  border-color: var(--button-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.input-primary::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
+}
+
+/* Estilos específicos para modo escuro */
+[data-theme="dark"] .input-primary,
+.dark .input-primary {
+  background-color: #1e293b;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .input-primary::placeholder,
+.dark .input-primary::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1;
+}
+
+/* Estilos específicos para modo claro */
+[data-theme="light"] .input-primary,
+.light .input-primary {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+
+[data-theme="light"] .input-primary::placeholder,
+.light .input-primary::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+/* Estilos específicos para inputs de tipo date e select no modo escuro */
+[data-theme="dark"] .input-primary[type="date"],
+[data-theme="dark"] .input-primary[type="datetime-local"],
+.dark .input-primary[type="date"],
+.dark .input-primary[type="datetime-local"] {
+  background-color: #1e293b;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .input-primary[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] .input-primary[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark .input-primary[type="date"]::-webkit-calendar-picker-indicator,
+.dark .input-primary[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Estilos para selects no modo escuro */
+[data-theme="dark"] .input-primary select,
+.dark .input-primary select {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+/* Estilos para textarea no modo escuro */
+[data-theme="dark"] .input-primary textarea,
+.dark .input-primary textarea {
+  background-color: #1e293b;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+/* Estilos alternativos para tema escuro usando classes específicas */
+.bg-gray-800 .input-primary,
+.bg-gray-700 .input-primary,
+.bg-gray-900 .input-primary {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.bg-gray-800 .input-primary::placeholder,
+.bg-gray-700 .input-primary::placeholder,
+.bg-gray-900 .input-primary::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1;
+}
+
+/* Estilos para inputs dentro de modais escuros */
+.modal-dark .input-primary,
+.modal-dark input,
+.modal-dark select,
+.modal-dark textarea {
+  /* Removendo estilos forçados para permitir estilos condicionais */
+}
+
+.modal-dark .input-primary::placeholder,
+.modal-dark input::placeholder,
+.modal-dark textarea::placeholder {
+  /* Removendo estilos forçados para permitir estilos condicionais */
+}
+
+/* Estilos específicos para inputs de tipo date e select em modais escuros */
+.modal-dark input[type="date"],
+.modal-dark input[type="datetime-local"] {
+  /* Removendo estilos forçados para permitir estilos condicionais */
+}
+
+.modal-dark input[type="date"]::-webkit-calendar-picker-indicator,
+.modal-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  /* Removendo estilos forçados para permitir estilos condicionais */
+}
+
+/* Estilos condicionais para modo claro vs escuro */
+[data-theme="light"] .modal-dark .input-primary,
+[data-theme="light"] .modal-dark input,
+[data-theme="light"] .modal-dark select,
+[data-theme="light"] .modal-dark textarea {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #1f2937 !important;
+}
+
+[data-theme="light"] .modal-dark .input-primary::placeholder,
+[data-theme="light"] .modal-dark input::placeholder,
+[data-theme="light"] .modal-dark textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+[data-theme="light"] .modal-dark input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] .modal-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+/* Estilos condicionais para modo escuro */
+[data-theme="dark"] .modal-dark .input-primary,
+[data-theme="dark"] .modal-dark input,
+[data-theme="dark"] .modal-dark select,
+[data-theme="dark"] .modal-dark textarea {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .modal-dark .input-primary::placeholder,
+[data-theme="dark"] .modal-dark input::placeholder,
+[data-theme="dark"] .modal-dark textarea::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1;
+}
+
+[data-theme="dark"] .modal-dark input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] .modal-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Classes para cards com melhor contraste */
+.card-primary {
+  background-color: var(--card-light);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-light);
+  transition: all 0.2s ease;
+}
+
+.card-primary:hover {
+  box-shadow: var(--shadow-dark);
+  transform: translateY(-2px);
+}
+
+/* Classes para status badges com melhor contraste */
+.badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--button-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--button-warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--button-danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badge-info {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--button-primary);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Classes para texto com melhor contraste */
+.text-primary {
+  color: var(--label-text);
+}
+
+.text-secondary {
+  color: var(--label-text-secondary);
+}
+
+.text-muted {
+  color: var(--muted-light);
+}
+
+/* Classes para hover com melhor contraste */
+.hover-primary:hover {
+  background-color: var(--hover-light);
+  color: var(--label-text);
+}
+
+.hover-secondary:hover {
+  background-color: var(--hover-dark);
+  color: var(--label-text);
+}
+
+/* Garantir que os cards tenham fundo branco */
+.feature-card,
+.solution-card,
+.pricing-card,
+.faq-card {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Garantir máximo contraste para todos os textos dos cards */
+.feature-card p,
+.solution-card p,
+.pricing-card p,
+.feature-card span,
+.solution-card span,
+.pricing-card span {
+  color: #111827 !important; /* text-gray-900 - quase preto */
+}
+
+/* Garantir que títulos tenham contraste máximo */
+.feature-card h3,
+.solution-card h3,
+.pricing-card h3 {
+  color: #111827 !important; /* text-gray-900 - quase preto */
+}
+
+/* Garantir que os cards não tenham fundo preto mesmo no tema escuro */
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .solution-card,
+[data-theme="dark"] .pricing-card,
+[data-theme="dark"] .faq-card {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
