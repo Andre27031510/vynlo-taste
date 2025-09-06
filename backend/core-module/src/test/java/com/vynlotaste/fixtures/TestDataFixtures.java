@@ -152,7 +152,7 @@ public class TestDataFixtures {
         admin.setId(2L);
         admin.setEmail("admin@example.com");
         admin.setUsername("admin");
-        admin.setRole(User.UserRole.ADMIN);
+        admin.setRole(UserRole.ADMIN);
         return admin;
     }
 
