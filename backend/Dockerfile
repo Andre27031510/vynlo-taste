@@ -1,14 +1,24 @@
-# Builder: Maven + Temurin 17 (Alpine)
-FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+# Builder: Maven + Temurin 21 (Alpine)
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
+
+# Copy parent pom
 COPY pom.xml .
-COPY src ./src
+
+# Copy modules
+COPY core-module/ ./core-module/
+COPY financial-module/ ./financial-module/
+
+# Build application
 RUN mvn -B -DskipTests clean package
 
-# Runtime: Temurin 17 JRE (Alpine)
-FROM eclipse-temurin:17-jre-alpine
+# Runtime: Temurin 21 JRE (Alpine)
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 RUN apk add --no-cache curl
-COPY --from=builder /app/target/*.jar app.jar
+
+# Copy JAR from core-module
+COPY --from=builder /app/core-module/target/*.jar app.jar
+
 EXPOSE 8080
-# O comando/entrypoint será fornecido pelo docker-compose (override)
+ENTRYPOINT ["java", "-jar", "app.jar"]
