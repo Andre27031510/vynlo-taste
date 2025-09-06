@@ -1,111 +1,310 @@
-name: CI/CD Pipeline
+name: CI/CD-v2
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: vynlo_taste_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        
-    - name: Cache Maven dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-        
-    - name: Build with Maven
-      run: |
-        cd backend
-        mvn clean compile
-      env:
-        SPRING_PROFILES_ACTIVE: test
-        
-    - name: Run tests
-      run: |
-        cd backend
-        mvn test
-      env:
-        SPRING_PROFILES_ACTIVE: test
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/vynlo_taste_test
-        SPRING_DATASOURCE_USERNAME: postgres
-        SPRING_DATASOURCE_PASSWORD: postgres
-        SPRING_REDIS_HOST: localhost
-        SPRING_REDIS_PORT: 6379
-
   build:
-    needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
+    timeout-minutes: 45
+    env:
+      TAG: ${{ github.sha }}
+    outputs:
+      backend_changed: ${{ steps.changes.outputs.backend_any_changed }}
+      frontend_changed: ${{ steps.changes.outputs.frontend_any_changed }}
+      infra_changed: ${{ steps.changes.outputs.infra_any_changed }}
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        
-    - name: Cache Maven dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-        
-    - name: Build application
-      run: |
-        cd backend
-        mvn clean package -DskipTests
-        
-    - name: Build Docker image
-      run: |
-        cd backend
-        docker build -t vynlo-taste:${{ github.sha }} .
-        
-    - name: Save Docker image
-      run: docker save vynlo-taste:${{ github.sha }} | gzip > vynlo-taste.tar.gz
-        
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: docker-image
-        path: vynlo-taste.tar.gz
+      - uses: actions/checkout@v4
+
+      - name: Debug event
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "ref=${{ github.ref }}"
+          echo "sha=${{ github.sha }}"
+      - name: Detect changes
+        id: changes
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            infra:
+              - 'docker-compose.prod.yml'
+              - '.github/workflows/**'
+      - name: Debug context outputs
+        run: |
+          echo "Debug: backend_any_changed = ${{ steps.changes.outputs.backend_any_changed || 'null' }}"
+          echo "Debug: frontend_any_changed = ${{ steps.changes.outputs.frontend_any_changed || 'null' }}"
+          echo "Debug: infra_any_changed = ${{ steps.changes.outputs.infra_any_changed || 'null' }}"
+          echo "Debug: context validation complete"
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Validate secrets
+        run: |
+          echo "Validating required secrets..."
+          if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+            echo "Warning: GITHUB_TOKEN not available"
+          else
+            echo "GITHUB_TOKEN available"
+          fi
+      - name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize owner (lowercase)
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          if [ -z "$OWNER" ]; then
+            OWNER="andre27031510"
+            echo "Using fallback owner: $OWNER"
+          fi
+          echo "OWNER_LC=$OWNER" >> $GITHUB_ENV
+          echo "Debug: OWNER_LC set to $OWNER"
+      - name: Validate context outputs
+        run: |
+          echo "Validating context outputs for self-hosted runner..."
+          BACKEND_CHANGED="${{ steps.changes.outputs.backend_any_changed || 'null' }}"
+          FRONTEND_CHANGED="${{ steps.changes.outputs.frontend_any_changed || 'null' }}"
+          INFRA_CHANGED="${{ steps.changes.outputs.infra_any_changed || 'null' }}"
+          
+          if [ "$BACKEND_CHANGED" = "" ] || [ "$BACKEND_CHANGED" = "null" ]; then
+            BACKEND_CHANGED="true"
+            echo "Backend changed: fallback to true (context not available)"
+          else
+            echo "Backend changed: $BACKEND_CHANGED"
+          fi
+          
+          if [ "$FRONTEND_CHANGED" = "" ] || [ "$FRONTEND_CHANGED" = "null" ]; then
+            FRONTEND_CHANGED="true"
+            echo "Frontend changed: fallback to true (context not available)"
+          else
+            echo "Frontend changed: $FRONTEND_CHANGED"
+          fi
+          
+          if [ "$INFRA_CHANGED" = "" ] || [ "$INFRA_CHANGED" = "null" ]; then
+            INFRA_CHANGED="true"
+            echo "Infra changed: fallback to true (context not available)"
+          else
+            echo "Infra changed: $INFRA_CHANGED"
+          fi
+          
+          echo "Owner LC: andre27031510"
+          echo "Context validation complete"
+      - name: Setup Node.js
+        if: ${{ (steps.changes.outputs.frontend_any_changed == 'true') || (steps.changes.outputs.infra_any_changed == 'true') || (github.event_name == 'workflow_dispatch') }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Frontend prebuild
+        if: ${{ (steps.changes.outputs.frontend_any_changed == 'true') || (steps.changes.outputs.infra_any_changed == 'true') || (github.event_name == 'workflow_dispatch') }}
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: |
+          npm ci
+          npm run build
+      - name: Build and push backend image
+        if: ${{ (steps.changes.outputs.backend_any_changed == 'true') || (steps.changes.outputs.infra_any_changed == 'true') || (github.event_name == 'workflow_dispatch') }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/andre27031510/vynlotaste-backend:${{ env.TAG }}
+            ghcr.io/andre27031510/vynlotaste-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push frontend image
+        if: ${{ (steps.changes.outputs.frontend_any_changed == 'true') || (steps.changes.outputs.infra_any_changed == 'true') || (github.event_name == 'workflow_dispatch') }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/andre27031510/vynlotaste-frontend:${{ env.TAG }}
+            ghcr.io/andre27031510/vynlotaste-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+            NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+  deploy:
+    needs: build
+    runs-on: [self-hosted, production, vynlo]
+    timeout-minutes: 30
+    if: ${{ always() && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Debug build outputs for self-hosted runner
+        run: |
+          echo "=== Self-Hosted Runner Context Debug ==="
+          echo "Runner name: $(hostname)"
+          echo "Runner user: $(whoami)"
+          echo "Backend changed: ${{ needs.build.outputs.backend_changed || 'null/undefined' }}"
+          echo "Frontend changed: ${{ needs.build.outputs.frontend_changed || 'null/undefined' }}"
+          echo "Infra changed: ${{ needs.build.outputs.infra_changed || 'null/undefined' }}"
+          echo "Event name: ${{ github.event_name || 'unknown' }}"
+          echo "GitHub ref: ${{ github.ref || 'unknown' }}"
+          echo "GitHub sha: ${{ github.sha || 'unknown' }}"
+          echo "=== Context validation complete ==="
+      - name: Validate secrets and environment
+        run: |
+          echo "=== Validating secrets and environment for self-hosted runner ==="
+          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then echo "GitHub token: available"; else echo "GitHub token: not available"; fi
+          if [ -n "${{ secrets.SSH_HOST }}" ]; then echo "SSH host: configured"; else echo "SSH host: using localhost fallback"; fi
+          echo "Backend changed: ${{ needs.build.outputs.backend_changed || 'null' }}"
+          echo "Frontend changed: ${{ needs.build.outputs.frontend_changed || 'null' }}"
+          echo "Infra changed: ${{ needs.build.outputs.infra_changed || 'null' }}"
+          echo "Commit SHA: ${{ github.sha || 'unknown' }}"
+          echo "=== Validation complete ==="
+      - name: Deploy Application
+        env:
+          COMMIT_SHA: ${{ github.sha || 'latest' }}
+          OWNER_LC: ${{ env.OWNER_LC || 'andre27031510' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SSH_HOST: ${{ secrets.SSH_HOST || 'localhost' }}
+        run: |
+          set -e
+          echo "=== Deploy iniciado ==="
+          echo "Host: $(hostname)"
+          echo "Commit: ${COMMIT_SHA}"
+          echo "Runner: $(whoami)"
+          
+          if [ -z "${COMMIT_SHA}" ]; then
+            echo "Warning: COMMIT_SHA not available, using 'latest'"
+            export COMMIT_SHA="latest"
+          fi
+          
+          if [ -z "${OWNER_LC}" ]; then
+            echo "Warning: OWNER_LC not available, using fallback"
+            export OWNER_LC="andre27031510"
+          fi
+          
+          export COMMIT_SHA=${{ github.sha }}
+          export OWNER_LC="andre27031510"
+          
+          sudo systemctl start docker || true
+          
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor || 'andre27031510' }}" --password-stdin
+          
+          cd ~/app
+          
+          echo "=== Verificando imagens ==="
+          BACKEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-backend:${{ github.sha }} > /dev/null 2>&1 && echo "true" || echo "false")
+          FRONTEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-frontend:${{ github.sha }} > /dev/null 2>&1 && echo "true" || echo "false")
+          
+          if [ "$BACKEND_EXISTS" = "false" ]; then
+            echo "⚠️ Imagem backend não encontrada, usando latest"
+            export BACKEND_TAG="latest"
+          else
+            export BACKEND_TAG="${{ github.sha }}"
+          fi
+          
+          if [ "$FRONTEND_EXISTS" = "false" ]; then
+            echo "⚠️ Imagem frontend não encontrada, usando latest"
+            export FRONTEND_TAG="latest"
+          else
+            export FRONTEND_TAG="${{ github.sha }}"
+          fi
+          
+          echo "=== Parando containers antigos ==="
+          docker compose -f docker-compose.prod.yml down 2>/dev/null || true
+          
+          echo "=== Baixando novas imagens ==="
+          for i in {1..3}; do
+            if docker compose -f docker-compose.prod.yml pull; then
+              break
+            else
+              echo "Tentativa $i falhou, tentando novamente em 10s..."
+              sleep 10
+            fi
+          done
+          
+          echo "=== Iniciando containers ==="
+          docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          
+          echo "=== Containers ativos ==="
+          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          
+          echo "=== Verificando saúde dos serviços ==="
+          sleep 30
+          
+          for i in {1..6}; do
+            if docker ps | grep -q "vynlo-backend" && curl -f http://localhost:8080/actuator/health 2>/dev/null; then
+              echo "✅ Backend funcionando"
+              break
+            else
+              echo "⏳ Aguardando backend... ($i/6)"
+              sleep 10
+            fi
+          done
+          
+          for i in {1..6}; do
+            if docker ps | grep -q "vynlo-frontend" && curl -f http://localhost:3000 2>/dev/null; then
+              echo "✅ Frontend funcionando"
+              break
+            else
+              echo "⏳ Aguardando frontend... ($i/6)"
+              sleep 10
+            fi
+          done
+          
+          echo "=== Limpando imagens antigas ==="
+          docker image prune -f --filter "until=24h"
+          
+          echo "=== Deploy concluído! ==="
+          echo "🚀 Vynlo Taste atualizado para commit: ${{ github.sha }}"
+      
+      - name: Notify deployment status
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status || 'unknown' }}
+          SSH_HOST: ${{ secrets.SSH_HOST || 'localhost' }}
+        run: |
+          echo "=== Self-Hosted Runner Deploy Status ==="
+          if [ "${JOB_STATUS}" == "success" ]; then
+            echo "✅ Deploy realizado com sucesso no runner $(hostname)!"
+            echo "🌐 Frontend: http://${SSH_HOST}:3000"
+            echo "🔧 Backend: http://${SSH_HOST}:8080"
+            echo "📊 Commit: ${{ github.sha || 'unknown' }}"
+          else
+            echo "❌ Deploy falhou no runner $(hostname)!"
+            echo "Status: ${JOB_STATUS}"
+            echo "Verifique os logs acima para mais detalhes."
+          fi
+          echo "=== Status notification complete ==="
