@@ -1,20 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { ChevronDown, ChevronUp, HelpCircle, MessageCircle, Clock, Shield, Zap } from 'lucide-react'
+import { logger } from '../../utils/logger'
 
 export default function FAQ() {
   const [openItems, setOpenItems] = useState<number[]>([])
 
-  const toggleItem = (index: number) => {
-    setOpenItems(prev => 
-      prev.includes(index) 
-        ? prev.filter(item => item !== index)
-        : [...prev, index]
-    )
-  }
+  const toggleItem = useCallback((index: number) => {
+    try {
+      setOpenItems(prev => 
+        prev.includes(index) 
+          ? prev.filter(item => item !== index)
+          : [...prev, index]
+      )
+      logger.userInteraction('faq_item_toggle', `item_${index}`)
+    } catch (error) {
+      logger.error('Erro ao alternar item FAQ', error as Error, { index })
+    }
+  }, [])
 
-  const faqs = [
+  const faqs = useMemo(() => [
     {
       question: "Como funciona o período de teste gratuito?",
       answer: "Oferecemos 14 dias de teste gratuito com acesso completo a todas as funcionalidades. Não é necessário cartão de crédito e você pode cancelar a qualquer momento. Nossa equipe estará disponível para te ajudar durante todo o período de teste.",
@@ -63,16 +69,25 @@ export default function FAQ() {
       category: "Funcionalidades",
       icon: Zap
     }
-  ]
+  ], [])
 
-  const categories = [
+  const categories = useMemo(() => [
     { name: "Teste e Onboarding", icon: Clock, count: 1 },
     { name: "Funcionalidades", icon: Zap, count: 3 },
     { name: "Migração", icon: MessageCircle, count: 1 },
     { name: "Segurança", icon: Shield, count: 1 },
     { name: "Integrações", icon: MessageCircle, count: 1 },
     { name: "Suporte", icon: HelpCircle, count: 1 }
-  ]
+  ], [])
+
+  useEffect(() => {
+    try {
+      logger.componentMount('FAQ')
+      logger.debug('FAQ inicializado', { totalItems: faqs.length })
+    } catch (error) {
+      logger.error('Erro ao inicializar FAQ', error as Error)
+    }
+  }, [faqs.length])
 
   return (
     <section id="faq" className="py-24 bg-white relative overflow-hidden">

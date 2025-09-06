@@ -1,9 +1,37 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
+import { logger } from '../../utils/logger'
 
 const Footer: React.FC = () => {
+  useEffect(() => {
+    try {
+      logger.componentMount('Footer')
+      logger.debug('Footer carregado com sucesso')
+    } catch (error) {
+      logger.error('Erro ao inicializar Footer', error as Error)
+    }
+  }, [])
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    try {
+      e.preventDefault()
+      logger.userInteraction('newsletter_submit')
+      // Lógica de newsletter aqui
+    } catch (error) {
+      logger.error('Erro ao submeter newsletter', error as Error)
+    }
+  }
+
+  const handleLinkClick = (linkName: string) => {
+    try {
+      logger.userInteraction('footer_link_click', linkName)
+    } catch (error) {
+      logger.error('Erro ao registrar clique no link', error as Error)
+    }
+  }
+
   return (
     <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
       {/* Background Effects */}
@@ -73,27 +101,27 @@ const Footer: React.FC = () => {
               <h4 className="text-lg font-semibold mb-6 text-white">Empresa</h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/sobre" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/sobre" onClick={() => handleLinkClick('sobre')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Sobre Nós
                   </Link>
                 </li>
                 <li>
-                  <Link href="/carreiras" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/carreiras" onClick={() => handleLinkClick('carreiras')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Carreiras
                   </Link>
                 </li>
                 <li>
-                  <Link href="/blog" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/blog" onClick={() => handleLinkClick('blog')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link href="/imprensa" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/imprensa" onClick={() => handleLinkClick('imprensa')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Imprensa
                   </Link>
                 </li>
                 <li>
-                  <Link href="/parceiros" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/parceiros" onClick={() => handleLinkClick('parceiros')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Parceiros
                   </Link>
                 </li>
@@ -105,28 +133,28 @@ const Footer: React.FC = () => {
               <h4 className="text-lg font-semibold mb-6 text-white">Suporte</h4>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/landingpages/contatolandprincipal" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/landingpages/contatolandprincipal" onClick={() => handleLinkClick('contato')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Entre em Contato
                   </Link>
                 </li>
                 <li>
-                  <Link href="/suporte" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/suporte" onClick={() => handleLinkClick('suporte')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Central de Ajuda
                   </Link>
                 </li>
                 <li>
-                  <Link href="/status" className="text-slate-300 hover:text-blue-400 transition-colors duration-300 flex items-center gap-2">
+                  <Link href="/status" onClick={() => handleLinkClick('status')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300 flex items-center gap-2">
                     Status do Sistema
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/api" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/api" onClick={() => handleLinkClick('api')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     API
                   </Link>
                 </li>
                 <li>
-                  <Link href="/integracao" className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
+                  <Link href="/integracao" onClick={() => handleLinkClick('integracao')} className="text-slate-300 hover:text-blue-400 transition-colors duration-300">
                     Integrações
                   </Link>
                 </li>
@@ -145,16 +173,20 @@ const Footer: React.FC = () => {
                   Receba atualizações sobre novos produtos, recursos e insights do mercado.
                 </p>
               </div>
-              <div className="flex gap-3">
+              <form onSubmit={handleNewsletterSubmit} className="flex gap-3">
                 <input
                   type="email"
                   placeholder="Seu melhor e-mail"
                   className="flex-1 px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
                 />
-                <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105">
+                <button 
+                  type="submit"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105"
+                >
                   Inscrever
                 </button>
-              </div>
+              </form>
             </div>
           </div>
 
