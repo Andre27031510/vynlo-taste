@@ -114,12 +114,32 @@ export default function ResourcesHero() {
               {/* Code Content */}
               <div className="font-mono text-sm space-y-2">
                 <div className="text-gray-500">// Vynlo API - Exemplo de Integração</div>
-                <div><span className="text-blue-400">import</span> <span className="text-white">{'{ VynloAPI }'}</span> <span className="text-blue-400">from</span> <span className="text-green-400">'@vynlo/sdk'</span></div>
+                <div>
+                  <span className="text-blue-400">import</span>{' '}
+                  <span className="text-white">{'{ VynloAPI }'}</span>{' '}
+                  <span className="text-blue-400">from</span>{' '}
+                  <span className="text-green-400">'@vynlo/sdk'</span>
+                </div>
                 <div className="mt-4"></div>
-                <div><span className="text-blue-400">const</span> <span className="text-white">api</span> <span className="text-gray-400">=</span> <span className="text-blue-400">new</span> <span className="text-yellow-400">VynloAPI</span><span className="text-white">({</span></div>
-                <div className="ml-4 text-white">apiKey: <span className="text-green-400">'your-api-key'</span>,</div>
-                <div className="ml-4 text-white">environment: <span className="text-green-400">'production'</span></div>
-                <div className="text-white">})</div>
+                <div>
+                  <span className="text-blue-400">const</span>{' '}
+                  <span className="text-white">api</span>{' '}
+                  <span className="text-gray-400">=</span>{' '}
+                  <span className="text-blue-400">new</span>{' '}
+                  <span className="text-yellow-400">VynloAPI</span>
+                  <span className="text-white">(</span>
+                  <span className="text-white">{'{'}</span>
+                </div>
+                <div className="ml-4 text-white">
+                  apiKey: <span className="text-green-400">'your-api-key'</span>,
+                </div>
+                <div className="ml-4 text-white">
+                  environment: <span className="text-green-400">'production'</span>
+                </div>
+                <div className="text-white">
+                  <span className="text-white">{'}'}</span>
+                  <span className="text-white">)</span>
+                </div>
               </div>
             </div>
           </div>
