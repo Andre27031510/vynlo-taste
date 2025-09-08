@@ -22,6 +22,20 @@ const Segments: React.FC<SegmentsProps> = ({
 
   useEffect(() => {
     setActiveSegment(segmentKeys[currentSegmentIndex] || 'taste');
+    
+    // Mover carrossel automaticamente
+    const carousel = document.getElementById('segments-carousel');
+    if (carousel) {
+      const tabWidth = 180 + 8; // largura da aba + gap
+      const visibleTabs = 4; // número de abas visíveis
+      
+      let translateX = 0;
+      if (currentSegmentIndex >= visibleTabs) {
+        translateX = -(currentSegmentIndex - visibleTabs + 1) * tabWidth;
+      }
+      
+      carousel.style.transform = `translateX(${translateX}px)`;
+    }
   }, [currentSegmentIndex]);
 
   const handleSegmentClick = (segment: string) => {
