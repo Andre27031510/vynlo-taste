@@ -70,23 +70,29 @@ export const useLandingPage = () => {
   }, [handleError]);
 
   // Controle dos segmentos com tratamento de erro
+  const segmentKeys = ['taste', 'bot', 'ekklesia', 'barber', 'pet', 'edu', 'field', 'health'];
+  
   const nextSegment = useCallback(() => {
     try {
-      setCurrentSegmentIndex(prev => prev + 1);
-      logger.userInteraction('next_segment');
+      const nextIndex = (currentSegmentIndex + 1) % segmentKeys.length;
+      setCurrentSegmentIndex(nextIndex);
+      showSegmentTab(segmentKeys[nextIndex]);
+      logger.userInteraction('next_segment', segmentKeys[nextIndex]);
     } catch (error) {
       handleError(error as Error, 'nextSegment');
     }
-  }, [handleError]);
+  }, [currentSegmentIndex, segmentKeys, showSegmentTab, handleError]);
 
   const previousSegment = useCallback(() => {
     try {
-      setCurrentSegmentIndex(prev => Math.max(0, prev - 1));
-      logger.userInteraction('previous_segment');
+      const prevIndex = currentSegmentIndex === 0 ? segmentKeys.length - 1 : currentSegmentIndex - 1;
+      setCurrentSegmentIndex(prevIndex);
+      showSegmentTab(segmentKeys[prevIndex]);
+      logger.userInteraction('previous_segment', segmentKeys[prevIndex]);
     } catch (error) {
       handleError(error as Error, 'previousSegment');
     }
-  }, [handleError]);
+  }, [currentSegmentIndex, segmentKeys, showSegmentTab, handleError]);
 
   // Função para mostrar aba do segmento com tratamento de erro
   const showSegmentTab = useCallback((segment: string) => {
@@ -260,15 +266,38 @@ export const useLandingPage = () => {
             <span style="color: ${info.statusColor}; font-size: 0.875rem; font-weight: 600; font-family: Manrope, sans-serif;">${sanitizeText(info.status)}</span>
           </div>
           
-          <h4 style="color: #ffffff; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; font-family: Manrope, sans-serif;">Métricas</h4>
+          <h4 style="color: #ffffff; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; font-family: Manrope, sans-serif;">Destaques</h4>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            ${Object.entries(info.metrics).map(([key, value]) => `
-              <div style="text-align: center;">
-                <div style="color: #ffffff; font-size: 1.5rem; font-weight: 800; font-family: Manrope, sans-serif;">${sanitizeText(value as string)}</div>
-                <div style="color: #94a3b8; font-size: 0.75rem; font-family: Manrope, sans-serif; text-transform: capitalize;">${sanitizeText(key)}</div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+              <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
               </div>
-            `).join('')}
+              <div>
+                <div style="color: #ffffff; font-size: 1rem; font-weight: 700; font-family: Manrope, sans-serif;">Inovação</div>
+                <div style="color: #dbeafe; font-size: 0.75rem; font-family: Manrope, sans-serif;">Tecnologia de ponta</div>
+              </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+              <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+              </div>
+              <div>
+                <div style="color: #ffffff; font-size: 1rem; font-weight: 700; font-family: Manrope, sans-serif;">Performance</div>
+                <div style="color: #d1fae5; font-size: 0.75rem; font-family: Manrope, sans-serif;">Velocidade máxima</div>
+              </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+              <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div>
+                <div style="color: #ffffff; font-size: 1rem; font-weight: 700; font-family: Manrope, sans-serif;">Segurança</div>
+                <div style="color: #ede9fe; font-size: 0.75rem; font-family: Manrope, sans-serif;">Proteção total</div>
+              </div>
+            </div>
           </div>
           
           ${info.link ? `
@@ -368,6 +397,7 @@ export const useLandingPage = () => {
   // Inicializar primeira aba com tratamento de erro
   useEffect(() => {
     try {
+      setCurrentSegmentIndex(0);
       showSegmentTab('taste');
       logger.componentMount('LandingPage');
     } catch (error) {
