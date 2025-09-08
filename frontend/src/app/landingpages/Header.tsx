@@ -48,8 +48,9 @@ const Header: React.FC = () => {
   return (
     <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 9999, padding: '16px 0' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <a href="#home" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</a>
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="desktop-nav">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+          <a href="#home" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</a>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="desktop-nav">
           <button className="mobile-menu" style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => (window as any).toggleMobileMenu?.()}>
             ☰
           </button>
@@ -146,13 +147,16 @@ const Header: React.FC = () => {
               </a>
             </div>
           </div>
-          <a href="/landingpages/sobre" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Sobre</a>
-          <a href="/landingpages/recursos" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Recursos</a>
-          <a href="/landingpages/blog" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Blog</a>
-          <a href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</a>
+            <a href="/landingpages/sobre" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Sobre</a>
+            <a href="/landingpages/recursos" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Recursos</a>
+            <a href="/landingpages/blog" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Blog</a>
+            <a href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</a>
+          </nav>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <a href="/contato" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 600, padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', transition: 'all 0.3s ease' }}>Contato</a>
           <a href="/login" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 600, padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', transition: 'all 0.3s ease' }}>Sou Cliente</a>
-        </nav>
+        </div>
       </div>
     </header>
   );
