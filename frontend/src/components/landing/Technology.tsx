@@ -69,7 +69,7 @@ export default function Technology() {
       iconBg: "bg-blue-100",
       textColor: "text-blue-600",
       features: ["Escalonamento automático", "Múltiplas regiões", "Recuperação de desastres", "Monitoramento 24/7"],
-      metrics: { regions: "12+", scaling: "Automático", availability: "99.99%" }
+      metrics: { regions: "12+", scaling: "Auto", availability: "99.99%" }
     },
     {
       icon: Smartphone,
@@ -80,7 +80,7 @@ export default function Technology() {
       iconBg: "bg-purple-100",
       textColor: "text-purple-600",
       features: ["App iOS/Android", "PWA Avançado", "Modo offline", "Sincronização automática"],
-      metrics: { platforms: "3+", offline: "100%", sync: "Tempo real" }
+      metrics: { platforms: "3+", offline: "100%", sync: "Real Time" }
     },
     {
       icon: Database,
@@ -91,7 +91,7 @@ export default function Technology() {
       iconBg: "bg-indigo-100",
       textColor: "text-indigo-600",
       features: ["IA Preditiva", "Machine Learning", "Insights Automáticos", "Análise Comportamental"],
-      metrics: { accuracy: "95%", predictions: "Tempo real", models: "50+" }
+      metrics: { accuracy: "95%", predictions: "Real Time", models: "50+" }
     },
     {
       icon: BarChart3,
@@ -242,20 +242,7 @@ export default function Technology() {
           })}
         </div>
 
-        {/* Call to Action */}
-        <div className="text-center mt-20">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-white">
-            <h3 className="text-4xl font-manrope font-bold mb-4">
-              Pronto para experimentar?
-            </h3>
-            <p className="text-xl font-manrope mb-8 opacity-90">
-              Teste nossa tecnologia avançada gratuitamente por 14 dias
-            </p>
-            <button className="bg-white text-blue-600 font-manrope font-bold px-8 py-4 rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
-              Começar Teste Gratuito
-            </button>
-          </div>
-        </div>
+
       </div>
     </section>
   )
