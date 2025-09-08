@@ -146,12 +146,12 @@ const Header: React.FC = () => {
               </a>
             </div>
           </div>
-          <a href="#stack" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Tecnologias</a>
-          <a href="#funnel" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Como Contratar</a>
-          <a href="#faq" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>FAQ</a>
-          <a href="#why-vynlo" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Por que Vynlo?</a>
-          <a href="/contato" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 600, padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', transition: 'all 0.3s ease' }}>Entre em Contato</a>
-          <a href="/login" style={{ background: 'rgba(30, 41, 59, 0.8)', color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 500, padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', border: '1px solid rgba(255, 255, 255, 0.1)' }}>Sou Cliente</a>
+          <a href="/landingpages/sobre" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Sobre</a>
+          <a href="/landingpages/recursos" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Recursos</a>
+          <a href="/landingpages/blog" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Blog</a>
+          <a href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</a>
+          <a href="/contato" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Contato</a>
+          <a href="/login" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '14px', fontWeight: 600, padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', transition: 'all 0.3s ease' }}>Login</a>
         </nav>
       </div>
     </header>
