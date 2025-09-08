@@ -27,7 +27,8 @@ const LandingPrincipal: React.FC = () => {
     segmentContent,
     showSegmentTab,
     nextSegment,
-    previousSegment
+    previousSegment,
+    currentSegmentIndex
   } = useLandingPage();
 
   React.useEffect(() => {
@@ -66,6 +67,7 @@ const LandingPrincipal: React.FC = () => {
               showSegmentTab={showSegmentTab}
               nextSegment={nextSegment}
               previousSegment={previousSegment}
+              currentSegmentIndex={currentSegmentIndex}
             />
           </Suspense>
         </ErrorBoundary>

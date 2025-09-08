@@ -258,42 +258,42 @@ export const useLandingPage = () => {
           </div>
         </div>
         
-        <div style="background: rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 32px; backdrop-filter: blur(10px);">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-            <div style="width: 12px; height: 12px; background: ${info.statusColor}; border-radius: 50%; animation: pulse 2s infinite;"></div>
-            <span style="color: ${info.statusColor}; font-size: 0.875rem; font-weight: 600; font-family: Manrope, sans-serif;">${sanitizeText(info.status)}</span>
+        <div style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)); border-radius: 24px; padding: 40px; backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);">
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding: 16px; background: rgba(255, 255, 255, 0.1); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div style="width: 16px; height: 16px; background: ${info.statusColor}; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 20px ${info.statusColor};"></div>
+            <span style="color: ${info.statusColor}; font-size: 1rem; font-weight: 700; font-family: Manrope, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${sanitizeText(info.status)}</span>
           </div>
           
-          <h4 style="color: #ffffff; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; font-family: Manrope, sans-serif;">Destaques</h4>
+          <h4 style="color: #ffffff; font-size: 1.5rem; font-weight: 800; margin-bottom: 24px; font-family: Manrope, sans-serif; text-align: center;">Destaques Premium</h4>
           
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-              <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: linear-gradient(135deg, #3b82f6, #1e40af); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 40px rgba(59, 130, 246, 0.3)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 32px rgba(59, 130, 246, 0.2)';">
+              <div style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
               </div>
               <div>
-                <div style="color: #ffffff; font-size: 1rem; font-weight: 700; font-family: Manrope, sans-serif;">Inovação</div>
-                <div style="color: #dbeafe; font-size: 0.75rem; font-family: Manrope, sans-serif;">Tecnologia de ponta</div>
+                <div style="color: #ffffff; font-size: 1.125rem; font-weight: 800; font-family: Manrope, sans-serif; margin-bottom: 4px;">Inovação</div>
+                <div style="color: #dbeafe; font-size: 0.875rem; font-family: Manrope, sans-serif; font-weight: 500;">Tecnologia de ponta</div>
               </div>
             </div>
             
-            <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-              <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+            <div style="background: linear-gradient(135deg, #10b981, #047857); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 40px rgba(16, 185, 129, 0.3)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 32px rgba(16, 185, 129, 0.2)';">
+              <div style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
               </div>
               <div>
-                <div style="color: #ffffff; font-size: 1rem; font-weight: 700; font-family: Manrope, sans-serif;">Performance</div>
-                <div style="color: #d1fae5; font-size: 0.75rem; font-family: Manrope, sans-serif;">Velocidade máxima</div>
+                <div style="color: #ffffff; font-size: 1.125rem; font-weight: 800; font-family: Manrope, sans-serif; margin-bottom: 4px;">Performance</div>
+                <div style="color: #d1fae5; font-size: 0.875rem; font-family: Manrope, sans-serif; font-weight: 500;">Velocidade máxima</div>
               </div>
             </div>
             
-            <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;">
-              <div style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(139, 92, 246, 0.3); box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 12px 40px rgba(139, 92, 246, 0.3)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 32px rgba(139, 92, 246, 0.2)';">
+              <div style="width: 48px; height: 48px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               </div>
               <div>
-                <div style="color: #ffffff; font-size: 1rem; font-weight: 700; font-family: Manrope, sans-serif;">Segurança</div>
-                <div style="color: #ede9fe; font-size: 0.75rem; font-family: Manrope, sans-serif;">Proteção total</div>
+                <div style="color: #ffffff; font-size: 1.125rem; font-weight: 800; font-family: Manrope, sans-serif; margin-bottom: 4px;">Segurança</div>
+                <div style="color: #ede9fe; font-size: 0.875rem; font-family: Manrope, sans-serif; font-weight: 500;">Proteção total</div>
               </div>
             </div>
           </div>

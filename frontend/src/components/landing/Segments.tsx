@@ -1,20 +1,33 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface SegmentsProps {
   segmentContent: string;
   showSegmentTab: (segment: string) => void;
   nextSegment: () => void;
   previousSegment: () => void;
+  currentSegmentIndex: number;
 }
 
 const Segments: React.FC<SegmentsProps> = ({
   segmentContent,
   showSegmentTab,
   nextSegment,
-  previousSegment
+  previousSegment,
+  currentSegmentIndex
 }) => {
+  const segmentKeys = ['taste', 'bot', 'ekklesia', 'barber', 'pet', 'edu', 'field', 'health'];
+  const [activeSegment, setActiveSegment] = useState('taste');
+
+  useEffect(() => {
+    setActiveSegment(segmentKeys[currentSegmentIndex] || 'taste');
+  }, [currentSegmentIndex]);
+
+  const handleSegmentClick = (segment: string) => {
+    setActiveSegment(segment);
+    showSegmentTab(segment);
+  };
   return (
     <section id="segments" className="segments-section">
       <div className="segments-bg-overlay"></div>
@@ -54,9 +67,9 @@ const Segments: React.FC<SegmentsProps> = ({
           <div className="segments-carousel-container">
             <div id="segments-carousel" className="segments-carousel">
               <button 
-                className="segment-tab active" 
+                className={`segment-tab ${activeSegment === 'taste' ? 'active' : ''}`}
                 data-segment="taste" 
-                onClick={() => showSegmentTab('taste')}
+                onClick={() => handleSegmentClick('taste')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
@@ -67,9 +80,9 @@ const Segments: React.FC<SegmentsProps> = ({
               </button>
               
               <button 
-                className="segment-tab" 
+                className={`segment-tab ${activeSegment === 'bot' ? 'active' : ''}`}
                 data-segment="bot" 
-                onClick={() => showSegmentTab('bot')}
+                onClick={() => handleSegmentClick('bot')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 8V4H8"/>
@@ -83,9 +96,9 @@ const Segments: React.FC<SegmentsProps> = ({
               </button>
               
               <button 
-                className="segment-tab" 
+                className={`segment-tab ${activeSegment === 'ekklesia' ? 'active' : ''}`}
                 data-segment="ekklesia" 
-                onClick={() => showSegmentTab('ekklesia')}
+                onClick={() => handleSegmentClick('ekklesia')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 21l4-7 4 7"/>
@@ -97,9 +110,9 @@ const Segments: React.FC<SegmentsProps> = ({
               </button>
               
               <button 
-                className="segment-tab" 
+                className={`segment-tab ${activeSegment === 'barber' ? 'active' : ''}`}
                 data-segment="barber" 
-                onClick={() => showSegmentTab('barber')}
+                onClick={() => handleSegmentClick('barber')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 12h12"/>
@@ -109,9 +122,9 @@ const Segments: React.FC<SegmentsProps> = ({
               </button>
               
               <button 
-                className="segment-tab" 
+                className={`segment-tab ${activeSegment === 'pet' ? 'active' : ''}`}
                 data-segment="pet" 
-                onClick={() => showSegmentTab('pet')}
+                onClick={() => handleSegmentClick('pet')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 5a3 3 0 1 0-6 0c0 1.61 1.16 2.94 2.69 3.24A6.93 6.93 0 0 0 8 12"/>
@@ -123,9 +136,9 @@ const Segments: React.FC<SegmentsProps> = ({
               </button>
               
               <button 
-                className="segment-tab" 
+                className={`segment-tab ${activeSegment === 'edu' ? 'active' : ''}`}
                 data-segment="edu" 
-                onClick={() => showSegmentTab('edu')}
+                onClick={() => handleSegmentClick('edu')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -135,9 +148,9 @@ const Segments: React.FC<SegmentsProps> = ({
               </button>
               
               <button 
-                className="segment-tab" 
+                className={`segment-tab ${activeSegment === 'field' ? 'active' : ''}`}
                 data-segment="field" 
-                onClick={() => showSegmentTab('field')}
+                onClick={() => handleSegmentClick('field')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
@@ -146,9 +159,9 @@ const Segments: React.FC<SegmentsProps> = ({
               </button>
               
               <button 
-                className="segment-tab" 
+                className={`segment-tab ${activeSegment === 'health' ? 'active' : ''}`}
                 data-segment="health" 
-                onClick={() => showSegmentTab('health')}
+                onClick={() => handleSegmentClick('health')}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>
