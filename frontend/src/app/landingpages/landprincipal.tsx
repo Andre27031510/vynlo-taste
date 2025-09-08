@@ -7,6 +7,7 @@ import { logger } from '../../utils/logger';
 import '../../styles/landing.css';
 
 // Code splitting with React.lazy for better performance
+const Header = React.lazy(() => import('./Header'));
 const Hero = React.lazy(() => import('../../components/landing/Hero'));
 const FAQ = React.lazy(() => import('../../components/landing/FAQ'));
 const Segments = React.lazy(() => import('../../components/landing/Segments'));
@@ -38,6 +39,12 @@ const LandingPrincipal: React.FC = () => {
   return (
     <ErrorBoundary>
       <div>
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Header />
+          </Suspense>
+        </ErrorBoundary>
+        
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
             <Hero />
