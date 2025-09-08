@@ -107,7 +107,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #10b981, #059669)',
         status: 'Disponível',
         statusColor: '#22c55e',
-        metrics: { clients: '2.500+', growth: '+150%', satisfaction: '98%', roi: '300%' },
+        cardData: {
+          benefit1: { title: 'Vendas', value: '+150% crescimento' },
+          benefit2: { title: 'Clientes', value: '2.500+ restaurantes' },
+          benefit3: { title: 'Satisfação', value: '98% aprovação' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg>', title: 'Pedidos Integrados', desc: 'Balcão, delivery e WhatsApp em uma plataforma unificada' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 3v18h18"/></svg>', title: 'Gestão Inteligente', desc: 'Controle de estoque com IA e alertas automáticos' }
@@ -123,7 +127,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
         status: 'Em Desenvolvimento',
         statusColor: '#3b82f6',
-        metrics: { accuracy: '95%', response: '< 2s', languages: '12+', integrations: '50+' },
+        cardData: {
+          benefit1: { title: 'Precisão', value: '95% de acurácia' },
+          benefit2: { title: 'Velocidade', value: 'Resposta < 2s' },
+          benefit3: { title: 'Idiomas', value: '12+ suportados' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', title: 'Chat Inteligente', desc: 'Conversas naturais com IA generativa avançada' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 19c-5 0-8-3-8-8s3-8 8-8 8 3 8 8-3 8-8 8z"/><path d="M17 17l4 4"/></svg>', title: 'Análise Preditiva', desc: 'Previsão de comportamento e preferências do cliente' }
@@ -139,7 +147,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
         status: 'Planejamento',
         statusColor: '#f59e0b',
-        metrics: { churches: '500+', members: '50k+', events: '1k+', donations: 'R$ 2M+' },
+        cardData: {
+          benefit1: { title: 'Igrejas', value: '500+ cadastradas' },
+          benefit2: { title: 'Membros', value: '50k+ ativos' },
+          benefit3: { title: 'Eventos', value: '1k+ realizados' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', title: 'Gestão de Membros', desc: 'Cadastro completo e acompanhamento de membros' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2v20m8-10H4"/></svg>', title: 'Controle Financeiro', desc: 'Dízimos, ofertas e gestão financeira transparente' }
@@ -155,7 +167,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #ef4444, #dc2626)',
         status: 'Em Desenvolvimento',
         statusColor: '#3b82f6',
-        metrics: { shops: '300+', bookings: '10k+', revenue: '+180%', retention: '85%' },
+        cardData: {
+          benefit1: { title: 'Barbearias', value: '300+ parceiras' },
+          benefit2: { title: 'Agendamentos', value: '10k+ mensais' },
+          benefit3: { title: 'Receita', value: '+180% aumento' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M8 2v4l-3 3h18l-3-3V2z"/><path d="M16 4h2a2 2 0 0 1 2 2v2H4V6a2 2 0 0 1 2-2h2"/></svg>', title: 'Agendamento Online', desc: 'Sistema de reservas integrado com WhatsApp' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>', title: 'Fidelização', desc: 'Programa de pontos e promoções personalizadas' }
@@ -171,7 +187,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #ec4899, #db2777)',
         status: 'Planejamento',
         statusColor: '#6b7280',
-        metrics: { petshops: '200+', pets: '15k+', services: '5k+', satisfaction: '96%' },
+        cardData: {
+          benefit1: { title: 'Petshops', value: '200+ cadastrados' },
+          benefit2: { title: 'Pets', value: '15k+ atendidos' },
+          benefit3: { title: 'Serviços', value: '5k+ realizados' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>', title: 'Histórico Pet', desc: 'Prontuário completo e histórico de saúde' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M8 2v4l-3 3h18l-3-3V2z"/></svg>', title: 'Agendamento', desc: 'Banho, tosa e consultas veterinárias' }
@@ -187,7 +207,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)',
         status: 'Em Desenvolvimento',
         statusColor: '#3b82f6',
-        metrics: { schools: '150+', students: '25k+', courses: '500+', completion: '92%' },
+        cardData: {
+          benefit1: { title: 'Escolas', value: '150+ parceiras' },
+          benefit2: { title: 'Alunos', value: '25k+ ativos' },
+          benefit3: { title: 'Cursos', value: '500+ disponíveis' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>', title: 'Gestão Acadêmica', desc: 'Notas, frequência e histórico escolar completo' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg>', title: 'EAD Integrado', desc: 'Plataforma de ensino à distância completa' }
@@ -203,7 +227,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #84cc16, #65a30d)',
         status: 'Planejamento',
         statusColor: '#6b7280',
-        metrics: { companies: '100+', technicians: '2k+', orders: '50k+', efficiency: '+200%' },
+        cardData: {
+          benefit1: { title: 'Empresas', value: '100+ parceiras' },
+          benefit2: { title: 'Técnicos', value: '2k+ cadastrados' },
+          benefit3: { title: 'Ordens', value: '50k+ executadas' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>', title: 'Rastreamento GPS', desc: 'Localização em tempo real das equipes' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>', title: 'Ordens de Serviço', desc: 'Gestão completa de OS digitais' }
@@ -219,7 +247,11 @@ export const useLandingPage = () => {
         gradient: 'linear-gradient(135deg, #ef4444, #dc2626)',
         status: 'Planejamento',
         statusColor: '#6b7280',
-        metrics: { clinics: '80+', patients: '10k+', appointments: '30k+', satisfaction: '97%' },
+        cardData: {
+          benefit1: { title: 'Clínicas', value: '80+ parceiras' },
+          benefit2: { title: 'Pacientes', value: '10k+ atendidos' },
+          benefit3: { title: 'Consultas', value: '30k+ realizadas' }
+        },
         features: [
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>', title: 'Prontuário Eletrônico', desc: 'Histórico médico completo e seguro' },
           { icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg>', title: 'Telemedicina', desc: 'Consultas online integradas' }
@@ -275,18 +307,18 @@ export const useLandingPage = () => {
           
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <div style="background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
-              <div style="color: #ffffff; font-size: 1.125rem; font-weight: 700; font-family: Manrope, sans-serif; margin-bottom: 4px;">Produtividade</div>
-              <div style="color: #dbeafe; font-size: 0.875rem; font-family: Manrope, sans-serif;">+200% mais eficiência</div>
+              <div style="color: #ffffff; font-size: 1.125rem; font-weight: 700; font-family: Manrope, sans-serif; margin-bottom: 4px;">${sanitizeText(info.cardData.benefit1.title)}</div>
+              <div style="color: #dbeafe; font-size: 0.875rem; font-family: Manrope, sans-serif;">${sanitizeText(info.cardData.benefit1.value)}</div>
             </div>
             
             <div style="background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
-              <div style="color: #ffffff; font-size: 1.125rem; font-weight: 700; font-family: Manrope, sans-serif; margin-bottom: 4px;">Economia</div>
-              <div style="color: #dbeafe; font-size: 0.875rem; font-family: Manrope, sans-serif;">Redução de 60% nos custos</div>
+              <div style="color: #ffffff; font-size: 1.125rem; font-weight: 700; font-family: Manrope, sans-serif; margin-bottom: 4px;">${sanitizeText(info.cardData.benefit2.title)}</div>
+              <div style="color: #dbeafe; font-size: 0.875rem; font-family: Manrope, sans-serif;">${sanitizeText(info.cardData.benefit2.value)}</div>
             </div>
             
             <div style="background: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
-              <div style="color: #ffffff; font-size: 1.125rem; font-weight: 700; font-family: Manrope, sans-serif; margin-bottom: 4px;">Suporte</div>
-              <div style="color: #dbeafe; font-size: 0.875rem; font-family: Manrope, sans-serif;">Atendimento 24/7</div>
+              <div style="color: #ffffff; font-size: 1.125rem; font-weight: 700; font-family: Manrope, sans-serif; margin-bottom: 4px;">${sanitizeText(info.cardData.benefit3.title)}</div>
+              <div style="color: #dbeafe; font-size: 0.875rem; font-family: Manrope, sans-serif;">${sanitizeText(info.cardData.benefit3.value)}</div>
             </div>
           </div>
           

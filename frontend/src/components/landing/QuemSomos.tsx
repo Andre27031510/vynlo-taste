@@ -47,34 +47,26 @@ export default function QuemSomos() {
                   <Brain className="w-16 h-16 text-white transform transition-transform duration-500 group-hover:rotate-12" />
                 </div>
                 
-                {/* Floating Tech Icons */}
-                <div className="absolute top-8 left-8 transform transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-2">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-bounce">
-                    <Cpu className="w-6 h-6 text-white" />
+                {/* Floating Tech Icons em Coluna */}
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col gap-3">
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center transform transition-all duration-500 group-hover:scale-125 animate-bounce">
+                    <Cpu className="w-5 h-5 text-white" />
                   </div>
-                </div>
-                
-                <div className="absolute top-16 right-4 transform transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-2">
-                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center animate-pulse">
+                  
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center transform transition-all duration-500 group-hover:scale-125 animate-pulse">
                     <Code className="w-5 h-5 text-white" />
                   </div>
-                </div>
-                
-                <div className="absolute bottom-12 left-4 transform transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-2">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center animate-bounce" style={{animationDelay: '1s'}}>
-                    <Database className="w-7 h-7 text-white" />
+                  
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center transform transition-all duration-500 group-hover:scale-125 animate-bounce" style={{animationDelay: '1s'}}>
+                    <Database className="w-5 h-5 text-white" />
                   </div>
-                </div>
-                
-                <div className="absolute bottom-8 right-8 transform transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-2">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center animate-pulse" style={{animationDelay: '0.5s'}}>
-                    <Zap className="w-6 h-6 text-white" />
+                  
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center transform transition-all duration-500 group-hover:scale-125 animate-pulse" style={{animationDelay: '0.5s'}}>
+                    <Zap className="w-5 h-5 text-white" />
                   </div>
-                </div>
-                
-                <div className="absolute top-1/2 right-2 transform transition-all duration-500 group-hover:scale-125 group-hover:-translate-y-2">
-                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center animate-bounce">
-                    <Cloud className="w-4 h-4 text-white" />
+                  
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center transform transition-all duration-500 group-hover:scale-125 animate-bounce" style={{animationDelay: '1.5s'}}>
+                    <Cloud className="w-5 h-5 text-white" />
                   </div>
                 </div>
                 

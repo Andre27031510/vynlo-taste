@@ -68,8 +68,8 @@ export default function Technology() {
       bgColor: "bg-blue-50",
       iconBg: "bg-blue-100",
       textColor: "text-blue-600",
-      features: ["Auto-scaling", "Multi-região", "Disaster Recovery", "Monitoramento 24/7"],
-      metrics: { regions: "12+", scaling: "Auto", availability: "99.99%" }
+      features: ["Escalonamento automático", "Múltiplas regiões", "Recuperação de desastres", "Monitoramento 24/7"],
+      metrics: { regions: "12+", scaling: "Automático", availability: "99.99%" }
     },
     {
       icon: Smartphone,
@@ -79,8 +79,8 @@ export default function Technology() {
       bgColor: "bg-purple-50",
       iconBg: "bg-purple-100",
       textColor: "text-purple-600",
-      features: ["App iOS/Android", "PWA Avançado", "Modo Offline", "Sincronização Automática"],
-      metrics: { platforms: "3+", offline: "100%", sync: "Real-time" }
+      features: ["App iOS/Android", "PWA Avançado", "Modo offline", "Sincronização automática"],
+      metrics: { platforms: "3+", offline: "100%", sync: "Tempo real" }
     },
     {
       icon: Database,
@@ -91,7 +91,7 @@ export default function Technology() {
       iconBg: "bg-indigo-100",
       textColor: "text-indigo-600",
       features: ["IA Preditiva", "Machine Learning", "Insights Automáticos", "Análise Comportamental"],
-      metrics: { accuracy: "95%", predictions: "Real-time", models: "50+" }
+      metrics: { accuracy: "95%", predictions: "Tempo real", models: "50+" }
     },
     {
       icon: BarChart3,
@@ -101,7 +101,7 @@ export default function Technology() {
       bgColor: "bg-rose-50",
       iconBg: "bg-rose-100",
       textColor: "text-rose-600",
-      features: ["Tempo Real", "Export Automático", "Dashboards Personalizados", "Alertas Inteligentes"],
+      features: ["Tempo real", "Exportação automática", "Painéis personalizados", "Alertas inteligentes"],
       metrics: { reports: "100+", realtime: "24/7", formats: "10+" }
     }
   ]
