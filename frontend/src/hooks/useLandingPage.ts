@@ -76,23 +76,21 @@ export const useLandingPage = () => {
     try {
       const nextIndex = (currentSegmentIndex + 1) % segmentKeys.length;
       setCurrentSegmentIndex(nextIndex);
-      showSegmentTab(segmentKeys[nextIndex]);
       logger.userInteraction('next_segment', segmentKeys[nextIndex]);
     } catch (error) {
       handleError(error as Error, 'nextSegment');
     }
-  }, [currentSegmentIndex, segmentKeys, showSegmentTab, handleError]);
+  }, [currentSegmentIndex, segmentKeys, handleError]);
 
   const previousSegment = useCallback(() => {
     try {
       const prevIndex = currentSegmentIndex === 0 ? segmentKeys.length - 1 : currentSegmentIndex - 1;
       setCurrentSegmentIndex(prevIndex);
-      showSegmentTab(segmentKeys[prevIndex]);
       logger.userInteraction('previous_segment', segmentKeys[prevIndex]);
     } catch (error) {
       handleError(error as Error, 'previousSegment');
     }
-  }, [currentSegmentIndex, segmentKeys, showSegmentTab, handleError]);
+  }, [currentSegmentIndex, segmentKeys, handleError]);
 
   // Função para mostrar aba do segmento com tratamento de erro
   const showSegmentTab = useCallback((segment: string) => {
@@ -394,16 +392,27 @@ export const useLandingPage = () => {
     }
   }, [nextSlide, handleError]);
 
+  // Sincronizar mudança de segmento
+  useEffect(() => {
+    try {
+      const segmentKeys = ['taste', 'bot', 'ekklesia', 'barber', 'pet', 'edu', 'field', 'health'];
+      if (segmentKeys[currentSegmentIndex]) {
+        showSegmentTab(segmentKeys[currentSegmentIndex]);
+      }
+    } catch (error) {
+      handleError(error as Error, 'segment_sync');
+    }
+  }, [currentSegmentIndex, showSegmentTab, handleError]);
+
   // Inicializar primeira aba com tratamento de erro
   useEffect(() => {
     try {
       setCurrentSegmentIndex(0);
-      showSegmentTab('taste');
       logger.componentMount('LandingPage');
     } catch (error) {
       handleError(error as Error, 'initialization');
     }
-  }, [showSegmentTab, handleError]);
+  }, [handleError]);
 
   return {
     segmentContent,
