@@ -13,6 +13,7 @@ const QuemSomos = React.lazy(() => import('../../components/landing/QuemSomos'))
 const Segments = React.lazy(() => import('../../components/landing/Segments'));
 const Technology = React.lazy(() => import('../../components/landing/Technology'));
 const WhyChooseVynlo = React.lazy(() => import('../../components/landing/WhyChooseVynlo'));
+const HowToHire = React.lazy(() => import('../../components/landing/HowToHire'));
 const FAQ = React.lazy(() => import('../../components/landing/FAQ'));
 const Footer = React.lazy(() => import('./Footer'));
 
@@ -82,6 +83,12 @@ const LandingPrincipal: React.FC = () => {
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
             <WhyChooseVynlo />
+          </Suspense>
+        </ErrorBoundary>
+        
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner />}>
+            <HowToHire />
           </Suspense>
         </ErrorBoundary>
         
