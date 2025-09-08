@@ -46,7 +46,7 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 1000, padding: '16px 0' }}>
+    <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 9999, padding: '16px 0' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <a href="#home" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</a>
         <nav style={{ display: 'flex', alignItems: 'center', gap: '32px' }} className="desktop-nav">

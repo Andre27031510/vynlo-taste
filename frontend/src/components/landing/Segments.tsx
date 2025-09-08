@@ -81,6 +81,81 @@ const Segments: React.FC<SegmentsProps> = ({
                 </svg>
                 IA Bot
               </button>
+              
+              <button 
+                className="segment-tab" 
+                data-segment="ekklesia" 
+                onClick={() => showSegmentTab('ekklesia')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8 21l4-7 4 7"/>
+                  <path d="M12 2v7"/>
+                  <path d="M3 6l2.5 2.5L8 6"/>
+                  <path d="M16 6l2.5 2.5L21 6"/>
+                </svg>
+                Igrejas
+              </button>
+              
+              <button 
+                className="segment-tab" 
+                data-segment="barber" 
+                onClick={() => showSegmentTab('barber')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 12h12"/>
+                  <path d="M6 20V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16l-6-3-6 3z"/>
+                </svg>
+                Barbearias
+              </button>
+              
+              <button 
+                className="segment-tab" 
+                data-segment="pet" 
+                onClick={() => showSegmentTab('pet')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8 5a3 3 0 1 0-6 0c0 1.61 1.16 2.94 2.69 3.24A6.93 6.93 0 0 0 8 12"/>
+                  <path d="M16 5a3 3 0 1 1 6 0c0 1.61-1.16 2.94-2.69 3.24A6.93 6.93 0 0 1 16 12"/>
+                  <path d="M12 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/>
+                  <path d="M12 11a6 6 0 0 0-6 6v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a6 6 0 0 0-6-6Z"/>
+                </svg>
+                Petshops
+              </button>
+              
+              <button 
+                className="segment-tab" 
+                data-segment="edu" 
+                onClick={() => showSegmentTab('edu')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+                Educação
+              </button>
+              
+              <button 
+                className="segment-tab" 
+                data-segment="field" 
+                onClick={() => showSegmentTab('field')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                Serviços
+              </button>
+              
+              <button 
+                className="segment-tab" 
+                data-segment="health" 
+                onClick={() => showSegmentTab('health')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>
+                  <path d="M12 5L8 21l4-7 4 7-4-16"/>
+                </svg>
+                Saúde
+              </button>
             </div>
           </div>
         </div>

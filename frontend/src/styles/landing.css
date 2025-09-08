@@ -176,7 +176,7 @@
   grid-template-columns: 1fr;
   gap: 3rem;
   align-items: center;
-  min-height: calc(100vh - 5rem);
+  min-height: calc(100vh - 10rem);
   padding: 3rem 0;
 }
 
@@ -186,13 +186,13 @@
   }
   
   .hero-container {
-    padding: 0 1.5rem;
+    padding: 10rem 1.5rem 0 1.5rem;
   }
 }
 
 @media (min-width: 640px) {
   .hero-container {
-    padding: 0 1.5rem;
+    padding: 10rem 1.5rem 0 1.5rem;
   }
 }
 
