@@ -17,9 +17,7 @@ export const sanitizeHTML = (html: string): string => {
   
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'span'],
-    ALLOWED_ATTR: ['class'],
-    FORBID_SCRIPTS: true,
-    FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input']
+    ALLOWED_ATTR: ['class']
   });
 };
 
