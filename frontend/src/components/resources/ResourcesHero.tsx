@@ -20,10 +20,10 @@ export default function ResourcesHero() {
   }, [])
 
   const features = [
-    { icon: Code, label: 'APIs REST', value: '50+' },
-    { icon: Database, label: 'Integrações', value: '100+' },
-    { icon: Shield, label: 'Segurança', value: '256-bit' },
-    { icon: Zap, label: 'Performance', value: '<50ms' }
+    { icon: Code, label: 'Funcionalidades', value: '200+' },
+    { icon: Database, label: 'Integrações', value: '50+' },
+    { icon: Shield, label: 'Segurança Total', value: '100%' },
+    { icon: Zap, label: 'Suporte 24/7', value: 'Sempre' }
   ]
 
   return (
@@ -45,59 +45,35 @@ export default function ResourcesHero() {
             <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3">
               <Cpu className="w-5 h-5 text-blue-400" />
               <span className="text-blue-300 font-manrope font-semibold text-sm">
-                Recursos Técnicos
+                Recursos Empresariais
               </span>
             </div>
             
             <h1 className="text-6xl lg:text-7xl font-manrope font-black text-white leading-tight">
-              Tecnologia que
+              Recursos que
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
-                impulsiona resultados
+                transformam negócios
               </span>
             </h1>
             
             <p className="text-xl text-gray-300 font-manrope leading-relaxed max-w-2xl">
-              Stack completo, APIs robustas, segurança bancária e performance excepcional. 
-              Descubra os recursos técnicos que fazem da Vynlo a escolha de milhares de desenvolvedores.
+              Gestão inteligente, segurança empresarial, relatórios avançados e suporte especializado. 
+              Descubra os recursos que fazem da Vynlo a escolha de milhares de empresários.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2">
                 <Terminal className="w-5 h-5" />
-                <span>Documentação API</span>
+                <span>Ver Demonstração</span>
               </button>
               
               <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
                 <GitBranch className="w-5 h-5" />
-                <span>Exemplos de Código</span>
+                <span>Solicitar Teste</span>
               </button>
             </div>
 
-            {/* Features Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-              {features.map((feature, index) => {
-                const IconComponent = feature.icon
-                
-                return (
-                  <div 
-                    key={index}
-                    onMouseEnter={() => setActiveFeature(index)}
-                    onMouseLeave={() => setActiveFeature(null)}
-                    className="text-center group cursor-pointer transform hover:scale-110 transition-all duration-300"
-                  >
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-3 group-hover:bg-white/20 transition-all duration-300">
-                      <IconComponent className="w-8 h-8 text-blue-400" />
-                    </div>
-                    <div className="text-2xl font-manrope font-black text-white mb-1">
-                      {feature.value}
-                    </div>
-                    <div className="text-gray-400 font-manrope text-sm font-medium">
-                      {feature.label}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+
           </div>
 
           {/* Code Preview */}

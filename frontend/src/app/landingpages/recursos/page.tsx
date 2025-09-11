@@ -9,12 +9,10 @@ import Footer from '../Footer'
 
 // Lazy loading dos componentes de recursos
 const ResourcesHero = React.lazy(() => import('../../../components/resources/ResourcesHero'))
-const TechStackSection = React.lazy(() => import('../../../components/resources/TechStackSection'))
-const APIsIntegrations = React.lazy(() => import('../../../components/resources/APIsIntegrations'))
-const SecurityProtection = React.lazy(() => import('../../../components/resources/SecurityProtection'))
-const PerformanceScalability = React.lazy(() => import('../../../components/resources/PerformanceScalability'))
-const TechnicalDocumentation = React.lazy(() => import('../../../components/resources/TechnicalDocumentation'))
-const TechnicalSupport = React.lazy(() => import('../../../components/resources/TechnicalSupport'))
+const SmartManagement = React.lazy(() => import('../../../components/resources/SmartManagement'))
+const BusinessSecurity = React.lazy(() => import('../../../components/resources/BusinessSecurity'))
+const AdvancedReports = React.lazy(() => import('../../../components/resources/AdvancedReports'))
+const SpecializedSupport = React.lazy(() => import('../../../components/resources/SpecializedSupport'))
 const DemonstrationCTA = React.lazy(() => import('../../../components/resources/DemonstrationCTA'))
 
 // Loading component
@@ -52,34 +50,63 @@ const RecursosPage: React.FC = () => {
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
-            <TechStackSection />
+            <SmartManagement />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
-            <APIsIntegrations />
+            <BusinessSecurity />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
-            <SecurityProtection />
+            <AdvancedReports />
           </Suspense>
         </ErrorBoundary>
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
-            <PerformanceScalability />
+            <SpecializedSupport />
           </Suspense>
         </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TechnicalDocumentation />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TechnicalSupport />
-          </Suspense>
-        </ErrorBoundary>
+        {/* Banner antes do Footer */}
+        <div className="mb-20">
+          <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 overflow-hidden max-w-7xl mx-auto">
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <h3 className="text-3xl font-manrope font-bold text-white mb-6">
+                  Pronto para revolucionar seu negócio?
+                </h3>
+                <p className="text-xl text-white/90 font-manrope leading-relaxed mb-8">
+                  Junte-se a mais de 5.000 empresários que já transformaram seus negócios com nossos recursos avançados. Teste grátis por 30 dias, sem compromisso.
+                </p>
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-white font-manrope">30 dias</div>
+                    <div className="text-white/80 font-manrope text-sm">Teste Grátis</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-white font-manrope">5.000+</div>
+                    <div className="text-white/80 font-manrope text-sm">Clientes Ativos</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-white font-manrope">24/7</div>
+                    <div className="text-white/80 font-manrope text-sm">Suporte Total</div>
+                  </div>
+                </div>
+              </div>
+              <div className="relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                  alt="Empresário usando Vynlo" 
+                  className="rounded-2xl shadow-2xl w-full h-80 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
             <DemonstrationCTA />
