@@ -110,14 +110,22 @@ const RecursosPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Banner Final antes do Footer */}
-        <section className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-black relative overflow-hidden">
+
+
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner />}>
+            <DemonstrationCTA />
+          </Suspense>
+        </ErrorBoundary>
+        
+        {/* Banner Final grudado no Footer */}
+        <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black relative overflow-hidden">
           <div className="absolute inset-0">
             <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
           </div>
           
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative py-32">
             <div className="text-center">
               <h3 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-6">
                 Transforme seu negócio
@@ -155,12 +163,7 @@ const RecursosPage: React.FC = () => {
             </div>
           </div>
         </section>
-
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <DemonstrationCTA />
-          </Suspense>
-        </ErrorBoundary>
+        
         <Footer />
       </div>
     </ErrorBoundary>
