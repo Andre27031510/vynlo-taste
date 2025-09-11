@@ -72,13 +72,7 @@ export default function SuccessCases() {
               </div>
 
               <h3 className="text-xl font-manrope font-bold text-white mb-2">{case_.company}</h3>
-              <div className="flex items-center gap-4 mb-4">
-                <p className="text-blue-400 font-manrope font-semibold text-sm">{case_.segment}</p>
-                <span className="text-gray-400 text-xs">•</span>
-                <p className="text-gray-400 font-manrope text-xs">{case_.period}</p>
-                <span className="text-gray-400 text-xs">•</span>
-                <p className="text-gray-400 font-manrope text-xs">{case_.locations}</p>
-              </div>
+              <p className="text-blue-400 font-manrope font-semibold text-sm mb-4">{case_.segment}</p>
               <p className="text-gray-300 font-manrope leading-relaxed mb-6 text-sm">{case_.description}</p>
               
               <div className="grid grid-cols-2 gap-4">
