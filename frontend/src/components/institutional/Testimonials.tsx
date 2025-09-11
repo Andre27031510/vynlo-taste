@@ -73,7 +73,7 @@ export default function Testimonials() {
             <span className="text-blue-700 font-manrope font-semibold text-sm">Depoimentos</span>
           </div>
           
-          <h2 className="text-lg font-manrope font-black text-gray-900 mb-8 leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-8 leading-tight">
             O que nossos
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
               clientes dizem

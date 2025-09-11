@@ -38,35 +38,35 @@ export default function InstitutionalTechStack() {
   const techStacks = [
     {
       icon: Code,
-      title: 'Frontend Enterprise',
-      description: 'Arquitetura moderna com React 18, Next.js 15 App Router, TypeScript strict mode, Tailwind CSS 3.4, Framer Motion para animações fluidas, PWA otimizado e SSR/SSG para SEO máximo',
-      technologies: ['React 18.3', 'Next.js 15.2', 'TypeScript 5.6', 'Tailwind 3.4', 'PWA', 'SSR/SSG'],
+      title: 'Interface Empresarial',
+      description: 'Arquitetura moderna com React 18, Next.js 15 Roteador de Aplicativo, TypeScript modo estrito, Tailwind CSS 3.4, Framer Motion para animações fluidas, Aplicativo Web Progressivo otimizado e renderização do lado do servidor para otimização máxima',
+      technologies: ['React 18.3', 'Next.js 15.2', 'TypeScript 5.6', 'Tailwind 3.4', 'Aplicativo Web Progressivo', 'Renderização Servidor'],
       color: 'from-blue-500 to-cyan-600',
-      metrics: { performance: '98/100', seo: '100/100', accessibility: '95/100' }
+      metrics: { desempenho: '98/100', otimizacao: '100/100', acessibilidade: '95/100' }
     },
     {
       icon: Database,
-      title: 'Backend Escalável',
-      description: 'Microserviços com Spring Boot 3.2, Java 17 LTS, PostgreSQL 15 com particionamento, Redis 7 para cache distribuído, RabbitMQ para mensageria assíncrona e Elasticsearch para busca avançada',
-      technologies: ['Spring Boot 3.2', 'Java 17 LTS', 'PostgreSQL 15', 'Redis 7', 'RabbitMQ', 'Elasticsearch'],
+      title: 'Servidor Escalável',
+      description: 'Microserviços com Spring Boot 3.2, Java 17 Suporte de Longo Prazo, PostgreSQL 15 com particionamento, Redis 7 para cache distribuído, RabbitMQ para mensageria assíncrona e Elasticsearch para busca avançada',
+      technologies: ['Spring Boot 3.2', 'Java 17 Suporte Longo Prazo', 'PostgreSQL 15', 'Redis 7', 'RabbitMQ', 'Elasticsearch'],
       color: 'from-emerald-500 to-green-600',
-      metrics: { uptime: '99.98%', latency: '<50ms', throughput: '10k req/s' }
+      metrics: { disponibilidade: '99.98%', latencia: '<50ms', capacidade: '10k req/s' }
     },
     {
       icon: Cloud,
-      title: 'Cloud Native AWS',
-      description: 'Infraestrutura como código com Terraform, containers Docker otimizados, orquestração Kubernetes (EKS), auto-scaling inteligente, CDN global CloudFront e monitoramento 24/7 com X-Ray',
-      technologies: ['AWS EKS', 'Docker', 'Terraform', 'CloudFront', 'X-Ray', 'Auto Scaling'],
+      title: 'Nuvem Nativa Amazon',
+      description: 'Infraestrutura como código com Terraform, containers Docker otimizados, orquestração Kubernetes, escalonamento automático inteligente, rede de distribuição de conteúdo global e monitoramento 24/7',
+      technologies: ['Amazon Kubernetes', 'Docker', 'Terraform', 'Rede Distribuição', 'Rastreamento X-Ray', 'Escalonamento Automático'],
       color: 'from-purple-500 to-violet-600',
-      metrics: { availability: '99.99%', scaling: 'Auto', regions: '15+' }
+      metrics: { disponibilidade: '99.99%', escalonamento: 'Automático', regioes: '15+' }
     },
     {
       icon: Shield,
-      title: 'Segurança Militar',
-      description: 'Criptografia AES-256, autenticação multi-fator, OAuth 2.0 + PKCE, JWT com refresh tokens, conformidade SOC 2 Type II, PCI DSS Level 1, LGPD/GDPR compliant e penetration testing mensal',
-      technologies: ['AES-256', 'OAuth 2.0', 'JWT', 'SOC 2', 'PCI DSS', 'LGPD/GDPR'],
+      title: 'Segurança Avançada',
+      description: 'Criptografia de nível bancário, autenticação multi-fator, protocolo de autorização seguro, tokens de atualização, conformidade com padrões internacionais de segurança e testes de penetração mensais',
+      technologies: ['Criptografia 256-bit', 'Autenticação Dupla', 'Tokens Seguros', 'Conformidade Internacional', 'Proteção Dados', 'Auditoria Mensal'],
       color: 'from-orange-500 to-red-600',
-      metrics: { encryption: '256-bit', compliance: '100%', incidents: '0' }
+      metrics: { criptografia: '256-bit', conformidade: '100%', incidentes: '0' }
     }
   ]
 
@@ -91,7 +91,7 @@ export default function InstitutionalTechStack() {
             </span>
           </div>
           
-          <h2 className="text-lg font-manrope font-black text-gray-900 mb-8 leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-8 leading-tight">
             Tecnologia de
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
               classe mundial
@@ -162,15 +162,15 @@ export default function InstitutionalTechStack() {
           })}
         </div>
 
-        {/* Professional Metrics */}
+        {/* Métricas Profissionais */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-white">
-          <h3 className="text-3xl font-manrope font-bold text-center mb-12">Métricas de Performance Enterprise</h3>
+          <h3 className="text-3xl font-manrope font-bold text-center mb-12">Métricas de Desempenho Empresarial</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: '99.98%', label: 'SLA Uptime', icon: Zap, description: 'Garantia contratual' },
-              { value: '<50ms', label: 'API Latency', icon: Globe, description: 'Tempo de resposta' },
-              { value: '10k+', label: 'Req/Second', icon: Cpu, description: 'Throughput máximo' },
-              { value: '24/7', label: 'Monitoring', icon: Shield, description: 'Observabilidade total' }
+              { value: '99.98%', label: 'Disponibilidade Garantida', icon: Zap, description: 'Garantia contratual' },
+              { value: '<50ms', label: 'Latência da Interface', icon: Globe, description: 'Tempo de resposta' },
+              { value: '10k+', label: 'Requisições/Segundo', icon: Cpu, description: 'Capacidade máxima' },
+              { value: '24/7', label: 'Monitoramento', icon: Shield, description: 'Observabilidade total' }
             ].map((stat, index) => {
               const IconComponent = stat.icon
               return (
