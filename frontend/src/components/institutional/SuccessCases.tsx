@@ -17,7 +17,7 @@ export default function SuccessCases() {
       segment: 'Gastronomia',
       results: '+300% vendas online',
       description: 'Transformação digital completa com aumento significativo nas vendas através do delivery integrado.',
-      metrics: { sales: '+300%', efficiency: '+150%', satisfaction: '98%' },
+      metrics: { vendas: '+300%', eficiencia: '+150%', satisfacao: '98%' },
       color: 'from-emerald-500 to-green-600'
     },
     {
@@ -25,7 +25,7 @@ export default function SuccessCases() {
       segment: 'Beleza & Estética',
       results: '+200% agendamentos',
       description: 'Sistema de agendamento online revolucionou a gestão de clientes e aumentou a receita.',
-      metrics: { bookings: '+200%', retention: '85%', revenue: '+180%' },
+      metrics: { agendamentos: '+200%', retencao: '85%', receita: '+180%' },
       color: 'from-blue-500 to-cyan-600'
     },
     {
@@ -33,7 +33,7 @@ export default function SuccessCases() {
       segment: 'Saúde Animal',
       results: '90% redução tempo',
       description: 'Digitalização completa dos processos reduziu drasticamente o tempo de atendimento.',
-      metrics: { time: '-90%', clients: '+250%', satisfaction: '96%' },
+      metrics: { tempo: '-90%', clientes: '+250%', satisfacao: '96%' },
       color: 'from-purple-500 to-violet-600'
     }
   ]

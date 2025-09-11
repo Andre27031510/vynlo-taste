@@ -26,7 +26,7 @@ export default function Testimonials() {
       content: 'Em 15 anos de mercado, nunca vi uma transformação tão rápida e eficaz. O Vynlo Taste revolucionou nossas 15 unidades: integração perfeita com todos os apps de delivery, gestão unificada em tempo real e analytics que nos permitiram aumentar o ROI em 450%. A equipe técnica é excepcional, suporte 24/7 realmente funciona. Investimento que se paga em meses, não anos.',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      metrics: { roi: '+450%', efficiency: '+280%', time: '12 meses' },
+      metrics: { retorno: '+450%', eficiencia: '+280%', tempo: '12 meses' },
       company_size: '15 unidades',
       industry: 'Gastronomia'
     },
@@ -37,7 +37,7 @@ export default function Testimonials() {
       content: 'Gerencio 25 barbearias e o desafio era unificar tudo em uma plataforma só. O Vynlo superou todas as expectativas: agendamento inteligente com IA que otimiza nossa agenda, programa de fidelidade que aumentou a retenção em 92%, integração WhatsApp que automatizou 80% do atendimento. Dashboard executivo me dá visão completa em tempo real. ROI de 380% em 8 meses.',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      metrics: { bookings: '+380%', retention: '92%', automation: '80%' },
+      metrics: { agendamentos: '+380%', retencao: '92%', automacao: '80%' },
       company_size: '25 unidades',
       industry: 'Beleza & Estética'
     },
@@ -48,7 +48,7 @@ export default function Testimonials() {
       content: 'Como veterinário há 20 anos, sei o quão complexa é a gestão de clínicas. O Vynlo transformou nossas 12 clínicas: prontuário eletrônico integrado, telemedicina funcional, gestão de estoque farmacêutico automatizada, sistema de vacinação com alertas inteligentes. Reduzimos 85% do tempo de atendimento, aumentamos 340% a base de clientes. Compliance regulatório automatizado. Tecnologia que realmente entende nossa área.',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&crop=face',
-      metrics: { time: '-85%', clients: '+340%', satisfaction: '97%' },
+      metrics: { tempo: '-85%', clientes: '+340%', satisfacao: '97%' },
       company_size: '12 clínicas',
       industry: 'Saúde Animal'
     }
