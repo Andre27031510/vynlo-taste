@@ -107,7 +107,7 @@ export default function OurHistory() {
             </span>
           </div>
           
-          <h2 className="text-6xl lg:text-7xl font-manrope font-black text-gray-900 mb-8 leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-8 leading-tight">
             Uma história de
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
               inovação e crescimento
@@ -119,99 +119,95 @@ export default function OurHistory() {
           </p>
         </div>
 
-        {/* Timeline */}
-        <div className="relative">
-          {/* Timeline Line */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-blue-500 via-purple-500 via-emerald-500 via-orange-500 via-indigo-500 to-pink-500 rounded-full opacity-20"></div>
-          
-          <div className="space-y-16">
-            {timeline.map((item, index) => {
-              const IconComponent = item.icon
-              const isActive = activeYear === index
-              const isLeft = index % 2 === 0
-              
-              return (
-                <div
-                  key={index}
-                  onMouseEnter={() => handleYearHover(index)}
-                  onMouseLeave={() => handleYearHover(null)}
-                  className={`flex items-center ${isLeft ? 'flex-row' : 'flex-row-reverse'} group relative`}
-                  style={{
-                    animationDelay: `${index * 0.2}s`
-                  }}
-                >
-                  {/* Content */}
-                  <div className={`flex-1 ${isLeft ? 'pr-16' : 'pl-16'}`}>
-                    <div className={`bg-white border-2 border-gray-100 rounded-3xl p-8 transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 cursor-pointer ${
-                      isActive ? 'shadow-2xl border-blue-200' : 'hover:shadow-xl'
-                    }`}>
-                      {/* Year Badge */}
-                      <div className={`inline-flex items-center gap-3 mb-6 ${isLeft ? 'flex-row' : 'flex-row-reverse'}`}>
-                        <div className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
-                          <IconComponent className="w-8 h-8 text-white" />
-                        </div>
-                        
-                        <div className={`${isLeft ? 'text-left' : 'text-right'}`}>
-                          <div className="text-4xl font-black text-gray-900 font-manrope mb-1">
-                            {item.year}
-                          </div>
-                          <div className="text-blue-600 font-manrope text-sm font-medium">
-                            {item.stats}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className={`${isLeft ? 'text-left' : 'text-right'}`}>
-                        <h3 className="text-3xl font-manrope font-bold text-gray-900 mb-4">
-                          {item.title}
-                        </h3>
-                        <p className="text-gray-600 font-manrope leading-relaxed text-lg">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
+        {/* Team Banner */}
+        <div className="mb-20">
+          <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 overflow-hidden">
+            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <h3 className="text-3xl font-manrope font-bold text-white mb-6">
+                  Nossa Equipe Especializada
+                </h3>
+                <p className="text-xl text-white/90 font-manrope leading-relaxed mb-8">
+                  Mais de 50 profissionais dedicados, incluindo desenvolvedores sênior, arquitetos de software, designers UX/UI e especialistas em negócios, trabalhando juntos para criar soluções inovadoras.
+                </p>
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-white font-manrope">50+</div>
+                    <div className="text-white/80 font-manrope text-sm">Especialistas</div>
                   </div>
-
-                  {/* Timeline Node */}
-                  <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
-                    <div className={`w-6 h-6 bg-gradient-to-br ${item.color} rounded-full border-4 border-white shadow-lg transform transition-all duration-300 ${
-                      isActive ? 'scale-150' : 'group-hover:scale-125'
-                    }`}></div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-white font-manrope">5+</div>
+                    <div className="text-white/80 font-manrope text-sm">Anos Experiência</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-white font-manrope">24/7</div>
+                    <div className="text-white/80 font-manrope text-sm">Suporte</div>
                   </div>
                 </div>
-              )
-            })}
+              </div>
+              <div className="relative">
+                <img 
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                  alt="Equipe Vynlo Tech" 
+                  className="rounded-2xl shadow-2xl w-full h-80 object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-2xl"></div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20">
-          {[
-            { value: '5+', label: 'Anos de Mercado', icon: Calendar },
-            { value: '5.000+', label: 'Clientes Ativos', icon: Users },
-            { value: '50+', label: 'Cidades Atendidas', icon: Globe },
-            { value: '98%', label: 'Satisfação', icon: Award }
-          ].map((stat, index) => {
-            const IconComponent = stat.icon
-            return (
-              <div 
-                key={index}
-                className="text-center group cursor-pointer transform hover:scale-110 transition-all duration-300"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4 group-hover:bg-blue-200 transition-all duration-300">
-                  <IconComponent className="w-8 h-8 text-blue-600" />
+        {/* Journey Text */}
+        <div className="space-y-12">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <h3 className="text-3xl font-manrope font-bold text-gray-900">
+                2019-2021: Fundação e Crescimento
+              </h3>
+              <p className="text-lg text-gray-600 font-manrope leading-relaxed">
+                Nascemos em 2019 com o sonho de democratizar a tecnologia para pequenos e médios negócios. A pandemia acelerou nossa missão, desenvolvendo soluções para delivery e gestão remota. Em 2021, lançamos nossa plataforma multi-segmento, expandindo para barbearias, petshops e outros setores.
+              </p>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center">
+                  <div className="text-4xl font-black text-blue-600 font-manrope mb-2">1.000+</div>
+                  <div className="text-gray-600 font-manrope">Clientes em 2021</div>
                 </div>
-                <div className="text-4xl font-manrope font-black text-gray-900 mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-gray-600 font-manrope font-medium">
-                  {stat.label}
+                <div className="text-center">
+                  <div className="text-4xl font-black text-purple-600 font-manrope mb-2">5</div>
+                  <div className="text-gray-600 font-manrope">Segmentos Atendidos</div>
                 </div>
               </div>
-            )
-          })}
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl p-8 lg:order-1">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="text-center">
+                  <div className="text-4xl font-black text-emerald-600 font-manrope mb-2">5.000+</div>
+                  <div className="text-gray-600 font-manrope">Clientes Ativos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl font-black text-blue-600 font-manrope mb-2">50+</div>
+                  <div className="text-gray-600 font-manrope">Cidades</div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-6 lg:order-2">
+              <h3 className="text-3xl font-manrope font-bold text-gray-900">
+                2022-2024: Inovação e Reconhecimento
+              </h3>
+              <p className="text-lg text-gray-600 font-manrope leading-relaxed">
+                Integramos inteligência artificial com o lançamento do Vynlo Bot. Recebemos prêmios de inovação tecnológica e expandimos para 50+ cidades brasileiras. Hoje, atendemos mais de 5.000 clientes ativos com uma equipe de 50+ especialistas.
+              </p>
+            </div>
+          </div>
         </div>
+
+
       </div>
     </section>
   )

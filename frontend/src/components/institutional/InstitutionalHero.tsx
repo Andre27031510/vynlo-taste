@@ -41,12 +41,13 @@ export default function InstitutionalHero() {
   return (
     <section 
       data-section="hero" 
-      className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-hidden"
+      className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-black overflow-hidden"
     >
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-20">
@@ -54,21 +55,21 @@ export default function InstitutionalHero() {
           
           {/* Content */}
           <div data-animate className="space-y-8">
-            <div className="inline-flex items-center space-x-2 bg-blue-100 border border-blue-200 rounded-full px-6 py-3">
-              <Award className="w-5 h-5 text-blue-600" />
-              <span className="text-blue-700 font-manrope font-semibold text-sm">
+            <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3">
+              <Award className="w-5 h-5 text-blue-400" />
+              <span className="text-blue-300 font-manrope font-semibold text-sm">
                 Sobre a Vynlo Tech
               </span>
             </div>
             
-            <h1 className="text-5xl lg:text-6xl font-manrope font-black text-gray-900 leading-tight">
+            <h1 className="text-4xl lg:text-5xl font-manrope font-black text-white leading-tight">
               Transformando negócios com
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
                 tecnologia de ponta
               </span>
             </h1>
             
-            <p className="text-xl text-gray-600 font-manrope leading-relaxed max-w-2xl">
+            <p className="text-xl text-gray-300 font-manrope leading-relaxed max-w-2xl">
               Há mais de 5 anos desenvolvemos soluções tecnológicas que revolucionam a gestão empresarial. 
               Nossa missão é capacitar negócios de todos os tamanhos com ferramentas inteligentes e inovadoras.
             </p>
@@ -88,29 +89,7 @@ export default function InstitutionalHero() {
               </button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-              {stats.map((stat, index) => {
-                const IconComponent = stat.icon
-                return (
-                  <div 
-                    key={index}
-                    className="text-center group cursor-pointer transform hover:scale-110 transition-all duration-300"
-                    style={{animationDelay: `${index * 0.1}s`}}
-                  >
-                    <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mb-3 group-hover:bg-blue-200 transition-all duration-300">
-                      <IconComponent className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="text-2xl font-manrope font-black text-gray-900 mb-1">
-                      {stat.value}
-                    </div>
-                    <div className="text-gray-600 font-manrope text-sm font-medium">
-                      {stat.label}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+
           </div>
 
           {/* Visual */}

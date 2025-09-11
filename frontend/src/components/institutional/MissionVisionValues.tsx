@@ -91,32 +91,33 @@ export default function MissionVisionValues() {
   return (
     <section 
       data-section="mvv" 
-      className="py-32 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative overflow-hidden"
+      className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-black relative overflow-hidden"
     >
       {/* Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center space-x-2 bg-blue-100 border border-blue-200 rounded-full px-6 py-3 mb-8">
-            <Award className="w-5 h-5 text-blue-600" />
-            <span className="text-blue-700 font-manrope font-semibold text-sm">
+          <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3 mb-8">
+            <Award className="w-5 h-5 text-blue-400" />
+            <span className="text-blue-300 font-manrope font-semibold text-sm">
               Nossos Pilares
             </span>
           </div>
           
-          <h2 className="text-6xl lg:text-7xl font-manrope font-black text-gray-900 mb-8 leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-8 leading-tight">
             Missão, Visão e
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
               Valores
             </span>
           </h2>
           
-          <p className="text-xl text-gray-600 font-manrope max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-300 font-manrope max-w-4xl mx-auto leading-relaxed">
             Os princípios fundamentais que guiam cada decisão e definem nossa identidade como empresa de tecnologia
           </p>
         </div>
