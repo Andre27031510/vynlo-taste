@@ -159,18 +159,18 @@ export default function SpecializedSupport() {
           <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-12 border border-white/20">
             <Headphones className="w-16 h-16 mx-auto mb-6 text-blue-400" />
             <h3 className="text-3xl font-manrope font-bold text-white mb-4">
-              Precisa de ajuda agora?
+              Quer saber mais sobre nossos recursos?
             </h3>
             <p className="text-xl text-gray-300 font-manrope mb-8 max-w-2xl mx-auto">
-              Nossa equipe de especialistas está online e pronta para ajudar você a resolver qualquer questão em minutos.
+              Entre em contato conosco e descubra como nossos recursos podem transformar seu negócio.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                Iniciar Chat ao Vivo
-              </button>
-              <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
-                Agendar Consultoria
-              </button>
+            <div className="flex justify-center">
+              <a 
+                href="/contato" 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                Entre em Contato
+              </a>
             </div>
           </div>
         </div>
