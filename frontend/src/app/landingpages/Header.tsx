@@ -48,7 +48,7 @@ const Header: React.FC = () => {
   return (
     <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 9999, padding: '16px 0' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginLeft: '30px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginLeft: '40px' }}>
           <a href="#home" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</a>
           <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="desktop-nav">
           <button className="mobile-menu" style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => (window as any).toggleMobileMenu?.()}>
@@ -153,7 +153,7 @@ const Header: React.FC = () => {
             <a href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</a>
           </nav>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '60px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '80px' }}>
           <a href="/contato" style={{ background: '#60a5fa', color: '#1e40af', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 600, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>LIGAMOS PARA VOCÊ</a>
           <a href="/login" style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 500, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
             SOU CLIENTE
