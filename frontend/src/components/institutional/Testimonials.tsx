@@ -9,32 +9,48 @@ export default function Testimonials() {
 
   useEffect(() => {
     logger.componentMount('Testimonials')
+    
+    // Auto-rotate testimonials
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
+    }, 8000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   const testimonials = [
     {
-      name: 'Carlos Silva',
-      company: 'Restaurante Bella Vista',
-      role: 'Proprietário',
-      content: 'A Vynlo transformou completamente nosso restaurante. Aumentamos as vendas em 250% e nossa operação ficou muito mais eficiente.',
+      name: 'Carlos Eduardo Mendes',
+      company: 'Grupo Gastronômico Excellence',
+      role: 'CEO & Founder',
+      content: 'Em 15 anos de mercado, nunca vi uma transformação tão rápida e eficaz. O Vynlo Taste revolucionou nossas 15 unidades: integração perfeita com todos os apps de delivery, gestão unificada em tempo real e analytics que nos permitiram aumentar o ROI em 450%. A equipe técnica é excepcional, suporte 24/7 realmente funciona. Investimento que se paga em meses, não anos.',
       rating: 5,
-      avatar: 'CS'
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      metrics: { roi: '+450%', efficiency: '+280%', time: '12 meses' },
+      company_size: '15 unidades',
+      industry: 'Gastronomia'
     },
     {
-      name: 'Marina Santos',
-      company: 'Barbearia Premium',
-      role: 'Gerente',
-      content: 'Sistema incrível! Nossos clientes adoram o agendamento online e conseguimos otimizar nossa agenda. Recomendo para todos.',
+      name: 'Marina Fernanda Costa',
+      company: 'Premium Beauty Network',
+      role: 'Diretora de Operações',
+      content: 'Gerencio 25 barbearias e o desafio era unificar tudo em uma plataforma só. O Vynlo superou todas as expectativas: agendamento inteligente com IA que otimiza nossa agenda, programa de fidelidade que aumentou a retenção em 92%, integração WhatsApp que automatizou 80% do atendimento. Dashboard executivo me dá visão completa em tempo real. ROI de 380% em 8 meses.',
       rating: 5,
-      avatar: 'MS'
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      metrics: { bookings: '+380%', retention: '92%', automation: '80%' },
+      company_size: '25 unidades',
+      industry: 'Beleza & Estética'
     },
     {
-      name: 'Roberto Lima',
-      company: 'PetCare Clínica',
-      role: 'Veterinário',
-      content: 'A digitalização dos prontuários e o sistema de agendamento revolucionaram nossa clínica. Atendimento muito mais ágil.',
+      name: 'Dr. Roberto Almeida Silva',
+      company: 'VetCare Enterprise Group',
+      role: 'Diretor Médico',
+      content: 'Como veterinário há 20 anos, sei o quão complexa é a gestão de clínicas. O Vynlo transformou nossas 12 clínicas: prontuário eletrônico integrado, telemedicina funcional, gestão de estoque farmacêutico automatizada, sistema de vacinação com alertas inteligentes. Reduzimos 85% do tempo de atendimento, aumentamos 340% a base de clientes. Compliance regulatório automatizado. Tecnologia que realmente entende nossa área.',
       rating: 5,
-      avatar: 'RL'
+      avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=150&h=150&fit=crop&crop=face',
+      metrics: { time: '-85%', clients: '+340%', satisfaction: '97%' },
+      company_size: '12 clínicas',
+      industry: 'Saúde Animal'
     }
   ]
 
@@ -57,7 +73,7 @@ export default function Testimonials() {
             <span className="text-blue-700 font-manrope font-semibold text-sm">Depoimentos</span>
           </div>
           
-          <h2 className="text-6xl lg:text-7xl font-manrope font-black text-gray-900 mb-8 leading-tight">
+          <h2 className="text-lg font-manrope font-black text-gray-900 mb-8 leading-tight">
             O que nossos
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
               clientes dizem
@@ -65,31 +81,50 @@ export default function Testimonials() {
           </h2>
         </div>
 
-        <div className="relative max-w-4xl mx-auto">
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12 text-center">
+        <div className="relative max-w-6xl mx-auto">
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12">
             <Quote className="w-16 h-16 text-blue-600 mx-auto mb-8" />
             
-            <p className="text-2xl font-manrope text-gray-700 leading-relaxed mb-8">
+            <p className="text-xl font-manrope text-gray-700 leading-relaxed mb-8 text-center max-w-4xl mx-auto">
               "{testimonials[currentTestimonial].content}"
             </p>
             
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-8">
               {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
                 <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
               ))}
             </div>
             
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                {testimonials[currentTestimonial].avatar}
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              <div className="flex items-center justify-center lg:justify-end gap-4">
+                <img 
+                  src={testimonials[currentTestimonial].avatar} 
+                  alt={testimonials[currentTestimonial].name}
+                  className="w-20 h-20 rounded-full object-cover shadow-lg"
+                />
+                <div className="text-left">
+                  <div className="font-manrope font-bold text-gray-900 text-xl mb-1">
+                    {testimonials[currentTestimonial].name}
+                  </div>
+                  <div className="text-blue-600 font-manrope font-semibold text-sm mb-1">
+                    {testimonials[currentTestimonial].role}
+                  </div>
+                  <div className="text-gray-600 font-manrope text-sm">
+                    {testimonials[currentTestimonial].company}
+                  </div>
+                  <div className="text-gray-500 font-manrope text-xs mt-1">
+                    {testimonials[currentTestimonial].company_size} • {testimonials[currentTestimonial].industry}
+                  </div>
+                </div>
               </div>
-              <div className="text-left">
-                <div className="font-manrope font-bold text-gray-900 text-lg">
-                  {testimonials[currentTestimonial].name}
-                </div>
-                <div className="text-gray-600 font-manrope">
-                  {testimonials[currentTestimonial].role} - {testimonials[currentTestimonial].company}
-                </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                {Object.entries(testimonials[currentTestimonial].metrics).map(([key, value], index) => (
+                  <div key={index} className="bg-white rounded-xl p-4 text-center shadow-sm">
+                    <div className="text-2xl font-black text-gray-900 font-manrope mb-1">{value}</div>
+                    <div className="text-gray-600 font-manrope text-xs capitalize">{key}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

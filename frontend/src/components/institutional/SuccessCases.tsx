@@ -61,8 +61,8 @@ export default function SuccessCases() {
               key={index}
               onMouseEnter={() => setActiveCase(index)}
               onMouseLeave={() => setActiveCase(null)}
-              className={`bg-white rounded-3xl p-8 border-2 border-gray-100 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer ${
-                activeCase === index ? 'shadow-2xl border-blue-200' : 'hover:shadow-xl'
+              className={`bg-white/10 backdrop-blur-lg rounded-3xl p-8 border-2 border-white/20 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer ${
+                activeCase === index ? 'shadow-2xl shadow-blue-500/25 border-blue-400/50' : 'hover:shadow-xl'
               }`}
             >
               <div className={`w-16 h-16 bg-gradient-to-br ${case_.color} rounded-2xl flex items-center justify-center mb-6 transform transition-all duration-300 ${
@@ -71,15 +71,21 @@ export default function SuccessCases() {
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
 
-              <h3 className="text-2xl font-manrope font-bold text-gray-900 mb-2">{case_.company}</h3>
-              <p className="text-blue-600 font-manrope font-semibold text-sm mb-4">{case_.segment}</p>
-              <p className="text-gray-600 font-manrope leading-relaxed mb-6">{case_.description}</p>
+              <h3 className="text-xl font-manrope font-bold text-white mb-2">{case_.company}</h3>
+              <div className="flex items-center gap-4 mb-4">
+                <p className="text-blue-400 font-manrope font-semibold text-sm">{case_.segment}</p>
+                <span className="text-gray-400 text-xs">•</span>
+                <p className="text-gray-400 font-manrope text-xs">{case_.period}</p>
+                <span className="text-gray-400 text-xs">•</span>
+                <p className="text-gray-400 font-manrope text-xs">{case_.locations}</p>
+              </div>
+              <p className="text-gray-300 font-manrope leading-relaxed mb-6 text-sm">{case_.description}</p>
               
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-4">
                 {Object.entries(case_.metrics).map(([key, value], metricIndex) => (
-                  <div key={metricIndex} className="flex justify-between">
-                    <span className="text-gray-500 font-manrope text-sm capitalize">{key}</span>
-                    <span className="font-manrope font-bold text-gray-900">{value}</span>
+                  <div key={metricIndex} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
+                    <div className="text-lg font-black text-white font-manrope mb-1">{value}</div>
+                    <div className="text-gray-400 font-manrope text-xs capitalize">{key}</div>
                   </div>
                 ))}
               </div>
