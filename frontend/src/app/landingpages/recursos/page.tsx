@@ -28,8 +28,6 @@ const RecursosPage: React.FC = () => {
   const {
     activeSection,
     scrollProgress,
-    selectedCategory,
-    searchQuery,
     isLoading,
     error,
     clearError
