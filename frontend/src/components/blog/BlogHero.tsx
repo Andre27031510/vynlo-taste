@@ -24,7 +24,7 @@ export default function BlogHero() {
 
   const handleIntelligentSearch = (query: string, filters: Partial<SearchFilters>) => {
     setSearchQuery(query)
-    logger.userInteraction('intelligent_search', { query, filters })
+    logger.userInteraction('intelligent_search', JSON.stringify({ query, filters }))
     // Aqui você pode implementar a lógica para filtrar os resultados
   }
 
