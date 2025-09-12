@@ -6,43 +6,99 @@ import { logger } from '../../utils/logger'
 
 export default function FeaturedArticles() {
   const [activeArticle, setActiveArticle] = useState<number | null>(null)
+  const [featuredArticles, setFeaturedArticles] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     logger.componentMount('FeaturedArticles')
+    loadFeaturedContent()
   }, [])
 
-  const featuredArticles = [
-    {
-      id: '1',
-      title: 'Como o Vynlo Taste aumentou vendas em 150%',
-      excerpt: 'Case real: Restaurante Bella Vista triplicou faturamento em 6 meses',
-      category: 'Case de Sucesso',
-      author: 'Carlos Silva',
-      date: '15 Jan 2024',
-      readTime: '8 min',
-      image: '/blog/restaurante-case.jpg'
-    },
-    {
-      id: '2',
-      title: '5 Dicas para Gestão de Barbearias em 2024',
-      excerpt: 'Estratégias para otimizar agendamentos e aumentar receita',
-      category: 'Gestão',
-      author: 'Marina Santos',
-      date: '12 Jan 2024',
-      readTime: '6 min',
-      image: '/blog/barbearia-dicas.jpg'
-    },
-    {
-      id: '3',
-      title: 'Automação WhatsApp para Petshops',
-      excerpt: 'Como aumentar vendas em 200% com automação inteligente',
-      category: 'Tecnologia',
-      author: 'Roberto Lima',
-      date: '10 Jan 2024',
-      readTime: '7 min',
-      image: '/blog/petshop-whatsapp.jpg'
+  const loadFeaturedContent = async () => {
+    try {
+      const { contentService } = await import('../../services/contentService')
+      const articles = await contentService.getFeaturedArticles()
+      
+      const formattedArticles = articles.map(article => ({
+        id: article.id,
+        title: article.title,
+        excerpt: article.excerpt,
+        category: getCategoryName(article.category),
+        author: article.author,
+        date: formatDate(article.date),
+        readTime: article.readTime,
+        image: article.image,
+        views: article.views,
+        engagement: article.engagement
+      }))
+      
+      setFeaturedArticles(formattedArticles)
+    } catch (error) {
+      console.error('Erro ao carregar artigos em destaque:', error)
+      loadFallbackArticles()
+    } finally {
+      setIsLoading(false)
     }
-  ]
+  }
+
+  const getCategoryName = (category: string) => {
+    const names: {[key: string]: string} = {
+      'restaurantes': 'Restaurantes',
+      'barbearias': 'Barbearias', 
+      'petshops': 'Petshops',
+      'igrejas': 'Igrejas',
+      'gestao': 'Gestão Avançada'
+    }
+    return names[category] || 'Geral'
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
+
+  const loadFallbackArticles = () => {
+    setFeaturedArticles([
+      {
+        id: '1',
+        title: 'Como o Vynlo Taste aumentou vendas em 150%',
+        excerpt: 'Case real: Restaurante Bella Vista triplicou faturamento em 6 meses',
+        category: 'Case de Sucesso',
+        author: 'Carlos Silva',
+        date: '15 Jan 2024',
+        readTime: '8 min',
+        image: '/blog/restaurante-case.jpg',
+        views: 2847,
+        engagement: 94
+      },
+      {
+        id: '2',
+        title: '5 Dicas para Gestão de Barbearias em 2024',
+        excerpt: 'Estratégias para otimizar agendamentos e aumentar receita',
+        category: 'Gestão',
+        author: 'Marina Santos',
+        date: '12 Jan 2024',
+        readTime: '6 min',
+        image: '/blog/barbearia-dicas.jpg',
+        views: 1923,
+        engagement: 87
+      },
+      {
+        id: '3',
+        title: 'Automação WhatsApp para Petshops',
+        excerpt: 'Como aumentar vendas em 200% com automação inteligente',
+        category: 'Tecnologia',
+        author: 'Roberto Lima',
+        date: '10 Jan 2024',
+        readTime: '7 min',
+        image: '/blog/petshop-whatsapp.jpg',
+        views: 2156,
+        engagement: 89
+      }
+    ])
+  }
+
+
 
   return (
     <section data-section="featured" className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-black relative overflow-hidden">
@@ -58,16 +114,31 @@ export default function FeaturedArticles() {
             <span className="text-blue-300 font-manrope font-semibold text-sm">Artigos em Destaque</span>
           </div>
           
-          <h2 className="text-6xl lg:text-7xl font-manrope font-black text-white mb-8 leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-8 leading-tight">
             Conteúdo
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
               mais lido
             </span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {featuredArticles.map((article, index) => (
+        {isLoading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden animate-pulse">
+                <div className="aspect-video bg-gray-600"></div>
+                <div className="p-8">
+                  <div className="h-6 bg-gray-600 rounded mb-4"></div>
+                  <div className="h-4 bg-gray-600 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-600 rounded w-3/4"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {featuredArticles.map((article, index) => (
             <article
               key={article.id}
               onMouseEnter={() => setActiveArticle(index)}
@@ -104,6 +175,17 @@ export default function FeaturedArticles() {
                   <div className="flex items-center space-x-1">
                     <Clock className="w-4 h-4" />
                     <span>{article.readTime}</span>
+                  </div>
+                </div>
+                
+                {/* Engagement Metrics */}
+                <div className="flex items-center justify-between mb-4 text-xs text-gray-400">
+                  <div className="flex items-center space-x-3">
+                    <span>{article.views?.toLocaleString() || '0'} views</span>
+                    <span>{article.engagement || 0}% engajamento</span>
+                  </div>
+                  <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                    Trending
                   </div>
                 </div>
                 

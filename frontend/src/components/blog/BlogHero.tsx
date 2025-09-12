@@ -3,12 +3,11 @@
 import { useState, useEffect } from 'react'
 import { 
   BookOpen,
-  TrendingUp,
-  Users,
-  Calendar,
   Search,
   ArrowRight
 } from 'lucide-react'
+import IntelligentSearch from './IntelligentSearch'
+import { SearchFilters } from '../../services/searchService'
 import { logger } from '../../utils/logger'
 
 export default function BlogHero() {
@@ -23,17 +22,21 @@ export default function BlogHero() {
     logger.userInteraction('blog_hero_search', searchQuery)
   }
 
-  const stats = [
-    { icon: BookOpen, value: '50+', label: 'Artigos' },
-    { icon: TrendingUp, value: '200%', label: 'Crescimento Médio' },
-    { icon: Users, value: '5.000+', label: 'Leitores' },
-    { icon: Calendar, value: 'Semanal', label: 'Novos Posts' }
-  ]
+  const handleIntelligentSearch = (query: string, filters: Partial<SearchFilters>) => {
+    setSearchQuery(query)
+    logger.userInteraction('intelligent_search', { query, filters })
+    // Aqui você pode implementar a lógica para filtrar os resultados
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion)
+    logger.userInteraction('search_suggestion_click', suggestion)
+  }
 
   return (
     <section 
       data-section="hero" 
-      className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-black overflow-hidden"
+      className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-black overflow-hidden"
     >
       {/* Background Effects */}
       <div className="absolute inset-0">
@@ -42,7 +45,7 @@ export default function BlogHero() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-16">
         <div className="text-center">
           
           {/* Badge */}
@@ -67,48 +70,12 @@ export default function BlogHero() {
             Conteúdo especializado para restaurantes, barbearias, petshops, igrejas e muito mais.
           </p>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-16">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar artigos, dicas, cases..."
-                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 pl-14 text-white placeholder-gray-400 font-manrope focus:outline-none focus:border-blue-400/50 focus:bg-white/20 transition-all duration-300"
-              />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
-              >
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          </form>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => {
-              const IconComponent = stat.icon
-              return (
-                <div 
-                  key={index}
-                  className="text-center group cursor-pointer transform hover:scale-110 transition-all duration-300"
-                  style={{animationDelay: `${index * 0.1}s`}}
-                >
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-4 group-hover:bg-white/20 transition-all duration-300">
-                    <IconComponent className="w-8 h-8 text-blue-400" />
-                  </div>
-                  <div className="text-3xl font-manrope font-black text-white mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-gray-400 font-manrope text-sm font-medium">
-                    {stat.label}
-                  </div>
-                </div>
-              )
-            })}
+          {/* Intelligent Search */}
+          <div className="mb-8">
+            <IntelligentSearch 
+              onSearch={handleIntelligentSearch}
+              onSuggestionClick={handleSuggestionClick}
+            />
           </div>
         </div>
       </div>

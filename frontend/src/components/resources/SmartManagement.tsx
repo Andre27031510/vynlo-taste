@@ -8,8 +8,7 @@ import {
   Calendar,
   Package,
   TrendingUp,
-  Zap,
-  Target
+  Zap
 } from 'lucide-react'
 import { logger } from '../../utils/logger'
 
@@ -129,21 +128,7 @@ export default function SmartManagement() {
           })}
         </div>
 
-        {/* Bottom CTA */}
-        <div className="text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-white">
-            <Target className="w-16 h-16 mx-auto mb-6 text-white" />
-            <h3 className="text-3xl font-manrope font-bold mb-4">
-              Pronto para automatizar sua gestão?
-            </h3>
-            <p className="text-xl text-white/90 font-manrope mb-8 max-w-2xl mx-auto">
-              Junte-se a mais de 5.000 empresários que já transformaram seus negócios com nossa inteligência artificial.
-            </p>
-            <button className="bg-white text-blue-600 font-manrope font-bold px-8 py-4 rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
-              Solicitar Demonstração Gratuita
-            </button>
-          </div>
-        </div>
+
       </div>
     </section>
   )

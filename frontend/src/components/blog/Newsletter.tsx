@@ -12,9 +12,9 @@ export default function Newsletter() {
             <span className="text-blue-300 font-manrope font-semibold text-sm">Newsletter</span>
           </div>
           
-          <h2 className="text-6xl lg:text-7xl font-manrope font-black text-white mb-8 leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-8 leading-tight">
             Receba insights
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
               semanalmente
             </span>
           </h2>
