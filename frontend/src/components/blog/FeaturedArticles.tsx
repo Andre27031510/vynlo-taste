@@ -98,8 +98,6 @@ export default function FeaturedArticles() {
     ])
   }
 
-
-
   return (
     <section data-section="featured" className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-black relative overflow-hidden">
       <div className="absolute inset-0">
@@ -138,64 +136,64 @@ export default function FeaturedArticles() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {featuredArticles.map((article, index) => (
-            <article
-              key={article.id}
-              onMouseEnter={() => setActiveArticle(index)}
-              onMouseLeave={() => setActiveArticle(null)}
-              className="group bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer hover:shadow-2xl hover:shadow-blue-500/25"
-            >
-              <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                  <span className="text-white font-manrope text-xs font-medium">{article.category}</span>
+              <article
+                key={article.id}
+                onMouseEnter={() => setActiveArticle(index)}
+                onMouseLeave={() => setActiveArticle(null)}
+                className="group bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer hover:shadow-2xl hover:shadow-blue-500/25"
+              >
+                <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                    <span className="text-white font-manrope text-xs font-medium">{article.category}</span>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="p-8">
-                <h3 className="text-2xl font-manrope font-bold text-white mb-4 group-hover:text-blue-300 transition-colors duration-300">
-                  {article.title}
-                </h3>
                 
-                <p className="text-gray-300 font-manrope leading-relaxed mb-6">
-                  {article.excerpt}
-                </p>
-                
-                <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-1">
-                      <User className="w-4 h-4" />
-                      <span>{article.author}</span>
+                <div className="p-8">
+                  <h3 className="text-2xl font-manrope font-bold text-white mb-4 group-hover:text-blue-300 transition-colors duration-300">
+                    {article.title}
+                  </h3>
+                  
+                  <p className="text-gray-300 font-manrope leading-relaxed mb-6">
+                    {article.excerpt}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <User className="w-4 h-4" />
+                        <span>{article.author}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{article.date}</span>
+                      </div>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{article.date}</span>
+                      <Clock className="w-4 h-4" />
+                      <span>{article.readTime}</span>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{article.readTime}</span>
+                  
+                  <div className="flex items-center justify-between mb-4 text-xs text-gray-400">
+                    <div className="flex items-center space-x-3">
+                      <span>{article.views?.toLocaleString() || '0'} views</span>
+                      <span>{article.engagement || 0}% engajamento</span>
+                    </div>
+                    <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                      Trending
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center text-blue-400 font-manrope font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                    <span>Ler artigo</span>
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </div>
                 </div>
-                
-                {/* Engagement Metrics */}
-                <div className="flex items-center justify-between mb-4 text-xs text-gray-400">
-                  <div className="flex items-center space-x-3">
-                    <span>{article.views?.toLocaleString() || '0'} views</span>
-                    <span>{article.engagement || 0}% engajamento</span>
-                  </div>
-                  <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
-                    Trending
-                  </div>
-                </div>
-                
-                <div className="flex items-center text-blue-400 font-manrope font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                  <span>Ler artigo</span>
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
