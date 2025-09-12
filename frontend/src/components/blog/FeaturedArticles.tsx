@@ -135,7 +135,6 @@ export default function FeaturedArticles() {
               </div>
             ))}
           </div>
-        )}
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {featuredArticles.map((article, index) => (
