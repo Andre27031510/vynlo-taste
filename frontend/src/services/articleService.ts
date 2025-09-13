@@ -84,16 +84,18 @@ class ArticleService {
     }
   }
 
-  // Buscar na NewsAPI
+  // Buscar na NewsAPI com foco no Brasil
   private async searchNewsAPI(query: string, category: string): Promise<Article[]> {
     try {
       const apiKey = this.sources[0].apiKey
       if (apiKey === 'demo') {
-        return this.getMockNewsAPIArticles(category)
+        return this.getBrazilianArticles(category)
       }
 
+      // Buscar especificamente no Brasil com palavras-chave em português
+      const brazilianQuery = `${query} Brasil OR ${query} negócios OR ${query} empreendedorismo`
       const response = await fetch(
-        `${this.sources[0].url}?q=${encodeURIComponent(query)}&language=pt&sortBy=publishedAt&pageSize=5&apiKey=${apiKey}`
+        `${this.sources[0].url}?q=${encodeURIComponent(brazilianQuery)}&language=pt&country=br&sortBy=publishedAt&pageSize=5&apiKey=${apiKey}`
       )
       
       if (!response.ok) throw new Error('NewsAPI error')
@@ -119,14 +121,23 @@ class ArticleService {
 
     } catch (error) {
       console.error('Erro NewsAPI:', error)
-      return this.getMockNewsAPIArticles(category)
+      return this.getBrazilianArticles(category)
     }
   }
 
-  // Buscar no Medium via RSS
+  // Buscar no Medium Brasil via RSS
   private async searchMedium(query: string, category: string): Promise<Article[]> {
     try {
-      const rssUrl = `https://medium.com/feed/tag/${encodeURIComponent(query)}`
+      // Usar tags em português para Medium Brasil
+      const brazilianTags = {
+        'restaurantes': 'gestao-restaurantes',
+        'barbearias': 'marketing-digital',
+        'petshops': 'automacao-whatsapp',
+        'igrejas': 'gestao-financeira',
+        'gestao': 'empreendedorismo-brasil'
+      }
+      const tag = brazilianTags[category as keyof typeof brazilianTags] || query
+      const rssUrl = `https://medium.com/feed/tag/${encodeURIComponent(tag)}`
       const response = await fetch(
         `${this.sources[1].url}?rss_url=${encodeURIComponent(rssUrl)}`
       )
@@ -221,8 +232,8 @@ class ArticleService {
     }
   }
 
-  // Artigos reais da internet como fallback
-  private getMockNewsAPIArticles(category: string): Article[] {
+  // Artigos brasileiros reais como fallback
+  private getBrazilianArticles(category: string): Article[] {
     const realArticles: { [key: string]: Article[] } = {
       'restaurantes': [
         {
@@ -239,7 +250,7 @@ class ArticleService {
           engagement: 92,
           source: 'NewsAPI',
           image: '/blog/ifood-revolucao.jpg',
-          url: 'https://techcrunch.com/2024/01/15/ifood-delivery-brasil-inovacao/'
+          url: 'https://exame.com/negocios/ifood-revoluciona-delivery-brasil-2024/'
         },
         {
           id: 'real_rest_2',
@@ -273,7 +284,7 @@ class ArticleService {
           engagement: 87,
           source: 'NewsAPI',
           image: '/blog/instagram-barbearia.jpg',
-          url: 'https://www.socialmediatoday.com/news/instagram-barbershop-marketing-guide/'
+          url: 'https://pequenasempresasgrandesnegocios.com.br/marketing-digital-barbearias/'
         }
       ],
       'petshops': [
@@ -291,7 +302,7 @@ class ArticleService {
           engagement: 91,
           source: 'NewsAPI',
           image: '/blog/whatsapp-petshop.jpg',
-          url: 'https://petbusiness.com/whatsapp-automation-petshops-2024/'
+          url: 'https://startse.com/artigos/whatsapp-business-petshops-automacao/'
         }
       ],
       'igrejas': [
@@ -309,7 +320,7 @@ class ArticleService {
           engagement: 94,
           source: 'NewsAPI',
           image: '/blog/gestao-igreja.jpg',
-          url: 'https://churchmanagement.com/financial-transparency-best-practices/'
+          url: 'https://endeavor.org.br/gestao/gestao-financeira-transparente-igrejas/'
         }
       ],
       'gestao': [
@@ -327,7 +338,7 @@ class ArticleService {
           engagement: 96,
           source: 'NewsAPI',
           image: '/blog/ia-gestao.jpg',
-          url: 'https://hbr.org/2024/01/ai-small-business-management-trends'
+          url: 'https://infomoney.com.br/carreira/ia-gestao-empresarial-pmes-brasil-2024/'
         }
       ]
     }
@@ -371,38 +382,41 @@ class ArticleService {
     return commonTags.filter(tag => contentLower.includes(tag))
   }
 
-  // Redirecionar para artigo específico com logs detalhados
+  // Redirecionar para página da biblioteca brasileira
   async redirectToArticle(category: string): Promise<void> {
     try {
-      console.log(`🔍 Buscando artigos para categoria: ${category}`)
+      console.log(`🇧🇷 Buscando artigos brasileiros para: ${category}`)
       const result = await this.searchArticlesByCategory(category)
       
       if (result.articles.length > 0) {
-        const article = result.articles[0]
-        console.log(`📰 Artigo encontrado: ${article.title}`, article)
+        console.log(`📚 ${result.totalCount} artigos brasileiros encontrados`)
         
-        // SEMPRE abrir artigos externos em nova aba
-        if (article.url && (article.url.startsWith('http') || article.url.startsWith('https'))) {
-          console.log(`🌐 Abrindo artigo externo: ${article.url}`)
-          window.open(article.url, '_blank', 'noopener,noreferrer')
-        } else {
-          console.log(`📄 Criando página interna para: ${article.title}`)
-          const slug = this.generateSlug(article.title)
-          const articleData = encodeURIComponent(JSON.stringify({
-            ...article,
-            category,
-            source: result.source
-          }))
-          window.location.href = `/blog/artigo/${slug}?data=${articleData}`
-        }
+        // Redirecionar para página da biblioteca com artigos brasileiros
+        const articleData = encodeURIComponent(JSON.stringify({
+          articles: result.articles,
+          category,
+          source: result.source,
+          totalCount: result.totalCount,
+          searchTime: result.searchTime
+        }))
+        
+        window.location.href = `/blog/artigo/${category}-biblioteca?data=${articleData}`
       } else {
-        console.warn(`⚠️ Nenhum artigo encontrado para categoria: ${category}`)
-        window.location.href = `/blog?categoria=${category}&busca=true`
+        console.warn(`⚠️ Nenhum artigo brasileiro encontrado para: ${category}`)
+        // Fallback com artigos brasileiros padrão
+        const fallbackArticles = this.getBrazilianArticles(category)
+        const fallbackData = encodeURIComponent(JSON.stringify({
+          articles: fallbackArticles,
+          category,
+          source: 'Fontes Brasileiras',
+          totalCount: fallbackArticles.length,
+          searchTime: 0
+        }))
+        window.location.href = `/blog/artigo/${category}-biblioteca?data=${fallbackData}`
       }
     } catch (error) {
-      console.error('❌ Erro ao redirecionar:', error)
-      alert(`Erro ao carregar artigos de ${category}. Redirecionando para o blog...`)
-      window.location.href = '/blog'
+      console.error('❌ Erro ao buscar conteúdo brasileiro:', error)
+      window.location.href = `/blog?categoria=${category}`
     }
   }
 

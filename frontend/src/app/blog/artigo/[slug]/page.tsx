@@ -1,100 +1,114 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { ArrowLeft, ExternalLink, Clock, User, Calendar, Tag, Eye, Heart, Share2 } from 'lucide-react'
-import { articleService } from '../../../../services/articleService'
-import { Article } from '../../../../services/contentService'
 import Header from '../../../landingpages/Header'
 import Footer from '../../../landingpages/Footer'
+import CategoryBanner from '../../../../components/blog/CategoryBanner'
+import { Calendar, Clock, User, ExternalLink, ArrowRight, Globe, TrendingUp } from 'lucide-react'
+
+interface Article {
+  id: string
+  title: string
+  excerpt: string
+  content: string
+  category: string
+  author: string
+  date: string
+  readTime: string
+  tags: string[]
+  views: number
+  engagement: number
+  source: string
+  image?: string
+  url: string
+}
+
+interface LibraryData {
+  articles: Article[]
+  category: string
+  source: string
+  totalCount: number
+  searchTime: number
+}
 
 export default function ArtigoPage() {
   const params = useParams()
   const searchParams = useSearchParams()
-  const [article, setArticle] = useState<Article | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [relatedArticles, setRelatedArticles] = useState<Article[]>([])
+  const [libraryData, setLibraryData] = useState<LibraryData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const slug = params.slug as string
+  const data = searchParams.get('data')
 
   useEffect(() => {
-    loadArticle()
-  }, [params.slug])
-
-  const loadArticle = async () => {
-    try {
-      setLoading(true)
-      
-      // Se veio de uma categoria específica, buscar artigos dessa categoria
-      const categoria = searchParams.get('categoria')
-      if (categoria) {
-        const result = await articleService.searchArticlesByCategory(categoria)
-        if (result.articles.length > 0) {
-          setArticle(result.articles[0])
-          setRelatedArticles(result.articles.slice(1, 4))
-        } else {
-          setError('Nenhum artigo encontrado para esta categoria')
-        }
-      } else {
-        // Buscar artigo por slug (implementação futura)
-        setError('Artigo não encontrado')
+    if (data) {
+      try {
+        const parsedData = JSON.parse(decodeURIComponent(data))
+        setLibraryData(parsedData)
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
+        loadFallbackData()
       }
-    } catch (err) {
-      console.error('Erro ao carregar artigo:', err)
-      setError('Erro ao carregar artigo')
-    } finally {
-      setLoading(false)
+    } else {
+      loadFallbackData()
     }
+    setIsLoading(false)
+  }, [data, slug])
+
+  const loadFallbackData = () => {
+    const categoria = slug.includes('-biblioteca') ? slug.replace('-biblioteca', '') : slug.split('-')[0] || 'gestao'
+    const fallbackArticles: Article[] = [
+      {
+        id: 'fallback_1',
+        title: `Guia Completo de ${getCategoryName(categoria)} no Brasil`,
+        excerpt: `Estratégias e dicas essenciais para ${categoria} brasileiros que querem crescer no mercado nacional.`,
+        content: `Conteúdo especializado sobre ${categoria} no contexto brasileiro...`,
+        category: categoria,
+        author: 'Equipe Vynlo Brasil',
+        date: new Date().toISOString().split('T')[0],
+        readTime: '8 min',
+        tags: [categoria, 'brasil', 'gestão', 'crescimento'],
+        views: 1500,
+        engagement: 92,
+        source: 'Vynlo Knowledge Base',
+        url: '#'
+      }
+    ]
+
+    setLibraryData({
+      articles: fallbackArticles,
+      category: categoria,
+      source: 'Biblioteca Vynlo',
+      totalCount: fallbackArticles.length,
+      searchTime: 0
+    })
   }
 
-  const handleBack = () => {
-    window.history.back()
+  const getCategoryName = (cat: string) => {
+    const names: { [key: string]: string } = {
+      'restaurantes': 'Restaurantes',
+      'barbearias': 'Barbearias',
+      'petshops': 'Petshops',
+      'igrejas': 'Igrejas',
+      'gestao': 'Gestão Empresarial'
+    }
+    return names[cat] || 'Negócios'
   }
 
-  const handleExternalLink = () => {
-    if (article?.url) {
+  const handleArticleClick = (article: Article) => {
+    if (article.url && article.url !== '#' && article.url.startsWith('http')) {
       window.open(article.url, '_blank', 'noopener,noreferrer')
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="max-w-4xl mx-auto px-4 py-20">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-            <div className="h-12 bg-gray-200 rounded w-3/4 mb-6"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-              <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-manrope">Carregando biblioteca brasileira...</p>
         </div>
-        <Footer />
-      </div>
-    )
-  }
-
-  if (error || !article) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-          <div className="bg-white rounded-2xl p-12 shadow-lg">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Artigo não encontrado</h1>
-            <p className="text-gray-600 mb-8">{error || 'O artigo solicitado não foi encontrado.'}</p>
-            <button
-              onClick={handleBack}
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Voltar ao Blog
-            </button>
-          </div>
-        </div>
-        <Footer />
       </div>
     )
   }
@@ -102,143 +116,138 @@ export default function ArtigoPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
-      {/* Article Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <button
-            onClick={handleBack}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Voltar ao Blog
-          </button>
+      <CategoryBanner
+        category={libraryData?.category || 'gestao'}
+        title={`Biblioteca ${getCategoryName(libraryData?.category || 'gestao')}`}
+        source={libraryData?.source}
+        isExternal={false}
+      />
 
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {article.category}
-                </span>
-                <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-medium">
-                  {article.source}
-                </span>
-              </div>
-              
-              <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                {article.title}
-              </h1>
-              
-              <p className="text-xl text-gray-600 leading-relaxed mb-6">
-                {article.excerpt}
-              </p>
-
-              <div className="flex items-center gap-6 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <User className="w-4 h-4" />
-                  <span>{article.author}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>{new Date(article.date).toLocaleDateString('pt-BR')}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  <span>{article.readTime}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  <span>{article.views.toLocaleString()} visualizações</span>
-                </div>
-              </div>
-            </div>
-
-            {article.url && (
-              <button
-                onClick={handleExternalLink}
-                className="ml-6 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Ver Artigo Original
-              </button>
-            )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mb-12 text-center">
+          <div className="inline-flex items-center gap-2 bg-green-100 border border-green-200 rounded-full px-4 py-2 mb-4">
+            <Globe className="w-4 h-4 text-green-600" />
+            <span className="text-green-700 font-manrope font-semibold text-sm">
+              🇧🇷 Conteúdo 100% Brasileiro
+            </span>
           </div>
+          
+          <h1 className="text-3xl lg:text-4xl font-manrope font-black text-gray-900 mb-4">
+            Biblioteca de {getCategoryName(libraryData?.category || 'gestao')}
+          </h1>
+          
+          <p className="text-lg text-gray-600 font-manrope max-w-3xl mx-auto mb-6">
+            Artigos especializados, cases reais e estratégias comprovadas por especialistas brasileiros.
+          </p>
 
-          {/* Tags */}
-          {article.tags.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <Tag className="w-4 h-4 text-gray-400" />
-              {article.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs"
-                >
-                  {tag}
-                </span>
-              ))}
+          {libraryData && (
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <TrendingUp className="w-4 h-4" />
+                <span>{libraryData.totalCount} artigos encontrados</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                <span>Fonte: {libraryData.source}</span>
+              </div>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Article Content */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="prose prose-lg max-w-none">
-            <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
-              {article.content}
-            </div>
-          </div>
-
-          {/* Article Actions */}
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <button className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors">
-                  <Heart className="w-5 h-5" />
-                  <span>Curtir</span>
-                </button>
-                <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
-                  <Share2 className="w-5 h-5" />
-                  <span>Compartilhar</span>
-                </button>
-              </div>
-              
-              <div className="text-sm text-gray-500">
-                Taxa de engajamento: {article.engagement}%
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Related Articles */}
-        {relatedArticles.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Artigos Relacionados</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedArticles.map((relatedArticle) => (
-                <div
-                  key={relatedArticle.id}
-                  className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => window.location.href = `/blog/artigo/${relatedArticle.id}?categoria=${relatedArticle.category}`}
-                >
-                  <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {relatedArticle.title}
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {relatedArticle.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{relatedArticle.readTime}</span>
-                    <span>{relatedArticle.views} views</span>
+        {libraryData && libraryData.articles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {libraryData.articles.map((article, index) => (
+              <article
+                key={article.id}
+                onClick={() => handleArticleClick(article)}
+                className="bg-white border border-gray-200 rounded-2xl overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-200 group"
+              >
+                <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="absolute top-4 right-4">
+                    {article.url && article.url !== '#' && article.url.startsWith('http') ? (
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
+                        <ExternalLink className="w-4 h-4 text-white" />
+                      </div>
+                    ) : (
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full px-2 py-1">
+                        <span className="text-white text-xs font-medium">Vynlo</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="text-white font-manrope text-lg font-bold line-clamp-2">
+                      {article.title}
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="p-6">
+                  <p className="text-gray-600 font-manrope leading-relaxed mb-4 line-clamp-3">
+                    {article.excerpt}
+                  </p>
+
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        <span>{article.author}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>{new Date(article.date).toLocaleDateString('pt-BR')}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      <span>{article.readTime}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <span>{article.views.toLocaleString()} views</span>
+                      <span>{article.engagement}% relevância</span>
+                    </div>
+                    <div className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
+                      🇧🇷 Brasil
+                    </div>
+                  </div>
+
+                  <div className="flex items-center text-blue-600 font-manrope font-semibold opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                    <span>
+                      {article.url && article.url !== '#' && article.url.startsWith('http') 
+                        ? 'Ler artigo original' 
+                        : 'Ver conteúdo completo'
+                      }
+                    </span>
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <Globe className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Nenhum artigo encontrado
+            </h3>
+            <p className="text-gray-600 font-manrope">
+              Não encontramos artigos brasileiros para esta categoria.
+            </p>
           </div>
         )}
-      </div>
 
+        <div className="text-center mt-16">
+          <button
+            onClick={() => window.location.href = '/blog'}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
+            Voltar ao Blog
+          </button>
+        </div>
+      </div>
       <Footer />
     </div>
   )
