@@ -12,6 +12,7 @@ interface Article {
   engagement: number
   source: string
   image?: string
+  url?: string
 }
 
 interface CategoryMetrics {

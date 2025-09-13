@@ -131,35 +131,42 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
     setActiveFilter(categoryId)
     logger.userInteraction('blog_category_click', categoryId)
     
-    // Integrar com busca inteligente
     try {
-      const { searchService } = await import('../../services/searchService')
-      const { contentService } = await import('../../services/contentService')
+      // Importar serviço de artigos
+      const { articleService } = await import('../../services/articleService')
       
-      const allArticles = await contentService.fetchDynamicContent()
-      const filters = { categories: categoryId === 'todos' ? [] : [categoryId] }
-      const result = await searchService.intelligentSearch('', filters, allArticles)
+      // Buscar artigos reais da internet para a categoria
+      const searchResult = await articleService.searchArticlesByCategory(categoryId)
       
       // Atualizar contadores com dados reais
       const updatedCategories = categories.map(cat => {
         if (cat.id === categoryId) {
-          return { ...cat, count: result.totalCount }
+          return { ...cat, count: searchResult.totalCount }
         }
         return cat
       })
       setCategories(updatedCategories)
       
+      // Mostrar feedback de busca
+      console.log(`Encontrados ${searchResult.totalCount} artigos em ${searchResult.searchTime}ms via ${searchResult.source}`)
+      
+      // Redirecionar para o primeiro artigo mais relevante
+      await articleService.redirectToArticle(categoryId)
+      
       // Emitir evento para outros componentes
       window.dispatchEvent(new CustomEvent('categoryFilterChanged', {
-        detail: { categoryId, articles: result.articles }
+        detail: { categoryId, articles: searchResult.articles, source: searchResult.source }
       }))
       
     } catch (error) {
-      console.error('Erro ao filtrar por categoria:', error)
+      console.error('Erro ao buscar artigos:', error)
+      
+      // Fallback: redirecionar para página de categoria
+      window.location.href = `/blog?categoria=${categoryId}`
     } finally {
       setTimeout(() => {
         setIsLoading(false)
-      }, 500)
+      }, 1000) // Aumentar tempo para mostrar loading
     }
   }
 
@@ -280,8 +287,12 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
                 
                 {/* Loading Overlay */}
                 {isLoading && isActive && (
-                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-3xl">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center rounded-3xl z-20">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
+                    <div className="text-sm text-gray-600 font-manrope font-medium text-center">
+                      <div>Buscando artigos especializados...</div>
+                      <div className="text-xs text-gray-500 mt-1">Conectando com fontes verificadas</div>
+                    </div>
                   </div>
                 )}
 
