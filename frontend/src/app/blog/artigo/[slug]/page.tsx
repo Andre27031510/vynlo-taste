@@ -96,7 +96,7 @@ export default function ArtigoPage() {
     return names[cat] || 'Negócios'
   }
 
-  const handleArticleClick = (article: Article & { urlValid?: boolean }) => {
+  const handleArticleClick = (article: Article & { urlValid?: boolean; contentRelevant?: boolean }) => {
     // Para artigos internos (URL = '#'), mostrar conteúdo na própria página
     if (!article.url || article.url === '#') {
       // Expandir card para mostrar conteúdo completo
@@ -115,11 +115,16 @@ export default function ArtigoPage() {
       `
       alert(expandedContent)
     } else if (article.url.startsWith('http')) {
-      // Para artigos externos, verificar se URL é válida
-      if (article.urlValid !== false) {
-        window.open(article.url, '_blank', 'noopener,noreferrer')
-      } else {
+      // Para artigos externos, verificar validade e relevância
+      if (article.urlValid === false) {
         alert('Este artigo não está mais disponível no site original. Tente novamente mais tarde.')
+      } else if (article.contentRelevant === false) {
+        alert('Este conteúdo pode não ser relevante para sua categoria. Deseja continuar?')
+        if (confirm('Abrir mesmo assim?')) {
+          window.open(article.url, '_blank', 'noopener,noreferrer')
+        }
+      } else {
+        window.open(article.url, '_blank', 'noopener,noreferrer')
       }
     }
   }
@@ -255,8 +260,8 @@ export default function ArtigoPage() {
                       <div className="text-lg font-bold text-green-600">{article.engagement}%</div>
                       <div className="text-xs text-gray-500">Relevância</div>
                     </div>
-                    <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
-                      Especializado
+                    <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+                      ✓ Validado
                     </div>
                   </div>
 

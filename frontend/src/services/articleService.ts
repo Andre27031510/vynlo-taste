@@ -606,14 +606,37 @@ class ArticleService {
     return commonTags.filter(tag => contentLower.includes(tag))
   }
 
-  // Verificar se URL existe
-  private async checkUrlExists(url: string): Promise<boolean> {
+  // Validar URL e conteúdo
+  private async validateUrlAndContent(url: string, category: string): Promise<{ valid: boolean; relevant: boolean }> {
     try {
-      const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' })
-      return true // Se não der erro, assume que existe
+      // Timeout de 5 segundos para validação
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+      
+      const response = await fetch(url, { 
+        method: 'HEAD', 
+        mode: 'no-cors',
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      
+      // Verificar se URL é relevante para a categoria
+      const relevantDomains = {
+        'restaurantes': ['ifood.com.br', 'ubereats.com', 'revistamenu.com.br', 'abrasel.com.br'],
+        'barbearias': ['belezanaweb.com.br', 'salonline.com.br'],
+        'petshops': ['petlove.com.br', 'petz.com.br'],
+        'igrejas': ['igrejasemrede.com.br', 'cristianismo.com.br'],
+        'gestao': ['sebrae.com.br', 'endeavor.org.br', 'startse.com', 'infomoney.com.br']
+      }
+      
+      const categoryDomains = relevantDomains[category as keyof typeof relevantDomains] || []
+      const isRelevant = categoryDomains.some(domain => url.includes(domain))
+      
+      return { valid: true, relevant: isRelevant }
     } catch (error) {
-      console.warn(`URL não acessível: ${url}`)
-      return false
+      console.warn(`URL inválida ou inacessível: ${url}`)
+      return { valid: false, relevant: false }
     }
   }
 
@@ -626,22 +649,46 @@ class ArticleService {
       if (result.articles.length > 0) {
         console.log(`📚 ${result.totalCount} artigos encontrados`)
         
-        // Verificar URLs dos artigos
+        // Validar URLs e conteúdo dos artigos
         const validatedArticles = await Promise.all(
           result.articles.map(async (article) => {
             if (article.url && article.url.startsWith('http')) {
-              const urlExists = await this.checkUrlExists(article.url)
-              return { ...article, urlValid: urlExists }
+              const validation = await this.validateUrlAndContent(article.url, category)
+              return { 
+                ...article, 
+                urlValid: validation.valid,
+                contentRelevant: validation.relevant
+              }
             }
-            return { ...article, urlValid: true }
+            return { ...article, urlValid: true, contentRelevant: true }
           })
         )
         
+        // Filtrar apenas artigos com URLs válidas e conteúdo relevante
+        const filteredArticles = validatedArticles.filter(article => 
+          article.urlValid && article.contentRelevant
+        )
+        
+        // Se não sobrou nenhum artigo válido, usar fallback
+        if (filteredArticles.length === 0) {
+          console.warn('⚠️ Nenhum artigo com conteúdo relevante encontrado, usando fallback')
+          const fallbackArticles = this.getBrazilianArticles(category)
+          const fallbackData = encodeURIComponent(JSON.stringify({
+            articles: fallbackArticles,
+            category,
+            source: 'Biblioteca Vynlo',
+            totalCount: fallbackArticles.length,
+            searchTime: 0
+          }))
+          window.location.href = `/blog/artigo/${category}-biblioteca?data=${fallbackData}`
+          return
+        }
+        
         const articleData = encodeURIComponent(JSON.stringify({
-          articles: validatedArticles,
+          articles: filteredArticles,
           category,
           source: result.source,
-          totalCount: validatedArticles.length,
+          totalCount: filteredArticles.length,
           searchTime: result.searchTime
         }))
         
