@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { animations, createRippleEffect, animateNumber } from '../../utils/animations'
 
 interface AnimatedElementProps {
