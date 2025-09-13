@@ -145,7 +145,7 @@ export default function ArtigoPage() {
       <Header />
       
       {/* Banner Azul para Preto Profissional */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-black py-16 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-black py-20 mt-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute top-0 left-0 w-full h-full">
           <div className="absolute top-10 left-10 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl"></div>
