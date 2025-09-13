@@ -97,14 +97,30 @@ export default function ArtigoPage() {
   }
 
   const handleArticleClick = (article: Article & { urlValid?: boolean }) => {
-    if (article.url && article.url !== '#' && article.url.startsWith('http')) {
+    // Para artigos internos (URL = '#'), mostrar conteúdo na própria página
+    if (!article.url || article.url === '#') {
+      // Expandir card para mostrar conteúdo completo
+      const expandedContent = `
+        ${article.title}
+        
+        ${article.excerpt}
+        
+        ${article.content}
+        
+        Autor: ${article.author}
+        Tempo de leitura: ${article.readTime}
+        Fonte: ${article.source}
+        
+        Este é um conteúdo especializado da biblioteca Vynlo sobre ${getCategoryName(article.category).toLowerCase()}.
+      `
+      alert(expandedContent)
+    } else if (article.url.startsWith('http')) {
+      // Para artigos externos, verificar se URL é válida
       if (article.urlValid !== false) {
         window.open(article.url, '_blank', 'noopener,noreferrer')
       } else {
         alert('Este artigo não está mais disponível no site original. Tente novamente mais tarde.')
       }
-    } else {
-      alert(`Artigo: ${article.title}\n\nEste é um artigo da biblioteca Vynlo com conteúdo especializado sobre ${article.category}.`)
     }
   }
 
@@ -134,12 +150,7 @@ export default function ArtigoPage() {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
-            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-6 py-3 mb-6">
-              <Globe className="w-5 h-5 text-blue-300" />
-              <span className="text-white font-manrope font-semibold text-sm">
-                Biblioteca Especializada
-              </span>
-            </div>
+
             
             <h1 className="text-4xl lg:text-6xl font-manrope font-black text-white mb-6 leading-tight">
               Biblioteca de
