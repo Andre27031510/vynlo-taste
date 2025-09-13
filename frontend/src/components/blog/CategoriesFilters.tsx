@@ -132,10 +132,9 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
     logger.userInteraction('blog_category_click', categoryId)
     
     try {
-      // Importar serviço de artigos
       const { articleService } = await import('../../services/articleService')
       
-      // Buscar artigos reais da internet para a categoria
+      // Buscar artigos reais da internet
       const searchResult = await articleService.searchArticlesByCategory(categoryId)
       
       // Atualizar contadores com dados reais
@@ -147,26 +146,18 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
       })
       setCategories(updatedCategories)
       
-      // Mostrar feedback de busca
       console.log(`Encontrados ${searchResult.totalCount} artigos em ${searchResult.searchTime}ms via ${searchResult.source}`)
       
-      // Redirecionar para o primeiro artigo mais relevante
+      // Redirecionar para artigo
       await articleService.redirectToArticle(categoryId)
-      
-      // Emitir evento para outros componentes
-      window.dispatchEvent(new CustomEvent('categoryFilterChanged', {
-        detail: { categoryId, articles: searchResult.articles, source: searchResult.source }
-      }))
       
     } catch (error) {
       console.error('Erro ao buscar artigos:', error)
-      
-      // Fallback: redirecionar para página de categoria
       window.location.href = `/blog?categoria=${categoryId}`
     } finally {
       setTimeout(() => {
         setIsLoading(false)
-      }, 1000) // Aumentar tempo para mostrar loading
+      }, 1000)
     }
   }
 

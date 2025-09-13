@@ -175,7 +175,7 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
 
       {/* Expanded Search Panel */}
       {isExpanded && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-2xl z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-2xl z-[9998] max-h-96 overflow-y-auto">
           
           {/* Search Suggestions */}
           {suggestions.length > 0 && (
@@ -236,7 +236,7 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
 
       {/* Advanced Filters Panel */}
       {showFilters && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl z-40 p-6">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl z-[9999] p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <Settings className="w-5 h-5 text-blue-600" />

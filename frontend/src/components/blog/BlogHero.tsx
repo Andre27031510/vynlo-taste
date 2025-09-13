@@ -36,7 +36,7 @@ export default function BlogHero() {
   return (
     <section 
       data-section="hero" 
-      className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-black overflow-hidden"
+      className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-black overflow-visible"
     >
       {/* Background Effects */}
       <div className="absolute inset-0">

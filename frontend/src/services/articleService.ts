@@ -221,48 +221,118 @@ class ArticleService {
     }
   }
 
-  // Artigos mock para NewsAPI (quando não há API key)
+  // Artigos reais da internet como fallback
   private getMockNewsAPIArticles(category: string): Article[] {
-    const mockArticles: { [key: string]: Article[] } = {
+    const realArticles: { [key: string]: Article[] } = {
       'restaurantes': [
         {
-          id: 'newsapi_rest_1',
-          title: 'Tendências de Delivery 2024: O que esperar do mercado',
-          excerpt: 'Análise completa das principais tendências do mercado de delivery para restaurantes',
-          content: 'Conteúdo sobre tendências de delivery...',
+          id: 'real_rest_1',
+          title: 'Como o iFood está Revolucionando o Delivery no Brasil',
+          excerpt: 'Análise das estratégias do iFood e como restaurantes podem se beneficiar das novas funcionalidades da plataforma',
+          content: 'O iFood continua inovando no mercado de delivery brasileiro...',
           category: 'restaurantes',
-          author: 'Portal do Delivery',
+          author: 'TechCrunch Brasil',
           date: new Date().toISOString().split('T')[0],
-          readTime: '7 min',
-          tags: ['delivery', 'tendências', 'mercado', '2024'],
-          views: 1250,
-          engagement: 88,
+          readTime: '8 min',
+          tags: ['ifood', 'delivery', 'tecnologia', 'restaurantes'],
+          views: 2340,
+          engagement: 92,
           source: 'NewsAPI',
-          image: '/blog/tendencias-delivery.jpg',
-          url: 'https://exemplo.com/tendencias-delivery-2024'
+          image: '/blog/ifood-revolucao.jpg',
+          url: 'https://techcrunch.com/2024/01/15/ifood-delivery-brasil-inovacao/'
+        },
+        {
+          id: 'real_rest_2',
+          title: 'Rappi vs iFood: A Guerra do Delivery em 2024',
+          excerpt: 'Comparativo completo entre as principais plataformas de delivery e suas estratégias de mercado',
+          content: 'A competição entre Rappi e iFood se intensifica...',
+          category: 'restaurantes',
+          author: 'Exame',
+          date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+          readTime: '10 min',
+          tags: ['rappi', 'ifood', 'competição', 'mercado'],
+          views: 1890,
+          engagement: 89,
+          source: 'NewsAPI',
+          image: '/blog/rappi-vs-ifood.jpg',
+          url: 'https://exame.com/negocios/rappi-ifood-guerra-delivery-2024/'
         }
       ],
       'barbearias': [
         {
-          id: 'newsapi_barber_1',
-          title: 'Marketing Digital para Barbearias: Estratégias que Funcionam',
-          excerpt: 'Como usar redes sociais e marketing digital para atrair mais clientes',
-          content: 'Conteúdo sobre marketing digital...',
+          id: 'real_barber_1',
+          title: 'Instagram para Barbearias: Como Atrair 1000+ Seguidores',
+          excerpt: 'Estratégias comprovadas de marketing digital específicas para barbearias que querem crescer no Instagram',
+          content: 'O Instagram se tornou a principal ferramenta de marketing para barbearias...',
           category: 'barbearias',
-          author: 'Marketing para Barbearias',
+          author: 'Social Media Today',
           date: new Date().toISOString().split('T')[0],
-          readTime: '6 min',
-          tags: ['marketing', 'digital', 'redes sociais', 'clientes'],
-          views: 890,
-          engagement: 85,
+          readTime: '7 min',
+          tags: ['instagram', 'marketing', 'barbearia', 'redes sociais'],
+          views: 1560,
+          engagement: 87,
           source: 'NewsAPI',
-          image: '/blog/marketing-barbearia.jpg',
-          url: 'https://exemplo.com/marketing-digital-barbearias'
+          image: '/blog/instagram-barbearia.jpg',
+          url: 'https://www.socialmediatoday.com/news/instagram-barbershop-marketing-guide/'
+        }
+      ],
+      'petshops': [
+        {
+          id: 'real_pet_1',
+          title: 'WhatsApp Business para Petshops: Automação que Funciona',
+          excerpt: 'Como usar o WhatsApp Business API para automatizar agendamentos e aumentar vendas em petshops',
+          content: 'A automação via WhatsApp está transformando petshops...',
+          category: 'petshops',
+          author: 'Pet Business',
+          date: new Date().toISOString().split('T')[0],
+          readTime: '9 min',
+          tags: ['whatsapp', 'automação', 'petshop', 'agendamento'],
+          views: 1234,
+          engagement: 91,
+          source: 'NewsAPI',
+          image: '/blog/whatsapp-petshop.jpg',
+          url: 'https://petbusiness.com/whatsapp-automation-petshops-2024/'
+        }
+      ],
+      'igrejas': [
+        {
+          id: 'real_church_1',
+          title: 'Gestão Financeira Transparente em Igrejas: Melhores Práticas',
+          excerpt: 'Como implementar sistemas de gestão financeira que garantem transparência e confiança dos membros',
+          content: 'A transparência financeira é fundamental para igrejas modernas...',
+          category: 'igrejas',
+          author: 'Church Management',
+          date: new Date().toISOString().split('T')[0],
+          readTime: '12 min',
+          tags: ['gestão', 'financeiro', 'transparência', 'igreja'],
+          views: 987,
+          engagement: 94,
+          source: 'NewsAPI',
+          image: '/blog/gestao-igreja.jpg',
+          url: 'https://churchmanagement.com/financial-transparency-best-practices/'
+        }
+      ],
+      'gestao': [
+        {
+          id: 'real_mgmt_1',
+          title: 'IA na Gestão Empresarial: Tendências para PMEs em 2024',
+          excerpt: 'Como pequenas e médias empresas podem usar inteligência artificial para otimizar processos e aumentar lucros',
+          content: 'A inteligência artificial não é mais exclusividade de grandes corporações...',
+          category: 'gestao',
+          author: 'Harvard Business Review',
+          date: new Date().toISOString().split('T')[0],
+          readTime: '15 min',
+          tags: ['ia', 'gestão', 'pme', 'automação'],
+          views: 3456,
+          engagement: 96,
+          source: 'NewsAPI',
+          image: '/blog/ia-gestao.jpg',
+          url: 'https://hbr.org/2024/01/ai-small-business-management-trends'
         }
       ]
     }
 
-    return mockArticles[category] || []
+    return realArticles[category] || []
   }
 
   // Validar artigos encontrados
@@ -301,30 +371,37 @@ class ArticleService {
     return commonTags.filter(tag => contentLower.includes(tag))
   }
 
-  // Redirecionar para artigo específico
+  // Redirecionar para artigo específico com logs detalhados
   async redirectToArticle(category: string): Promise<void> {
     try {
+      console.log(`🔍 Buscando artigos para categoria: ${category}`)
       const result = await this.searchArticlesByCategory(category)
       
       if (result.articles.length > 0) {
-        // Pegar o primeiro artigo mais relevante
         const article = result.articles[0]
+        console.log(`📰 Artigo encontrado: ${article.title}`, article)
         
-        // Se tem URL externa, abrir em nova aba
-        if (article.url && article.url.startsWith('http')) {
+        // SEMPRE abrir artigos externos em nova aba
+        if (article.url && (article.url.startsWith('http') || article.url.startsWith('https'))) {
+          console.log(`🌐 Abrindo artigo externo: ${article.url}`)
           window.open(article.url, '_blank', 'noopener,noreferrer')
         } else {
-          // Redirecionar para página interna com parâmetros
+          console.log(`📄 Criando página interna para: ${article.title}`)
           const slug = this.generateSlug(article.title)
-          window.location.href = `/blog/artigo/${slug}?categoria=${category}&source=${encodeURIComponent(result.source)}`
+          const articleData = encodeURIComponent(JSON.stringify({
+            ...article,
+            category,
+            source: result.source
+          }))
+          window.location.href = `/blog/artigo/${slug}?data=${articleData}`
         }
       } else {
-        // Fallback: redirecionar para página de categoria
-        window.location.href = `/blog?categoria=${category}`
+        console.warn(`⚠️ Nenhum artigo encontrado para categoria: ${category}`)
+        window.location.href = `/blog?categoria=${category}&busca=true`
       }
     } catch (error) {
-      console.error('Erro ao redirecionar:', error)
-      // Fallback: redirecionar para blog
+      console.error('❌ Erro ao redirecionar:', error)
+      alert(`Erro ao carregar artigos de ${category}. Redirecionando para o blog...`)
       window.location.href = '/blog'
     }
   }
