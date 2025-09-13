@@ -65,11 +65,11 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
     // Simular sugestões em tempo real
     if (value.length > 1) {
       const mockSuggestions: SearchSuggestion[] = [
-        { text: 'automação whatsapp', type: 'query', count: 12 },
-        { text: 'gestão financeira', type: 'query', count: 8 },
-        { text: 'restaurantes', type: 'category', count: 43 },
-        { text: 'ifood', type: 'tag', count: 15 },
-        { text: 'delivery', type: 'tag', count: 22 }
+        { text: 'automação whatsapp', type: 'query' as const, count: 12 },
+        { text: 'gestão financeira', type: 'query' as const, count: 8 },
+        { text: 'restaurantes', type: 'category' as const, count: 43 },
+        { text: 'ifood', type: 'tag' as const, count: 15 },
+        { text: 'delivery', type: 'tag' as const, count: 22 }
       ].filter(s => s.text.toLowerCase().includes(value.toLowerCase()))
       
       setSuggestions(mockSuggestions)
