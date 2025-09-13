@@ -322,7 +322,7 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
                   <option value="all">Todos</option>
                   <option value="quick">Rápida (≤5 min)</option>
                   <option value="medium">Média (5-15 min)</option>
-                  <option value="long">Longa (>15 min)</option>
+                  <option value="long">Longa (&gt;15 min)</option>
                 </select>
               </div>
 
