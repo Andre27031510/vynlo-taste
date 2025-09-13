@@ -85,8 +85,9 @@ export default function AnimatedElement({
 
   const getTransitionStyle = () => {
     const animationConfig = animations[animation]
+    const defaultDuration = animationConfig && 'transition' in animationConfig ? animationConfig.transition.duration : 0.6
     return {
-      transition: `all ${duration || animationConfig.transition.duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+      transition: `all ${duration || defaultDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
       transitionDelay: `${delay}ms`
     }
   }
