@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { 
   Search, 
@@ -34,7 +34,7 @@ import {
   VolumeX,
   RotateCcw,
   RefreshCw,
-  Grid3X3,
+  Grid,
   List,
   SlidersHorizontal,
   ArrowUpDown,
@@ -59,7 +59,10 @@ import Header from '../../landingpages/Header'
 import Footer from '../../landingpages/Footer'
 
 // Tipos para filtros avançados
-interface AdvancedFilters extends LibraryFilters {
+interface AdvancedFilters {
+  categories?: string[]
+  tags?: string[]
+  authors?: string[]
   dateRange?: 'today' | 'week' | 'month' | 'year' | 'all'
   sortBy?: 'relevance' | 'date' | 'popularity' | 'engagement'
   readTime?: 'quick' | 'medium' | 'long' | 'all'
@@ -148,13 +151,13 @@ const PremiumArticleCard = ({ article, onFavorite, onShare, isFavorited }: {
         {/* Header com badges */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 bg-gradient-to-br ${getDifficultyColor(article.difficulty || 'beginner')} rounded-xl flex items-center justify-center shadow-lg`}>
-              {getFormatIcon(article.format || 'article')}
+            <div className={`w-12 h-12 bg-gradient-to-br ${getDifficultyColor('beginner')} rounded-xl flex items-center justify-center shadow-lg`}>
+              {getFormatIcon('article')}
             </div>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 text-xs font-bold rounded-full bg-gradient-to-r ${getDifficultyColor(article.difficulty || 'beginner')} text-white`}>
-                  {article.difficulty || 'Iniciante'}
+                <span className={`px-2 py-1 text-xs font-bold rounded-full bg-gradient-to-r ${getDifficultyColor('beginner')} text-white`}>
+                  Iniciante
                 </span>
                 <span className="px-2 py-1 text-xs font-medium rounded-full bg-white/20 text-blue-200">
                   {article.category}
@@ -260,7 +263,7 @@ const PremiumArticleCard = ({ article, onFavorite, onShare, isFavorited }: {
   )
 }
 
-export default function BibliotecaCompletaPage() {
+function BibliotecaCompletaContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -363,9 +366,17 @@ export default function BibliotecaCompletaPage() {
     
     setIsLoading(true)
     try {
+      const libraryFilters: Partial<LibraryFilters> = {
+        categories: filters.categories || [],
+        sources: [],
+        dateRange: filters.dateRange === 'today' ? 'week' : filters.dateRange,
+        readTime: filters.readTime === 'quick' ? 'short' : filters.readTime === 'medium' ? 'medium' : filters.readTime === 'long' ? 'long' : 'all',
+        sortBy: filters.sortBy || 'relevance'
+      }
+      
       const result = await libraryService.globalSearch(
         searchQuery,
-        filters,
+        libraryFilters,
         1,
         12
       )
@@ -387,9 +398,17 @@ export default function BibliotecaCompletaPage() {
     
     setIsLoading(true)
     try {
+      const libraryFilters: Partial<LibraryFilters> = {
+        categories: filters.categories || [],
+        sources: [],
+        dateRange: filters.dateRange === 'today' ? 'week' : filters.dateRange,
+        readTime: filters.readTime === 'quick' ? 'short' : filters.readTime === 'medium' ? 'medium' : filters.readTime === 'long' ? 'long' : 'all',
+        sortBy: filters.sortBy || 'relevance'
+      }
+      
       const result = await libraryService.globalSearch(
         searchQuery,
-        filters,
+        libraryFilters,
         currentPage + 1,
         12
       )
@@ -556,7 +575,7 @@ export default function BibliotecaCompletaPage() {
                       onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                       className="p-3 bg-white/20 text-white rounded-2xl hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 transition-all duration-300"
                     >
-                      {viewMode === 'grid' ? <List className="w-5 h-5" /> : <Grid3X3 className="w-5 h-5" />}
+                      {viewMode === 'grid' ? <List className="w-5 h-5" /> : <Grid className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
@@ -763,5 +782,20 @@ export default function BibliotecaCompletaPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function BibliotecaCompletaPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-400 border-t-transparent mx-auto mb-4"></div>
+          <div className="text-white text-xl font-manrope">Carregando Biblioteca...</div>
+        </div>
+      </div>
+    }>
+      <BibliotecaCompletaContent />
+    </Suspense>
   )
 }
