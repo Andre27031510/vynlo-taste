@@ -175,7 +175,7 @@ class SearchService {
     return {
       article,
       score: Math.round(totalScore * 100) / 100,
-      matchedFields: [...new Set(matchedFields)],
+      matchedFields: Array.from(new Set(matchedFields)),
       highlights: highlights.slice(0, 3)
     }
   }
