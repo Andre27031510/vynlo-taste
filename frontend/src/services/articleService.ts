@@ -395,6 +395,22 @@ class ArticleService {
           source: 'ConnectPlug',
           image: '/blog/vendas-delivery.jpg',
           url: 'https://blog.connectplug.com.br/como-vender-em-delivery/'
+        },
+        {
+          id: 'rest_11',
+          title: 'Gestão Operacional Completa para Restaurantes',
+          excerpt: 'Guia prático com todas as estratégias de gestão operacional, controle de custos e eficiência para restaurantes de sucesso.',
+          content: 'A gestão operacional eficiente é fundamental para o sucesso de qualquer restaurante. Este guia aborda todos os aspectos...',
+          category: 'restaurantes',
+          author: 'Vida de Autônomo',
+          date: new Date(Date.now() - 864000000).toISOString().split('T')[0],
+          readTime: '22 min',
+          tags: ['gestão', 'operacional', 'eficiência', 'controle'],
+          views: 5240,
+          engagement: 96,
+          source: 'Vida de Autônomo',
+          image: '/blog/gestao-operacional-restaurante.jpg',
+          url: 'https://vidadeautonomo.com.br/2023/10/04/o-guia-definitivo-pra-gerir-seu-restaurante/'
         }
       ],
       'barbearias': [
