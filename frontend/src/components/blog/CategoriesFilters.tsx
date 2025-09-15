@@ -141,14 +141,9 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
     logger.userInteraction('blog_category_click', categoryId)
     
     try {
-      // Se for "todos", mostrar a biblioteca premium
+      // Se for "todos", redirecionar para página da Biblioteca Completa
       if (categoryId === 'todos') {
-        // Scroll to premium library or show it
-        const premiumLibrary = document.getElementById('premium-library')
-        if (premiumLibrary) {
-          premiumLibrary.scrollIntoView({ behavior: 'smooth' })
-        }
-        setIsLoading(false)
+        window.location.href = '/blog/biblioteca-completa'
         return
       }
       

@@ -1,4 +1,4 @@
-// Configurações de API para busca de artigos
+ // Configurações de API para busca de artigos
 export const API_CONFIG = {
   NEWS_API: {
     url: 'https://newsapi.org/v2/everything',

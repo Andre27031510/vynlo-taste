@@ -320,12 +320,12 @@ export default function PremiumLibrary() {
   const handleCategoryClick = async (categoryId: string) => {
     if (categoryId === 'todos') {
       // Navegar para página da biblioteca completa
-      router.push('/landingpages/blog')
+      router.push('/blog/biblioteca-completa')
       return
     }
     
-    // Para outras categorias, navegar com filtro
-    router.push(`/landingpages/blog?categoria=${categoryId}`)
+    // Para outras categorias, navegar para biblioteca completa com filtro
+    router.push(`/blog/biblioteca-completa?categoria=${categoryId}`)
   }
 
   const handleSearch = (query: string) => {
