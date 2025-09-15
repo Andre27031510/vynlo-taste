@@ -42,15 +42,20 @@ export default function ArtigoPage() {
   const data = searchParams.get('data')
 
   useEffect(() => {
+    console.log('Página carregada com slug:', slug, 'data:', data)
+    
     if (data) {
       try {
         const parsedData = JSON.parse(decodeURIComponent(data))
+        console.log('Dados parseados:', parsedData)
         setLibraryData(parsedData)
       } catch (error) {
-        console.error('Erro ao carregar dados:', error)
+        console.error('Erro ao parsear dados:', error)
+        console.log('Usando fallback devido a erro no parse')
         loadFallbackData()
       }
     } else {
+      console.log('Nenhum dado fornecido, usando fallback')
       loadFallbackData()
     }
     setIsLoading(false)
@@ -58,24 +63,34 @@ export default function ArtigoPage() {
 
   const loadFallbackData = () => {
     const categoria = slug.includes('-biblioteca') ? slug.replace('-biblioteca', '') : slug.split('-')[0] || 'gestao'
-    const fallbackArticles: Article[] = [
-      {
-        id: 'fallback_1',
-        title: `Guia Completo de ${getCategoryName(categoria)} no Brasil`,
-        excerpt: `Estratégias e dicas essenciais para ${categoria} brasileiros que querem crescer no mercado nacional.`,
-        content: `Conteúdo especializado sobre ${categoria} no contexto brasileiro...`,
-        category: categoria,
-        author: 'Equipe Vynlo Brasil',
-        date: new Date().toISOString().split('T')[0],
-        readTime: '8 min',
-        tags: [categoria, 'brasil', 'gestão', 'crescimento'],
-        views: 1500,
-        engagement: 92,
-        source: 'Vynlo Knowledge Base',
-        url: '#'
+    
+    // Usar os mesmos artigos do articleService para consistência
+    const getBrazilianArticles = (category: string): Article[] => {
+      const realArticles: { [key: string]: Article[] } = {
+        'restaurantes': [
+          {
+            id: 'rest_1',
+            title: 'O GUIA DEFINITIVO PARA UM RESTAURANTE DE SUCESSO',
+            excerpt: 'Guia completo com todas as estratégias, técnicas e segredos para transformar seu restaurante em um negócio de sucesso. Download gratuito em PDF.',
+            content: 'Este guia definitivo contém tudo que você precisa saber para ter um restaurante de sucesso. Desde planejamento até execução...',
+            category: 'restaurantes',
+            author: 'Vynlo Taste',
+            date: new Date().toISOString().split('T')[0],
+            readTime: '45 min',
+            tags: ['guia', 'sucesso', 'restaurante', 'completo'],
+            views: 8750,
+            engagement: 98,
+            source: 'Vynlo',
+            image: '/blog/guia-restaurante.jpg',
+            url: 'https://static1.squarespace.com/static/6273f2683f9dba7b3670dc36/t/6278712ac288c6019eed48d0/1652060465999/O-Guia-Definitivo-Para-Um-Restaurante-De-SucessoCompressed.pdf'
+          }
+        ]
       }
-    ]
-
+      return realArticles[category] || []
+    }
+    
+    const fallbackArticles = getBrazilianArticles(categoria)
+    
     setLibraryData({
       articles: fallbackArticles,
       category: categoria,

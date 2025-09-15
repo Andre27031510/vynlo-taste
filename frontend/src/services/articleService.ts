@@ -743,6 +743,8 @@ class ArticleService {
           totalCount: fallbackArticles.length,
           searchTime: 0
         }))
+        
+        console.log('Redirecionando para:', `/blog/artigo/${category}-biblioteca?data=${fallbackData.substring(0, 100)}...`)
         window.location.href = `/blog/artigo/${category}-biblioteca?data=${fallbackData}`
         return
         
