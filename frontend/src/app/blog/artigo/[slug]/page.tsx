@@ -116,6 +116,156 @@ export default function ArtigoPage() {
             image: '/blog/crescimento-restaurante.jpg',
             url: 'https://donosderestaurantes.com/termos/estrategias-de-crescimento/'
           }
+        ],
+        'educacao': [
+          {
+            id: 'edu_1',
+            title: 'Educação Inclusiva: Estratégias Pedagógicas para Promover a Equidade',
+            excerpt: 'Estratégias pedagógicas para promover equidade e inclusão na educação',
+            content: 'A educação inclusiva é fundamental para garantir que todos os alunos tenham acesso a uma educação de qualidade. Este artigo apresenta estratégias pedagógicas comprovadas para promover a equidade em sala de aula...',
+            category: 'educacao',
+            author: 'Revista Educação',
+            date: new Date().toISOString().split('T')[0],
+            readTime: '12 min',
+            tags: ['educação inclusiva', 'estratégias', 'equidade', 'pedagogia'],
+            views: 3240,
+            engagement: 95,
+            source: 'Revista Educação',
+            image: '/blog/educacao-inclusiva.jpg',
+            url: 'https://revistaeducacao.com.br/2024/03/15/educacao-inclusiva-estrategias-pedagogicas/'
+          },
+          {
+            id: 'edu_2',
+            title: 'Práticas Pedagógicas na Educação Infantil: Estratégias Eficazes',
+            excerpt: 'Estratégias eficazes para o desenvolvimento integral das crianças na educação infantil',
+            content: 'A educação infantil é uma fase crucial no desenvolvimento das crianças. Este artigo apresenta práticas pedagógicas eficazes que promovem o desenvolvimento integral dos pequenos...',
+            category: 'educacao',
+            author: 'Rhema Neuroeducação',
+            date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+            readTime: '15 min',
+            tags: ['educação infantil', 'práticas pedagógicas', 'desenvolvimento', 'crianças'],
+            views: 2890,
+            engagement: 93,
+            source: 'Rhema Neuroeducação',
+            image: '/blog/educacao-infantil.jpg',
+            url: 'https://rhemaneuroeducacao.com.br/blog/praticas-pedagogicas-na-educacao-infantil-estrategias-eficazes-para-o-desenvolvimento-integral-das-criancas/'
+          },
+          {
+            id: 'edu_3',
+            title: '3 Dicas para sua Rede de Ensino Chegar Cada Vez Mais Longe',
+            excerpt: 'Dicas práticas para melhorar o desempenho e alcance das redes de ensino',
+            content: 'As redes de ensino enfrentam desafios únicos na busca por excelência educacional. Este artigo apresenta 3 dicas fundamentais para expandir o alcance e melhorar o desempenho das redes de ensino...',
+            category: 'educacao',
+            author: 'Fundação Lemann',
+            date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
+            readTime: '10 min',
+            tags: ['redes de ensino', 'desempenho', 'alcance', 'gestão educacional'],
+            views: 2650,
+            engagement: 91,
+            source: 'Fundação Lemann',
+            image: '/blog/redes-ensino.jpg',
+            url: 'https://fundacaolemann.org.br/noticias/3-dicas-para-a-sua-rede-de-ensino-chegar-cada-vez-mais-longe/?gad_source=1&gad_campaignid=22858382090&gbraid=0AAAAADotangsWvRQwN5OYMg33BcI4s7dU&gclid=Cj0KCQjw8p7GBhCjARIsAEhghZ2FK_Mw8HvuEENi7nVZYJqdsAuNh3DXTvXNCHkUjaLjPDGBdB3kC0caAvedEALw_wcB'
+          }
+        ],
+        'servicos': [
+          {
+            id: 'serv_1',
+            title: '4 Estratégias de Marketing para Alavancar seu Negócio',
+            excerpt: 'Estratégias essenciais de marketing para consolidar e expandir seu negócio',
+            content: 'O marketing é fundamental para o crescimento de qualquer negócio. Este artigo apresenta 4 estratégias essenciais que vão ajudar você a consolidar sua marca e expandir seu negócio de forma sustentável...',
+            category: 'servicos',
+            author: 'Líder Jr',
+            date: new Date().toISOString().split('T')[0],
+            readTime: '12 min',
+            tags: ['marketing', 'estratégias', 'negócio', 'crescimento'],
+            views: 3450,
+            engagement: 94,
+            source: 'Líder Jr',
+            image: '/blog/marketing-estrategias.jpg',
+            url: 'https://liderjr.com/blog/4-estrategias-de-marketing-para-alavancar-seu-negocio/?gad_source=1&gad_campaignid=22403921657&gbraid=0AAAAADK0Y1lgWO1I0uGIbRUSEZ_Ni_pO6&gclid=Cj0KCQjw8p7GBhCjARIsAEhghZ1n5N-KzRvCKva_ybkgzlFgMp2r4WzTR6oRy3EGNj50jR9Z-r1N2n8aAvlUEALw_wcB'
+          },
+          {
+            id: 'serv_2',
+            title: 'Como Fazer a Gestão Financeira do Pequeno Negócio',
+            excerpt: 'Guia completo do Sebrae para gestão financeira eficiente de pequenos negócios',
+            content: 'A gestão financeira é um dos pilares fundamentais para o sucesso de qualquer pequeno negócio. Este guia do Sebrae apresenta as melhores práticas e ferramentas para manter suas finanças organizadas e saudáveis...',
+            category: 'servicos',
+            author: 'Sebrae',
+            date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+            readTime: '18 min',
+            tags: ['gestão financeira', 'pequeno negócio', 'sebrae', 'finanças'],
+            views: 4120,
+            engagement: 96,
+            source: 'Sebrae',
+            image: '/blog/gestao-financeira-pequeno.jpg',
+            url: 'https://sebrae.com.br/sites/PortalSebrae/artigos/como-fazer-a-gestao-financeira-do-pequeno-negocio,d999a442d2e5a410VgnVCM1000003b74010aRCRD'
+          },
+          {
+            id: 'serv_3',
+            title: 'A Importância da Gestão Financeira Empresarial',
+            excerpt: 'Fundamentos essenciais da gestão financeira para empresas de todos os portes',
+            content: 'A gestão financeira empresarial é crucial para a sustentabilidade e crescimento de qualquer organização. Este artigo aborda os fundamentos essenciais que toda empresa deve conhecer e aplicar...',
+            category: 'servicos',
+            author: 'Sebrae',
+            date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
+            readTime: '16 min',
+            tags: ['gestão financeira', 'empresarial', 'fundamentos', 'sustentabilidade'],
+            views: 3680,
+            engagement: 92,
+            source: 'Sebrae',
+            image: '/blog/gestao-financeira-empresarial.jpg',
+            url: 'https://sebrae.com.br/sites/PortalSebrae/artigos/a-importancia-da-gestao-financeira-empresarial,624d36b750c32810VgnVCM100000d701210aRCRD'
+          }
+        ],
+        'saude': [
+          {
+            id: 'saude_1',
+            title: 'A Importância do Marketing na Área da Saúde: Estratégias e Práticas Essenciais',
+            excerpt: 'Estratégias de marketing essenciais para profissionais da saúde e clínicas',
+            content: 'O marketing na área da saúde é fundamental para o crescimento e sucesso de profissionais e clínicas. Este artigo apresenta estratégias e práticas essenciais que respeitam as normas éticas da profissão...',
+            category: 'saude',
+            author: 'Plenitude Educação',
+            date: new Date().toISOString().split('T')[0],
+            readTime: '14 min',
+            tags: ['marketing saúde', 'estratégias', 'práticas essenciais', 'profissionais'],
+            views: 3680,
+            engagement: 95,
+            source: 'Plenitude Educação',
+            image: '/blog/marketing-saude-estrategias.jpg',
+            url: 'https://blog.plenitudeeducacao.com.br/a-importancia-do-marketing-na-area-da-saude-estrategias-e-praticas-essenciais/'
+          },
+          {
+            id: 'saude_2',
+            title: '5 Dicas para Abrir um Negócio de Saúde de Sucesso',
+            excerpt: 'Guia do Sebrae com dicas práticas para empreender na área da saúde',
+            content: 'Empreender na área da saúde requer planejamento e conhecimento específico. Este guia do Sebrae apresenta 5 dicas fundamentais para abrir um negócio de saúde de sucesso...',
+            category: 'saude',
+            author: 'Sebrae',
+            date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+            readTime: '16 min',
+            tags: ['negócio saúde', 'empreendedorismo', 'sebrae', 'dicas práticas'],
+            views: 4250,
+            engagement: 97,
+            source: 'Sebrae',
+            image: '/blog/negocio-saude-sucesso.jpg',
+            url: 'https://sebrae.com.br/sites/PortalSebrae/sebraeaz/5-dicas-para-abrir-um-negocio-de-saude-de-sucesso,a258d1496e2db610VgnVCM1000004c00210aRCRD'
+          },
+          {
+            id: 'saude_3',
+            title: 'Como Atrair Pacientes para Clínica: Estratégias Eficazes',
+            excerpt: 'Estratégias práticas para aumentar a captação de pacientes em clínicas',
+            content: 'A captação de pacientes é um desafio constante para clínicas e consultórios. Este artigo apresenta estratégias eficazes e comprovadas para atrair mais pacientes de forma ética e sustentável...',
+            category: 'saude',
+            author: 'Telemedicina Morsch',
+            date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
+            readTime: '12 min',
+            tags: ['atrair pacientes', 'clínica', 'estratégias', 'captação'],
+            views: 3120,
+            engagement: 93,
+            source: 'Telemedicina Morsch',
+            image: '/blog/atrair-pacientes-clinica.jpg',
+            url: 'https://telemedicinamorsch.com.br/blog/como-atrair-pacientes-para-clinica?srsltid=AfmBOoqwfQFvvJmw9eFIPTdTddwseKaBOC7owKfJNZ4-y4UzoEtKn7_r'
+          }
         ]
       }
       return realArticles[category] || []
@@ -147,8 +297,10 @@ export default function ArtigoPage() {
   }
 
   const handleArticleClick = (article: Article & { urlValid?: boolean; contentRelevant?: boolean }) => {
-    // Para artigos com URL externa, abrir diretamente
+    // Para artigos com URL externa, abrir diretamente em nova aba
     if (article.url && article.url.startsWith('http')) {
+      console.log(`🔗 Abrindo artigo externo: ${article.title}`)
+      console.log(`🌐 URL: ${article.url}`)
       window.open(article.url, '_blank', 'noopener,noreferrer')
     } else {
       // Para artigos internos, mostrar conteúdo

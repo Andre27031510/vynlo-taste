@@ -440,201 +440,201 @@ class ArticleService {
       'ia-bot': [
         {
           id: 'ia_1',
-          title: 'IA Bot - Assistente Inteligente para Negócios',
-          excerpt: 'Como implementar assistentes virtuais inteligentes que automatizam atendimento e aumentam vendas em até 200%.',
-          content: 'Os bots de IA estão revolucionando o atendimento ao cliente. Veja como implementar...',
+          title: 'Os Melhores Chatbots AI: Estratégia de Marketing e Conformidade',
+          excerpt: 'Guia completo sobre chatbots de IA, estratégias de marketing e conformidade legal. Como implementar com segurança.',
+          content: 'Os chatbots de IA estão revolucionando o marketing digital. Veja como implementar com conformidade legal...',
           category: 'ia-bot',
-          author: 'TechCrunch',
+          author: 'Iubenda',
           date: new Date().toISOString().split('T')[0],
-          readTime: '15 min',
-          tags: ['ia', 'bot', 'assistente', 'automação'],
-          views: 3890,
-          engagement: 95,
-          source: 'TechCrunch',
-          image: '/blog/ia-bot.jpg',
-          url: '#'
+          readTime: '18 min',
+          tags: ['chatbot', 'ia', 'marketing', 'conformidade'],
+          views: 4250,
+          engagement: 96,
+          source: 'Iubenda',
+          image: '/blog/chatbots-ai.jpg',
+          url: 'https://www.iubenda.com/pt-br/help/121116-os-melhores-chatbots-ai-estrategia-de-marketing-e-conformidade'
         },
         {
           id: 'ia_2',
-          title: 'Automação com Inteligência Artificial',
-          excerpt: 'Processos automatizados com IA que reduzem custos operacionais em 60% e aumentam eficiência empresarial.',
-          content: 'A automação inteligente está transformando empresas. Veja como aplicar...',
+          title: 'Impacto da Inteligência Artificial no Pensamento Crítico',
+          excerpt: 'Como a IA está transformando o pensamento crítico e tomada de decisões. Análise profunda sobre o futuro da IA.',
+          content: 'A inteligência artificial está mudando a forma como pensamos e tomamos decisões. Veja o impacto...',
           category: 'ia-bot',
-          author: 'MIT Technology Review',
+          author: 'Anamid',
           date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-          readTime: '12 min',
-          tags: ['automação', 'ia', 'processos', 'eficiência'],
-          views: 2650,
-          engagement: 92,
-          source: 'MIT Tech Review',
-          image: '/blog/automacao-ia.jpg',
-          url: '#'
+          readTime: '22 min',
+          tags: ['ia', 'pensamento crítico', 'decisões', 'futuro'],
+          views: 3680,
+          engagement: 94,
+          source: 'Anamid',
+          image: '/blog/ia-pensamento.jpg',
+          url: 'https://www.anamid.com.br/impacto-da-inteligencia-artificial-no-pensamento-critico/'
         },
         {
           id: 'ia_3',
-          title: 'Chatbots e Atendimento Automatizado',
-          excerpt: 'Chatbots inteligentes que atendem 24/7, resolvem 80% das dúvidas e melhoram satisfação do cliente.',
-          content: 'Os chatbots evoluíram muito. Veja como criar um atendimento automatizado eficiente...',
+          title: 'Guia Completo de Chatbots para Negócios',
+          excerpt: 'Guia definitivo para implementar chatbots eficazes em seu negócio. Estratégias, ferramentas e melhores práticas.',
+          content: 'Os chatbots são essenciais para negócios modernos. Veja como implementar corretamente...',
           category: 'ia-bot',
-          author: 'Chatbot Magazine',
+          author: 'Chatbot.com',
           date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-          readTime: '10 min',
-          tags: ['chatbot', 'atendimento', '24/7', 'satisfação'],
-          views: 2340,
-          engagement: 89,
-          source: 'Chatbot Magazine',
-          image: '/blog/chatbot.jpg',
-          url: '#'
+          readTime: '16 min',
+          tags: ['chatbot', 'negócios', 'implementação', 'estratégias'],
+          views: 3120,
+          engagement: 92,
+          source: 'Chatbot.com',
+          image: '/blog/chatbot-negocios.jpg',
+          url: 'https://www.chatbot.com/blog/chatbot-guide/'
         }
       ],
       'educacao': [
         {
           id: 'edu_1',
-          title: 'Gestão Escolar e Administração Educacional',
-          excerpt: 'Sistemas de gestão que otimizam processos educacionais e aumentam eficiência administrativa em 70%.',
-          content: 'A gestão escolar moderna requer ferramentas adequadas. Veja como implementar...',
+          title: 'Educação Inclusiva: Estratégias Pedagógicas para Promover a Equidade',
+          excerpt: 'Estratégias pedagógicas para promover equidade e inclusão na educação',
+          content: 'A educação inclusiva é fundamental para garantir que todos os alunos tenham acesso a uma educação de qualidade. Este artigo apresenta estratégias pedagógicas comprovadas para promover a equidade em sala de aula...',
           category: 'educacao',
           author: 'Revista Educação',
           date: new Date().toISOString().split('T')[0],
-          readTime: '14 min',
-          tags: ['gestão', 'escolar', 'administração', 'educação'],
-          views: 2890,
-          engagement: 93,
+          readTime: '12 min',
+          tags: ['educação inclusiva', 'estratégias', 'equidade', 'pedagogia'],
+          views: 3240,
+          engagement: 95,
           source: 'Revista Educação',
-          image: '/blog/gestao-escolar.jpg',
-          url: '#'
+          image: '/blog/educacao-inclusiva.jpg',
+          url: 'https://revistaeducacao.com.br/2024/03/15/educacao-inclusiva-estrategias-pedagogicas/'
         },
         {
           id: 'edu_2',
-          title: 'Marketing Digital para Instituições de Ensino',
-          excerpt: 'Estratégias de marketing que aumentam matrículas em 150% e fortalecem marca educacional.',
-          content: 'O marketing educacional tem suas particularidades. Veja as melhores estratégias...',
+          title: 'Práticas Pedagógicas na Educação Infantil: Estratégias Eficazes',
+          excerpt: 'Estratégias eficazes para o desenvolvimento integral das crianças na educação infantil',
+          content: 'A educação infantil é uma fase crucial no desenvolvimento das crianças. Este artigo apresenta práticas pedagógicas eficazes que promovem o desenvolvimento integral dos pequenos...',
           category: 'educacao',
-          author: 'EdTech Brasil',
+          author: 'Rhema Neuroeducação',
           date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-          readTime: '16 min',
-          tags: ['marketing', 'educação', 'matrículas', 'digital'],
-          views: 2450,
-          engagement: 91,
-          source: 'EdTech Brasil',
-          image: '/blog/marketing-educacao.jpg',
-          url: '#'
+          readTime: '15 min',
+          tags: ['educação infantil', 'práticas pedagógicas', 'desenvolvimento', 'crianças'],
+          views: 2890,
+          engagement: 93,
+          source: 'Rhema Neuroeducação',
+          image: '/blog/educacao-infantil.jpg',
+          url: 'https://rhemaneuroeducacao.com.br/blog/praticas-pedagogicas-na-educacao-infantil-estrategias-eficazes-para-o-desenvolvimento-integral-das-criancas/'
         },
         {
           id: 'edu_3',
-          title: 'Tecnologia na Educação e EAD',
-          excerpt: 'Plataformas e ferramentas tecnológicas que revolucionam o ensino à distância e presencial.',
-          content: 'A tecnologia educacional está transformando o aprendizado. Veja as principais tendências...',
+          title: '3 Dicas para sua Rede de Ensino Chegar Cada Vez Mais Longe',
+          excerpt: 'Dicas práticas para melhorar o desempenho e alcance das redes de ensino',
+          content: 'As redes de ensino enfrentam desafios únicos na busca por excelência educacional. Este artigo apresenta 3 dicas fundamentais para expandir o alcance e melhorar o desempenho das redes de ensino...',
           category: 'educacao',
-          author: 'Portal EAD',
+          author: 'Fundação Lemann',
           date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-          readTime: '13 min',
-          tags: ['tecnologia', 'ead', 'ensino', 'plataformas'],
-          views: 2120,
-          engagement: 88,
-          source: 'Portal EAD',
-          image: '/blog/tecnologia-educacao.jpg',
-          url: '#'
+          readTime: '10 min',
+          tags: ['redes de ensino', 'desempenho', 'alcance', 'gestão educacional'],
+          views: 2650,
+          engagement: 91,
+          source: 'Fundação Lemann',
+          image: '/blog/redes-ensino.jpg',
+          url: 'https://fundacaolemann.org.br/noticias/3-dicas-para-a-sua-rede-de-ensino-chegar-cada-vez-mais-longe/?gad_source=1&gad_campaignid=22858382090&gbraid=0AAAAADotangsWvRQwN5OYMg33BcI4s7dU&gclid=Cj0KCQjw8p7GBhCjARIsAEhghZ2FK_Mw8HvuEENi7nVZYJqdsAuNh3DXTvXNCHkUjaLjPDGBdB3kC0caAvedEALw_wcB'
         }
       ],
       'servicos': [
         {
           id: 'serv_1',
-          title: 'Gestão de Empresas de Serviços',
-          excerpt: 'Sistemas de gestão que otimizam operações de serviços e aumentam produtividade em 80%.',
-          content: 'Empresas de serviços têm desafios únicos de gestão. Veja como superá-los...',
+          title: '4 Estratégias de Marketing para Alavancar seu Negócio',
+          excerpt: 'Estratégias essenciais de marketing para consolidar e expandir seu negócio',
+          content: 'O marketing é fundamental para o crescimento de qualquer negócio. Este artigo apresenta 4 estratégias essenciais que vão ajudar você a consolidar sua marca e expandir seu negócio de forma sustentável...',
           category: 'servicos',
-          author: 'Gestão & Serviços',
+          author: 'Líder Jr',
           date: new Date().toISOString().split('T')[0],
-          readTime: '15 min',
-          tags: ['gestão', 'serviços', 'produtividade', 'operações'],
-          views: 2670,
-          engagement: 92,
-          source: 'Gestão & Serviços',
-          image: '/blog/gestao-servicos.jpg',
-          url: '#'
+          readTime: '12 min',
+          tags: ['marketing', 'estratégias', 'negócio', 'crescimento'],
+          views: 3450,
+          engagement: 94,
+          source: 'Líder Jr',
+          image: '/blog/marketing-estrategias.jpg',
+          url: 'https://liderjr.com/blog/4-estrategias-de-marketing-para-alavancar-seu-negocio/?gad_source=1&gad_campaignid=22403921657&gbraid=0AAAAADK0Y1lgWO1I0uGIbRUSEZ_Ni_pO6&gclid=Cj0KCQjw8p7GBhCjARIsAEhghZ1n5N-KzRvCKva_ybkgzlFgMp2r4WzTR6oRy3EGNj50jR9Z-r1N2n8aAvlUEALw_wcB'
         },
         {
           id: 'serv_2',
-          title: 'Marketing para Prestadores de Serviços',
-          excerpt: 'Estratégias de marketing que geram leads qualificados e aumentam contratos em 120%.',
-          content: 'O marketing para serviços requer abordagem diferenciada. Veja as melhores práticas...',
+          title: 'Como Fazer a Gestão Financeira do Pequeno Negócio',
+          excerpt: 'Guia completo do Sebrae para gestão financeira eficiente de pequenos negócios',
+          content: 'A gestão financeira é um dos pilares fundamentais para o sucesso de qualquer pequeno negócio. Este guia do Sebrae apresenta as melhores práticas e ferramentas para manter suas finanças organizadas e saudáveis...',
           category: 'servicos',
-          author: 'Marketing de Serviços',
+          author: 'Sebrae',
           date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-          readTime: '12 min',
-          tags: ['marketing', 'serviços', 'leads', 'contratos'],
-          views: 2340,
-          engagement: 89,
-          source: 'Marketing de Serviços',
-          image: '/blog/marketing-servicos.jpg',
-          url: '#'
+          readTime: '18 min',
+          tags: ['gestão financeira', 'pequeno negócio', 'sebrae', 'finanças'],
+          views: 4120,
+          engagement: 96,
+          source: 'Sebrae',
+          image: '/blog/gestao-financeira-pequeno.jpg',
+          url: 'https://sebrae.com.br/sites/PortalSebrae/artigos/como-fazer-a-gestao-financeira-do-pequeno-negocio,d999a442d2e5a410VgnVCM1000003b74010aRCRD'
         },
         {
           id: 'serv_3',
-          title: 'Automação de Processos de Serviços',
-          excerpt: 'Ferramentas de automação que reduzem tempo de execução em 50% e melhoram qualidade.',
-          content: 'A automação está revolucionando empresas de serviços. Veja como implementar...',
+          title: 'A Importância da Gestão Financeira Empresarial',
+          excerpt: 'Fundamentos essenciais da gestão financeira para empresas de todos os portes',
+          content: 'A gestão financeira empresarial é crucial para a sustentabilidade e crescimento de qualquer organização. Este artigo aborda os fundamentos essenciais que toda empresa deve conhecer e aplicar...',
           category: 'servicos',
-          author: 'Automação Brasil',
+          author: 'Sebrae',
           date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-          readTime: '14 min',
-          tags: ['automação', 'processos', 'qualidade', 'eficiência'],
-          views: 1980,
-          engagement: 87,
-          source: 'Automação Brasil',
-          image: '/blog/automacao-servicos.jpg',
-          url: '#'
+          readTime: '16 min',
+          tags: ['gestão financeira', 'empresarial', 'fundamentos', 'sustentabilidade'],
+          views: 3680,
+          engagement: 92,
+          source: 'Sebrae',
+          image: '/blog/gestao-financeira-empresarial.jpg',
+          url: 'https://sebrae.com.br/sites/PortalSebrae/artigos/a-importancia-da-gestao-financeira-empresarial,624d36b750c32810VgnVCM100000d701210aRCRD'
         }
       ],
       'saude': [
         {
           id: 'saude_1',
-          title: 'Gestão de Clínicas e Consultórios',
-          excerpt: 'Sistemas de gestão que otimizam agendamentos, prontuários e aumentam eficiência médica em 90%.',
-          content: 'A gestão médica moderna requer ferramentas especializadas. Veja como implementar...',
+          title: 'A Importância do Marketing na Área da Saúde: Estratégias e Práticas Essenciais',
+          excerpt: 'Estratégias de marketing essenciais para profissionais da saúde e clínicas',
+          content: 'O marketing na área da saúde é fundamental para o crescimento e sucesso de profissionais e clínicas. Este artigo apresenta estratégias e práticas essenciais que respeitam as normas éticas da profissão...',
           category: 'saude',
-          author: 'Saúde Digital',
+          author: 'Plenitude Educação',
           date: new Date().toISOString().split('T')[0],
-          readTime: '16 min',
-          tags: ['gestão', 'clínica', 'consultório', 'agendamento'],
-          views: 3120,
-          engagement: 94,
-          source: 'Saúde Digital',
-          image: '/blog/gestao-clinica.jpg',
-          url: '#'
+          readTime: '14 min',
+          tags: ['marketing saúde', 'estratégias', 'práticas essenciais', 'profissionais'],
+          views: 3680,
+          engagement: 95,
+          source: 'Plenitude Educação',
+          image: '/blog/marketing-saude-estrategias.jpg',
+          url: 'https://blog.plenitudeeducacao.com.br/a-importancia-do-marketing-na-area-da-saude-estrategias-e-praticas-essenciais/'
         },
         {
           id: 'saude_2',
-          title: 'Marketing Digital para Área da Saúde',
-          excerpt: 'Estratégias de marketing médico que atraem pacientes e fortalecem reputação profissional.',
-          content: 'O marketing médico tem regras específicas. Veja como fazer corretamente...',
+          title: '5 Dicas para Abrir um Negócio de Saúde de Sucesso',
+          excerpt: 'Guia do Sebrae com dicas práticas para empreender na área da saúde',
+          content: 'Empreender na área da saúde requer planejamento e conhecimento específico. Este guia do Sebrae apresenta 5 dicas fundamentais para abrir um negócio de saúde de sucesso...',
           category: 'saude',
-          author: 'Marketing Médico',
+          author: 'Sebrae',
           date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-          readTime: '13 min',
-          tags: ['marketing', 'saúde', 'pacientes', 'reputação'],
-          views: 2780,
-          engagement: 91,
-          source: 'Marketing Médico',
-          image: '/blog/marketing-saude.jpg',
-          url: '#'
+          readTime: '16 min',
+          tags: ['negócio saúde', 'empreendedorismo', 'sebrae', 'dicas práticas'],
+          views: 4250,
+          engagement: 97,
+          source: 'Sebrae',
+          image: '/blog/negocio-saude-sucesso.jpg',
+          url: 'https://sebrae.com.br/sites/PortalSebrae/sebraeaz/5-dicas-para-abrir-um-negocio-de-saude-de-sucesso,a258d1496e2db610VgnVCM1000004c00210aRCRD'
         },
         {
           id: 'saude_3',
-          title: 'Tecnologia e Telemedicina',
-          excerpt: 'Plataformas de telemedicina que expandem atendimento e aumentam receita médica em 60%.',
-          content: 'A telemedicina está revolucionando o atendimento médico. Veja as principais ferramentas...',
+          title: 'Como Atrair Pacientes para Clínica: Estratégias Eficazes',
+          excerpt: 'Estratégias práticas para aumentar a captação de pacientes em clínicas',
+          content: 'A captação de pacientes é um desafio constante para clínicas e consultórios. Este artigo apresenta estratégias eficazes e comprovadas para atrair mais pacientes de forma ética e sustentável...',
           category: 'saude',
-          author: 'Telemedicina Brasil',
+          author: 'Telemedicina Morsch',
           date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-          readTime: '18 min',
-          tags: ['telemedicina', 'tecnologia', 'atendimento', 'receita'],
-          views: 2450,
-          engagement: 89,
-          source: 'Telemedicina Brasil',
-          image: '/blog/telemedicina.jpg',
-          url: '#'
+          readTime: '12 min',
+          tags: ['atrair pacientes', 'clínica', 'estratégias', 'captação'],
+          views: 3120,
+          engagement: 93,
+          source: 'Telemedicina Morsch',
+          image: '/blog/atrair-pacientes-clinica.jpg',
+          url: 'https://telemedicinamorsch.com.br/blog/como-atrair-pacientes-para-clinica?srsltid=AfmBOoqwfQFvvJmw9eFIPTdTddwseKaBOC7owKfJNZ4-y4UzoEtKn7_r'
         }
       ]
     }
@@ -712,10 +712,29 @@ class ArticleService {
     }
   }
 
-  // Redirecionar para página da biblioteca
+  // Redirecionar para página da biblioteca ou link externo
   async redirectToArticle(category: string): Promise<void> {
     try {
       console.log(`🔍 Buscando artigos para: ${category}`)
+      
+      // Para educação, usar links externos diretos
+      if (category === 'educacao') {
+        const educationArticles = this.getBrazilianArticles(category)
+        
+        // Se há apenas um artigo ou queremos mostrar todos, redirecionar para biblioteca
+        if (educationArticles.length > 1) {
+          const fallbackData = encodeURIComponent(JSON.stringify({
+            articles: educationArticles,
+            category,
+            source: 'Biblioteca Educação',
+            totalCount: educationArticles.length,
+            searchTime: 0
+          }))
+          window.location.href = `/blog/artigo/${category}-biblioteca?data=${fallbackData}`
+          return
+        }
+      }
+      
       const result = await this.searchArticlesByCategory(category)
       
       if (result.articles.length > 0) {
