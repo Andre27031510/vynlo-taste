@@ -339,7 +339,7 @@ export default function ArtigoPage() {
 
         <div className="text-center mt-16">
           <button
-            onClick={() => window.location.href = '/blog'}
+            onClick={() => window.location.href = '/landingpages/blog'}
             className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             Voltar ao Blog
