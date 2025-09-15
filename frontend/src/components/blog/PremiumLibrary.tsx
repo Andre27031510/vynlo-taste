@@ -419,7 +419,7 @@ export default function PremiumLibrary() {
 
           {/* Real-time Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-16 animate-fadeInUp" style={{animationDelay: '0.8s'}}>
-            {stats ? [
+            {(stats ? [
               { label: 'Artigos', value: `${stats.totalArticles}+`, icon: BookOpen, color: 'text-blue-400' },
               { label: 'Visualizações', value: `${Math.floor(stats.totalViews / 1000)}K+`, icon: TrendingUp, color: 'text-green-400' },
               { label: 'Engajamento', value: `${stats.avgEngagement}%`, icon: Target, color: 'text-purple-400' },
@@ -429,7 +429,7 @@ export default function PremiumLibrary() {
               { label: 'Visualizações', value: '50K+', icon: TrendingUp, color: 'text-green-400' },
               { label: 'Engajamento', value: '94%', icon: Target, color: 'text-purple-400' },
               { label: 'Satisfação', value: '98%', icon: Award, color: 'text-yellow-400' }
-            ].map((stat, index) => (
+            ]).map((stat, index) => (
               <div key={index} className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center group hover:bg-white/10 transition-all duration-300">
                 <stat.icon className={`w-8 h-8 ${stat.color} mx-auto mb-3 group-hover:scale-110 transition-transform duration-300`} />
                 <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
