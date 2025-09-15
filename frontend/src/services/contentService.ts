@@ -171,11 +171,35 @@ class ContentService {
         lastUpdated: new Date().toISOString()
       },
       {
-        id: 'gestao',
-        name: 'Gestão Avançada',
-        count: articles.filter(a => a.category === 'gestao').length + 19,
-        growth: 35,
-        engagement: 96,
+        id: 'ia-bot',
+        name: 'IA Bot',
+        count: articles.filter(a => a.category === 'ia-bot').length + 18,
+        growth: 45,
+        engagement: 97,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'educacao',
+        name: 'Educação',
+        count: articles.filter(a => a.category === 'educacao').length + 25,
+        growth: 22,
+        engagement: 88,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'servicos',
+        name: 'Serviços',
+        count: articles.filter(a => a.category === 'servicos').length + 32,
+        growth: 28,
+        engagement: 90,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'saude',
+        name: 'Saúde',
+        count: articles.filter(a => a.category === 'saude').length + 21,
+        growth: 33,
+        engagement: 95,
         lastUpdated: new Date().toISOString()
       }
     ]
