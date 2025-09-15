@@ -15,10 +15,11 @@ import {
   History,
   Settings
 } from 'lucide-react'
-import { searchService, SearchFilters, SearchSuggestion } from '../../services/searchService'
+import { searchService } from '../../services/searchService'
+import { LibraryFilters } from '../../services/libraryService'
 
 interface IntelligentSearchProps {
-  onSearch: (query: string, filters: Partial<SearchFilters>) => void
+  onSearch: (query: string, filters: Partial<LibraryFilters>) => void
   onSuggestionClick: (suggestion: string) => void
 }
 
