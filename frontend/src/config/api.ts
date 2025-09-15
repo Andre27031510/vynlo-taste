@@ -22,43 +22,127 @@ export const FALLBACK_ARTICLES = {
     {
       id: 'fallback_rest_1',
       title: 'Como Automatizar Pedidos no iFood: Guia Completo 2024',
-      excerpt: 'Estratégias comprovadas para aumentar vendas em 300% usando automação inteligente no iFood e Rappi',
+      excerpt: 'Estratégias comprovadas para aumentar vendas usando automação inteligente no iFood e Rappi',
       url: '/blog/artigo/automatizar-pedidos-ifood',
       source: 'Vynlo Research'
     },
     {
       id: 'fallback_rest_2',
-      title: 'Sistema de Delivery: Como Reduzir Custos em 40%',
-      excerpt: 'Case real: Restaurante economizou R$ 15.000/mês otimizando operações de delivery',
+      title: 'Sistema de Delivery: Como Reduzir Custos',
+      excerpt: 'Case real: Restaurante economizou com otimização de operações de delivery',
       url: '/blog/artigo/sistema-delivery-reduzir-custos',
       source: 'Case Study'
+    },
+    {
+      id: 'fallback_rest_3',
+      title: 'Gestão de Cardápio Digital: Estratégias Eficazes',
+      excerpt: 'Como criar cardápios digitais que aumentam vendas e melhoram experiência do cliente',
+      url: '/blog/artigo/gestao-cardapio-digital',
+      source: 'Especialista'
+    },
+    {
+      id: 'fallback_rest_4',
+      title: 'PDV para Restaurantes: Guia de Escolha',
+      excerpt: 'Como escolher o sistema de PDV ideal para seu restaurante',
+      url: '/blog/artigo/pdv-restaurantes-guia',
+      source: 'Tech Guide'
+    },
+    {
+      id: 'fallback_rest_5',
+      title: 'Controle de Estoque em Restaurantes',
+      excerpt: 'Técnicas para otimizar controle de estoque e reduzir desperdícios',
+      url: '/blog/artigo/controle-estoque-restaurantes',
+      source: 'Gestão Expert'
     }
   ],
   barbearias: [
     {
       id: 'fallback_barber_1',
-      title: 'Agendamento Inteligente: Barbearia do Futuro',
-      excerpt: 'Como reduzir no-shows em 80% e aumentar receita com sistema de agendamento inteligente',
+      title: 'Agendamento Inteligente para Barbearias',
+      excerpt: 'Como reduzir no-shows e aumentar receita com sistema de agendamento inteligente',
       url: '/blog/artigo/agendamento-inteligente-barbearia',
       source: 'Industry Expert'
+    },
+    {
+      id: 'fallback_barber_2',
+      title: 'Marketing Digital para Barbearias',
+      excerpt: 'Estratégias de marketing digital específicas para atrair mais clientes',
+      url: '/blog/artigo/marketing-digital-barbearias',
+      source: 'Marketing Pro'
+    },
+    {
+      id: 'fallback_barber_3',
+      title: 'Gestão Financeira em Barbearias',
+      excerpt: 'Como organizar as finanças e aumentar a lucratividade da sua barbearia',
+      url: '/blog/artigo/gestao-financeira-barbearias',
+      source: 'Consultor'
+    },
+    {
+      id: 'fallback_barber_4',
+      title: 'Fidelização de Clientes em Barbearias',
+      excerpt: 'Técnicas comprovadas para manter clientes fiéis e aumentar frequência',
+      url: '/blog/artigo/fidelizacao-clientes-barbearias',
+      source: 'Especialista'
     }
   ],
   petshops: [
     {
       id: 'fallback_pet_1',
-      title: 'WhatsApp Business API: Revolucione seu Petshop',
-      excerpt: 'Case real: Petshop aumentou faturamento em 250% com automação WhatsApp personalizada',
+      title: 'WhatsApp Business para Petshops',
+      excerpt: 'Como usar WhatsApp Business para aumentar vendas e melhorar atendimento',
       url: '/blog/artigo/whatsapp-business-petshop',
       source: 'Case Study'
+    },
+    {
+      id: 'fallback_pet_2',
+      title: 'Gestão de Estoque em Petshops',
+      excerpt: 'Sistema eficiente para controlar produtos e evitar perdas no petshop',
+      url: '/blog/artigo/gestao-estoque-petshops',
+      source: 'Gestão Expert'
+    },
+    {
+      id: 'fallback_pet_3',
+      title: 'Agendamento Online para Petshops',
+      excerpt: 'Como implementar sistema de agendamento para banho e tosa',
+      url: '/blog/artigo/agendamento-online-petshops',
+      source: 'Tech Solution'
+    },
+    {
+      id: 'fallback_pet_4',
+      title: 'Marketing para Petshops: Estratégias Eficazes',
+      excerpt: 'Técnicas de marketing específicas para atrair donos de pets',
+      url: '/blog/artigo/marketing-petshops',
+      source: 'Marketing Vet'
     }
   ],
   igrejas: [
     {
       id: 'fallback_church_1',
       title: 'Gestão Financeira Transparente para Igrejas',
-      excerpt: 'Sistema completo de controle financeiro com relatórios automáticos e transparência total',
+      excerpt: 'Sistema completo de controle financeiro com relatórios automáticos e transparência',
       url: '/blog/artigo/gestao-financeira-igrejas',
       source: 'Especialista'
+    },
+    {
+      id: 'fallback_church_2',
+      title: 'Sistema de Dízimos e Ofertas Digital',
+      excerpt: 'Como implementar sistema digital para recebimento de dízimos e ofertas',
+      url: '/blog/artigo/sistema-dizimos-ofertas-digital',
+      source: 'Tech Church'
+    },
+    {
+      id: 'fallback_church_3',
+      title: 'Gestão de Membros em Igrejas',
+      excerpt: 'Ferramentas para organizar cadastro e acompanhamento de membros',
+      url: '/blog/artigo/gestao-membros-igrejas',
+      source: 'Admin Church'
+    },
+    {
+      id: 'fallback_church_4',
+      title: 'Comunicação Digital para Igrejas',
+      excerpt: 'Estratégias de comunicação digital para engajar a congregação',
+      url: '/blog/artigo/comunicacao-digital-igrejas',
+      source: 'Comunicação'
     }
   ],
   educacao: [
@@ -133,10 +217,31 @@ export const FALLBACK_ARTICLES = {
   gestao: [
     {
       id: 'fallback_gestao_1',
-      title: 'IA na Gestão: Previsão de Demanda Precisa',
-      excerpt: 'Algoritmos de machine learning para prever demanda e otimizar estoque automaticamente',
-      url: '/blog/artigo/ia-gestao-previsao-demanda',
+      title: 'Automação de Processos Empresariais',
+      excerpt: 'Como implementar automação para otimizar processos e aumentar eficiência',
+      url: '/blog/artigo/automacao-processos-empresariais',
       source: 'Tech Research'
+    },
+    {
+      id: 'fallback_gestao_2',
+      title: 'Indicadores de Performance (KPIs)',
+      excerpt: 'Principais KPIs para monitorar e melhorar performance empresarial',
+      url: '/blog/artigo/indicadores-performance-kpis',
+      source: 'Business Expert'
+    },
+    {
+      id: 'fallback_gestao_3',
+      title: 'Gestão de Equipes Remotas',
+      excerpt: 'Estratégias para gerenciar equipes remotas com eficiência',
+      url: '/blog/artigo/gestao-equipes-remotas',
+      source: 'HR Specialist'
+    },
+    {
+      id: 'fallback_gestao_4',
+      title: 'Controle de Custos Empresariais',
+      excerpt: 'Técnicas para identificar e reduzir custos desnecessários',
+      url: '/blog/artigo/controle-custos-empresariais',
+      source: 'Finance Pro'
     }
   ]
 }
