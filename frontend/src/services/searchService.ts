@@ -1,11 +1,25 @@
 // Serviço de busca inteligente para biblioteca
 import { LibraryArticle } from './libraryService'
 
-export interface SearchResult {
+export interface SearchResultItem {
   article: LibraryArticle
   score: number
   matchedFields: string[]
   highlights: string[]
+}
+
+export interface SearchSuggestion {
+  text: string
+  type: 'query' | 'category' | 'tag' | 'author'
+  count: number
+}
+
+export interface SearchResult {
+  articles: LibraryArticle[]
+  totalCount: number
+  suggestions: SearchSuggestion[]
+  searchTime: number
+  correctedQuery?: string
 }
 
 export interface IntelligentSearchOptions {
@@ -22,7 +36,7 @@ class SearchService {
     query: string,
     articles: LibraryArticle[],
     options: IntelligentSearchOptions = {}
-  ): Promise<SearchResult[]> {
+  ): Promise<SearchResult> {
     const {
       fuzzyMatch = true,
       boostRecent = true,
@@ -31,17 +45,9 @@ class SearchService {
       contentWeight = 1.0
     } = options
 
-    if (!query.trim()) {
-      return articles.map(article => ({
-        article,
-        score: article.relevanceScore || 0,
-        matchedFields: [],
-        highlights: []
-      }))
-    }
-
+    const startTime = Date.now()
     const searchTerms = this.preprocessQuery(query)
-    const results: SearchResult[] = []
+    const results: SearchResultItem[] = []
 
     for (const article of articles) {
       const searchResult = this.scoreArticle(article, searchTerms, {
@@ -58,7 +64,15 @@ class SearchService {
     }
 
     // Ordenar por score decrescente
-    return results.sort((a, b) => b.score - a.score)
+    const sortedResults = results.sort((a, b) => b.score - a.score)
+    
+    return {
+      articles: sortedResults.map(result => result.article),
+      totalCount: sortedResults.length,
+      suggestions: this.generateSuggestions(query, articles),
+      searchTime: Date.now() - startTime,
+      correctedQuery: this.correctQuery(query)
+    }
   }
 
   // Preprocessar query de busca
@@ -76,7 +90,7 @@ class SearchService {
     article: LibraryArticle,
     searchTerms: string[],
     options: Required<IntelligentSearchOptions>
-  ): SearchResult {
+  ): SearchResultItem {
     let totalScore = 0
     const matchedFields: string[] = []
     const highlights: string[] = []
@@ -319,6 +333,57 @@ class SearchService {
       const readTimeMinutes = parseInt(article.readTime.replace(/\D/g, ''))
       return readTimeMinutes >= minMinutes && readTimeMinutes <= maxMinutes
     })
+  }
+
+  // Gerar sugestões de busca
+  private generateSuggestions(query: string, articles: LibraryArticle[]): SearchSuggestion[] {
+    const suggestions: SearchSuggestion[] = []
+    
+    // Sugestões de categorias
+    const categories = [...new Set(articles.map(a => a.category))]
+    categories.forEach(cat => {
+      const count = articles.filter(a => a.category === cat).length
+      if (count > 0) {
+        suggestions.push({ text: cat, type: 'category', count })
+      }
+    })
+    
+    // Sugestões de tags populares
+    const allTags = articles.flatMap(a => a.tags)
+    const tagCounts = allTags.reduce((acc, tag) => {
+      acc[tag] = (acc[tag] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    Object.entries(tagCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5)
+      .forEach(([tag, count]) => {
+        suggestions.push({ text: tag, type: 'tag', count })
+      })
+    
+    return suggestions.slice(0, 8)
+  }
+
+  // Corrigir query de busca
+  private correctQuery(query: string): string | undefined {
+    const corrections: Record<string, string> = {
+      'restaurante': 'restaurantes',
+      'barbearia': 'barbearias',
+      'petshop': 'petshops',
+      'igreja': 'igrejas',
+      'gestao': 'gestão',
+      'automacao': 'automação',
+      'whatsap': 'whatsapp',
+      'ifood': 'iFood'
+    }
+    
+    let corrected = query
+    Object.entries(corrections).forEach(([wrong, right]) => {
+      corrected = corrected.replace(new RegExp(wrong, 'gi'), right)
+    })
+    
+    return corrected !== query ? corrected : undefined
   }
 }
 
