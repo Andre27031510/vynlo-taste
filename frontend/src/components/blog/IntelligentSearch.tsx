@@ -41,7 +41,7 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const history = searchService.getSearchHistory()
+    const history = ['automação whatsapp', 'gestão financeira', 'delivery']
     setSearchHistory(history)
   }, [])
 
