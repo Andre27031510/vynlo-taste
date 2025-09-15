@@ -15,15 +15,16 @@ import {
   Zap
 } from 'lucide-react'
 import { Article } from '../../services/contentService'
-import { SearchResult, SearchFilters } from '../../services/searchService'
+import { SearchResult } from '../../services/searchService'
+import { LibraryFilters } from '../../services/libraryService'
 
 interface SearchResultsProps {
   searchResult: SearchResult | null
   isLoading: boolean
   query: string
-  filters: Partial<SearchFilters>
+  filters: Partial<LibraryFilters>
   onArticleClick: (article: Article) => void
-  onFilterChange: (filters: Partial<SearchFilters>) => void
+  onFilterChange: (filters: Partial<LibraryFilters>) => void
 }
 
 export default function SearchResults({ 
