@@ -69,7 +69,7 @@ class SearchService {
     return {
       articles: sortedResults.map(result => result.article),
       totalCount: sortedResults.length,
-      suggestions: this.generateSuggestions(query, articles),
+      suggestions: await this.generateSuggestions(query, articles),
       searchTime: Date.now() - startTime,
       correctedQuery: this.correctQuery(query)
     }
@@ -336,11 +336,11 @@ class SearchService {
   }
 
   // Gerar sugestões de busca
-  private generateSuggestions(query: string, articles: LibraryArticle[]): SearchSuggestion[] {
+  private async generateSuggestions(query: string, articles: LibraryArticle[]): Promise<SearchSuggestion[]> {
     const suggestions: SearchSuggestion[] = []
     
     // Sugestões de categorias
-    const categories = [...new Set(articles.map(a => a.category))]
+    const categories = Array.from(new Set(articles.map(a => a.category)))
     categories.forEach(cat => {
       const count = articles.filter(a => a.category === cat).length
       if (count > 0) {
@@ -384,6 +384,22 @@ class SearchService {
     })
     
     return corrected !== query ? corrected : undefined
+  }
+
+  // Métodos para gerenciar favoritos e histórico
+  addToFavorites(articleId: string): void {
+    // Implementação para adicionar aos favoritos
+    console.log('Adicionando aos favoritos:', articleId)
+  }
+
+  removeFromFavorites(articleId: string): void {
+    // Implementação para remover dos favoritos
+    console.log('Removendo dos favoritos:', articleId)
+  }
+
+  addToReadingHistory(articleId: string): void {
+    // Implementação para adicionar ao histórico
+    console.log('Adicionando ao histórico:', articleId)
   }
 }
 

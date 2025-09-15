@@ -136,6 +136,7 @@ class LibraryService {
         const categoryArticles = searchResult.articles.map(article => ({
           ...article,
           category,
+          url: article.url || '',
           relevanceScore: this.calculateRelevanceScore(article)
         }))
         allArticles.push(...categoryArticles)
@@ -217,9 +218,9 @@ class LibraryService {
     try {
       // Usar searchService para busca inteligente
       const searchResults = await searchService.intelligentSearch(query, articles)
-      return searchResults.map(result => ({
-        ...result.article,
-        relevanceScore: result.score
+      return searchResults.articles.map(article => ({
+        ...article,
+        relevanceScore: article.relevanceScore || 0
       }))
     } catch (error) {
       console.warn('Erro na busca inteligente, usando busca simples:', error)
@@ -305,8 +306,8 @@ class LibraryService {
 
   // Obter filtros disponíveis
   private getAvailableFilters(articles: LibraryArticle[]) {
-    const categories = [...new Set(articles.map(a => a.category))]
-    const sources = [...new Set(articles.map(a => a.source))]
+    const categories = Array.from(new Set(articles.map(a => a.category)))
+    const sources = Array.from(new Set(articles.map(a => a.source)))
     
     const now = new Date()
     const dateRanges = [

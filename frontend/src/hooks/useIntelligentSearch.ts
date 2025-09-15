@@ -57,7 +57,7 @@ export const useIntelligentSearch = (): UseIntelligentSearchReturn => {
     setCurrentFilters(filters)
 
     try {
-      const result = await searchService.intelligentSearch(query, allArticles)
+      const result = await searchService.intelligentSearch(query, allArticles as any)
       setSearchResult(result)
       
       // Log da busca para analytics
@@ -98,7 +98,7 @@ export const useIntelligentSearch = (): UseIntelligentSearchReturn => {
   const getRecommendations = useCallback(async (): Promise<Article[]> => {
     try {
       // Buscar artigos recomendados baseados no histórico do usuário
-      const result = await searchService.intelligentSearch('', allArticles)
+      const result = await searchService.intelligentSearch('', allArticles as any)
       return result.articles.slice(0, 6)
     } catch (err) {
       console.error('Erro ao buscar recomendações:', err)
