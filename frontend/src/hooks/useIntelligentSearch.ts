@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { searchService, SearchFilters, SearchResult } from '../services/searchService'
+import { searchService, SearchResult } from '../services/searchService'
+import { LibraryFilters } from '../services/libraryService'
 import { contentService, Article } from '../services/contentService'
 
 interface UseIntelligentSearchReturn {
@@ -7,8 +8,8 @@ interface UseIntelligentSearchReturn {
   isLoading: boolean
   error: string | null
   currentQuery: string
-  currentFilters: Partial<SearchFilters>
-  performSearch: (query: string, filters?: Partial<SearchFilters>) => Promise<void>
+  currentFilters: Partial<LibraryFilters>
+  performSearch: (query: string, filters?: Partial<LibraryFilters>) => Promise<void>
   clearSearch: () => void
   addToFavorites: (articleId: string) => void
   removeFromFavorites: (articleId: string) => void
@@ -21,7 +22,7 @@ export const useIntelligentSearch = (): UseIntelligentSearchReturn => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentQuery, setCurrentQuery] = useState('')
-  const [currentFilters, setCurrentFilters] = useState<Partial<SearchFilters>>({})
+  const [currentFilters, setCurrentFilters] = useState<Partial<LibraryFilters>>({})
   const [allArticles, setAllArticles] = useState<Article[]>([])
 
   // Carregar artigos na inicialização
@@ -41,7 +42,7 @@ export const useIntelligentSearch = (): UseIntelligentSearchReturn => {
 
   const performSearch = useCallback(async (
     query: string, 
-    filters: Partial<SearchFilters> = {}
+    filters: Partial<LibraryFilters> = {}
   ) => {
     if (!query.trim() && Object.keys(filters).length === 0) {
       setSearchResult(null)
