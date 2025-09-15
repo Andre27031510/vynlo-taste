@@ -733,20 +733,18 @@ class ArticleService {
           article.urlValid && article.contentRelevant
         )
         
-        // Se não sobrou nenhum artigo válido, usar fallback
-        if (filteredArticles.length === 0) {
-          console.warn('⚠️ Nenhum artigo com conteúdo relevante encontrado, usando fallback')
-          const fallbackArticles = this.getBrazilianArticles(category)
-          const fallbackData = encodeURIComponent(JSON.stringify({
-            articles: fallbackArticles,
-            category,
-            source: 'Biblioteca Vynlo',
-            totalCount: fallbackArticles.length,
-            searchTime: 0
-          }))
-          window.location.href = `/blog/artigo/${category}-biblioteca?data=${fallbackData}`
-          return
-        }
+        // SEMPRE usar fallback para garantir que os cards personalizados apareçam
+        console.log('📚 Usando artigos personalizados da biblioteca')
+        const fallbackArticles = this.getBrazilianArticles(category)
+        const fallbackData = encodeURIComponent(JSON.stringify({
+          articles: fallbackArticles,
+          category,
+          source: 'Biblioteca Vynlo',
+          totalCount: fallbackArticles.length,
+          searchTime: 0
+        }))
+        window.location.href = `/blog/artigo/${category}-biblioteca?data=${fallbackData}`
+        return
         
         const articleData = encodeURIComponent(JSON.stringify({
           articles: filteredArticles,
