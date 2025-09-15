@@ -83,6 +83,38 @@ export default function ArtigoPage() {
             source: 'Vynlo',
             image: '/blog/guia-restaurante.jpg',
             url: 'https://static1.squarespace.com/static/6273f2683f9dba7b3670dc36/t/6278712ac288c6019eed48d0/1652060465999/O-Guia-Definitivo-Para-Um-Restaurante-De-SucessoCompressed.pdf'
+          },
+          {
+            id: 'rest_2',
+            title: 'Gestão Operacional Completa para Restaurantes',
+            excerpt: 'Guia prático de gestão operacional e eficiência. Controle de custos, processos e otimização para restaurantes de sucesso.',
+            content: 'A gestão operacional eficiente é fundamental para o sucesso de qualquer restaurante. Este guia aborda todos os aspectos...',
+            category: 'restaurantes',
+            author: 'Vida de Autônomo',
+            date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+            readTime: '22 min',
+            tags: ['gestão', 'operacional', 'eficiência', 'controle'],
+            views: 5240,
+            engagement: 96,
+            source: 'Vida de Autônomo',
+            image: '/blog/gestao-operacional-restaurante.jpg',
+            url: 'https://vidadeautonomo.com.br/2023/10/04/o-guia-definitivo-pra-gerir-seu-restaurante/'
+          },
+          {
+            id: 'rest_3',
+            title: 'Estratégias de Crescimento para Restaurantes',
+            excerpt: 'Como expandir seu restaurante de forma sustentável. Planejamento, financiamento e gestão para crescimento acelerado e lucrativo.',
+            content: 'O crescimento de um restaurante requer estratégia e planejamento. Veja como escalar seu negócio com segurança...',
+            category: 'restaurantes',
+            author: 'Endeavor Brasil',
+            date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
+            readTime: '16 min',
+            tags: ['crescimento', 'expansão', 'estratégia', 'planejamento'],
+            views: 4180,
+            engagement: 94,
+            source: 'Endeavor',
+            image: '/blog/crescimento-restaurante.jpg',
+            url: '#'
           }
         ]
       }
