@@ -97,9 +97,11 @@ export default function ArtigoPage() {
   }
 
   const handleArticleClick = (article: Article & { urlValid?: boolean; contentRelevant?: boolean }) => {
-    // Para artigos internos (URL = '#'), mostrar conteúdo na própria página
-    if (!article.url || article.url === '#') {
-      // Expandir card para mostrar conteúdo completo
+    // Para artigos com URL externa, abrir diretamente
+    if (article.url && article.url.startsWith('http')) {
+      window.open(article.url, '_blank', 'noopener,noreferrer')
+    } else {
+      // Para artigos internos, mostrar conteúdo
       const expandedContent = `
         ${article.title}
         
@@ -114,18 +116,6 @@ export default function ArtigoPage() {
         Este é um conteúdo especializado da biblioteca Vynlo sobre ${getCategoryName(article.category).toLowerCase()}.
       `
       alert(expandedContent)
-    } else if (article.url.startsWith('http')) {
-      // Para artigos externos, verificar validade e relevância
-      if (article.urlValid === false) {
-        alert('Este artigo não está mais disponível no site original. Tente novamente mais tarde.')
-      } else if (article.contentRelevant === false) {
-        alert('Este conteúdo pode não ser relevante para sua categoria. Deseja continuar?')
-        if (confirm('Abrir mesmo assim?')) {
-          window.open(article.url, '_blank', 'noopener,noreferrer')
-        }
-      } else {
-        window.open(article.url, '_blank', 'noopener,noreferrer')
-      }
     }
   }
 

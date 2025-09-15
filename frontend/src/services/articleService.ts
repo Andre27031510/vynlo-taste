@@ -238,19 +238,19 @@ class ArticleService {
       'restaurantes': [
         {
           id: 'rest_1',
-          title: 'Marketing Digital para Restaurantes: Estratégias que Funcionam',
-          excerpt: 'Como usar Instagram, Facebook e Google para atrair mais clientes e aumentar vendas em 250%. Guia completo com cases reais de sucesso.',
-          content: 'O marketing digital revolucionou a forma como restaurantes atraem clientes. Estratégias bem aplicadas geram resultados impressionantes...',
+          title: 'O GUIA DEFINITIVO PARA UM RESTAURANTE DE SUCESSO',
+          excerpt: 'Guia completo com todas as estratégias, técnicas e segredos para transformar seu restaurante em um negócio de sucesso. Download gratuito em PDF.',
+          content: 'Este guia definitivo contém tudo que você precisa saber para ter um restaurante de sucesso. Desde planejamento até execução...',
           category: 'restaurantes',
-          author: 'PEGN',
+          author: 'Vynlo Taste',
           date: new Date().toISOString().split('T')[0],
-          readTime: '14 min',
-          tags: ['marketing', 'digital', 'instagram', 'vendas'],
-          views: 5240,
-          engagement: 96,
-          source: 'PEGN',
-          image: '/blog/marketing-restaurante.jpg',
-          url: '#'
+          readTime: '45 min',
+          tags: ['guia', 'sucesso', 'restaurante', 'completo'],
+          views: 8750,
+          engagement: 98,
+          source: 'Vynlo',
+          image: '/blog/guia-restaurante.jpg',
+          url: 'https://static1.squarespace.com/static/6273f2683f9dba7b3670dc36/t/6278712ac288c6019eed48d0/1652060465999/O-Guia-Definitivo-Para-Um-Restaurante-De-SucessoCompressed.pdf'
         },
         {
           id: 'rest_2',
@@ -363,6 +363,38 @@ class ArticleService {
           source: 'StartSe',
           image: '/blog/tecnologia-restaurante.jpg',
           url: '#'
+        },
+        {
+          id: 'rest_9',
+          title: 'Gestão Completa de Restaurante: Guia Prático',
+          excerpt: 'Manual completo com todas as estratégias de gestão para restaurantes. Desde planejamento até execução operacional.',
+          content: 'Este guia prático aborda todos os aspectos da gestão de restaurantes, desde o planejamento inicial até a operação diária...',
+          category: 'restaurantes',
+          author: 'Vida de Autônomo',
+          date: new Date(Date.now() - 691200000).toISOString().split('T')[0],
+          readTime: '25 min',
+          tags: ['gestão', 'restaurante', 'guia', 'operação'],
+          views: 4560,
+          engagement: 95,
+          source: 'Vida de Autônomo',
+          image: '/blog/gestao-restaurante-guia.jpg',
+          url: 'https://vidadeautonomo.com.br/2023/10/04/o-guia-definitivo-pra-gerir-seu-restaurante/'
+        },
+        {
+          id: 'rest_10',
+          title: 'Como Vender em Delivery: Estratégias Comprovadas',
+          excerpt: 'Guia completo com técnicas e estratégias para aumentar vendas no delivery. Dicas práticas para destacar seu restaurante.',
+          content: 'O mercado de delivery oferece oportunidades únicas para restaurantes. Veja como aproveitar ao máximo essa modalidade...',
+          category: 'restaurantes',
+          author: 'ConnectPlug',
+          date: new Date(Date.now() - 777600000).toISOString().split('T')[0],
+          readTime: '18 min',
+          tags: ['delivery', 'vendas', 'estratégias', 'marketing'],
+          views: 3890,
+          engagement: 93,
+          source: 'ConnectPlug',
+          image: '/blog/vendas-delivery.jpg',
+          url: 'https://blog.connectplug.com.br/como-vender-em-delivery/'
         }
       ],
       'barbearias': [
