@@ -7,7 +7,7 @@ import {
   ArrowRight
 } from 'lucide-react'
 import IntelligentSearch from './IntelligentSearch'
-import { SearchFilters } from '../../services/searchService'
+import { LibraryFilters } from '../../services/libraryService'
 import { logger } from '../../utils/logger'
 
 export default function BlogHero() {
