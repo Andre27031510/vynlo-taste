@@ -103,18 +103,18 @@ export default function ArtigoPage() {
           {
             id: 'rest_3',
             title: 'Estratégias de Crescimento para Restaurantes',
-            excerpt: 'Como expandir seu restaurante de forma sustentável. Planejamento, financiamento e gestão para crescimento acelerado e lucrativo.',
+            excerpt: 'Planos e métodos para expandir seu negócio. Estratégias comprovadas de crescimento e expansão para restaurantes de sucesso.',
             content: 'O crescimento de um restaurante requer estratégia e planejamento. Veja como escalar seu negócio com segurança...',
             category: 'restaurantes',
-            author: 'Endeavor Brasil',
+            author: 'Donos de Restaurantes',
             date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-            readTime: '16 min',
+            readTime: '14 min',
             tags: ['crescimento', 'expansão', 'estratégia', 'planejamento'],
             views: 4180,
             engagement: 94,
-            source: 'Endeavor',
+            source: 'Donos de Restaurantes',
             image: '/blog/crescimento-restaurante.jpg',
-            url: '#'
+            url: 'https://donosderestaurantes.com/termos/estrategias-de-crescimento/'
           }
         ]
       }
