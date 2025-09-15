@@ -69,7 +69,7 @@ class SearchService {
     return {
       articles: sortedResults.map(result => result.article),
       totalCount: sortedResults.length,
-      suggestions: await this.generateSuggestions(query, articles),
+      suggestions: this.generateSuggestions(query, articles),
       searchTime: Date.now() - startTime,
       correctedQuery: this.correctQuery(query)
     }
@@ -257,42 +257,7 @@ class SearchService {
     return highlight
   }
 
-  // Gerar sugestões de busca
-  async generateSuggestions(query: string, articles: LibraryArticle[]): Promise<string[]> {
-    if (!query.trim()) return []
 
-    const suggestions = new Set<string>()
-    const queryLower = query.toLowerCase()
-
-    // Sugestões baseadas em títulos
-    articles.forEach(article => {
-      const words = article.title.toLowerCase().split(/\s+/)
-      words.forEach(word => {
-        if (word.length > 3 && word.startsWith(queryLower)) {
-          suggestions.add(word)
-        }
-      })
-    })
-
-    // Sugestões baseadas em tags
-    articles.forEach(article => {
-      article.tags.forEach(tag => {
-        if (tag.toLowerCase().startsWith(queryLower)) {
-          suggestions.add(tag)
-        }
-      })
-    })
-
-    // Sugestões baseadas em categorias
-    const categories = [...new Set(articles.map(a => a.category))]
-    categories.forEach(category => {
-      if (category.toLowerCase().includes(queryLower)) {
-        suggestions.add(category)
-      }
-    })
-
-    return Array.from(suggestions).slice(0, 5)
-  }
 
   // Busca por categoria
   searchByCategory(articles: LibraryArticle[], category: string): LibraryArticle[] {
@@ -336,7 +301,7 @@ class SearchService {
   }
 
   // Gerar sugestões de busca
-  private async generateSuggestions(query: string, articles: LibraryArticle[]): Promise<SearchSuggestion[]> {
+  private generateSuggestions(query: string, articles: LibraryArticle[]): SearchSuggestion[] {
     const suggestions: SearchSuggestion[] = []
     
     // Sugestões de categorias
