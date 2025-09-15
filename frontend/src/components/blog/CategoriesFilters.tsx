@@ -95,7 +95,10 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
       'barbearias': 'from-blue-500 to-blue-700',
       'petshops': 'from-pink-500 to-pink-700',
       'igrejas': 'from-amber-500 to-amber-700',
-      'gestao': 'from-purple-500 to-purple-700'
+      'ia-bot': 'from-cyan-500 to-cyan-700',
+      'educacao': 'from-indigo-500 to-indigo-700',
+      'servicos': 'from-teal-500 to-teal-700',
+      'saude': 'from-red-500 to-red-700'
     }
     return colors[id] || 'from-gray-500 to-gray-700'
   }
@@ -107,7 +110,10 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
       'barbearias': Scissors,
       'petshops': Heart,
       'igrejas': Church,
-      'gestao': TrendingUp
+      'ia-bot': Zap,
+      'educacao': Building2,
+      'servicos': Building2,
+      'saude': Heart
     }
     return icons[id] || Building2
   }
@@ -119,7 +125,10 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
       { id: 'barbearias', name: 'Barbearias', count: 28, growth: 18, engagement: 89, status: 'Crescendo', color: 'from-blue-500 to-blue-700', icon: Scissors },
       { id: 'petshops', name: 'Petshops', count: 19, growth: 27, engagement: 87, status: 'Popular', color: 'from-pink-500 to-pink-700', icon: Heart },
       { id: 'igrejas', name: 'Igrejas', count: 15, growth: 15, engagement: 91, status: 'Especializado', color: 'from-amber-500 to-amber-700', icon: Church },
-      { id: 'gestao', name: 'Gestão Avançada', count: 22, growth: 35, engagement: 96, status: 'Premium', color: 'from-purple-500 to-purple-700', icon: TrendingUp }
+      { id: 'ia-bot', name: 'IA Bot', count: 18, growth: 45, engagement: 97, status: 'Inovação', color: 'from-cyan-500 to-cyan-700', icon: Zap },
+      { id: 'educacao', name: 'Educação', count: 25, growth: 22, engagement: 88, status: 'Crescendo', color: 'from-indigo-500 to-indigo-700', icon: Building2 },
+      { id: 'servicos', name: 'Serviços', count: 32, growth: 28, engagement: 90, status: 'Popular', color: 'from-teal-500 to-teal-700', icon: Building2 },
+      { id: 'saude', name: 'Saúde', count: 21, growth: 33, engagement: 95, status: 'Premium', color: 'from-red-500 to-red-700', icon: Heart }
     ]
     setCategories(fallbackCategories)
   }
