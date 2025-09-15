@@ -138,7 +138,10 @@ export default function ArtigoPage() {
       'barbearias': 'Barbearias',
       'petshops': 'Petshops',
       'igrejas': 'Igrejas',
-      'gestao': 'Gestão Empresarial'
+      'ia-bot': 'IA Bot',
+      'educacao': 'Educação',
+      'servicos': 'Serviços',
+      'saude': 'Saúde'
     }
     return names[cat] || 'Negócios'
   }
