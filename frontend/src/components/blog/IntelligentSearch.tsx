@@ -26,10 +26,10 @@ interface IntelligentSearchProps {
 export default function IntelligentSearch({ onSearch, onSuggestionClick }: IntelligentSearchProps) {
   const [query, setQuery] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
-  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
   const [searchHistory, setSearchHistory] = useState<string[]>([])
-  const [filters, setFilters] = useState<Partial<SearchFilters>>({
+  const [filters, setFilters] = useState<Partial<LibraryFilters>>({
     categories: [],
     contentTypes: [],
     sources: [],
