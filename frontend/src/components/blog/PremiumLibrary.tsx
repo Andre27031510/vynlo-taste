@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { 
   Search, 
   Filter, 
@@ -314,17 +315,17 @@ export default function PremiumLibrary() {
     }
   }
 
+  const router = useRouter()
+
   const handleCategoryClick = async (categoryId: string) => {
     if (categoryId === 'todos') {
-      setFilters({})
-      setSearchQuery('')
+      // Navegar para página da biblioteca completa
+      router.push('/landingpages/blog')
       return
     }
     
-    setFilters(prev => ({
-      ...prev,
-      categories: [categoryId]
-    }))
+    // Para outras categorias, navegar com filtro
+    router.push(`/landingpages/blog?categoria=${categoryId}`)
   }
 
   const handleSearch = (query: string) => {

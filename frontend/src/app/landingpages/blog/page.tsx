@@ -14,6 +14,7 @@ const FeaturedArticles = React.lazy(() => import('../../../components/blog/Featu
 const ArticlesList = React.lazy(() => import('../../../components/blog/ArticlesList'))
 const Newsletter = React.lazy(() => import('../../../components/blog/Newsletter'))
 const BlogCTA = React.lazy(() => import('../../../components/blog/BlogCTA'))
+const PremiumLibrary = React.lazy(() => import('../../../components/blog/PremiumLibrary'))
 
 // Loading component
 const LoadingSpinner = () => (
@@ -81,6 +82,16 @@ const BlogPage: React.FC = () => {
             <BlogCTA />
           </Suspense>
         </ErrorBoundary>
+        
+        {/* Premium Library - Biblioteca Completa */}
+        <div id="premium-library">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <PremiumLibrary />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+        
         <Footer />
       </div>
     </ErrorBoundary>
