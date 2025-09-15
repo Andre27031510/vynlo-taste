@@ -31,12 +31,10 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
   const [searchHistory, setSearchHistory] = useState<string[]>([])
   const [filters, setFilters] = useState<Partial<LibraryFilters>>({
     categories: [],
-    contentTypes: [],
     sources: [],
     sortBy: 'relevance',
     dateRange: 'all',
-    readTime: 'all',
-    difficulty: 'all'
+    readTime: 'all'
   })
   
   const searchRef = useRef<HTMLDivElement>(null)
@@ -65,13 +63,13 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
     
     // Simular sugestões em tempo real
     if (value.length > 1) {
-      const mockSuggestions: SearchSuggestion[] = [
-        { text: 'automação whatsapp', type: 'query' as const, count: 12 },
-        { text: 'gestão financeira', type: 'query' as const, count: 8 },
-        { text: 'restaurantes', type: 'category' as const, count: 43 },
-        { text: 'ifood', type: 'tag' as const, count: 15 },
-        { text: 'delivery', type: 'tag' as const, count: 22 }
-      ].filter(s => s.text.toLowerCase().includes(value.toLowerCase()))
+      const mockSuggestions = [
+        'automação whatsapp',
+        'gestão financeira', 
+        'restaurantes',
+        'ifood',
+        'delivery'
+      ].filter(s => s.toLowerCase().includes(value.toLowerCase()))
       
       setSuggestions(mockSuggestions)
     } else {
@@ -86,16 +84,16 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
     }
   }
 
-  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    setQuery(suggestion.text)
-    onSuggestionClick(suggestion.text)
+  const handleSuggestionClick = (suggestion: string) => {
+    setQuery(suggestion)
+    onSuggestionClick(suggestion)
     setIsExpanded(false)
   }
 
-  const handleFilterChange = (filterType: keyof SearchFilters, value: any) => {
+  const handleFilterChange = (filterType: keyof LibraryFilters, value: any) => {
     const newFilters = { ...filters }
     
-    if (filterType === 'categories' || filterType === 'contentTypes' || filterType === 'sources') {
+    if (filterType === 'categories' || filterType === 'sources') {
       const currentArray = newFilters[filterType] as string[] || []
       if (currentArray.includes(value)) {
         newFilters[filterType] = currentArray.filter(item => item !== value)
@@ -113,12 +111,10 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
   const clearFilters = () => {
     const clearedFilters = {
       categories: [],
-      contentTypes: [],
       sources: [],
       sortBy: 'relevance' as const,
       dateRange: 'all' as const,
-      readTime: 'all' as const,
-      difficulty: 'all' as const
+      readTime: 'all' as const
     }
     setFilters(clearedFilters)
     onSearch(query, clearedFilters)
@@ -193,16 +189,9 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
                     className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-blue-50 transition-colors duration-200 text-left"
                   >
                     <div className="flex items-center gap-3">
-                      {suggestion.type === 'category' && <BookOpen className="w-4 h-4 text-blue-500" />}
-                      {suggestion.type === 'tag' && <Star className="w-4 h-4 text-amber-500" />}
-                      {suggestion.type === 'query' && <Search className="w-4 h-4 text-gray-500" />}
-                      <span className="font-manrope text-gray-800">{suggestion.text}</span>
+                      <Search className="w-4 h-4 text-gray-500" />
+                      <span className="font-manrope text-gray-800">{suggestion}</span>
                     </div>
-                    {suggestion.count > 0 && (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                        {suggestion.count}
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>
@@ -279,19 +268,19 @@ export default function IntelligentSearch({ onSearch, onSuggestionClick }: Intel
               </div>
             </div>
 
-            {/* Content Types Filter */}
+            {/* Sources Filter */}
             <div>
-              <h4 className="font-semibold text-gray-700 mb-3">Tipo de Conteúdo</h4>
+              <h4 className="font-semibold text-gray-700 mb-3">Fontes</h4>
               <div className="space-y-2">
-                {['Cases de Sucesso', 'Tutoriais', 'Dicas Práticas', 'Estratégias', 'Análises'].map(type => (
-                  <label key={type} className="flex items-center gap-2 cursor-pointer">
+                {['Vynlo', 'Sebrae', 'NewsAPI', 'Medium', 'GitHub'].map(source => (
+                  <label key={source} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={filters.contentTypes?.includes(type) || false}
-                      onChange={() => handleFilterChange('contentTypes', type)}
+                      checked={filters.sources?.includes(source) || false}
+                      onChange={() => handleFilterChange('sources', source)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">{type}</span>
+                    <span className="text-sm text-gray-700">{source}</span>
                   </label>
                 ))}
               </div>
