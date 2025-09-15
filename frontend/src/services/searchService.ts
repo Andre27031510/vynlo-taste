@@ -1,316 +1,326 @@
-import { Article } from './contentService'
+// Serviço de busca inteligente para biblioteca
+import { LibraryArticle } from './libraryService'
 
-interface SearchFilters {
-  categories: string[]
-  contentTypes: string[]
-  sources: string[]
-  sortBy: 'relevance' | 'recent' | 'popular' | 'recommended'
-  dateRange: 'all' | 'week' | 'month' | 'year'
-  readTime: 'all' | 'quick' | 'medium' | 'long'
-  difficulty: 'all' | 'beginner' | 'intermediate' | 'advanced'
+export interface SearchResult {
+  article: LibraryArticle
+  score: number
+  matchedFields: string[]
+  highlights: string[]
 }
 
-interface SearchSuggestion {
-  text: string
-  type: 'query' | 'category' | 'tag' | 'author'
-  count: number
-}
-
-interface SearchResult {
-  articles: Article[]
-  totalCount: number
-  suggestions: SearchSuggestion[]
-  searchTime: number
-  correctedQuery?: string
-}
-
-interface UserPreferences {
-  favoriteCategories: string[]
-  readingHistory: string[]
-  favorites: string[]
-  searchHistory: string[]
-  theme: 'light' | 'dark'
-  density: 'compact' | 'comfortable' | 'spacious'
-  defaultSort: string
+export interface IntelligentSearchOptions {
+  fuzzyMatch?: boolean
+  boostRecent?: boolean
+  categoryWeight?: number
+  titleWeight?: number
+  contentWeight?: number
 }
 
 class SearchService {
-  private searchHistory: string[] = []
-  private userPreferences: UserPreferences = {
-    favoriteCategories: [],
-    readingHistory: [],
-    favorites: [],
-    searchHistory: [],
-    theme: 'light',
-    density: 'comfortable',
-    defaultSort: 'relevance'
-  }
-
+  // Busca inteligente com scoring avançado
   async intelligentSearch(
-    query: string, 
-    filters: Partial<SearchFilters> = {},
-    articles: Article[]
-  ): Promise<SearchResult> {
-    const startTime = Date.now()
-    
-    // Adicionar ao histórico
-    this.addToSearchHistory(query)
-    
-    // Correção ortográfica básica
-    const correctedQuery = this.spellCheck(query)
-    const searchQuery = correctedQuery !== query ? correctedQuery : query
-    
-    // Filtrar artigos
-    let filteredArticles = this.applyFilters(articles, filters)
-    
-    // Busca inteligente
-    if (searchQuery.trim()) {
-      filteredArticles = this.performSearch(filteredArticles, searchQuery)
-    }
-    
-    // Ordenar resultados
-    filteredArticles = this.sortResults(filteredArticles, filters.sortBy || 'relevance', searchQuery)
-    
-    // Gerar sugestões
-    const suggestions = this.generateSuggestions(query, articles)
-    
-    const searchTime = Date.now() - startTime
-    
-    return {
-      articles: filteredArticles,
-      totalCount: filteredArticles.length,
-      suggestions,
-      searchTime,
-      correctedQuery: correctedQuery !== query ? correctedQuery : undefined
-    }
-  }
+    query: string,
+    articles: LibraryArticle[],
+    options: IntelligentSearchOptions = {}
+  ): Promise<SearchResult[]> {
+    const {
+      fuzzyMatch = true,
+      boostRecent = true,
+      categoryWeight = 1.5,
+      titleWeight = 3.0,
+      contentWeight = 1.0
+    } = options
 
-  private performSearch(articles: Article[], query: string): Article[] {
-    const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 2)
-    
-    return articles.map(article => {
-      let score = 0
-      const searchableText = `${article.title} ${article.excerpt} ${article.content} ${article.tags.join(' ')}`.toLowerCase()
-      
-      // Pontuação por relevância
-      searchTerms.forEach(term => {
-        // Título tem peso maior
-        if (article.title.toLowerCase().includes(term)) score += 10
-        // Excerpt tem peso médio
-        if (article.excerpt.toLowerCase().includes(term)) score += 5
-        // Tags têm peso alto
-        if (article.tags.some(tag => tag.toLowerCase().includes(term))) score += 8
-        // Conteúdo tem peso menor
-        if (article.content.toLowerCase().includes(term)) score += 2
-        
-        // Bonus para correspondência exata
-        if (searchableText.includes(query.toLowerCase())) score += 15
+    if (!query.trim()) {
+      return articles.map(article => ({
+        article,
+        score: article.relevanceScore || 0,
+        matchedFields: [],
+        highlights: []
+      }))
+    }
+
+    const searchTerms = this.preprocessQuery(query)
+    const results: SearchResult[] = []
+
+    for (const article of articles) {
+      const searchResult = this.scoreArticle(article, searchTerms, {
+        fuzzyMatch,
+        boostRecent,
+        categoryWeight,
+        titleWeight,
+        contentWeight
       })
-      
-      return { ...article, searchScore: score }
-    })
-    .filter(article => article.searchScore > 0)
-    .sort((a, b) => b.searchScore - a.searchScore)
+
+      if (searchResult.score > 0) {
+        results.push(searchResult)
+      }
+    }
+
+    // Ordenar por score decrescente
+    return results.sort((a, b) => b.score - a.score)
   }
 
-  private applyFilters(articles: Article[], filters: Partial<SearchFilters>): Article[] {
-    let filtered = [...articles]
-    
-    // Filtro por categoria
-    if (filters.categories?.length) {
-      filtered = filtered.filter(article => 
-        filters.categories!.includes(article.category) || filters.categories!.includes('todos')
-      )
+  // Preprocessar query de busca
+  private preprocessQuery(query: string): string[] {
+    return query
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(term => term.length > 2)
+      .map(term => term.trim())
+  }
+
+  // Calcular score de um artigo
+  private scoreArticle(
+    article: LibraryArticle,
+    searchTerms: string[],
+    options: Required<IntelligentSearchOptions>
+  ): SearchResult {
+    let totalScore = 0
+    const matchedFields: string[] = []
+    const highlights: string[] = []
+
+    const titleLower = article.title.toLowerCase()
+    const excerptLower = article.excerpt.toLowerCase()
+    const contentLower = article.content.toLowerCase()
+    const categoryLower = article.category.toLowerCase()
+    const authorLower = article.author.toLowerCase()
+    const tagsLower = article.tags.map(tag => tag.toLowerCase())
+
+    for (const term of searchTerms) {
+      let termScore = 0
+
+      // Busca no título (peso maior)
+      if (titleLower.includes(term)) {
+        termScore += options.titleWeight
+        matchedFields.push('title')
+        highlights.push(this.extractHighlight(article.title, term))
+      }
+
+      // Busca no excerpt
+      if (excerptLower.includes(term)) {
+        termScore += 2.0
+        matchedFields.push('excerpt')
+        highlights.push(this.extractHighlight(article.excerpt, term))
+      }
+
+      // Busca no conteúdo
+      if (contentLower.includes(term)) {
+        termScore += options.contentWeight
+        matchedFields.push('content')
+      }
+
+      // Busca na categoria
+      if (categoryLower.includes(term)) {
+        termScore += options.categoryWeight
+        matchedFields.push('category')
+      }
+
+      // Busca no autor
+      if (authorLower.includes(term)) {
+        termScore += 1.5
+        matchedFields.push('author')
+      }
+
+      // Busca nas tags
+      for (const tag of tagsLower) {
+        if (tag.includes(term)) {
+          termScore += 2.0
+          matchedFields.push('tags')
+          break
+        }
+      }
+
+      // Busca fuzzy (aproximada)
+      if (options.fuzzyMatch && termScore === 0) {
+        const fuzzyScore = this.calculateFuzzyScore(term, [
+          titleLower,
+          excerptLower,
+          categoryLower,
+          authorLower,
+          ...tagsLower
+        ])
+        termScore += fuzzyScore
+      }
+
+      totalScore += termScore
     }
-    
-    // Filtro por tipo de conteúdo
-    if (filters.contentTypes?.length) {
-      filtered = filtered.filter(article => 
-        filters.contentTypes!.some(type => 
-          article.tags.includes(type.toLowerCase()) || 
-          article.title.toLowerCase().includes(type.toLowerCase())
+
+    // Boost para artigos recentes
+    if (options.boostRecent) {
+      const daysSincePublished = (Date.now() - new Date(article.date).getTime()) / (1000 * 60 * 60 * 24)
+      const recencyBoost = Math.max(0, 1 - daysSincePublished / 365) * 0.5
+      totalScore += recencyBoost
+    }
+
+    // Boost baseado em engagement e views
+    const popularityBoost = (article.engagement / 100) * 0.3 + Math.min(article.views / 10000, 1) * 0.2
+    totalScore += popularityBoost
+
+    return {
+      article,
+      score: Math.round(totalScore * 100) / 100,
+      matchedFields: [...new Set(matchedFields)],
+      highlights: highlights.slice(0, 3)
+    }
+  }
+
+  // Calcular score de busca fuzzy
+  private calculateFuzzyScore(term: string, texts: string[]): number {
+    let maxScore = 0
+
+    for (const text of texts) {
+      const words = text.split(/\s+/)
+      for (const word of words) {
+        const similarity = this.calculateSimilarity(term, word)
+        if (similarity > 0.7) {
+          maxScore = Math.max(maxScore, similarity * 0.5)
+        }
+      }
+    }
+
+    return maxScore
+  }
+
+  // Calcular similaridade entre duas strings
+  private calculateSimilarity(str1: string, str2: string): number {
+    const longer = str1.length > str2.length ? str1 : str2
+    const shorter = str1.length > str2.length ? str2 : str1
+
+    if (longer.length === 0) return 1.0
+
+    const editDistance = this.levenshteinDistance(longer, shorter)
+    return (longer.length - editDistance) / longer.length
+  }
+
+  // Calcular distância de Levenshtein
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null))
+
+    for (let i = 0; i <= str1.length; i++) {
+      matrix[0][i] = i
+    }
+
+    for (let j = 0; j <= str2.length; j++) {
+      matrix[j][0] = j
+    }
+
+    for (let j = 1; j <= str2.length; j++) {
+      for (let i = 1; i <= str1.length; i++) {
+        const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1
+        matrix[j][i] = Math.min(
+          matrix[j][i - 1] + 1,
+          matrix[j - 1][i] + 1,
+          matrix[j - 1][i - 1] + indicator
         )
-      )
+      }
     }
+
+    return matrix[str2.length][str1.length]
+  }
+
+  // Extrair highlight do texto
+  private extractHighlight(text: string, term: string, contextLength: number = 50): string {
+    const lowerText = text.toLowerCase()
+    const lowerTerm = term.toLowerCase()
+    const index = lowerText.indexOf(lowerTerm)
+
+    if (index === -1) return ''
+
+    const start = Math.max(0, index - contextLength)
+    const end = Math.min(text.length, index + term.length + contextLength)
     
-    // Filtro por fonte
-    if (filters.sources?.length) {
-      filtered = filtered.filter(article => 
-        filters.sources!.includes(article.source)
-      )
-    }
+    let highlight = text.substring(start, end)
     
-    // Filtro por tempo de leitura
-    if (filters.readTime && filters.readTime !== 'all') {
-      filtered = filtered.filter(article => {
-        const readTime = parseInt(article.readTime)
-        switch (filters.readTime) {
-          case 'quick': return readTime <= 5
-          case 'medium': return readTime > 5 && readTime <= 15
-          case 'long': return readTime > 15
-          default: return true
+    if (start > 0) highlight = '...' + highlight
+    if (end < text.length) highlight = highlight + '...'
+
+    // Destacar o termo encontrado
+    const regex = new RegExp(`(${term})`, 'gi')
+    highlight = highlight.replace(regex, '<mark>$1</mark>')
+
+    return highlight
+  }
+
+  // Gerar sugestões de busca
+  async generateSuggestions(query: string, articles: LibraryArticle[]): Promise<string[]> {
+    if (!query.trim()) return []
+
+    const suggestions = new Set<string>()
+    const queryLower = query.toLowerCase()
+
+    // Sugestões baseadas em títulos
+    articles.forEach(article => {
+      const words = article.title.toLowerCase().split(/\s+/)
+      words.forEach(word => {
+        if (word.length > 3 && word.startsWith(queryLower)) {
+          suggestions.add(word)
         }
       })
-    }
-    
-    // Filtro por data
-    if (filters.dateRange && filters.dateRange !== 'all') {
-      const now = new Date()
-      const cutoffDate = new Date()
-      
-      switch (filters.dateRange) {
-        case 'week':
-          cutoffDate.setDate(now.getDate() - 7)
-          break
-        case 'month':
-          cutoffDate.setMonth(now.getMonth() - 1)
-          break
-        case 'year':
-          cutoffDate.setFullYear(now.getFullYear() - 1)
-          break
-      }
-      
-      filtered = filtered.filter(article => 
-        new Date(article.date) >= cutoffDate
-      )
-    }
-    
-    return filtered
-  }
-
-  private sortResults(articles: Article[], sortBy: string, query?: string): Article[] {
-    switch (sortBy) {
-      case 'recent':
-        return articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      case 'popular':
-        return articles.sort((a, b) => b.views - a.views)
-      case 'recommended':
-        return this.getPersonalizedResults(articles)
-      case 'relevance':
-      default:
-        return query ? articles : articles.sort((a, b) => b.engagement - a.engagement)
-    }
-  }
-
-  private generateSuggestions(query: string, articles: Article[]): SearchSuggestion[] {
-    const suggestions: SearchSuggestion[] = []
-    
-    // Sugestões de categorias
-    const categories = ['restaurantes', 'barbearias', 'petshops', 'igrejas', 'gestao']
-    categories.forEach(cat => {
-      const count = articles.filter(a => a.category === cat).length
-      if (count > 0) {
-        suggestions.push({ text: cat, type: 'category', count })
-      }
     })
-    
-    // Sugestões de tags populares
-    const allTags = articles.flatMap(a => a.tags)
-    const tagCounts = allTags.reduce((acc, tag) => {
-      acc[tag] = (acc[tag] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-    
-    Object.entries(tagCounts)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 5)
-      .forEach(([tag, count]) => {
-        suggestions.push({ text: tag, type: 'tag', count })
+
+    // Sugestões baseadas em tags
+    articles.forEach(article => {
+      article.tags.forEach(tag => {
+        if (tag.toLowerCase().startsWith(queryLower)) {
+          suggestions.add(tag)
+        }
       })
-    
-    // Sugestões do histórico
-    this.searchHistory.slice(-3).forEach(historyQuery => {
-      if (historyQuery !== query) {
-        suggestions.push({ text: historyQuery, type: 'query', count: 0 })
+    })
+
+    // Sugestões baseadas em categorias
+    const categories = [...new Set(articles.map(a => a.category))]
+    categories.forEach(category => {
+      if (category.toLowerCase().includes(queryLower)) {
+        suggestions.add(category)
       }
     })
-    
-    return suggestions.slice(0, 8)
+
+    return Array.from(suggestions).slice(0, 5)
   }
 
-  private spellCheck(query: string): string {
-    const corrections: Record<string, string> = {
-      'restaurante': 'restaurantes',
-      'barbearia': 'barbearias',
-      'petshop': 'petshops',
-      'igreja': 'igrejas',
-      'gestao': 'gestão',
-      'automacao': 'automação',
-      'whatsap': 'whatsapp',
-      'ifood': 'iFood'
-    }
-    
-    let corrected = query
-    Object.entries(corrections).forEach(([wrong, right]) => {
-      corrected = corrected.replace(new RegExp(wrong, 'gi'), right)
-    })
-    
-    return corrected
+  // Busca por categoria
+  searchByCategory(articles: LibraryArticle[], category: string): LibraryArticle[] {
+    return articles.filter(article => 
+      article.category.toLowerCase() === category.toLowerCase()
+    )
   }
 
-  private getPersonalizedResults(articles: Article[]): Article[] {
-    // Personalização baseada no histórico do usuário
-    const favoriteCategories = this.userPreferences.favoriteCategories
-    
-    return articles.sort((a, b) => {
-      let scoreA = a.engagement
-      let scoreB = b.engagement
-      
-      // Bonus para categorias favoritas
-      if (favoriteCategories.includes(a.category)) scoreA += 20
-      if (favoriteCategories.includes(b.category)) scoreB += 20
-      
-      // Bonus para artigos não lidos
-      if (!this.userPreferences.readingHistory.includes(a.id)) scoreA += 10
-      if (!this.userPreferences.readingHistory.includes(b.id)) scoreB += 10
-      
-      return scoreB - scoreA
+  // Busca por autor
+  searchByAuthor(articles: LibraryArticle[], author: string): LibraryArticle[] {
+    return articles.filter(article => 
+      article.author.toLowerCase().includes(author.toLowerCase())
+    )
+  }
+
+  // Busca por tags
+  searchByTags(articles: LibraryArticle[], tags: string[]): LibraryArticle[] {
+    return articles.filter(article => 
+      tags.some(tag => 
+        article.tags.some(articleTag => 
+          articleTag.toLowerCase().includes(tag.toLowerCase())
+        )
+      )
+    )
+  }
+
+  // Busca por data
+  searchByDateRange(articles: LibraryArticle[], startDate: Date, endDate: Date): LibraryArticle[] {
+    return articles.filter(article => {
+      const articleDate = new Date(article.date)
+      return articleDate >= startDate && articleDate <= endDate
     })
   }
 
-  private addToSearchHistory(query: string): void {
-    if (query.trim() && !this.searchHistory.includes(query)) {
-      this.searchHistory.unshift(query)
-      this.searchHistory = this.searchHistory.slice(0, 10) // Manter apenas 10
-      this.userPreferences.searchHistory = this.searchHistory
-    }
-  }
-
-  // Métodos públicos para gerenciar preferências
-  addToFavorites(articleId: string): void {
-    if (!this.userPreferences.favorites.includes(articleId)) {
-      this.userPreferences.favorites.push(articleId)
-    }
-  }
-
-  removeFromFavorites(articleId: string): void {
-    this.userPreferences.favorites = this.userPreferences.favorites.filter(id => id !== articleId)
-  }
-
-  addToReadingHistory(articleId: string): void {
-    if (!this.userPreferences.readingHistory.includes(articleId)) {
-      this.userPreferences.readingHistory.unshift(articleId)
-      this.userPreferences.readingHistory = this.userPreferences.readingHistory.slice(0, 50)
-    }
-  }
-
-  updatePreferences(preferences: Partial<UserPreferences>): void {
-    this.userPreferences = { ...this.userPreferences, ...preferences }
-  }
-
-  getPreferences(): UserPreferences {
-    return this.userPreferences
-  }
-
-  getSearchHistory(): string[] {
-    return this.searchHistory
-  }
-
-  clearSearchHistory(): void {
-    this.searchHistory = []
-    this.userPreferences.searchHistory = []
+  // Busca por tempo de leitura
+  searchByReadTime(articles: LibraryArticle[], minMinutes: number, maxMinutes: number): LibraryArticle[] {
+    return articles.filter(article => {
+      const readTimeMinutes = parseInt(article.readTime.replace(/\D/g, ''))
+      return readTimeMinutes >= minMinutes && readTimeMinutes <= maxMinutes
+    })
   }
 }
 
 export const searchService = new SearchService()
-export type { SearchFilters, SearchResult, SearchSuggestion, UserPreferences }
+export type { SearchService }

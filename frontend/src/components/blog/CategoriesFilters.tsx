@@ -141,6 +141,17 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
     logger.userInteraction('blog_category_click', categoryId)
     
     try {
+      // Se for "todos", mostrar a biblioteca premium
+      if (categoryId === 'todos') {
+        // Scroll to premium library or show it
+        const premiumLibrary = document.getElementById('premium-library')
+        if (premiumLibrary) {
+          premiumLibrary.scrollIntoView({ behavior: 'smooth' })
+        }
+        setIsLoading(false)
+        return
+      }
+      
       const { articleService } = await import('../../services/articleService')
       
       // Buscar artigos reais da internet
