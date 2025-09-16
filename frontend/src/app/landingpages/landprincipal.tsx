@@ -9,13 +9,13 @@ import '../../styles/landing.css';
 
 // Code splitting with React.lazy and retry logic for better performance
 const Header = React.lazy(() => retryImport(() => import('./Header')));
-const Hero = React.lazy(() => retryImport(() => import('../../components/landing/Hero')));
+const Hero = React.lazy(() => retryImport(() => import('../../components/institutional/InstitutionalHero')));
 const QuemSomos = React.lazy(() => retryImport(() => import('../../components/landing/QuemSomos')));
 const Segments = React.lazy(() => retryImport(() => import('../../components/landing/Segments')));
 const Technology = React.lazy(() => retryImport(() => import('../../components/landing/Technology')));
 const WhyChooseVynlo = React.lazy(() => retryImport(() => import('../../components/landing/WhyChooseVynlo')));
 const HowToHire = React.lazy(() => retryImport(() => import('../../components/landing/HowToHire')));
-const FAQ = React.lazy(() => retryImport(() => import('../../components/landing/FAQ')));
+const FAQ = React.lazy(() => retryImport(() => import('../../components/support/TechnicalFAQ')));
 const Footer = React.lazy(() => retryImport(() => import('./Footer')));
 
 // Enhanced loading component with logging
