@@ -13,7 +13,6 @@ export default function BarbeariasHero() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
           <div className="space-y-8">
             <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3">
               <Scissors className="w-5 h-5 text-blue-400" />
@@ -28,11 +27,9 @@ export default function BarbeariasHero() {
             </h1>
 
             <p className="text-xl text-gray-300 leading-relaxed">
-              Sistema profissional para agendamento, controle financeiro e gestão de clientes. 
-              Transforme sua barbearia com tecnologia de ponta.
+              Sistema profissional para agendamento, controle financeiro e gestão de clientes. Transforme sua barbearia com tecnologia de ponta.
             </p>
 
-            {/* Stats */}
             <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
               <div className="text-center">
                 <div className="text-3xl font-bold text-white mb-1">2.1K+</div>
@@ -47,19 +44,8 @@ export default function BarbeariasHero() {
                 <div className="text-gray-400 text-sm">Uptime</div>
               </div>
             </div>
-
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-8">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                Começar Agora
-              </button>
-              <button className="border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition-all duration-300">
-                Ver Demo
-              </button>
-            </div>
           </div>
 
-          {/* Dashboard Preview */}
           <div className="relative">
             <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
               <div className="bg-gray-900 rounded-2xl p-6">

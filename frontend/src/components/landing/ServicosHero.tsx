@@ -44,15 +44,6 @@ export default function ServicosHero() {
                 <div className="text-gray-400 text-sm">Uptime</div>
               </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-8">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                Começar Agora
-              </button>
-              <button className="border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition-all duration-300">
-                Ver Demo
-              </button>
-            </div>
           </div>
 
           <div className="relative">
