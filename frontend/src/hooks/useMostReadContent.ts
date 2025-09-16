@@ -46,9 +46,10 @@ export const useMostReadContent = (): UseMostReadContentReturn => {
       const rankingData = analyticsService.calculateRanking(12)
       setRankings(rankingData)
       
+      const uniqueCategories = new Set(rankingData.map(r => r.article.category))
       console.log('📊 MostReadContent: Dados carregados', {
         total: rankingData.length,
-        categories: [...new Set(rankingData.map(r => r.article.category))].length
+        categories: Array.from(uniqueCategories).length
       })
       
     } catch (err) {
