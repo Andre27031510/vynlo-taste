@@ -22,12 +22,18 @@ const Header: React.FC = () => {
 
     const toggleMobileMenu = () => {
       const nav = document.querySelector('.desktop-nav') as HTMLElement;
-      if (!nav) return;
+      const menuButton = document.querySelector('.mobile-menu') as HTMLElement;
+      
+      if (!nav || !menuButton) return;
+      
       const isOpen = nav.classList.contains('mobile-open');
+      
       if (isOpen) {
         nav.classList.remove('mobile-open');
+        menuButton.style.transform = 'rotate(0deg)';
       } else {
         nav.classList.add('mobile-open');
+        menuButton.style.transform = 'rotate(90deg)';
       }
     };
 
@@ -49,6 +55,8 @@ const Header: React.FC = () => {
           }
           .mobile-menu {
             display: block !important;
+            position: relative;
+            z-index: 1002;
           }
           .desktop-nav.mobile-open {
             display: flex !important;
@@ -62,6 +70,7 @@ const Header: React.FC = () => {
             border-radius: 0 0 12px 12px !important;
             z-index: 1001 !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+            backdrop-filter: blur(15px) !important;
           }
           .desktop-nav.mobile-open a {
             padding: 12px 0 !important;
@@ -69,6 +78,14 @@ const Header: React.FC = () => {
           }
           .desktop-nav.mobile-open a:last-child {
             border-bottom: none !important;
+          }
+          .desktop-nav.mobile-open #dropdown {
+            position: static !important;
+            transform: none !important;
+            display: block !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            margin: 10px 0 !important;
+            border-radius: 8px !important;
           }
           .header-cta {
             display: none !important;
@@ -88,8 +105,40 @@ const Header: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginLeft: '40px' }}>
           <a href="/landingpages/landprincipal" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</a>
           <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="desktop-nav">
-          <button className="mobile-menu" style={{ display: 'block', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', padding: '8px' }} onClick={() => (window as any).toggleMobileMenu?.()}>
-            ☰
+          <button 
+            className="mobile-menu" 
+            style={{ 
+              display: 'block', 
+              background: 'none', 
+              border: 'none', 
+              color: 'white', 
+              cursor: 'pointer', 
+              padding: '12px',
+              borderRadius: '8px',
+              transition: 'all 0.3s ease',
+              position: 'relative',
+              zIndex: 1002
+            }} 
+            onClick={() => (window as any).toggleMobileMenu?.()}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            aria-label="Menu de navegação"
+          >
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="transition-transform duration-300"
+            >
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
           </button>
           <div style={{ position: 'relative' }} onMouseEnter={() => (window as any).showDropdown?.()} onMouseLeave={() => (window as any).hideDropdown?.()}>
             <span style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, cursor: 'pointer' }}>Segmentos ▾</span>
