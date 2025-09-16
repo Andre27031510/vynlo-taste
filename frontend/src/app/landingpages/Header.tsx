@@ -48,7 +48,21 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <style jsx>{`
+      <style jsx global>{`
+        .mobile-menu {
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+          padding: 12px;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+          position: relative;
+          z-index: 1002;
+        }
+        .mobile-menu:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
         @media (max-width: 768px) {
           .desktop-nav {
             display: none !important;
@@ -107,21 +121,7 @@ const Header: React.FC = () => {
           <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="desktop-nav">
           <button 
             className="mobile-menu" 
-            style={{ 
-              display: 'block', 
-              background: 'none', 
-              border: 'none', 
-              color: 'white', 
-              cursor: 'pointer', 
-              padding: '12px',
-              borderRadius: '8px',
-              transition: 'all 0.3s ease',
-              position: 'relative',
-              zIndex: 1002
-            }} 
             onClick={() => (window as any).toggleMobileMenu?.()}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             aria-label="Menu de navegação"
           >
             <svg 
@@ -133,7 +133,6 @@ const Header: React.FC = () => {
               strokeWidth="2" 
               strokeLinecap="round" 
               strokeLinejoin="round"
-              className="transition-transform duration-300"
             >
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <line x1="3" y1="12" x2="21" y2="12"></line>
