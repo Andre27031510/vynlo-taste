@@ -1,46 +1,53 @@
 'use client'
 
 import React from 'react'
-import { TrendingUp, Clock, Users, DollarSign, Heart, BarChart3 } from 'lucide-react'
+import { TrendingUp, Clock, DollarSign, Users, Shield, Zap, Star } from 'lucide-react'
 
 export default function PetshopsBenefits() {
   const benefits = [
     {
       icon: TrendingUp,
-      metric: '+38%',
-      title: 'Vendas de Produtos',
-      description: 'Aumento nas vendas com controle inteligente'
+      title: 'Aumento de Vendas',
+      metric: '+50%',
+      description: 'Crescimento médio nas vendas com controle inteligente'
     },
     {
       icon: Clock,
-      metric: '-45%',
-      title: 'Tempo de Atendimento',
-      description: 'Redução no tempo de cadastro e consulta'
-    },
-    {
-      icon: Users,
-      metric: '+52%',
-      title: 'Fidelização',
-      description: 'Aumento na retenção de clientes'
+      title: 'Redução de Tempo',
+      metric: '-65%',
+      description: 'Menos tempo gasto com cadastros e consultas'
     },
     {
       icon: DollarSign,
-      metric: '+32%',
-      title: 'Faturamento',
-      description: 'Crescimento no faturamento mensal'
+      title: 'Economia de Custos',
+      metric: '-35%',
+      description: 'Redução nos custos operacionais do petshop'
     },
     {
-      icon: Heart,
-      metric: '96%',
-      title: 'Satisfação',
-      description: 'Dos veterinários aprovam o sistema'
+      icon: Users,
+      title: 'Equipe Produtiva',
+      metric: '+85%',
+      description: 'Aumento na produtividade da equipe veterinária'
     },
     {
-      icon: BarChart3,
-      metric: '100%',
-      title: 'Controle',
-      description: 'Visibilidade completa dos pets'
+      icon: Shield,
+      title: 'Segurança Total',
+      metric: '24/7',
+      description: 'Proteção completa dos dados dos pets'
+    },
+    {
+      icon: Zap,
+      title: 'Implementação Rápida',
+      metric: '24h',
+      description: 'Sistema funcionando em até 24 horas'
     }
+  ]
+
+  const stats = [
+    { number: '1.8K+', label: 'Petshops Ativos' },
+    { number: '280K+', label: 'Pets Cadastrados' },
+    { number: '99.9%', label: 'Uptime Garantido' },
+    { number: '24/7', label: 'Suporte Técnico' }
   ]
 
   return (
@@ -53,7 +60,7 @@ export default function PetshopsBenefits() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
           <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3 mb-6">
-            <BarChart3 className="w-5 h-5 text-blue-400" />
+            <Star className="w-5 h-5 text-blue-400" />
             <span className="text-blue-300 font-manrope font-semibold text-sm">Resultados Comprovados</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-6">
@@ -63,27 +70,27 @@ export default function PetshopsBenefits() {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Mais de 1.800 petshops já transformaram sua gestão
+            Mais de 1.800 petshops já transformaram sua gestão e viram resultados extraordinários
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {benefits.map((benefit, index) => {
             const IconComponent = benefit.icon
             return (
               <div
                 key={index}
-                className="group bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-2"
+                className="group bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-500 transform hover:-translate-y-3"
               >
-                <div className="inline-flex p-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <IconComponent className="w-6 h-6 text-white" />
+                <div className="inline-flex p-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <IconComponent className="w-8 h-8 text-white" />
                 </div>
                 
-                <div className="text-4xl font-manrope font-black text-white mb-2 group-hover:text-blue-400 transition-colors">
+                <div className="text-5xl font-manrope font-black text-white mb-3 group-hover:text-blue-400 transition-colors">
                   {benefit.metric}
                 </div>
                 
-                <h3 className="text-xl font-manrope font-bold text-white mb-4">
+                <h3 className="text-2xl font-manrope font-bold text-white mb-4">
                   {benefit.title}
                 </h3>
                 
@@ -93,6 +100,15 @@ export default function PetshopsBenefits() {
               </div>
             )
           })}
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 border-t border-white/10">
+          {stats.map((stat, index) => (
+            <div key={index} className="text-center">
+              <div className="text-4xl font-manrope font-black text-white mb-2">{stat.number}</div>
+              <div className="text-gray-400 font-medium">{stat.label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
