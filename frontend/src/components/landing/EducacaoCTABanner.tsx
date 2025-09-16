@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Heart } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
 
-export default function IgrejasCTABanner() {
+export default function EducacaoCTABanner() {
   return (
     <section className="py-16 bg-gradient-to-br from-blue-900 via-slate-900 to-black relative overflow-hidden">
       <div className="absolute inset-0">
@@ -14,19 +14,19 @@ export default function IgrejasCTABanner() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center">
           <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3 mb-6">
-            <Heart className="w-5 h-5 text-blue-400" />
+            <GraduationCap className="w-5 h-5 text-blue-400" />
             <span className="text-blue-300 font-manrope font-semibold text-sm">Comece Hoje</span>
           </div>
           
           <h3 className="text-3xl lg:text-4xl font-manrope font-black text-white mb-6">
-            Transforme sua Igreja
+            Transforme sua Escola
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
               em poucos minutos
             </span>
           </h3>
           
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Junte-se a mais de 500 igrejas que já revolucionaram sua gestão
+            Junte-se a mais de 800 escolas que já revolucionaram sua gestão
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -1,43 +1,43 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, ChevronUp, Heart } from 'lucide-react'
+import { ChevronDown, ChevronUp, GraduationCap } from 'lucide-react'
 
-export default function IgrejasFAQ() {
+export default function EducacaoFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   const faqs = [
     {
-      question: 'Como funciona o cadastro de membros?',
-      answer: 'Sistema completo com dados pessoais, histórico de batismo, participação em ministérios, grupos de células e acompanhamento espiritual personalizado.'
+      question: 'Como funciona o sistema de matrículas?',
+      answer: 'Sistema completo de matrículas online com documentação digital, controle de vagas por turma, lista de espera automática e integração com sistema financeiro.'
     },
     {
-      question: 'O sistema controla dízimos e ofertas?',
-      answer: 'Sim, com controle total de entradas, relatórios transparentes, prestação de contas automática e dashboards financeiros para liderança e membros.'
+      question: 'O sistema controla notas e frequência?',
+      answer: 'Sim, controle total de notas por disciplina, cálculo automático de médias, registro de frequência e relatórios de desempenho para pais e alunos.'
     },
     {
-      question: 'Posso agendar cultos e eventos?',
-      answer: 'Perfeitamente! Agenda completa para cultos regulares, eventos especiais, conferências, retiros e atividades ministeriais com notificações automáticas.'
+      question: 'Tem portal para pais e alunos?',
+      answer: 'Portal completo com acesso a notas, frequência, calendário escolar, comunicados, boletos e acompanhamento pedagógico em tempo real.'
     },
     {
-      question: 'Como funciona a comunicação com os membros?',
-      answer: 'Sistema integrado de avisos, newsletters, grupos de WhatsApp, e-mails personalizados e comunicação direta por ministérios e células.'
+      question: 'Como funciona o controle financeiro?',
+      answer: 'Gestão completa de mensalidades, geração automática de boletos, controle de inadimplência, relatórios financeiros e integração bancária.'
     },
     {
-      question: 'Tem relatórios de crescimento da igreja?',
-      answer: 'Sim, dashboards completos com métricas de crescimento, frequência, engajamento, conversões, batismos e análise de tendências.'
+      question: 'Tem relatórios pedagógicos?',
+      answer: 'Dashboards completos com desempenho por turma, disciplina, professor, análise de aproveitamento e relatórios personalizados.'
     },
     {
-      question: 'Os dados dos membros ficam seguros?',
-      answer: 'Absoluta segurança com criptografia avançada, backup automático, controle de acesso por níveis e conformidade com LGPD.'
+      question: 'Os dados ficam seguros?',
+      answer: 'Máxima segurança com criptografia avançada, backup automático, conformidade LGPD e controle de acesso por perfis.'
     },
     {
-      question: 'Posso controlar diferentes ministérios?',
-      answer: 'Sim, gestão completa de ministérios, células, departamentos com líderes específicos e relatórios individualizados por área.'
+      question: 'Funciona para diferentes níveis de ensino?',
+      answer: 'Sim, adaptável para educação infantil, fundamental, médio, técnico e superior com configurações específicas para cada modalidade.'
     },
     {
       question: 'Tem suporte técnico especializado?',
-      answer: 'Suporte 24/7 com equipe especializada em gestão eclesiástica, treinamento completo e acompanhamento personalizado.'
+      answer: 'Suporte 24/7 com equipe especializada em gestão educacional, treinamento completo e acompanhamento pedagógico.'
     }
   ]
 
@@ -46,13 +46,13 @@ export default function IgrejasFAQ() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 rounded-full px-6 py-3 mb-6">
-            <Heart className="w-5 h-5" />
+            <GraduationCap className="w-5 h-5" />
             <span className="font-manrope font-semibold text-sm">Dúvidas Frequentes</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-6">
             Perguntas sobre
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              Gestão de Igrejas
+              Gestão Escolar
             </span>
           </h2>
           <p className="text-xl text-gray-600 leading-relaxed">

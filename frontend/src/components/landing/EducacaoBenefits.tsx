@@ -1,45 +1,45 @@
 'use client'
 
 import React from 'react'
-import { TrendingUp, Clock, Users, DollarSign, Heart, BarChart3 } from 'lucide-react'
+import { TrendingUp, Clock, Users, DollarSign, GraduationCap, BarChart3 } from 'lucide-react'
 
-export default function IgrejasBenefits() {
+export default function EducacaoBenefits() {
   const benefits = [
     {
       icon: TrendingUp,
-      metric: '+45%',
-      title: 'Crescimento de Membros',
-      description: 'Aumento médio na congregação com melhor acompanhamento'
+      metric: '+25%',
+      title: 'Aprovação Escolar',
+      description: 'Aumento nas taxas de aprovação com melhor acompanhamento'
     },
     {
       icon: Clock,
-      metric: '-70%',
+      metric: '-60%',
       title: 'Tempo Administrativo',
-      description: 'Redução no tempo gasto com tarefas administrativas'
+      description: 'Redução no tempo gasto com processos burocráticos'
     },
     {
       icon: Users,
-      metric: '+60%',
-      title: 'Engajamento',
-      description: 'Maior participação dos membros em eventos e cultos'
+      metric: '+40%',
+      title: 'Engajamento dos Pais',
+      description: 'Maior participação dos pais no acompanhamento escolar'
     },
     {
       icon: DollarSign,
-      metric: '+35%',
-      title: 'Transparência Financeira',
-      description: 'Aumento na confiança com relatórios transparentes'
+      metric: '-30%',
+      title: 'Inadimplência',
+      description: 'Redução significativa na inadimplência escolar'
     },
     {
-      icon: Heart,
-      metric: '95%',
+      icon: GraduationCap,
+      metric: '98%',
       title: 'Satisfação',
-      description: 'Dos líderes aprovam o sistema de gestão'
+      description: 'Dos gestores aprovam o sistema de gestão'
     },
     {
       icon: BarChart3,
       metric: '100%',
-      title: 'Controle Total',
-      description: 'Visibilidade completa de todas as atividades'
+      title: 'Controle Pedagógico',
+      description: 'Visibilidade completa do desempenho escolar'
     }
   ]
 
@@ -57,13 +57,13 @@ export default function IgrejasBenefits() {
             <span className="text-blue-300 font-manrope font-semibold text-sm">Resultados Comprovados</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-6">
-            Transforme sua Igreja com
+            Transforme sua Escola com
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
               Resultados Reais
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Mais de 500 igrejas já transformaram sua gestão
+            Mais de 800 escolas já transformaram sua gestão
           </p>
         </div>
 

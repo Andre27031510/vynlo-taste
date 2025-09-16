@@ -1,29 +1,29 @@
 'use client'
 
 import React from 'react'
-import { Users, Heart, Calendar, BarChart3 } from 'lucide-react'
+import { Users, Calendar, Heart, BarChart3 } from 'lucide-react'
 
-export default function IgrejasFeatures() {
+export default function SaudeFeatures() {
   const features = [
     {
       icon: Users,
-      title: 'Gestão de Membros',
-      description: 'Cadastro completo, histórico de participação, grupos de células e acompanhamento espiritual personalizado.'
-    },
-    {
-      icon: Heart,
-      title: 'Dízimos e Ofertas',
-      description: 'Controle financeiro transparente, relatórios detalhados e prestação de contas automática para a congregação.'
+      title: 'Prontuário Eletrônico',
+      description: 'Prontuários digitais completos, histórico médico, exames, prescrições e evolução do paciente integrada.'
     },
     {
       icon: Calendar,
-      title: 'Eventos e Cultos',
-      description: 'Agendamento de cultos, eventos especiais, conferências e retiros espirituais com notificações automáticas.'
+      title: 'Agendamento de Consultas',
+      description: 'Sistema inteligente de agendamento com confirmação automática, lembretes e integração com agenda médica.'
+    },
+    {
+      icon: Heart,
+      title: 'Controle de Medicamentos',
+      description: 'Gestão completa de medicamentos, prescrições digitais, controle de estoque e alertas de interação.'
     },
     {
       icon: BarChart3,
-      title: 'Relatórios Ministeriais',
-      description: 'Dashboards com métricas de crescimento, frequência, engajamento e análise de tendências espirituais.'
+      title: 'Relatórios Médicos',
+      description: 'Dashboards com métricas de atendimento, análise de diagnósticos e relatórios epidemiológicos completos.'
     }
   ]
 
@@ -36,13 +36,13 @@ export default function IgrejasFeatures() {
             <span className="font-manrope font-semibold text-sm">Funcionalidades</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-6">
-            Tudo que sua Igreja
+            Tudo que sua Clínica
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               precisa em um só lugar
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Sistema completo desenvolvido especificamente para igrejas modernas
+            Sistema completo desenvolvido especificamente para área da saúde
           </p>
         </div>
 

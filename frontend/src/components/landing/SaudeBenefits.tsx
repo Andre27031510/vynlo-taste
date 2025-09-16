@@ -3,43 +3,43 @@
 import React from 'react'
 import { TrendingUp, Clock, Users, DollarSign, Heart, BarChart3 } from 'lucide-react'
 
-export default function IgrejasBenefits() {
+export default function SaudeBenefits() {
   const benefits = [
     {
       icon: TrendingUp,
-      metric: '+45%',
-      title: 'Crescimento de Membros',
-      description: 'Aumento médio na congregação com melhor acompanhamento'
+      metric: '+50%',
+      title: 'Eficiência Operacional',
+      description: 'Aumento na eficiência com processos automatizados'
     },
     {
       icon: Clock,
-      metric: '-70%',
-      title: 'Tempo Administrativo',
-      description: 'Redução no tempo gasto com tarefas administrativas'
+      metric: '-40%',
+      title: 'Tempo de Espera',
+      description: 'Redução no tempo de espera dos pacientes'
     },
     {
       icon: Users,
-      metric: '+60%',
-      title: 'Engajamento',
-      description: 'Maior participação dos membros em eventos e cultos'
+      metric: '+35%',
+      title: 'Satisfação do Paciente',
+      description: 'Maior satisfação com atendimento digitalizado'
     },
     {
       icon: DollarSign,
-      metric: '+35%',
-      title: 'Transparência Financeira',
-      description: 'Aumento na confiança com relatórios transparentes'
+      metric: '+25%',
+      title: 'Faturamento',
+      description: 'Aumento no faturamento com melhor gestão'
     },
     {
       icon: Heart,
-      metric: '95%',
-      title: 'Satisfação',
-      description: 'Dos líderes aprovam o sistema de gestão'
+      metric: '99%',
+      title: 'Satisfação Médicos',
+      description: 'Dos médicos aprovam o sistema digital'
     },
     {
       icon: BarChart3,
       metric: '100%',
-      title: 'Controle Total',
-      description: 'Visibilidade completa de todas as atividades'
+      title: 'Controle Médico',
+      description: 'Visibilidade completa dos atendimentos'
     }
   ]
 
@@ -57,13 +57,13 @@ export default function IgrejasBenefits() {
             <span className="text-blue-300 font-manrope font-semibold text-sm">Resultados Comprovados</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-6">
-            Transforme sua Igreja com
+            Transforme sua Clínica com
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
               Resultados Reais
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Mais de 500 igrejas já transformaram sua gestão
+            Mais de 1.200 clínicas já transformaram sua gestão
           </p>
         </div>
 
