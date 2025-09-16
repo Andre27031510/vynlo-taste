@@ -281,6 +281,5 @@ export const CATEGORY_KEYWORDS = {
     'marketing saúde', 'gestão clínica', 'negócio saúde',
     'atrair pacientes', 'marketing médico', 'clínica consulta',
     'telemedicina', 'gestão hospitalar', 'saúde digital'
-  ],
-
+  ]
 }

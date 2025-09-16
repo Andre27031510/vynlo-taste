@@ -38,59 +38,76 @@ class ArticleService {
 
   private categoryKeywords = CATEGORY_KEYWORDS
 
-  // Buscar artigos reais da internet por categoria
+  // CORREÇÃO CRÍTICA: Priorizar artigos brasileiros para garantir 24 artigos únicos
   async searchArticlesByCategory(category: string): Promise<SearchResult> {
     const startTime = Date.now()
-    const keywords = this.categoryKeywords[category as keyof typeof this.categoryKeywords] || ['gestão', 'automação']
+    console.log(`🎯 CORREÇÃO CRÍTICA - Categoria: ${category}`)
     
     try {
-      // Tentar múltiplas fontes
-      const results = await Promise.allSettled([
-        this.searchNewsAPI(keywords[0], category),
-        this.searchMedium(keywords[0], category),
-        this.searchGitHub(keywords[0], category)
-      ])
-
-      const articles: Article[] = []
-      let source = 'Multiple Sources'
-
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled' && result.value.length > 0) {
-          articles.push(...result.value)
-          if (index === 0) source = 'NewsAPI'
-          else if (index === 1) source = 'Medium'
-          else if (index === 2) source = 'GitHub'
-        }
-      })
-
-      // Se não encontrou artigos externos, usar artigos brasileiros reais
-      if (articles.length === 0) {
-        const brazilianArticles = this.getBrazilianArticles(category)
+      // PRIORIDADE MÁXIMA: Artigos brasileiros reais (3 por categoria = 24 total)
+      console.log(`🇧🇷 PRIORIDADE: Artigos brasileiros para ${category}`)
+      const brazilianArticles = this.getBrazilianArticles(category)
+      console.log(`📚 Artigos brasileiros: ${brazilianArticles.length} encontrados`)
+      
+      // SEMPRE retornar artigos brasileiros primeiro (dados reais e confiáveis)
+      if (brazilianArticles.length > 0) {
+        console.log(`✅ SUCESSO: ${brazilianArticles.length} artigos brasileiros retornados`)
+        console.log(`📊 Artigos: ${brazilianArticles.map(a => a.title.substring(0, 50)).join(', ')}...`)
         return {
           articles: brazilianArticles,
           totalCount: brazilianArticles.length,
-          source: 'Artigos Brasileiros',
+          source: 'Artigos Brasileiros Reais',
+          searchTime: Date.now() - startTime
+        }
+      }
+      
+      // FALLBACK APENAS se não houver artigos brasileiros (não deveria acontecer)
+      console.warn(`⚠️ FALLBACK: Sem artigos brasileiros para ${category} - usando externos`)
+      const keywords = this.categoryKeywords[category as keyof typeof this.categoryKeywords] || ['gestão']
+      
+      const results = await Promise.allSettled([
+        this.searchNewsAPI(keywords[0], category),
+        this.searchMedium(keywords[0], category)
+      ])
+
+      const externalArticles: Article[] = []
+      results.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value.length > 0) {
+          externalArticles.push(...result.value)
+        }
+      })
+
+      console.log(`🌐 Artigos externos: ${externalArticles.length} encontrados`)
+      
+      if (externalArticles.length === 0) {
+        console.error(`❌ ERRO CRÍTICO: Nenhum artigo para ${category}`)
+        return {
+          articles: [],
+          totalCount: 0,
+          source: 'Erro - Sem artigos',
           searchTime: Date.now() - startTime
         }
       }
 
-      // Filtrar e validar artigos
-      const validatedArticles = this.validateArticles(articles, category)
+      const validatedArticles = this.validateArticles(externalArticles, category)
+      console.log(`📊 Validados: ${validatedArticles.length} artigos externos`)
       
       return {
-        articles: validatedArticles.slice(0, 10), // Limitar a 10 artigos
+        articles: validatedArticles.slice(0, 3), // Máximo 3 por categoria
         totalCount: validatedArticles.length,
-        source,
+        source: 'Artigos Externos (Fallback)',
         searchTime: Date.now() - startTime
       }
 
     } catch (error) {
-      console.error('Erro ao buscar artigos:', error)
+      console.error(`❌ ERRO CRÍTICO na categoria ${category}:`, error)
+      // Último recurso: sempre retornar artigos brasileiros
       const brazilianArticles = this.getBrazilianArticles(category)
+      console.log(`🆘 RECUPERAÇÃO: ${brazilianArticles.length} artigos brasileiros`)
       return {
         articles: brazilianArticles,
         totalCount: brazilianArticles.length,
-        source: 'Artigos Brasileiros (Fallback)',
+        source: 'Artigos Brasileiros (Recuperação)',
         searchTime: Date.now() - startTime
       }
     }
@@ -627,24 +644,54 @@ class ArticleService {
     return realArticles[category] || []
   }
 
-  // Validar artigos encontrados
+  // VALIDAÇÃO OTIMIZADA: Artigos brasileiros sempre aceitos
   private validateArticles(articles: Article[], category: string): Article[] {
-    return articles.filter(article => {
-      // Verificar se tem título e conteúdo
-      if (!article.title || !article.excerpt) return false
+    console.log(`🔍 VALIDAÇÃO: ${articles.length} artigos para ${category}`)
+    
+    const brazilianSources = [
+      'Vynlo', 'Belasis', 'Celcoin', 'Reservio', 'UOL Host', 'Sebrae',
+      'Simples Vet', 'Marketing do Reino', 'InPeace App', 'Zeke', 
+      'Telemedicina Morsch', 'Plenitude Educação', 'Líder Jr',
+      'Revista Educação', 'Rhema Neuroeducação', 'Fundação Lemann',
+      'Iubenda', 'Anamid', 'Chatbot.com', 'Vida de Autônomo', 'Donos de Restaurantes'
+    ]
+    
+    const validated = articles.filter(article => {
+      // Verificar estrutura básica
+      if (!article.title?.trim() || !article.excerpt?.trim()) {
+        console.log(`❌ Rejeitado (estrutura): ${article.title || 'Sem título'}`)
+        return false
+      }
       
-      // Verificar se é relevante para a categoria
+      // ARTIGOS BRASILEIROS: Sempre aceitar (prioridade máxima)
+      if (brazilianSources.includes(article.source)) {
+        console.log(`✅ BRASILEIRO aceito: "${article.title.substring(0, 50)}..." (${article.source})`)
+        return true
+      }
+      
+      // ARTIGOS EXTERNOS: Validar apenas se necessário
+      const keywords = this.categoryKeywords[category as keyof typeof this.categoryKeywords] || []
       const titleLower = article.title.toLowerCase()
       const excerptLower = article.excerpt.toLowerCase()
-      const keywords = this.categoryKeywords[category as keyof typeof this.categoryKeywords] || []
       
       const isRelevant = keywords.some((keyword: string) => 
         titleLower.includes(keyword.toLowerCase()) || 
         excerptLower.includes(keyword.toLowerCase())
       )
       
+      if (isRelevant) {
+        console.log(`✅ EXTERNO aceito: "${article.title.substring(0, 50)}..." (${article.source})`)
+      } else {
+        console.log(`❌ EXTERNO rejeitado: "${article.title.substring(0, 50)}..." (irrelevante)`)
+      }
+      
       return isRelevant
     })
+    
+    console.log(`🎯 RESULTADO: ${validated.length}/${articles.length} artigos validados`)
+    console.log(`📊 Distribuição: ${validated.filter(a => brazilianSources.includes(a.source)).length} brasileiros, ${validated.filter(a => !brazilianSources.includes(a.source)).length} externos`)
+    
+    return validated
   }
 
   // Calcular tempo de leitura
