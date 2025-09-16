@@ -150,7 +150,7 @@ export default function TasteBenefits() {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => {
             const IconComponent = stat.icon
             return (
@@ -172,26 +172,6 @@ export default function TasteBenefits() {
           })}
         </div>
 
-        {/* CTA Section */}
-        <div className="text-center bg-white/5 backdrop-blur-sm rounded-3xl p-12 border border-white/10">
-          <h3 className="text-3xl font-manrope font-bold text-white mb-4">
-            Junte-se a centenas de restaurantes que já transformaram seus negócios
-          </h3>
-          <p className="text-lg text-gray-300 font-manrope mb-8 max-w-2xl mx-auto">
-            Comece seu teste gratuito hoje e veja os resultados em 30 dias
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
-              <span>Começar Teste Grátis</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            
-            <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
-              <span>Ver Cases de Sucesso</span>
-            </button>
-          </div>
-        </div>
       </div>
     </section>
   )
