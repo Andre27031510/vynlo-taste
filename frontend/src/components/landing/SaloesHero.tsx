@@ -1,32 +1,32 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Heart, Users, Calendar, DollarSign, BarChart3 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Scissors, Calendar, Users, DollarSign, BarChart3 } from 'lucide-react'
 
-export default function ClinicasHero() {
+export default function SaloesHero() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
   const slides = [
     {
-      title: 'Gestão de Pacientes',
-      subtitle: 'Prontuário digital',
-      description: 'Sistema completo para prontuários, histórico médico e acompanhamento de pacientes',
-      icon: Users,
+      title: 'Agendamento Online',
+      subtitle: 'Agenda sempre cheia',
+      description: 'Sistema inteligente de agendamento com confirmação automática e lembretes',
+      icon: Calendar,
       color: 'from-blue-500 to-cyan-500'
     },
     {
-      title: 'Agendamento Online',
-      subtitle: 'Consultas organizadas',
-      description: 'Sistema de agendamento inteligente com confirmação automática e lembretes',
-      icon: Calendar,
-      color: 'from-green-500 to-emerald-500'
+      title: 'Gestão de Clientes',
+      subtitle: 'Relacionamento perfeito',
+      description: 'Cadastro completo, histórico de serviços e programa de fidelidade',
+      icon: Users,
+      color: 'from-pink-500 to-rose-500'
     },
     {
-      title: 'Gestão Financeira',
-      subtitle: 'Controle total',
-      description: 'Faturamento, convênios, pagamentos e relatórios financeiros completos',
+      title: 'Controle Financeiro',
+      subtitle: 'Faturamento em dia',
+      description: 'Gestão completa de pagamentos, comissões e relatórios financeiros',
       icon: DollarSign,
-      color: 'from-purple-500 to-pink-500'
+      color: 'from-purple-500 to-indigo-500'
     }
   ]
 
@@ -48,15 +48,15 @@ export default function ClinicasHero() {
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
           <div className="space-y-8">
             <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3">
-              <Heart className="w-5 h-5 text-blue-400" />
-              <span className="text-blue-300 font-manrope font-semibold text-sm">Gestão para Clínicas</span>
+              <Scissors className="w-5 h-5 text-blue-400" />
+              <span className="text-blue-300 font-manrope font-semibold text-sm">Gestão para Salões</span>
             </div>
 
             <div className="space-y-6">
               <h1 className="text-5xl lg:text-6xl font-manrope font-black text-white leading-tight">
                 Sistema para
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
-                  Clínicas
+                  Salões
                 </span>
               </h1>
 
@@ -88,12 +88,12 @@ export default function ClinicasHero() {
 
             <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">1.2K+</div>
-                <div className="text-gray-400 text-sm">Clínicas Ativas</div>
+                <div className="text-3xl font-bold text-white mb-1">3.2K+</div>
+                <div className="text-gray-400 text-sm">Salões Ativos</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">300K+</div>
-                <div className="text-gray-400 text-sm">Pacientes</div>
+                <div className="text-3xl font-bold text-white mb-1">800K+</div>
+                <div className="text-gray-400 text-sm">Agendamentos/Mês</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-white mb-1">99.9%</div>
@@ -120,39 +120,39 @@ export default function ClinicasHero() {
                     <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   </div>
-                  <div className="text-white text-sm font-medium">Painel Clínica</div>
+                  <div className="text-white text-sm font-medium">Painel Salão</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-500/20 rounded-xl p-4">
+                  <div className="bg-pink-500/20 rounded-xl p-4">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Users className="w-4 h-4 text-blue-400" />
-                      <span className="text-blue-300 text-sm">Pacientes</span>
+                      <Calendar className="w-4 h-4 text-pink-400" />
+                      <span className="text-pink-300 text-sm">Agendamentos</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">4,567</div>
+                    <div className="text-2xl font-bold text-white">147</div>
                   </div>
                   <div className="bg-green-500/20 rounded-xl p-4">
                     <div className="flex items-center space-x-2 mb-2">
                       <DollarSign className="w-4 h-4 text-green-400" />
                       <span className="text-green-300 text-sm">Faturamento</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">R$ 280K</div>
+                    <div className="text-2xl font-bold text-white">R$ 12K</div>
                   </div>
                 </div>
 
                 <div className="bg-gray-800 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-white text-sm font-medium">Consultas</span>
+                    <span className="text-white text-sm font-medium">Agendamentos</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-green-400 text-xs">+15% mês</span>
+                      <span className="text-green-400 text-xs">+25% mês</span>
                     </div>
                   </div>
                   <div className="h-20 flex items-end space-x-1">
-                    {[55, 62, 58, 71, 65, 77, 69, 82, 74, 88, 79, 92].map((height, i) => (
+                    {[65, 72, 68, 81, 75, 87, 79, 92, 84, 98, 89, 95].map((height, i) => (
                       <div
                         key={i}
-                        className="bg-gradient-to-t from-blue-500 to-purple-500 rounded-t flex-1 transition-all duration-1000"
+                        className="bg-gradient-to-t from-pink-500 to-purple-500 rounded-t flex-1 transition-all duration-1000"
                         style={{ height: `${height}%` }}
                       />
                     ))}

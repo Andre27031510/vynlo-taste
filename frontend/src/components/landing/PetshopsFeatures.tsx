@@ -1,45 +1,29 @@
 'use client'
 
 import React from 'react'
-import { Wrench, Car, Calendar, BarChart3, DollarSign, Shield } from 'lucide-react'
+import { Heart, Calendar, Package, BarChart3 } from 'lucide-react'
 
-export default function OficinasFeatures() {
+export default function PetshopsFeatures() {
   const features = [
     {
-      icon: Wrench,
-      title: 'Ordem de Serviço',
-      description: 'Sistema completo para ordens de serviço, diagnósticos, peças e mão de obra.',
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      icon: Car,
-      title: 'Gestão de Veículos',
-      description: 'Cadastro completo de veículos, histórico de serviços e manutenções preventivas.',
-      color: 'from-green-500 to-emerald-500'
+      icon: Heart,
+      title: 'Cadastro de Pets',
+      description: 'Ficha completa com dados do pet, histórico médico, vacinas, medicamentos e informações dos tutores.'
     },
     {
       icon: Calendar,
-      title: 'Agendamento',
-      description: 'Sistema inteligente de agendamento com lembretes automáticos e controle de agenda.',
-      color: 'from-purple-500 to-pink-500'
+      title: 'Agendamento de Serviços',
+      description: 'Sistema de agendamento para banho, tosa, consultas veterinárias e outros serviços especializados.'
+    },
+    {
+      icon: Package,
+      title: 'Controle de Estoque',
+      description: 'Gestão completa de produtos pet, ração, medicamentos, brinquedos e acessórios com alertas automáticos.'
     },
     {
       icon: BarChart3,
-      title: 'Relatórios Técnicos',
-      description: 'Dashboards com performance, serviços mais realizados e análise de produtividade.',
-      color: 'from-orange-500 to-red-500'
-    },
-    {
-      icon: DollarSign,
-      title: 'Gestão Financeira',
-      description: 'Controle de orçamentos, faturamento, comissões e relatórios financeiros completos.',
-      color: 'from-indigo-500 to-purple-500'
-    },
-    {
-      icon: Shield,
-      title: 'Segurança Total',
-      description: 'Proteção completa dos dados com backup automático e controle de acesso.',
-      color: 'from-gray-600 to-gray-800'
+      title: 'Relatórios Veterinários',
+      description: 'Dashboards com histórico de vacinas, consultas realizadas, produtos mais vendidos e análise financeira.'
     }
   ]
 
@@ -48,21 +32,21 @@ export default function OficinasFeatures() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 rounded-full px-6 py-3 mb-6">
-            <Wrench className="w-5 h-5" />
+            <Heart className="w-5 h-5" />
             <span className="font-manrope font-semibold text-sm">Funcionalidades</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-6">
-            Tudo que sua Oficina
+            Tudo que seu Petshop
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               precisa em um só lugar
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Sistema completo desenvolvido especificamente para gestão automotiva moderna
+            Sistema completo desenvolvido especificamente para petshops modernos
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => {
             const IconComponent = feature.icon
             return (
@@ -70,7 +54,7 @@ export default function OficinasFeatures() {
                 key={index}
                 className="group bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
               >
-                <div className={`inline-flex p-4 rounded-xl bg-gradient-to-r ${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className="inline-flex p-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 mb-6 group-hover:scale-110 transition-transform duration-300">
                   <IconComponent className="w-6 h-6 text-white" />
                 </div>
                 

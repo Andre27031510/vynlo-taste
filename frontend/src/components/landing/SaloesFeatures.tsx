@@ -1,44 +1,44 @@
 'use client'
 
 import React from 'react'
-import { Users, Calendar, Heart, BarChart3, Shield, DollarSign } from 'lucide-react'
+import { Calendar, Users, Scissors, BarChart3, DollarSign, Shield } from 'lucide-react'
 
-export default function ClinicasFeatures() {
+export default function SaloesFeatures() {
   const features = [
-    {
-      icon: Users,
-      title: 'Prontuário Digital',
-      description: 'Prontuários eletrônicos completos, histórico médico e acompanhamento de tratamentos.',
-      color: 'from-blue-500 to-cyan-500'
-    },
     {
       icon: Calendar,
       title: 'Agendamento Online',
-      description: 'Sistema inteligente de agendamento com confirmação automática e lembretes por SMS.',
-      color: 'from-green-500 to-emerald-500'
+      description: 'Sistema inteligente com disponibilidade em tempo real, confirmação automática e lembretes.',
+      color: 'from-blue-500 to-cyan-500'
     },
     {
-      icon: Heart,
-      title: 'Telemedicina',
-      description: 'Consultas online integradas com prontuário e prescrição digital.',
-      color: 'from-red-500 to-pink-500'
+      icon: Users,
+      title: 'Gestão de Clientes',
+      description: 'Cadastro completo, histórico de serviços, preferências e programa de fidelidade.',
+      color: 'from-pink-500 to-rose-500'
+    },
+    {
+      icon: Scissors,
+      title: 'Catálogo de Serviços',
+      description: 'Gestão completa de serviços, preços, duração e profissionais especializados.',
+      color: 'from-purple-500 to-indigo-500'
     },
     {
       icon: BarChart3,
-      title: 'Relatórios Médicos',
-      description: 'Dashboards com métricas de atendimento, faturamento e performance da clínica.',
-      color: 'from-purple-500 to-indigo-500'
+      title: 'Relatórios de Performance',
+      description: 'Dashboards com performance por profissional, serviços mais procurados e análise de receita.',
+      color: 'from-orange-500 to-red-500'
     },
     {
       icon: DollarSign,
       title: 'Gestão Financeira',
-      description: 'Controle de convênios, faturamento TISS, pagamentos e relatórios financeiros.',
-      color: 'from-orange-500 to-red-500'
+      description: 'Controle de pagamentos, comissões, produtos vendidos e relatórios financeiros completos.',
+      color: 'from-green-500 to-emerald-500'
     },
     {
       icon: Shield,
-      title: 'Segurança LGPD',
-      description: 'Máxima proteção dos dados médicos com conformidade LGPD e backup automático.',
+      title: 'Segurança Total',
+      description: 'Proteção completa dos dados dos clientes com backup automático e controle de acesso.',
       color: 'from-gray-600 to-gray-800'
     }
   ]
@@ -47,18 +47,18 @@ export default function ClinicasFeatures() {
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 rounded-full px-6 py-3 mb-6">
-            <Heart className="w-5 h-5" />
+          <div className="inline-flex items-center space-x-2 bg-pink-100 text-pink-700 rounded-full px-6 py-3 mb-6">
+            <Scissors className="w-5 h-5" />
             <span className="font-manrope font-semibold text-sm">Funcionalidades</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-6">
-            Tudo que sua Clínica
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            Tudo que seu Salão
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600">
               precisa em um só lugar
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Sistema completo desenvolvido especificamente para gestão médica moderna
+            Sistema completo desenvolvido especificamente para gestão de salões de beleza
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export default function ClinicasFeatures() {
                   <IconComponent className="w-6 h-6 text-white" />
                 </div>
                 
-                <h3 className="text-xl font-manrope font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-manrope font-bold text-gray-900 mb-4 group-hover:text-pink-600 transition-colors">
                   {feature.title}
                 </h3>
                 

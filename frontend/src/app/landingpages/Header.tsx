@@ -163,23 +163,23 @@ const Header: React.FC = () => {
                   <div style={{ fontSize: '12px', color: '#06b6d4' }}>Vynlo Edu - Disponível</div>
                 </div>
               </a>
-              <a href="/landingpages/contatolandprincipal" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(132, 204, 22, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+              <a href="/servicos" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(132, 204, 22, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                 </svg>
                 <div>
                   <div style={{ fontWeight: 600 }}>Serviços</div>
-                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Vynlo Field - Planejamento</div>
+                  <div style={{ fontSize: '12px', color: '#84cc16' }}>Vynlo Field - Disponível</div>
                 </div>
               </a>
-              <a href="/landingpages/contatolandprincipal" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+              <a href="/saude" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>
                   <path d="M12 5L8 21l4-7 4 7-4-16"/>
                 </svg>
                 <div>
                   <div style={{ fontWeight: 600 }}>Saúde</div>
-                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Vynlo Health - Planejamento</div>
+                  <div style={{ fontSize: '12px', color: '#ef4444' }}>Vynlo Health - Disponível</div>
                 </div>
               </a>
             </div>

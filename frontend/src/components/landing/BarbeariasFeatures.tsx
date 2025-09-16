@@ -1,45 +1,29 @@
 'use client'
 
 import React from 'react'
-import { ShoppingBag, Package, BarChart3, CreditCard, Users, Shield } from 'lucide-react'
+import { Calendar, Users, Scissors, BarChart3 } from 'lucide-react'
 
-export default function LojasFeatures() {
+export default function BarbeariasFeatures() {
   const features = [
     {
-      icon: ShoppingBag,
-      title: 'PDV Completo',
-      description: 'Sistema de vendas integrado com código de barras, cupom fiscal e múltiplas formas de pagamento.',
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      icon: Package,
-      title: 'Gestão de Estoque',
-      description: 'Controle inteligente com alertas de estoque baixo, entrada/saída e gestão de fornecedores.',
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      icon: CreditCard,
-      title: 'Pagamentos Integrados',
-      description: 'Aceite cartões, PIX, dinheiro e parcelamentos com integração automática.',
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      icon: BarChart3,
-      title: 'Relatórios de Vendas',
-      description: 'Dashboards com produtos mais vendidos, performance e análise de lucratividade.',
-      color: 'from-orange-500 to-red-500'
+      icon: Calendar,
+      title: 'Agendamento Online',
+      description: 'Sistema inteligente de agendamento com confirmação automática, lembretes por WhatsApp e controle de horários disponíveis.'
     },
     {
       icon: Users,
       title: 'Gestão de Clientes',
-      description: 'Cadastro completo, histórico de compras, programa de fidelidade e marketing direto.',
-      color: 'from-indigo-500 to-purple-500'
+      description: 'Cadastro completo de clientes, histórico de cortes, preferências pessoais e programa de fidelidade personalizado.'
     },
     {
-      icon: Shield,
-      title: 'Segurança Total',
-      description: 'Proteção completa dos dados com backup automático e conformidade fiscal.',
-      color: 'from-gray-600 to-gray-800'
+      icon: Scissors,
+      title: 'Controle de Serviços',
+      description: 'Catálogo completo de serviços, preços dinâmicos, tempo de execução e gestão de barbeiros especializados.'
+    },
+    {
+      icon: BarChart3,
+      title: 'Relatórios Inteligentes',
+      description: 'Dashboards com performance por barbeiro, serviços mais procurados, horários de pico e análise de faturamento.'
     }
   ]
 
@@ -48,21 +32,21 @@ export default function LojasFeatures() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 rounded-full px-6 py-3 mb-6">
-            <ShoppingBag className="w-5 h-5" />
+            <Scissors className="w-5 h-5" />
             <span className="font-manrope font-semibold text-sm">Funcionalidades</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-6">
-            Tudo que sua Loja
+            Tudo que sua Barbearia
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               precisa em um só lugar
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Sistema completo desenvolvido especificamente para gestão de varejo moderno
+            Sistema completo desenvolvido especificamente para barbearias modernas
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => {
             const IconComponent = feature.icon
             return (
@@ -70,7 +54,7 @@ export default function LojasFeatures() {
                 key={index}
                 className="group bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
               >
-                <div className={`inline-flex p-4 rounded-xl bg-gradient-to-r ${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className="inline-flex p-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 mb-6 group-hover:scale-110 transition-transform duration-300">
                   <IconComponent className="w-6 h-6 text-white" />
                 </div>
                 
