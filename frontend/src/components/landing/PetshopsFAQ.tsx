@@ -1,55 +1,53 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, ChevronUp, Heart, Shield, Calendar, MessageCircle } from 'lucide-react'
+import { ChevronDown, ChevronUp, MessageCircle } from 'lucide-react'
 import AppointmentModal from '@/components/modals/AppointmentModal'
 
 export default function PetshopsFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const faqCategories = [
+  const faqs = [
     {
-      icon: Heart,
-      title: 'Cadastro e Histórico',
-      questions: [
-        {
-          question: 'Como funciona o cadastro de pets?',
-          answer: 'Sistema completo com ficha do pet, dados do tutor, histórico médico, vacinas, medicamentos e informações comportamentais.'
-        },
-        {
-          question: 'Tem histórico médico completo?',
-          answer: 'Sim, prontuário veterinário completo com exames, tratamentos realizados, medicamentos e evolução do pet ao longo do tempo.'
-        }
-      ]
+      question: 'Como fazer o sistema para meu petshop?',
+      answer: 'Sistema completo com ficha do pet, dados do tutor, histórico médico, vacinas, medicamentos e informações comportamentais.'
     },
     {
-      icon: Shield,
-      title: 'Vacinas e Controle',
-      questions: [
-        {
-          question: 'O sistema controla vacinas e medicamentos?',
-          answer: 'Sim, controle completo com calendário de vacinas, alertas de vencimento, histórico de medicamentos e lembretes automáticos.'
-        },
-        {
-          question: 'Tem controle de estoque?',
-          answer: 'Gestão completa de produtos pet, ração, medicamentos, brinquedos e acessórios com alertas de estoque baixo.'
-        }
-      ]
+      question: 'Posso personalizar com minhas cores do petshop?',
+      answer: 'Sim, controle completo com calendário de vacinas, alertas de vencimento, histórico de medicamentos e lembretes automáticos.'
     },
     {
-      icon: Calendar,
-      title: 'Agendamento e Suporte',
-      questions: [
-        {
-          question: 'Tem agendamento para serviços?',
-          answer: 'Sistema de agendamento para banho, tosa, consultas veterinárias, cirurgias e outros serviços especializados.'
-        },
-        {
-          question: 'Tem suporte técnico especializado?',
-          answer: 'Suporte 24/7 especializado em gestão veterinária, treinamento completo e acompanhamento personalizado.'
-        }
-      ]
+      question: 'Tem suporte?',
+      answer: 'Sistema de agendamento para banho, tosa, consultas veterinárias, cirurgias e outros serviços especializados.'
+    },
+    {
+      question: 'Como funciona a segurança dos meus dados?',
+      answer: 'Gestão completa de produtos pet, ração, medicamentos, brinquedos e acessórios com alertas de estoque baixo.'
+    },
+    {
+      question: 'O sistema integra com Pix? Saga e outros bancos?',
+      answer: 'Dashboards com histórico médico, vacinas em dia, consultas realizadas e análise de saúde dos pets.'
+    },
+    {
+      question: 'Como funciona o treinamento e a hora de usar?',
+      answer: 'Sim, adaptado para petshops, clínicas veterinárias, hospitais veterinários e consultórios especializados.'
+    },
+    {
+      question: 'Posso integrar equipamentos novos?',
+      answer: 'Sistema completo com emissão de receitas veterinárias, atestados, laudos e relatórios médicos digitais.'
+    },
+    {
+      question: 'Que tipo de segurança vocês oferecem?',
+      answer: 'Suporte 24/7 especializado em gestão veterinária, treinamento completo e acompanhamento personalizado.'
+    },
+    {
+      question: 'Posso personalizar o sistema com minha marca?',
+      answer: 'Sim, personalização completa com cores, logo e identidade visual do seu petshop, mantendo a funcionalidade profissional.'
+    },
+    {
+      question: 'O sistema se pode conectar quando quiser?',
+      answer: 'Sistema funciona online e offline com sincronização automática, garantindo acesso contínuo aos dados dos pets.'
     }
   ]
 
@@ -71,63 +69,46 @@ export default function PetshopsFAQ() {
               </span>
             </h2>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Esclarecemos as principais dúvidas sobre nosso sistema para petshops
+              Tire suas dúvidas sobre como nosso sistema pode transformar seu petshop
             </p>
           </div>
 
-          {faqCategories.map((category, categoryIndex) => {
-            const IconComponent = category.icon
-            return (
-              <div key={categoryIndex} className="mb-12">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500">
-                    <IconComponent className="w-6 h-6 text-white" />
+          <div className="space-y-4 mb-16">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-lg transition-all duration-300"
+              >
+                <button
+                  className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                >
+                  <span className="font-manrope font-bold text-gray-900 text-lg pr-8">
+                    {faq.question}
+                  </span>
+                  {openIndex === index ? (
+                    <ChevronUp className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  )}
+                </button>
+                
+                {openIndex === index && (
+                  <div className="px-8 pb-6">
+                    <div className="border-t border-gray-200 pt-6">
+                      <p className="text-gray-600 leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-manrope font-bold text-gray-900">{category.title}</h3>
-                </div>
-
-                <div className="space-y-4">
-                  {category.questions.map((faq, questionIndex) => {
-                    const globalIndex = categoryIndex * 10 + questionIndex
-                    return (
-                      <div
-                        key={globalIndex}
-                        className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-blue-200 transition-colors shadow-sm"
-                      >
-                        <button
-                          className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-                          onClick={() => setOpenIndex(openIndex === globalIndex ? null : globalIndex)}
-                        >
-                          <span className="font-manrope font-bold text-gray-900 text-lg pr-8">
-                            {faq.question}
-                          </span>
-                          {openIndex === globalIndex ? (
-                            <ChevronUp className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                          )}
-                        </button>
-                        
-                        {openIndex === globalIndex && (
-                          <div className="px-8 pb-6">
-                            <div className="border-t border-gray-100 pt-6">
-                              <p className="text-gray-600 leading-relaxed">
-                                {faq.answer}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
+                )}
               </div>
-            )
-          })}
+            ))}
+          </div>
 
-          <div className="text-center mt-16 p-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl">
+          <div className="text-center p-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl">
             <h3 className="text-2xl font-manrope font-bold text-gray-900 mb-4">
-              Ainda tem dúvidas?
+              Que tal começar agora mesmo?
             </h3>
             <p className="text-gray-600 mb-8">
               Nossa equipe está pronta para ajudar você a transformar seu petshop
