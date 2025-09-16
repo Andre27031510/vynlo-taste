@@ -1,40 +1,26 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calendar, Clock, User, ArrowRight, Star } from 'lucide-react'
+import { Calendar, Clock, User, ArrowRight, Star, TrendingUp, Trophy, Medal, Award, Flame } from 'lucide-react'
 import { logger } from '../../utils/logger'
+
 
 export default function FeaturedArticles() {
   const [activeArticle, setActiveArticle] = useState<number | null>(null)
-  const [featuredArticles, setFeaturedArticles] = useState<any[]>([])
+  const [mostReadArticles, setMostReadArticles] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     logger.componentMount('FeaturedArticles')
-    loadFeaturedContent()
+    loadMostReadContent()
   }, [])
 
-  const loadFeaturedContent = async () => {
+  const loadMostReadContent = async () => {
     try {
-      const { contentService } = await import('../../services/contentService')
-      const articles = await contentService.getFeaturedArticles()
-      
-      const formattedArticles = articles.map(article => ({
-        id: article.id,
-        title: article.title,
-        excerpt: article.excerpt,
-        category: getCategoryName(article.category),
-        author: article.author,
-        date: formatDate(article.date),
-        readTime: article.readTime,
-        image: article.image,
-        views: article.views,
-        engagement: article.engagement
-      }))
-      
-      setFeaturedArticles(formattedArticles)
+      // Carregar diretamente os 3 artigos mais lidos
+      loadFallbackArticles()
     } catch (error) {
-      console.error('Erro ao carregar artigos em destaque:', error)
+      console.error('Erro ao carregar conteúdo mais lido:', error)
       loadFallbackArticles()
     } finally {
       setIsLoading(false)
@@ -58,44 +44,57 @@ export default function FeaturedArticles() {
   }
 
   const loadFallbackArticles = () => {
-    setFeaturedArticles([
+    setMostReadArticles([
       {
-        id: '1',
-        title: 'Como o Vynlo Taste aumentou vendas em 150%',
-        excerpt: 'Case real: Restaurante Bella Vista triplicou faturamento em 6 meses',
-        category: 'Case de Sucesso',
-        author: 'Carlos Silva',
-        date: '15 Jan 2024',
-        readTime: '8 min',
-        image: '/blog/restaurante-case.jpg',
-        views: 2847,
-        engagement: 94
+        id: 'rest_1',
+        title: 'O GUIA DEFINITIVO PARA UM RESTAURANTE DE SUCESSO',
+        excerpt: 'Guia completo com estratégias para transformar seu restaurante em um negócio de sucesso',
+        category: 'Restaurantes',
+        author: 'Vynlo',
+        date: '04 Jan 2025',
+        readTime: '45 min',
+        views: 8750,
+        engagement: 98,
+        rank: 1,
+        trend: 'up',
+        url: 'https://static1.squarespace.com/static/6273f2683f9dba7b3670dc36/t/6278712ac288c6019eed48d0/1652060465999/O-Guia-Definitivo-Para-Um-Restaurante-De-SucessoCompressed.pdf'
       },
       {
-        id: '2',
-        title: '5 Dicas para Gestão de Barbearias em 2024',
-        excerpt: 'Estratégias para otimizar agendamentos e aumentar receita',
-        category: 'Gestão',
-        author: 'Marina Santos',
-        date: '12 Jan 2024',
-        readTime: '6 min',
-        image: '/blog/barbearia-dicas.jpg',
-        views: 1923,
-        engagement: 87
+        id: 'ia_1',
+        title: 'Os Melhores Chatbots AI: Estratégia de Marketing e Conformidade',
+        excerpt: 'Como implementar chatbots de IA com estratégias de marketing e conformidade legal',
+        category: 'IA & Bots',
+        author: 'Iubenda',
+        date: '03 Jan 2025',
+        readTime: '18 min',
+        views: 4250,
+        engagement: 96,
+        rank: 2,
+        trend: 'up',
+        url: 'https://www.iubenda.com/pt-br/help/121116-os-melhores-chatbots-ai-estrategia-de-marketing-e-conformidade'
       },
       {
-        id: '3',
-        title: 'Automação WhatsApp para Petshops',
-        excerpt: 'Como aumentar vendas em 200% com automação inteligente',
-        category: 'Tecnologia',
-        author: 'Roberto Lima',
-        date: '10 Jan 2024',
-        readTime: '7 min',
-        image: '/blog/petshop-whatsapp.jpg',
-        views: 2156,
-        engagement: 89
+        id: 'pet_1',
+        title: 'Dicas para seu Negócio de Pet Shop Competir com Grandes Marcas',
+        excerpt: 'Estratégias para petshops competirem no mercado e aumentarem vendas',
+        category: 'Pet Shops',
+        author: 'UOL Host',
+        date: '02 Jan 2025',
+        readTime: '14 min',
+        views: 3450,
+        engagement: 94,
+        rank: 3,
+        trend: 'stable',
+        url: 'https://uolhost.uol.com.br/blog/pet-shop-dicas/'
       }
     ])
+  }
+
+  const handleArticleClick = (article: any) => {
+    // Abrir link externo
+    if (article.url && article.url.startsWith('http')) {
+      window.open(article.url, '_blank', 'noopener,noreferrer')
+    }
   }
 
   return (
@@ -135,17 +134,32 @@ export default function FeaturedArticles() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {featuredArticles.map((article, index) => (
+            {mostReadArticles.map((article, index) => (
               <article
                 key={article.id}
                 onMouseEnter={() => setActiveArticle(index)}
                 onMouseLeave={() => setActiveArticle(null)}
+                onClick={() => handleArticleClick(article)}
                 className="group bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer hover:shadow-2xl hover:shadow-blue-500/25"
               >
                 <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
                   <div className="absolute inset-0 bg-black/20"></div>
                   <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
                     <span className="text-white font-manrope text-xs font-medium">{article.category}</span>
+                  </div>
+                  <div className="absolute top-4 right-4 flex items-center space-x-2">
+                    <div className={`
+                      inline-flex items-center px-2 py-1 rounded-full text-xs font-bold
+                      ${article.rank === 1 ? 'bg-yellow-500/20 text-yellow-300' : 
+                        article.rank === 2 ? 'bg-gray-500/20 text-gray-300' :
+                        'bg-orange-500/20 text-orange-300'}
+                    `}>
+                      #{article.rank}
+                      {article.rank === 1 && <Trophy className="w-3 h-3 ml-1" />}
+                      {article.rank === 2 && <Medal className="w-3 h-3 ml-1" />}
+                      {article.rank === 3 && <Award className="w-3 h-3 ml-1" />}
+                    </div>
+                    {article.trend === 'up' && <TrendingUp className="w-4 h-4 text-green-400" />}
                   </div>
                 </div>
                 
@@ -180,8 +194,9 @@ export default function FeaturedArticles() {
                       <span>{article.views?.toLocaleString() || '0'} views</span>
                       <span>{article.engagement || 0}% engajamento</span>
                     </div>
-                    <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
-                      Trending
+                    <div className="bg-red-500/20 text-red-400 px-2 py-1 rounded-full flex items-center space-x-1">
+                      <Flame className="w-3 h-3" />
+                      <span>Mais Lido</span>
                     </div>
                   </div>
                   
