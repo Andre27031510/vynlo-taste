@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Calendar, Clock, User, ArrowRight, Star, TrendingUp, Trophy, Medal, Award, Flame, ChefHat, Bot, Heart } from 'lucide-react'
 import { logger } from '../../utils/logger'
 
@@ -43,12 +43,12 @@ export default function FeaturedArticles() {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
   }
 
-  const getCategoryIcon = (category: string) => {
+  const renderCategoryIcon = (category: string) => {
     switch (category) {
-      case 'Restaurantes': return ChefHat
-      case 'IA & Bots': return Bot
-      case 'Pet Shops': return Heart
-      default: return Star
+      case 'Restaurantes': return <ChefHat className="w-16 h-16 text-white/30" />
+      case 'IA & Bots': return <Bot className="w-16 h-16 text-white/30" />
+      case 'Pet Shops': return <Heart className="w-16 h-16 text-white/30" />
+      default: return <Star className="w-16 h-16 text-white/30" />
     }
   }
 
@@ -163,9 +163,7 @@ export default function FeaturedArticles() {
                   
                   {/* Ícone central da categoria */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {React.createElement(getCategoryIcon(article.category), {
-                      className: "w-16 h-16 text-white/30"
-                    })}
+                    {renderCategoryIcon(article.category)}
                   </div>
                   
                   <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
