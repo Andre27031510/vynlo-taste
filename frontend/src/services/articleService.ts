@@ -63,9 +63,15 @@ class ArticleService {
         }
       })
 
-      // Se não encontrou artigos externos, usar artigos locais
+      // Se não encontrou artigos externos, usar artigos brasileiros reais
       if (articles.length === 0) {
-        return await this.getLocalArticles(category)
+        const brazilianArticles = this.getBrazilianArticles(category)
+        return {
+          articles: brazilianArticles,
+          totalCount: brazilianArticles.length,
+          source: 'Artigos Brasileiros',
+          searchTime: Date.now() - startTime
+        }
       }
 
       // Filtrar e validar artigos
@@ -80,7 +86,13 @@ class ArticleService {
 
     } catch (error) {
       console.error('Erro ao buscar artigos:', error)
-      return await this.getLocalArticles(category)
+      const brazilianArticles = this.getBrazilianArticles(category)
+      return {
+        articles: brazilianArticles,
+        totalCount: brazilianArticles.length,
+        source: 'Artigos Brasileiros (Fallback)',
+        searchTime: Date.now() - startTime
+      }
     }
   }
 
@@ -203,34 +215,7 @@ class ArticleService {
     }
   }
 
-  // Artigos locais como fallback
-  private async getLocalArticles(category: string): Promise<SearchResult> {
-    const fallbackData = FALLBACK_ARTICLES[category as keyof typeof FALLBACK_ARTICLES] || []
-    
-    const articles: Article[] = fallbackData.map((item, index) => ({
-      id: item.id,
-      title: item.title,
-      excerpt: item.excerpt,
-      content: `Conteúdo completo sobre ${item.title.toLowerCase()}...\n\nEste é um artigo especializado sobre ${category} com informações detalhadas e estratégias comprovadas para o seu negócio.`,
-      category,
-      author: 'Equipe Vynlo',
-      date: new Date(Date.now() - (index * 86400000)).toISOString().split('T')[0],
-      readTime: this.calculateReadTime(item.excerpt),
-      tags: this.extractTags(item.title + ' ' + item.excerpt),
-      views: Math.floor(Math.random() * 2000) + 500,
-      engagement: Math.floor(Math.random() * 20) + 80,
-      source: item.source,
-      image: `/blog/${category}-${index + 1}.jpg`,
-      url: item.url
-    }))
-    
-    return {
-      articles,
-      totalCount: articles.length,
-      source: 'Vynlo Knowledge Base',
-      searchTime: 0
-    }
-  }
+
 
   // Artigos brasileiros reais como fallback
   private getBrazilianArticles(category: string): Article[] {
@@ -786,12 +771,12 @@ class ArticleService {
         window.location.href = `/blog/artigo/${category}-biblioteca?data=${articleData}`
       } else {
         console.warn(`⚠️ Nenhum artigo encontrado para: ${category}`)
-        const fallbackArticles = this.getBrazilianArticles(category)
+        const brazilianArticles = this.getBrazilianArticles(category)
         const fallbackData = encodeURIComponent(JSON.stringify({
-          articles: fallbackArticles,
+          articles: brazilianArticles,
           category,
-          source: 'Biblioteca Especializada',
-          totalCount: fallbackArticles.length,
+          source: 'Artigos Brasileiros',
+          totalCount: brazilianArticles.length,
           searchTime: 0
         }))
         window.location.href = `/blog/artigo/${category}-biblioteca?data=${fallbackData}`

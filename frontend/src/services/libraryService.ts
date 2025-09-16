@@ -133,7 +133,10 @@ class LibraryService {
     // Buscar artigos APENAS do articleService (24 artigos reais)
     for (const category of validCategories) {
       try {
+        console.log(`🔍 Buscando artigos para categoria: ${category}`)
         const searchResult = await articleService.searchArticlesByCategory(category)
+        console.log(`📚 ${category}: ${searchResult.articles?.length || 0} artigos encontrados`)
+        
         if (searchResult.articles && searchResult.articles.length > 0) {
           const categoryArticles = searchResult.articles.map(article => ({
             ...article,
@@ -142,9 +145,12 @@ class LibraryService {
             relevanceScore: this.calculateRelevanceScore(article)
           }))
           allArticles.push(...categoryArticles)
+          console.log(`✅ ${category}: ${categoryArticles.length} artigos adicionados`)
+        } else {
+          console.warn(`⚠️ ${category}: Nenhum artigo encontrado`)
         }
       } catch (error) {
-        console.warn(`Erro ao buscar categoria ${category}:`, error)
+        console.error(`❌ Erro ao buscar categoria ${category}:`, error)
       }
     }
     
@@ -398,27 +404,56 @@ class LibraryService {
     return Math.round(score * 10) / 10
   }
 
-  // Remover artigos duplicados com lógica melhorada
+  // Remover artigos duplicados - lógica otimizada (ID + URL)
   private removeDuplicatesImproved(articles: LibraryArticle[]): LibraryArticle[] {
-    const seen = new Map<string, LibraryArticle>()
+    const seenIds = new Set<string>()
+    const seenUrls = new Set<string>()
+    const uniqueArticles: LibraryArticle[] = []
+    const duplicateLog: Array<{article: string, reason: string}> = []
     
-    articles.forEach(article => {
-      // Usar múltiplas chaves para detectar duplicatas
-      const titleKey = article.title.toLowerCase().trim()
-      const urlKey = article.url ? article.url.toLowerCase() : ''
-      const idKey = article.id
+    console.log(`🔍 Deduplicação iniciada: ${articles.length} artigos para processar`)
+    
+    for (let i = 0; i < articles.length; i++) {
+      const article = articles[i]
+      const normalizedUrl = article.url?.toLowerCase().trim() || ''
       
-      // Verificar duplicatas por título, URL ou ID
-      const isDuplicate = seen.has(titleKey) || 
-                         (urlKey && Array.from(seen.values()).some(a => a.url?.toLowerCase() === urlKey)) ||
-                         Array.from(seen.values()).some(a => a.id === idKey)
-      
-      if (!isDuplicate) {
-        seen.set(titleKey, article)
+      // Verificar duplicatas por ID
+      if (seenIds.has(article.id)) {
+        duplicateLog.push({article: article.title, reason: `ID duplicado: ${article.id}`})
+        continue
       }
-    })
+      
+      // Verificar duplicatas por URL (apenas se URL não estiver vazia)
+      if (normalizedUrl && seenUrls.has(normalizedUrl)) {
+        duplicateLog.push({article: article.title, reason: `URL duplicada: ${normalizedUrl}`})
+        continue
+      }
+      
+      // Artigo único - adicionar aos conjuntos e à lista
+      seenIds.add(article.id)
+      if (normalizedUrl) {
+        seenUrls.add(normalizedUrl)
+      }
+      uniqueArticles.push(article)
+    }
     
-    return Array.from(seen.values())
+    // Logs detalhados
+    console.log(`✅ Artigos únicos preservados: ${uniqueArticles.length}/${articles.length}`)
+    
+    if (duplicateLog.length > 0) {
+      console.log(`❌ Duplicatas removidas (${duplicateLog.length}):`, duplicateLog)
+    }
+    
+    // Distribuição por categoria
+    const categoryDistribution = uniqueArticles.reduce((acc, article) => {
+      acc[article.category] = (acc[article.category] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    console.log('📊 Distribuição final:', categoryDistribution)
+    console.log(`🎯 Meta: 24 artigos únicos | Resultado: ${uniqueArticles.length} artigos`)
+    
+    return uniqueArticles
   }
 
 
