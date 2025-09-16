@@ -108,8 +108,7 @@ function BibliotecaCompletaContent() {
     { id: 'igrejas', name: 'Igrejas' },
     { id: 'educacao', name: 'Educação' },
     { id: 'servicos', name: 'Serviços' },
-    { id: 'saude', name: 'Saúde' },
-    { id: 'gestao', name: 'Gestão' }
+    { id: 'saude', name: 'Saúde' }
   ]
 
   useEffect(() => {
@@ -126,7 +125,7 @@ function BibliotecaCompletaContent() {
   const loadArticles = async () => {
     setIsLoading(true)
     try {
-      const result = await libraryService.globalSearch('', {}, 1, 50)
+      const result = await libraryService.globalSearch('', {}, 1, 100)
       setArticles(result.articles)
     } catch (error) {
       console.error('Erro ao carregar artigos:', error)
@@ -170,52 +169,66 @@ function BibliotecaCompletaContent() {
       </section>
 
       {/* Filtros e Busca */}
-      <section className="py-8 bg-gray-50 border-b">
+      <section className="py-12 bg-gray-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-            {/* Busca */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="flex flex-col gap-8">
+            {/* Busca Principal */}
+            <div className="relative max-w-4xl mx-auto w-full">
+              <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
               <input
                 type="text"
-                placeholder="Buscar artigos..."
+                placeholder="Buscar artigos por título, conteúdo ou tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-16 pr-6 py-5 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 shadow-lg"
               />
             </div>
+            
+            <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
 
-            {/* Categorias */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
+              {/* Categorias */}
+              <div className="flex flex-wrap gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 ${
+                      selectedCategory === category.id
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-blue-200'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
 
-            {/* View Mode */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}
-              >
-                <Grid className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}
-              >
-                <List className="w-5 h-5" />
-              </button>
+              {/* View Mode */}
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-gray-700">Visualização:</span>
+                <div className="flex items-center bg-white rounded-lg border border-gray-200 p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'grid' 
+                        ? 'bg-blue-600 text-white shadow-sm' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Grid className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'list' 
+                        ? 'bg-blue-600 text-white shadow-sm' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <List className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -234,14 +247,31 @@ function BibliotecaCompletaContent() {
           ) : (
             <>
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {filteredArticles.length} artigos encontrados
-                </h2>
-                {selectedCategory !== 'todos' && (
-                  <p className="text-gray-600">
-                    Categoria: {categories.find(c => c.id === selectedCategory)?.name}
-                  </p>
-                )}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                      {filteredArticles.length} artigos encontrados
+                    </h2>
+                    {selectedCategory !== 'todos' && (
+                      <p className="text-lg text-blue-600 font-medium">
+                        Categoria: {categories.find(c => c.id === selectedCategory)?.name}
+                      </p>
+                    )}
+                    {searchQuery && (
+                      <p className="text-gray-600 mt-1">
+                        Resultados para: "{searchQuery}"
+                      </p>
+                    )}
+                  </div>
+                  {selectedCategory !== 'todos' && (
+                    <button
+                      onClick={() => setSelectedCategory('todos')}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      Limpar filtro
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className={`grid gap-6 ${
