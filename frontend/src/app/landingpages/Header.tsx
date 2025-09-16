@@ -23,17 +23,12 @@ const Header: React.FC = () => {
     const toggleMobileMenu = () => {
       const nav = document.querySelector('.desktop-nav') as HTMLElement;
       if (!nav) return;
-      const isVisible = nav.style.display !== 'none';
-      nav.style.display = isVisible ? 'none' : 'flex';
-      nav.style.position = isVisible ? 'static' : 'absolute';
-      nav.style.top = isVisible ? 'auto' : '100%';
-      nav.style.left = isVisible ? 'auto' : '0';
-      nav.style.right = isVisible ? 'auto' : '0';
-      nav.style.background = isVisible ? 'transparent' : 'rgba(15, 23, 42, 0.98)';
-      nav.style.flexDirection = isVisible ? 'row' : 'column';
-      nav.style.padding = isVisible ? '0' : '20px';
-      nav.style.borderRadius = isVisible ? '0' : '0 0 12px 12px';
-      nav.style.zIndex = isVisible ? 'auto' : '1001';
+      const isOpen = nav.classList.contains('mobile-open');
+      if (isOpen) {
+        nav.classList.remove('mobile-open');
+      } else {
+        nav.classList.add('mobile-open');
+      }
     };
 
     (window as any).showDropdown = showDropdown;
@@ -46,12 +41,54 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 9999, padding: '16px 0' }}>
+    <>
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .desktop-nav {
+            display: none !important;
+          }
+          .mobile-menu {
+            display: block !important;
+          }
+          .desktop-nav.mobile-open {
+            display: flex !important;
+            position: fixed !important;
+            top: 80px !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: rgba(15, 23, 42, 0.98) !important;
+            flex-direction: column !important;
+            padding: 20px !important;
+            border-radius: 0 0 12px 12px !important;
+            z-index: 1001 !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+          }
+          .desktop-nav.mobile-open a {
+            padding: 12px 0 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+          }
+          .desktop-nav.mobile-open a:last-child {
+            border-bottom: none !important;
+          }
+          .header-cta {
+            display: none !important;
+          }
+        }
+        @media (min-width: 769px) {
+          .mobile-menu {
+            display: none !important;
+          }
+          .desktop-nav {
+            display: flex !important;
+          }
+        }
+      `}</style>
+      <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 9999, padding: '16px 0' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginLeft: '40px' }}>
           <a href="#home" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</a>
           <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="desktop-nav">
-          <button className="mobile-menu" style={{ display: 'none', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => (window as any).toggleMobileMenu?.()}>
+          <button className="mobile-menu" style={{ display: 'block', background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer', padding: '8px' }} onClick={() => (window as any).toggleMobileMenu?.()}>
             ☰
           </button>
           <div style={{ position: 'relative' }} onMouseEnter={() => (window as any).showDropdown?.()} onMouseLeave={() => (window as any).hideDropdown?.()}>
@@ -68,7 +105,7 @@ const Header: React.FC = () => {
                   <div style={{ fontSize: '12px', color: '#10b981' }}>Vynlo Taste - Disponível</div>
                 </div>
               </a>
-              <a href="/contato" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(59, 130, 246, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+              <a href="/iabot" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(59, 130, 246, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 8V4H8"/>
                   <rect width="16" height="12" x="4" y="8" rx="2"/>
@@ -79,10 +116,10 @@ const Header: React.FC = () => {
                 </svg>
                 <div>
                   <div style={{ fontWeight: 600 }}>IA Bot</div>
-                  <div style={{ fontSize: '12px', color: '#3b82f6' }}>Vynlo Bot - Em Desenvolvimento</div>
+                  <div style={{ fontSize: '12px', color: '#3b82f6' }}>Vynlo Bot - Disponível</div>
                 </div>
               </a>
-              <a href="/landingpages/contatolandprincipal" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(245, 158, 11, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+              <a href="/igrejas" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(245, 158, 11, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 21l4-7 4 7"/>
                   <path d="M12 2v7"/>
@@ -91,20 +128,20 @@ const Header: React.FC = () => {
                 </svg>
                 <div>
                   <div style={{ fontWeight: 600 }}>Igrejas</div>
-                  <div style={{ fontSize: '12px', color: '#f59e0b' }}>Vynlo Ekklesia - Planejamento</div>
+                  <div style={{ fontSize: '12px', color: '#f59e0b' }}>Vynlo Ekklesia - Disponível</div>
                 </div>
               </a>
-              <a href="/landingpages/contatolandprincipal" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+              <a href="/barbearias" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(239, 68, 68, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 12h12"/>
                   <path d="M6 20V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16l-6-3-6 3z"/>
                 </svg>
                 <div>
                   <div style={{ fontWeight: 600 }}>Barbearias</div>
-                  <div style={{ fontSize: '12px', color: '#3b82f6' }}>Vynlo Barber - Em Desenvolvimento</div>
+                  <div style={{ fontSize: '12px', color: '#3b82f6' }}>Vynlo Barber - Disponível</div>
                 </div>
               </a>
-              <a href="/landingpages/contatolandprincipal" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(236, 72, 153, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+              <a href="/petshops" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(236, 72, 153, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 5a3 3 0 1 0-6 0c0 1.61 1.16 2.94 2.69 3.24A6.93 6.93 0 0 0 8 12"/>
                   <path d="M16 5a3 3 0 1 1 6 0c0 1.61-1.16 2.94-2.69 3.24A6.93 6.93 0 0 1 16 12"/>
@@ -113,17 +150,17 @@ const Header: React.FC = () => {
                 </svg>
                 <div>
                   <div style={{ fontWeight: 600 }}>Petshops</div>
-                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Vynlo Pet - Planejamento</div>
+                  <div style={{ fontSize: '12px', color: '#ec4899' }}>Vynlo Pet - Disponível</div>
                 </div>
               </a>
-              <a href="/landingpages/contatolandprincipal" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(6, 182, 212, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+              <a href="/educacao" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(6, 182, 212, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                   <path d="M6 12v5c3 3 9 3 12 0v-5"/>
                 </svg>
                 <div>
                   <div style={{ fontWeight: 600 }}>Educação</div>
-                  <div style={{ fontSize: '12px', color: '#3b82f6' }}>Vynlo Edu - Em Desenvolvimento</div>
+                  <div style={{ fontSize: '12px', color: '#06b6d4' }}>Vynlo Edu - Disponível</div>
                 </div>
               </a>
               <a href="/landingpages/contatolandprincipal" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#e2e8f0', textDecoration: 'none', padding: '12px', borderRadius: '8px', transition: 'all 0.3s ease' }} onMouseOver={(e) => e.currentTarget.style.background='rgba(132, 204, 22, 0.1)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
@@ -153,7 +190,7 @@ const Header: React.FC = () => {
             <a href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</a>
           </nav>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '80px' }}>
+        <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '80px' }}>
           <a href="/contato" style={{ background: '#60a5fa', color: '#1e40af', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 600, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>LIGAMOS PARA VOCÊ</a>
           <a href="/login" style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 500, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
             SOU CLIENTE
@@ -161,6 +198,7 @@ const Header: React.FC = () => {
         </div>
       </div>
     </header>
+    </>
   );
 };
 
