@@ -1,83 +1,83 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, MessageCircle, Calendar, TestTube, Settings, Shield, CreditCard, Smartphone, Headphones, Palette, FileText } from 'lucide-react'
+import { ChevronDown, MessageCircle, Calendar, Bot, Zap, Shield, Palette, GraduationCap, CreditCard, Headphones, BarChart3, TrendingUp } from 'lucide-react'
 import AppointmentModal from '../modals/AppointmentModal'
 
 const faqData = [
   {
     id: 1,
-    category: 'Teste',
-    icon: TestTube,
-    question: 'Posso testar o sistema antes de assinar?',
-    answer: 'Sim! Oferecemos 14 dias de teste gratuito completo, sem limitações. Você pode testar todas as funcionalidades, integrar com seus sistemas atuais e ver os resultados reais no seu restaurante antes de tomar qualquer decisão.'
+    category: 'Funcionamento',
+    icon: Bot,
+    question: 'Como funciona a IA Bot na prática?',
+    answer: 'Nossa IA Bot utiliza machine learning avançado para automatizar processos, analisar dados e tomar decisões inteligentes. Ela aprende continuamente com cada interação, melhorando sua performance automaticamente e se adaptando às necessidades específicas do seu negócio.'
   },
   {
     id: 2,
-    category: 'Funcionalidades',
-    icon: Settings,
-    question: 'Quais funcionalidades estão incluídas no sistema?',
-    answer: 'O Vynlo Taste inclui: PDV completo, gestão de delivery (iFood, Rappi, Uber Eats), controle de estoque, relatórios financeiros, gestão de funcionários, cardápio digital, automação WhatsApp, e muito mais. Tudo integrado em uma única plataforma.'
+    category: 'Integração',
+    icon: Zap,
+    question: 'A IA integra com meus sistemas atuais?',
+    answer: 'Sim! Nossa IA Bot possui APIs nativas e conectores para os principais sistemas empresariais: CRM, ERP, e-commerce, WhatsApp Business, redes sociais e muito mais. A integração é rápida e não requer alterações nos seus sistemas existentes.'
   },
   {
     id: 3,
-    category: 'Migração',
-    icon: Settings,
-    question: 'Como funciona a migração dos meus dados atuais?',
-    answer: 'Nossa equipe técnica faz toda a migração gratuitamente. Transferimos seus produtos, clientes, histórico de vendas e configurações. O processo é rápido (1-2 dias) e você não perde nenhuma informação importante.'
+    category: 'Segurança',
+    icon: Shield,
+    question: 'Como é garantida a segurança dos dados na IA?',
+    answer: 'Utilizamos criptografia de nível militar (256-bit), compliance total com LGPD, servidores seguros na AWS e auditoria completa de todas as operações. Sua IA Bot opera em ambiente isolado e seguro, com backup automático e monitoramento 24/7.'
   },
   {
     id: 4,
-    category: 'Segurança',
-    icon: Shield,
-    question: 'Meus dados ficam seguros na nuvem?',
-    answer: 'Absolutamente! Utilizamos criptografia de nível bancário, backup automático diário, servidores AWS com 99.9% de uptime e certificação ISO 27001. Seus dados estão mais seguros na nuvem do que em sistemas locais.'
+    category: 'Personalização',
+    icon: Palette,
+    question: 'Posso personalizar a IA para meu negócio?',
+    answer: 'Absolutamente! A IA Bot é totalmente personalizável: fluxos de trabalho, interface, respostas, análises e até mesmo a personalidade do bot. Você pode treinar a IA com seus próprios dados e processos específicos, criando uma solução única para seu negócio.'
   },
   {
     id: 5,
-    category: 'Integrações',
-    icon: Smartphone,
-    question: 'O sistema integra com iFood, Rappi e outros apps?',
-    answer: 'Sim! Temos integração nativa com todos os principais apps de delivery: iFood, Rappi, Uber Eats, 99Food. Os pedidos chegam automaticamente no seu sistema, sem digitação manual. Também integramos com WhatsApp Business.'
+    category: 'Treinamento',
+    icon: GraduationCap,
+    question: 'Preciso treinar a IA ou ela já vem pronta?',
+    answer: 'A IA já vem pré-treinada com conhecimentos gerais, mas oferecemos treinamento personalizado gratuito. Nossa equipe configura a IA especificamente para seu negócio, treina com seus dados e processos, garantindo máxima eficiência desde o primeiro dia.'
   },
   {
     id: 6,
-    category: 'Preços',
+    category: 'Custos',
     icon: CreditCard,
-    question: 'Como funciona o investimento e há taxa de setup?',
-    answer: 'Oferecemos planos personalizados de acordo com o tamanho e necessidades do seu restaurante. O setup é GRATUITO e inclui instalação, treinamento e migração de dados. Sem taxas ocultas, sem fidelidade obrigatória. Entre em contato para uma proposta personalizada.'
+    question: 'Como funciona o investimento em IA?',
+    answer: 'Oferecemos planos flexíveis baseados no uso e complexidade da IA. Inclui setup gratuito, treinamento personalizado, suporte 24/7 e atualizações automáticas. O ROI médio é de 200% em 6 meses. Entre em contato para uma proposta personalizada.'
   },
   {
     id: 7,
-    category: 'Equipamentos',
-    icon: Smartphone,
-    question: 'Preciso comprar equipamentos novos?',
-    answer: 'Não necessariamente! O sistema funciona em qualquer computador, tablet ou smartphone. Se precisar de impressora térmica ou leitor de código de barras, oferecemos equipamentos com desconto especial.'
+    category: 'Suporte',
+    icon: Headphones,
+    question: 'Que suporte é oferecido para a IA?',
+    answer: 'Suporte especializado 24/7 com engenheiros de IA: WhatsApp, telefone, email e acesso remoto. Monitoramento proativo da IA, atualizações automáticas, treinamento contínuo da equipe e consultoria estratégica para otimização constante.'
   },
   {
     id: 8,
-    category: 'Suporte',
-    icon: Headphones,
-    question: 'Que tipo de suporte vocês oferecem?',
-    answer: 'Suporte completo 7 dias por semana: WhatsApp, telefone, email e acesso remoto. Nossa equipe resolve 95% dos problemas em menos de 2 horas. Também oferecemos treinamento gratuito para sua equipe.'
+    category: 'Escalabilidade',
+    icon: BarChart3,
+    question: 'A IA cresce junto com meu negócio?',
+    answer: 'Sim! Nossa IA Bot é altamente escalável, processando desde centenas até milhões de interações. A infraestrutura se adapta automaticamente ao crescimento, mantendo performance otimizada. Você paga apenas pelo que usa, sem limites de crescimento.'
   },
   {
     id: 9,
-    category: 'Personalização',
-    icon: Palette,
-    question: 'Posso personalizar o sistema com minha marca?',
-    answer: 'Sim! Você pode personalizar cores, logo, layout do cardápio, cupons fiscais e até mesmo criar seu próprio app de delivery com sua marca. Tudo incluído no plano, sem custo adicional.'
+    category: 'Compliance',
+    icon: Shield,
+    question: 'A IA atende às regulamentações legais?',
+    answer: 'Totalmente! Nossa IA Bot está em compliance com LGPD, GDPR, SOX e outras regulamentações. Possui auditoria completa, logs detalhados, controle de acesso e certificações de segurança. Ideal para setores regulamentados como saúde e finanças.'
   },
   {
     id: 10,
-    category: 'Contrato',
-    icon: FileText,
-    question: 'Há fidelidade ou posso cancelar quando quiser?',
-    answer: 'Sem fidelidade! Você pode cancelar quando quiser, sem multas ou taxas. Acreditamos na qualidade do nosso serviço e queremos que você fique por escolha, não por obrigação.'
+    category: 'ROI',
+    icon: TrendingUp,
+    question: 'Qual o retorno sobre investimento da IA?',
+    answer: 'Nossos clientes obtêm ROI médio de 200% em 6 meses: +80% automação, -90% tempo de processos, +60% precisão nas decisões. A IA paga por si mesma rapidamente através da redução de custos operacionais e aumento de eficiência.'
   }
 ]
 
-export default function TasteFAQ() {
+export default function IABotFAQ() {
   const [openItems, setOpenItems] = useState<number[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -90,7 +90,7 @@ export default function TasteFAQ() {
   }
 
   const handleWhatsAppContact = () => {
-    const message = encodeURIComponent('Olá! Gostaria de falar com um especialista sobre o Vynlo Taste para meu restaurante.')
+    const message = encodeURIComponent('Olá! Gostaria de falar com um especialista sobre IA Bot para meu negócio.')
     window.open(`https://wa.me/5511999999999?text=${message}`, '_blank')
   }
 
@@ -99,13 +99,13 @@ export default function TasteFAQ() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-20">
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-8 leading-tight">
-            Perguntas
+            Perguntas sobre
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600">
-              Frequentes
+              IA Bot
             </span>
           </h2>
           <p className="text-xl text-gray-600 font-manrope max-w-3xl mx-auto leading-relaxed">
-            Tire suas dúvidas sobre o Vynlo Taste e descubra como podemos transformar seu restaurante
+            Tire suas dúvidas sobre nossa Inteligência Artificial e descubra como ela pode revolucionar seu negócio
           </p>
         </div>
 
@@ -162,10 +162,10 @@ export default function TasteFAQ() {
           <div className="mt-16 text-center">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Ainda tem dúvidas?
+                Pronto para implementar IA?
               </h3>
               <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-                Nossa equipe de especialistas está pronta para esclarecer todas as suas questões e mostrar como o Vynlo Taste pode transformar seu restaurante.
+                Nossa equipe de especialistas em IA está pronta para mostrar como a inteligência artificial pode transformar seu negócio.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -174,7 +174,7 @@ export default function TasteFAQ() {
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
                 >
                   <MessageCircle className="w-5 h-5" />
-                  <span>Falar com Especialista</span>
+                  <span>Falar com Especialista IA</span>
                 </button>
                 
                 <button 
@@ -182,7 +182,7 @@ export default function TasteFAQ() {
                   className="bg-white border-2 border-gray-200 text-gray-700 font-manrope font-bold px-8 py-4 rounded-xl hover:border-blue-300 hover:text-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
                 >
                   <Calendar className="w-5 h-5" />
-                  <span>Agendar Demonstração</span>
+                  <span>Agendar Demo IA</span>
                 </button>
               </div>
             </div>
