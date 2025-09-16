@@ -43,12 +43,12 @@ export default function FeaturedArticles() {
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
   }
 
-  const renderCategoryIcon = (category: string) => {
+  const getCategoryImage = (category: string) => {
     switch (category) {
-      case 'Restaurantes': return <ChefHat className="w-16 h-16 text-white/30" />
-      case 'IA & Bots': return <Bot className="w-16 h-16 text-white/30" />
-      case 'Pet Shops': return <Heart className="w-16 h-16 text-white/30" />
-      default: return <Star className="w-16 h-16 text-white/30" />
+      case 'Restaurantes': return 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=center'
+      case 'IA & Bots': return 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop&crop=center'
+      case 'Pet Shops': return 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=300&fit=crop&crop=center'
+      default: return 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=300&fit=crop&crop=center'
     }
   }
 
@@ -66,7 +66,8 @@ export default function FeaturedArticles() {
         engagement: 98,
         rank: 1,
         trend: 'up',
-        url: 'https://static1.squarespace.com/static/6273f2683f9dba7b3670dc36/t/6278712ac288c6019eed48d0/1652060465999/O-Guia-Definitivo-Para-Um-Restaurante-De-SucessoCompressed.pdf'
+        url: 'https://static1.squarespace.com/static/6273f2683f9dba7b3670dc36/t/6278712ac288c6019eed48d0/1652060465999/O-Guia-Definitivo-Para-Um-Restaurante-De-SucessoCompressed.pdf',
+        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop&crop=center'
       },
       {
         id: 'ia_1',
@@ -80,7 +81,8 @@ export default function FeaturedArticles() {
         engagement: 96,
         rank: 2,
         trend: 'up',
-        url: 'https://www.iubenda.com/pt-br/help/121116-os-melhores-chatbots-ai-estrategia-de-marketing-e-conformidade'
+        url: 'https://www.iubenda.com/pt-br/help/121116-os-melhores-chatbots-ai-estrategia-de-marketing-e-conformidade',
+        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop&crop=center'
       },
       {
         id: 'pet_1',
@@ -94,7 +96,8 @@ export default function FeaturedArticles() {
         engagement: 94,
         rank: 3,
         trend: 'stable',
-        url: 'https://uolhost.uol.com.br/blog/pet-shop-dicas/'
+        url: 'https://uolhost.uol.com.br/blog/pet-shop-dicas/',
+        image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=300&fit=crop&crop=center'
       }
     ])
   }
@@ -151,20 +154,19 @@ export default function FeaturedArticles() {
                 onClick={() => handleArticleClick(article)}
                 className="group bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl overflow-hidden transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer hover:shadow-2xl hover:shadow-blue-500/25"
               >
-                <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-black/20"></div>
+                <div className="aspect-video relative overflow-hidden">
+                  {/* Imagem de fundo */}
+                  <img 
+                    src={getCategoryImage(article.category)}
+                    alt={article.category}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=300&fit=crop&crop=center'
+                    }}
+                  />
                   
-                  {/* Padrão de fundo decorativo */}
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-4 left-4 w-16 h-16 border-2 border-white/30 rounded-full"></div>
-                    <div className="absolute bottom-4 right-4 w-12 h-12 border-2 border-white/20 rounded-full"></div>
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white/15 rounded-full"></div>
-                  </div>
-                  
-                  {/* Ícone central da categoria */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {renderCategoryIcon(article.category)}
-                  </div>
+                  {/* Overlay escuro */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/30 to-black/50"></div>
                   
                   <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
                     <span className="text-white font-manrope text-xs font-medium">{article.category}</span>
