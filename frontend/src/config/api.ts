@@ -18,6 +18,29 @@ export const API_CONFIG = {
 
 // URLs de fallback para artigos locais
 export const FALLBACK_ARTICLES = {
+  'ia-bot': [
+    {
+      id: 'fallback_ia_1',
+      title: 'IA Bot para Atendimento: Revolução no Customer Service',
+      excerpt: 'Como implementar chatbots inteligentes que aumentam satisfação e reduzem custos',
+      url: '/blog/artigo/ia-bot-atendimento',
+      source: 'AI Expert'
+    },
+    {
+      id: 'fallback_ia_2',
+      title: 'Automação com IA: Otimize Processos Empresariais',
+      excerpt: 'Estratégias para implementar automação inteligente em diferentes setores',
+      url: '/blog/artigo/automacao-ia-processos',
+      source: 'Tech Innovation'
+    },
+    {
+      id: 'fallback_ia_3',
+      title: 'Machine Learning para Pequenas Empresas',
+      excerpt: 'Como usar inteligência artificial para melhorar decisões de negócio',
+      url: '/blog/artigo/machine-learning-pequenas-empresas',
+      source: 'Data Science'
+    }
+  ],
   restaurantes: [
     {
       id: 'fallback_rest_1',
@@ -214,40 +237,16 @@ export const FALLBACK_ARTICLES = {
       source: 'Telemedicina Morsch'
     }
   ],
-  gestao: [
-    {
-      id: 'fallback_gestao_1',
-      title: 'Automação de Processos Empresariais',
-      excerpt: 'Como implementar automação para otimizar processos e aumentar eficiência',
-      url: '/blog/artigo/automacao-processos-empresariais',
-      source: 'Tech Research'
-    },
-    {
-      id: 'fallback_gestao_2',
-      title: 'Indicadores de Performance (KPIs)',
-      excerpt: 'Principais KPIs para monitorar e melhorar performance empresarial',
-      url: '/blog/artigo/indicadores-performance-kpis',
-      source: 'Business Expert'
-    },
-    {
-      id: 'fallback_gestao_3',
-      title: 'Gestão de Equipes Remotas',
-      excerpt: 'Estratégias para gerenciar equipes remotas com eficiência',
-      url: '/blog/artigo/gestao-equipes-remotas',
-      source: 'HR Specialist'
-    },
-    {
-      id: 'fallback_gestao_4',
-      title: 'Controle de Custos Empresariais',
-      excerpt: 'Técnicas para identificar e reduzir custos desnecessários',
-      url: '/blog/artigo/controle-custos-empresariais',
-      source: 'Finance Pro'
-    }
-  ]
+
 }
 
 // Categorias e suas palavras-chave de busca
 export const CATEGORY_KEYWORDS = {
+  'ia-bot': [
+    'inteligência artificial', 'chatbot', 'automação', 'machine learning',
+    'ai bot', 'assistente virtual', 'processamento linguagem natural',
+    'deep learning', 'neural networks', 'algoritmos'
+  ],
   restaurantes: [
     'gestão restaurante', 'delivery restaurante', 'cardápio digital', 
     'automação restaurante', 'iFood', 'Rappi', 'Uber Eats',
@@ -283,9 +282,5 @@ export const CATEGORY_KEYWORDS = {
     'atrair pacientes', 'marketing médico', 'clínica consulta',
     'telemedicina', 'gestão hospitalar', 'saúde digital'
   ],
-  gestao: [
-    'gestão empresarial', 'automação processos', 'sistema gestão',
-    'produtividade', 'eficiência', 'otimização', 'processos',
-    'gestão financeira', 'controle estoque', 'relatórios'
-  ]
+
 }

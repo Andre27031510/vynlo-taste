@@ -106,6 +106,7 @@ function BibliotecaCompletaContent() {
     { id: 'barbearias', name: 'Barbearias' },
     { id: 'petshops', name: 'Petshops' },
     { id: 'igrejas', name: 'Igrejas' },
+    { id: 'ia-bot', name: 'IA Bot' },
     { id: 'educacao', name: 'Educação' },
     { id: 'servicos', name: 'Serviços' },
     { id: 'saude', name: 'Saúde' }
@@ -125,10 +126,21 @@ function BibliotecaCompletaContent() {
   const loadArticles = async () => {
     setIsLoading(true)
     try {
-      const result = await libraryService.globalSearch('', {}, 1, 100)
-      setArticles(result.articles)
+      // Sistema Unificado: Forçar limpeza de cache e recarregamento
+      await libraryService.clearCache()
+      const searchResult = await libraryService.globalSearch('', {}, 1, 50)
+      setArticles(searchResult.articles)
+      
+      console.log('🎆 SISTEMA UNIFICADO - Biblioteca Completa carregada:', {
+        total: searchResult.articles.length,
+        fonte: 'articleService.ts (24 artigos reais)',
+        distribuição: searchResult.articles.reduce((acc, article) => {
+          acc[article.category] = (acc[article.category] || 0) + 1
+          return acc
+        }, {} as Record<string, number>)
+      })
     } catch (error) {
-      console.error('Erro ao carregar artigos:', error)
+      console.error('Erro ao carregar artigos do sistema unificado:', error)
     } finally {
       setIsLoading(false)
     }

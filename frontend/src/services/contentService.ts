@@ -99,21 +99,7 @@ class ContentService {
         source: 'Industry Expert',
         image: '/blog/barbearia-agendamento.jpg'
       },
-      {
-        id: '5',
-        title: 'IA na Gestão: Previsão de Demanda Precisa',
-        excerpt: 'Algoritmos de machine learning para prever demanda e otimizar estoque automaticamente',
-        content: 'Conteúdo completo do artigo...',
-        category: 'gestao',
-        author: 'Dr. Ana Tech',
-        date: new Date(Date.now() - 345600000).toISOString().split('T')[0],
-        readTime: '18 min',
-        tags: ['ia', 'machine-learning', 'previsão', 'estoque'],
-        views: 3421,
-        engagement: 96,
-        source: 'Tech Research',
-        image: '/blog/ia-gestao.jpg'
-      }
+
     ]
 
     this.setCache(cacheKey, articles)

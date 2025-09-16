@@ -80,19 +80,7 @@ export const useBlog = () => {
       featured: false,
       tags: ['igreja', 'financeiro', 'transparência', 'gestão']
     },
-    {
-      id: '5',
-      title: 'Por que Investir em Sistema de Gestão? ROI Comprovado',
-      excerpt: 'Análise detalhada do retorno sobre investimento em sistemas de gestão para pequenos e médios negócios.',
-      content: 'Conteúdo completo do artigo...',
-      category: 'gestao',
-      author: 'Ana Costa',
-      date: '2024-01-05',
-      readTime: '12 min',
-      image: '/blog/roi-sistema.jpg',
-      featured: true,
-      tags: ['roi', 'investimento', 'sistema', 'gestão']
-    },
+
     {
       id: '6',
       title: 'Case Real: Restaurante XYZ Economiza 30% com Vynlo Taste',
