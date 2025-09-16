@@ -56,7 +56,6 @@ export default function IgrejasCTABanner() {
       <AppointmentModal 
         isOpen={isModalOpen} 
         onClose={handleCloseModal}
-        serviceType="Demonstração - Sistema para Igrejas"
       />
     </>
   )

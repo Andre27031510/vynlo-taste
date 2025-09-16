@@ -56,7 +56,6 @@ export default function PetshopsCTABanner() {
       <AppointmentModal 
         isOpen={isModalOpen} 
         onClose={handleCloseModal}
-        serviceType="Demonstração - Sistema para Petshops"
       />
     </>
   )

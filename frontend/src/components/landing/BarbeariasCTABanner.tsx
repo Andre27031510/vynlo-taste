@@ -56,7 +56,6 @@ export default function BarbeariasCTABanner() {
       <AppointmentModal 
         isOpen={isModalOpen} 
         onClose={handleCloseModal}
-        serviceType="Demonstração - Sistema para Barbearias"
       />
     </>
   )

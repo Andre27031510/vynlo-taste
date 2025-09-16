@@ -56,7 +56,6 @@ export default function EducacaoCTABanner() {
       <AppointmentModal 
         isOpen={isModalOpen} 
         onClose={handleCloseModal}
-        serviceType="Demonstração - Sistema para Educação"
       />
     </>
   )

@@ -56,7 +56,6 @@ export default function SaudeCTABanner() {
       <AppointmentModal 
         isOpen={isModalOpen} 
         onClose={handleCloseModal}
-        serviceType="Demonstração - Sistema para Saúde"
       />
     </>
   )
