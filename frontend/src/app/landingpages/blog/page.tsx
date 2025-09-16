@@ -11,6 +11,7 @@ import Footer from '../Footer'
 const BlogHero = React.lazy(() => import('../../../components/blog/BlogHero'))
 const CategoriesFilters = React.lazy(() => import('../../../components/blog/CategoriesFilters'))
 const FeaturedArticles = React.lazy(() => import('../../../components/blog/FeaturedArticles'))
+const MostReadContent = React.lazy(() => import('../../../components/landing/MostReadContent'))
 const ArticlesList = React.lazy(() => import('../../../components/blog/ArticlesList'))
 const Newsletter = React.lazy(() => import('../../../components/blog/Newsletter'))
 const BlogCTA = React.lazy(() => import('../../../components/blog/BlogCTA'))
@@ -64,6 +65,14 @@ const BlogPage: React.FC = () => {
             <FeaturedArticles />
           </Suspense>
         </ErrorBoundary>
+        
+        {/* Seção Conteúdo Mais Lido */}
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner />}>
+            <MostReadContent />
+          </Suspense>
+        </ErrorBoundary>
+        
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
             <ArticlesList 
