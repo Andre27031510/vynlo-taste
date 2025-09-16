@@ -13,8 +13,7 @@ const CategoriesFilters = React.lazy(() => import('../../../components/blog/Cate
 const FeaturedArticles = React.lazy(() => import('../../../components/blog/FeaturedArticles'))
 const ArticlesList = React.lazy(() => import('../../../components/blog/ArticlesList'))
 const Newsletter = React.lazy(() => import('../../../components/blog/Newsletter'))
-const BlogCTA = React.lazy(() => import('../../../components/blog/BlogCTA'))
-const PremiumLibrary = React.lazy(() => import('../../../components/blog/PremiumLibrary'))
+const BlogCTABanner = React.lazy(() => import('../../../components/blog/BlogCTABanner'))
 
 // Loading component
 const LoadingSpinner = () => (
@@ -67,31 +66,15 @@ const BlogPage: React.FC = () => {
         
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
-            <ArticlesList 
-              selectedCategory={selectedCategory}
-              searchQuery={searchQuery}
-            />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
             <Newsletter />
           </Suspense>
         </ErrorBoundary>
+        {/* Banner CTA acima do footer */}
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
-            <BlogCTA />
+            <BlogCTABanner />
           </Suspense>
         </ErrorBoundary>
-        
-        {/* Premium Library - Biblioteca Completa */}
-        <div id="premium-library">
-          <ErrorBoundary>
-            <Suspense fallback={<LoadingSpinner />}>
-              <PremiumLibrary />
-            </Suspense>
-          </ErrorBoundary>
-        </div>
         
         <Footer />
       </div>
