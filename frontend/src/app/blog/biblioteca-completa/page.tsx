@@ -126,18 +126,22 @@ function BibliotecaCompletaContent() {
   const loadArticles = async () => {
     setIsLoading(true)
     try {
-      // Sistema Unificado: Forçar limpeza de cache e recarregamento
+      // Sistema Unificado: Sincronizar cache e carregar dados atualizados
       await libraryService.clearCache()
+      await libraryService.syncCacheWithArticleService()
+      
       const searchResult = await libraryService.globalSearch('', {}, 1, 50)
       setArticles(searchResult.articles)
       
-      console.log('🎆 SISTEMA UNIFICADO - Biblioteca Completa carregada:', {
+      console.log('🎆 SISTEMA UNIFICADO - Biblioteca Completa sincronizada:', {
         total: searchResult.articles.length,
-        fonte: 'articleService.ts (24 artigos reais)',
+        fonte: 'articleService.ts (dados reais)',
+        cache: 'sincronizado',
         distribuição: searchResult.articles.reduce((acc, article) => {
           acc[article.category] = (acc[article.category] || 0) + 1
           return acc
-        }, {} as Record<string, number>)
+        }, {} as Record<string, number>),
+        consistencia: 'garantida entre páginas'
       })
     } catch (error) {
       console.error('Erro ao carregar artigos do sistema unificado:', error)

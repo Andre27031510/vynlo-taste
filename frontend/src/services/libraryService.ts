@@ -460,18 +460,38 @@ class LibraryService {
     }
   }
 
-  // Cache helpers
+  // Cache helpers com sincronização
   private getFromCache(key: string) {
     const cached = this.cache.get(key)
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+      console.log(`💾 Cache hit: ${key}`)
       return cached.data
     }
     this.cache.delete(key)
+    console.log(`💾 Cache miss: ${key}`)
     return null
   }
 
   private saveToCache(key: string, data: any) {
     this.cache.set(key, { data, timestamp: Date.now() })
+    console.log(`💾 Cache saved: ${key} (${data.length || 'N/A'} items)`)
+  }
+  
+  // Sincronizar cache com articleService
+  async syncCacheWithArticleService() {
+    try {
+      const { articleService } = await import('./articleService')
+      const validCategories = ['restaurantes', 'barbearias', 'petshops', 'igrejas', 'ia-bot', 'educacao', 'servicos', 'saude']
+      
+      for (const category of validCategories) {
+        const searchResult = await articleService.searchArticlesByCategory(category)
+        this.saveToCache(`category_${category}`, searchResult.articles)
+      }
+      
+      console.log('🔄 Cache sincronizado com articleService')
+    } catch (error) {
+      console.error('Erro ao sincronizar cache:', error)
+    }
   }
 
   // Limpar cache
