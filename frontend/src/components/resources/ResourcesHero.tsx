@@ -11,13 +11,20 @@ import {
   GitBranch
 } from 'lucide-react'
 import { logger } from '../../utils/logger'
+import { useAppointmentModal } from '../../hooks/useAppointmentModal'
+import AppointmentModal from '../modals/AppointmentModal'
 
 export default function ResourcesHero() {
   const [activeFeature, setActiveFeature] = useState<number | null>(null)
+  const { isOpen, openModal, closeModal } = useAppointmentModal()
 
   useEffect(() => {
     logger.componentMount('ResourcesHero')
   }, [])
+
+  const handleContactClick = () => {
+    window.location.href = '/contato'
+  }
 
   const features = [
     { icon: Code, label: 'Funcionalidades', value: '200+' },
@@ -62,12 +69,18 @@ export default function ResourcesHero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2">
+              <button 
+                onClick={handleContactClick}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2"
+              >
                 <Terminal className="w-5 h-5" />
                 <span>Ver Demonstração</span>
               </button>
               
-              <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
+              <button 
+                onClick={openModal}
+                className="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+              >
                 <GitBranch className="w-5 h-5" />
                 <span>Solicitar Teste</span>
               </button>
@@ -121,6 +134,9 @@ export default function ResourcesHero() {
           </div>
         </div>
       </div>
+
+      {/* Appointment Modal */}
+      <AppointmentModal isOpen={isOpen} onClose={closeModal} />
     </section>
   )
 }

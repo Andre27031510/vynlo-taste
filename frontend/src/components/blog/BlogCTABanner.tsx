@@ -1,8 +1,15 @@
 'use client'
 
 import { ArrowRight, MessageCircle, Calendar, Star, CheckCircle2 } from 'lucide-react'
+import { useAppointmentModal } from '../../hooks/useAppointmentModal'
+import AppointmentModal from '../modals/AppointmentModal'
 
 export default function BlogCTABanner() {
+  const { isOpen, openModal, closeModal } = useAppointmentModal()
+
+  const handleContactClick = () => {
+    window.location.href = '/contato'
+  }
   return (
     <section className="py-20 bg-gradient-to-r from-gray-900 via-blue-900 to-black relative overflow-hidden">
       {/* Background Effects */}
@@ -36,13 +43,19 @@ export default function BlogCTABanner() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
-            <button className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center gap-3">
+            <button 
+              onClick={handleContactClick}
+              className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center gap-3"
+            >
               <MessageCircle className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
               <span>Falar com Especialista</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
             </button>
             
-            <button className="group bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-2xl hover:bg-white/20 hover:border-white/30 transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center gap-3">
+            <button 
+              onClick={openModal}
+              className="group bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-2xl hover:bg-white/20 hover:border-white/30 transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center gap-3"
+            >
               <Calendar className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
               <span>Agendar Demonstração</span>
             </button>
@@ -71,7 +84,7 @@ export default function BlogCTABanner() {
           {/* Stats */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl font-manrope font-black text-white mb-2">5.000+</div>
+              <div className="text-3xl font-manrope font-black text-white mb-2">Centenas</div>
               <div className="text-gray-400 font-manrope text-sm">Empresas Ativas</div>
             </div>
             <div className="text-center">
@@ -89,6 +102,9 @@ export default function BlogCTABanner() {
           </div>
         </div>
       </div>
+
+      {/* Appointment Modal */}
+      <AppointmentModal isOpen={isOpen} onClose={closeModal} />
     </section>
   )
 }
