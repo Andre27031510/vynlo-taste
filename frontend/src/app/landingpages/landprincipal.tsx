@@ -13,6 +13,7 @@ const Hero = React.lazy(() => retryImport(() => import('../../components/landing
 const QuemSomos = React.lazy(() => retryImport(() => import('../../components/landing/QuemSomos')));
 const Segments = React.lazy(() => retryImport(() => import('../../components/landing/Segments')));
 const Technology = React.lazy(() => retryImport(() => import('../../components/landing/Technology')));
+const MostReadContent = React.lazy(() => retryImport(() => import('../../components/landing/MostReadContent')));
 const WhyChooseVynlo = React.lazy(() => retryImport(() => import('../../components/landing/WhyChooseVynlo')));
 const HowToHire = React.lazy(() => retryImport(() => import('../../components/landing/HowToHire')));
 const FAQ = React.lazy(() => retryImport(() => import('../../components/landing/FAQ')));
@@ -134,6 +135,10 @@ const LandingPrincipal: React.FC = () => {
         
         <SuspenseWrapper componentName="Technology">
           <Technology />
+        </SuspenseWrapper>
+        
+        <SuspenseWrapper componentName="MostReadContent">
+          <MostReadContent />
         </SuspenseWrapper>
         
         <SuspenseWrapper componentName="WhyChooseVynlo">
