@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calendar, Clock, User, ArrowRight, Star, TrendingUp, Trophy, Medal, Award, Flame } from 'lucide-react'
+import { Calendar, Clock, User, ArrowRight, Star, TrendingUp, Trophy, Medal, Award, Flame, ChefHat, Bot, Heart } from 'lucide-react'
 import { logger } from '../../utils/logger'
 
 
@@ -41,6 +41,15 @@ export default function FeaturedArticles() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Restaurantes': return ChefHat
+      case 'IA & Bots': return Bot
+      case 'Pet Shops': return Heart
+      default: return Star
+    }
   }
 
   const loadFallbackArticles = () => {
@@ -144,6 +153,21 @@ export default function FeaturedArticles() {
               >
                 <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
                   <div className="absolute inset-0 bg-black/20"></div>
+                  
+                  {/* Padrão de fundo decorativo */}
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-4 left-4 w-16 h-16 border-2 border-white/30 rounded-full"></div>
+                    <div className="absolute bottom-4 right-4 w-12 h-12 border-2 border-white/20 rounded-full"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white/15 rounded-full"></div>
+                  </div>
+                  
+                  {/* Ícone central da categoria */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {React.createElement(getCategoryIcon(article.category), {
+                      className: "w-16 h-16 text-white/30"
+                    })}
+                  </div>
+                  
                   <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
                     <span className="text-white font-manrope text-xs font-medium">{article.category}</span>
                   </div>
