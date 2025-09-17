@@ -46,44 +46,73 @@ const SuportePage: React.FC = () => {
     <ErrorBoundary>
       <div className="support-page">
         <Header />
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <SupportHero />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <HelpCenter 
-              selectedCategory={selectedCategory}
-              searchQuery={searchQuery}
-            />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TechnicalDocumentation />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TechnicalFAQ />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <TechnicalContact />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <SystemStatus />
-          </Suspense>
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <SupportCTA />
-          </Suspense>
-        </ErrorBoundary>
+        
+        {/* 1. Hero Section - Fundo escuro */}
+        <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SupportHero />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+
+        {/* 2. Help Center - Fundo branco */}
+        <section className="bg-white">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <HelpCenter 
+                selectedCategory={selectedCategory}
+                searchQuery={searchQuery}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+
+        {/* 3. Technical Documentation - Fundo escuro */}
+        <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <TechnicalDocumentation />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+
+        {/* 4. Technical FAQ - Fundo branco */}
+        <section className="bg-white">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <TechnicalFAQ />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+
+        {/* 5. Technical Contact - Fundo escuro */}
+        <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <TechnicalContact />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+
+        {/* 6. System Status - Fundo branco */}
+        <section className="bg-white">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SystemStatus />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+
+        {/* 7. Support CTA - Fundo escuro */}
+        <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black">
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <SupportCTA />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+
         <Footer />
       </div>
     </ErrorBoundary>

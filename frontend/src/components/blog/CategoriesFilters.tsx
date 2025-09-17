@@ -172,7 +172,7 @@ export default function CategoriesFilters({ selectedCategory, searchQuery }: Cat
   
   const getRandomGrowth = () => Math.floor(Math.random() * 30 + 15)
   const getRandomEngagement = () => Math.floor(Math.random() * 15 + 85)
-  
+
   const loadFallbackData = () => {
     // Fallback com contadores reais esperados (3 por categoria)
     const fallbackCategories = [
