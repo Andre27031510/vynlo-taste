@@ -11,7 +11,7 @@ export default function TechnicalDocumentation() {
   ]
 
   return (
-    <section data-section="docs" className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-black">
+    <section data-section="docs" className="py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-20">
           <h2 className="text-6xl lg:text-7xl font-manrope font-black text-white mb-8 leading-tight">
@@ -29,9 +29,9 @@ export default function TechnicalDocumentation() {
             return (
               <div
                 key={index}
-                className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer hover:shadow-2xl hover:shadow-blue-500/25"
+                className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 transform transition-all duration-300 hover:scale-110 hover:rotate-6 shadow-lg">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                   <IconComponent className="w-8 h-8 text-white" />
                 </div>
 
@@ -39,7 +39,7 @@ export default function TechnicalDocumentation() {
                 <p className="text-gray-300 font-manrope leading-relaxed mb-6">{doc.description}</p>
                 
                 <div className="text-blue-400 font-manrope font-semibold">
-                  Acessar documentação →
+                  Acessar documentação
                 </div>
               </div>
             )

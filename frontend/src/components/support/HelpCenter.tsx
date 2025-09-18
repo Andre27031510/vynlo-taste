@@ -9,17 +9,17 @@ interface HelpCenterProps {
 
 export default function HelpCenter({ selectedCategory, searchQuery }: HelpCenterProps) {
   const categories = [
-    { id: 'primeiros-passos', name: 'Primeiros Passos', icon: Play, count: 25, color: 'from-emerald-500 to-green-600' },
-    { id: 'configuracao', name: 'Configuração', icon: Settings, count: 32, color: 'from-blue-500 to-cyan-600' },
-    { id: 'integracoes', name: 'Integrações', icon: Plug, count: 18, color: 'from-purple-500 to-violet-600' },
-    { id: 'problemas-tecnicos', name: 'Problemas Técnicos', icon: AlertTriangle, count: 28, color: 'from-orange-500 to-red-600' },
-    { id: 'backup-seguranca', name: 'Backup e Segurança', icon: Shield, count: 15, color: 'from-indigo-500 to-blue-600' },
-    { id: 'performance', name: 'Performance', icon: Zap, count: 12, color: 'from-yellow-500 to-orange-600' },
-    { id: 'billing', name: 'Billing e Pagamentos', icon: CreditCard, count: 20, color: 'from-pink-500 to-rose-600' }
+    { id: 'primeiros-passos', name: 'Primeiros Passos', icon: Play, color: 'from-emerald-500 to-green-600' },
+    { id: 'configuracao', name: 'Configuração', icon: Settings, color: 'from-blue-500 to-cyan-600' },
+    { id: 'integracoes', name: 'Integrações', icon: Plug, color: 'from-purple-500 to-violet-600' },
+    { id: 'problemas-tecnicos', name: 'Problemas Técnicos', icon: AlertTriangle, color: 'from-orange-500 to-red-600' },
+    { id: 'backup-seguranca', name: 'Backup e Segurança', icon: Shield, color: 'from-indigo-500 to-blue-600' },
+    { id: 'performance', name: 'Performance', icon: Zap, color: 'from-yellow-500 to-orange-600' },
+    { id: 'billing', name: 'Billing e Pagamentos', icon: CreditCard, color: 'from-pink-500 to-rose-600' }
   ]
 
   return (
-    <section data-section="help-center" className="py-32 bg-white relative overflow-hidden">
+    <section data-section="help-center" className="py-32 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-20">
           <h2 className="text-6xl lg:text-7xl font-manrope font-black text-gray-900 mb-8 leading-tight">
@@ -41,10 +41,9 @@ export default function HelpCenter({ selectedCategory, searchQuery }: HelpCenter
             return (
               <div
                 key={category.id}
-                className="bg-white border-2 border-gray-100 rounded-3xl p-8 text-center transform transition-all duration-500 hover:scale-105 hover:-translate-y-3 cursor-pointer hover:shadow-xl hover:border-blue-200"
-                style={{animationDelay: `${index * 0.1}s`}}
+                className="bg-white border-2 border-gray-100 rounded-3xl p-8 text-center"
               >
-                <div className={`w-20 h-20 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center mb-6 mx-auto transform transition-all duration-300 hover:scale-110 hover:rotate-6 shadow-lg`}>
+                <div className={`w-20 h-20 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg`}>
                   <IconComponent className="w-10 h-10 text-white" />
                 </div>
 
@@ -52,12 +51,8 @@ export default function HelpCenter({ selectedCategory, searchQuery }: HelpCenter
                   {category.name}
                 </h3>
                 
-                <p className="text-gray-600 font-manrope mb-4">
-                  {category.count} artigos disponíveis
-                </p>
-
                 <div className="text-blue-600 font-manrope font-semibold">
-                  Ver artigos →
+                  Ver artigos
                 </div>
               </div>
             )
