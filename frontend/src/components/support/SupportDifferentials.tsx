@@ -1,6 +1,6 @@
 'use client'
 
-import { Clock, Award, Clock24, Settings, GraduationCap, Radar, CheckCircle } from 'lucide-react'
+import { Clock, Award, Settings, GraduationCap, Radar, CheckCircle } from 'lucide-react'
 
 export default function SupportDifferentials() {
   const differentials = [
@@ -17,7 +17,7 @@ export default function SupportDifferentials() {
       color: 'from-green-500 to-emerald-500'
     },
     {
-      icon: Clock24,
+      icon: Clock,
       title: 'Suporte 24/7',
       description: 'Disponibilidade total para emergências, garantindo que seu negócio nunca pare.',
       color: 'from-purple-500 to-pink-500'
