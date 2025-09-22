@@ -122,7 +122,7 @@ export const getAuthInstance = async (): Promise<Auth | null> => {
     cachedAuth = getAuth(app)
     
     // Development emulator connection
-    if (isDevelopment && !cachedAuth.config.emulator) {
+    if (isDevelopment) {
       try {
         connectAuthEmulator(cachedAuth, 'http://localhost:9099', { disableWarnings: true })
         debugLog('Connected to Auth emulator')
@@ -153,7 +153,7 @@ export const getDbInstance = async (): Promise<Firestore | null> => {
     cachedDb = getFirestore(app)
     
     // Development emulator connection
-    if (isDevelopment && !cachedDb._delegate._databaseId.database.includes('localhost')) {
+    if (isDevelopment) {
       try {
         connectFirestoreEmulator(cachedDb, 'localhost', 8080)
         debugLog('Connected to Firestore emulator')
