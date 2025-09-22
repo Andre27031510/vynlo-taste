@@ -88,6 +88,31 @@ const LoginForm = memo(function LoginForm() {
     }
   }, [debouncedPassword, trigger, touchedFields.password, errors.password]);
 
+  // Visual validation state helpers - memoized
+  const getFieldState = useCallback((fieldName: keyof LoginFormData) => {
+    const hasError = errors[fieldName];
+    const isTouched = touchedFields[fieldName];
+    const hasValue = fieldName === 'email' ? watchedEmail : watchedPassword;
+    
+    if (hasError && isTouched) return 'error';
+    if (!hasError && isTouched && hasValue) return 'success';
+    return 'default';
+  }, [errors, touchedFields, watchedEmail, watchedPassword]);
+
+  const getFieldClasses = useCallback((fieldName: keyof LoginFormData) => {
+    const state = getFieldState(fieldName);
+    const baseClasses = 'block w-full pl-12 pr-12 py-3.5 border rounded-xl focus:ring-2 transition-all duration-200 placeholder-blue-300 text-white bg-blue-800/30';
+    
+    switch (state) {
+      case 'error':
+        return `${baseClasses} border-red-400/60 focus:ring-red-400 focus:border-red-400 focus:bg-red-900/20`;
+      case 'success':
+        return `${baseClasses} border-green-400/60 focus:ring-green-400 focus:border-green-400 focus:bg-green-900/20`;
+      default:
+        return `${baseClasses} border-blue-400/30 focus:ring-blue-400 focus:border-blue-400 focus:bg-blue-700/40`;
+    }
+  }, [getFieldState]);
+
   // Toggle password visibility - memoized
   const togglePasswordVisibility = useCallback(async () => {
     const newState = !showPassword;
@@ -230,31 +255,6 @@ const LoginForm = memo(function LoginForm() {
       setLoading(false);
     }
   }, [login, getFirebaseErrorMessage]);
-
-  // Visual validation state helpers - memoized
-  const getFieldState = useCallback((fieldName: keyof LoginFormData) => {
-    const hasError = errors[fieldName];
-    const isTouched = touchedFields[fieldName];
-    const hasValue = fieldName === 'email' ? watchedEmail : watchedPassword;
-    
-    if (hasError && isTouched) return 'error';
-    if (!hasError && isTouched && hasValue) return 'success';
-    return 'default';
-  }, [errors, touchedFields, watchedEmail, watchedPassword]);
-
-  const getFieldClasses = useCallback((fieldName: keyof LoginFormData) => {
-    const state = getFieldState(fieldName);
-    const baseClasses = 'block w-full pl-12 pr-12 py-3.5 border rounded-xl focus:ring-2 transition-all duration-200 placeholder-blue-300 text-white bg-blue-800/30';
-    
-    switch (state) {
-      case 'error':
-        return `${baseClasses} border-red-400/60 focus:ring-red-400 focus:border-red-400 focus:bg-red-900/20`;
-      case 'success':
-        return `${baseClasses} border-green-400/60 focus:ring-green-400 focus:border-green-400 focus:bg-green-900/20`;
-      default:
-        return `${baseClasses} border-blue-400/30 focus:ring-blue-400 focus:border-blue-400 focus:bg-blue-700/40`;
-    }
-  }, [getFieldState]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-800 to-black flex">
