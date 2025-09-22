@@ -2,7 +2,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth, connectAuthEmulator } from 'firebase/auth'
 import { getFirestore, type Firestore, connectFirestoreEmulator } from 'firebase/firestore'
 import { getAnalytics, initializeAnalytics, logEvent, setUserProperties, setUserId, type Analytics } from 'firebase/analytics'
-import { getPerformance, initializePerformance, trace, type Performance, type Trace } from 'firebase/performance'
+import { getPerformance, trace } from 'firebase/performance'
 
 // Environment detection
 const isDevelopment = process.env.NODE_ENV === 'development'
@@ -43,9 +43,9 @@ let cachedApp: FirebaseApp | null = null
 let cachedAuth: Auth | null = null
 let cachedDb: Firestore | null = null
 let cachedAnalytics: Analytics | null = null
-let cachedPerformance: Performance | null = null
+let cachedPerformance: any | null = null
 let initializationPromise: Promise<FirebaseApp | null> | null = null
-let activeTraces: Map<string, Trace> = new Map()
+let activeTraces: Map<string, any> = new Map()
 
 // Optimized Firebase app initialization
 export const getFirebaseApp = async (): Promise<FirebaseApp | null> => {
@@ -198,7 +198,7 @@ export const getAnalyticsInstance = async (): Promise<Analytics | null> => {
 }
 
 // Optimized Performance instance with enterprise features
-export const getPerformanceInstance = async (): Promise<Performance | null> => {
+export const getPerformanceInstance = async (): Promise<any | null> => {
   if (cachedPerformance) {
     debugLog('Returning cached Performance instance')
     return cachedPerformance
