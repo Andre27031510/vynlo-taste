@@ -2,7 +2,6 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth, connectAuthEmulator } from 'firebase/auth'
 import { getFirestore, type Firestore, connectFirestoreEmulator } from 'firebase/firestore'
 import { getAnalytics, initializeAnalytics, logEvent, setUserProperties, setUserId, type Analytics } from 'firebase/analytics'
-import { getCrashlytics, log as crashlyticsLog } from 'firebase/crashlytics'
 import { getPerformance, initializePerformance, trace, type Performance, type Trace } from 'firebase/performance'
 
 // Environment detection
@@ -255,15 +254,7 @@ export const trackLogout = async () => {
 // Error and Performance Tracking
 export const trackError = async (error: string, context?: string) => {
   await trackEvent('error_occurred', { error_message: error, context })
-  try {
-    const app = await getFirebaseApp()
-    if (app) {
-      const crashlytics = getCrashlytics(app)
-      crashlyticsLog(crashlytics, `Error: ${error} | Context: ${context}`)
-    }
-  } catch (e) {
-    debugLog('Crashlytics error:', e)
-  }
+  debugLog('Error tracked:', { error, context })
 }
 
 export const trackPerformance = async (metric: string, value: number, unit?: string) => {
