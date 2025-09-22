@@ -455,7 +455,7 @@ export const trackRealUserMetrics = async () => {
 
     // Resource timing
     const resources = performance.getEntriesByType('resource')
-    const slowResources = resources.filter(r => r.duration > 1000)
+    const slowResources = resources.filter((r: PerformanceEntry) => r.duration > 1000)
     if (slowResources.length > 0) {
       await trackEvent('slow_resources_detected', {
         count: slowResources.length,
