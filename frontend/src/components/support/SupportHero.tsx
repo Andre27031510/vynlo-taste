@@ -1,6 +1,6 @@
 'use client'
 
-import { Shield, MessageCircle, TrendingUp, Users } from 'lucide-react'
+import { Shield } from 'lucide-react'
 
 export default function SupportHero() {
   return (
@@ -28,33 +28,6 @@ export default function SupportHero() {
             <p className="text-xl text-gray-300 leading-relaxed">
               Equipe técnica especializada, resposta rápida e soluções personalizadas para garantir o sucesso da sua operação.
             </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center gap-2">
-                <MessageCircle className="w-5 h-5" />
-                <span>Falar com Especialista</span>
-              </button>
-              
-              <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white font-manrope font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition-all duration-300 transform hover:scale-105 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                <span>Ver Cases de Sucesso</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">2h</div>
-                <div className="text-gray-400 text-sm">Tempo Resposta</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">24/7</div>
-                <div className="text-gray-400 text-sm">Disponibilidade</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">98%</div>
-                <div className="text-gray-400 text-sm">Satisfação</div>
-              </div>
-            </div>
           </div>
 
           <div className="relative">
@@ -72,7 +45,7 @@ export default function SupportHero() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-green-500/20 rounded-lg">
                     <span className="text-green-300 text-sm">Ticket #2024-001</span>
-                    <span className="text-green-400 text-xs">Resolvido em 1h 23min</span>
+                    <span className="text-green-400 text-xs">Resolvido</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-blue-500/20 rounded-lg">
                     <span className="text-blue-300 text-sm">Ticket #2024-002</span>
@@ -80,7 +53,7 @@ export default function SupportHero() {
                   </div>
                   <div className="flex items-center justify-between p-3 bg-purple-500/20 rounded-lg">
                     <span className="text-purple-300 text-sm">Ticket #2024-003</span>
-                    <span className="text-purple-400 text-xs">Aguardando resposta</span>
+                    <span className="text-purple-400 text-xs">Aguardando</span>
                   </div>
                 </div>
               </div>

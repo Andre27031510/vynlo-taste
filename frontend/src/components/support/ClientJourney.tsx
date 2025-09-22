@@ -74,7 +74,7 @@ export default function ClientJourney() {
                     {index + 1}
                   </div>
 
-                  <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-500 transform hover:-translate-y-3">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20 hover:bg-white/20 transition-all duration-500 transform hover:-translate-y-3 h-full flex flex-col">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-500 mb-6 shadow-lg">
                       <IconComponent className="w-8 h-8 text-white" />
                     </div>
@@ -84,9 +84,9 @@ export default function ClientJourney() {
                       <span className="text-blue-400 font-manrope font-bold text-sm">{step.duration}</span>
                     </div>
 
-                    <p className="text-gray-300 leading-relaxed mb-6">{step.description}</p>
+                    <p className="text-gray-300 leading-relaxed mb-6 flex-grow">{step.description}</p>
 
-                    <ul className="space-y-2">
+                    <ul className="space-y-2 mt-auto">
                       {step.details.map((detail, idx) => (
                         <li key={idx} className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
