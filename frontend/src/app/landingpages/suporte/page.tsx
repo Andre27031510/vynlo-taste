@@ -54,7 +54,6 @@ const SuportePage: React.FC = () => {
       <div className="support-page">
         <Header />
         
-        {/* 1. Hero Section - Fundo escuro */}
         <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black">
           <ErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
@@ -63,7 +62,6 @@ const SuportePage: React.FC = () => {
           </ErrorBoundary>
         </section>
 
-        {/* 2. Support Differentials - Fundo branco */}
         <section className="bg-white">
           <ErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
@@ -72,7 +70,6 @@ const SuportePage: React.FC = () => {
           </ErrorBoundary>
         </section>
 
-        {/* 3. Client Journey - Fundo escuro */}
         <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black">
           <ErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
@@ -81,7 +78,6 @@ const SuportePage: React.FC = () => {
           </ErrorBoundary>
         </section>
 
-        {/* 4. Success Cases - Fundo branco */}
         <section className="bg-white">
           <ErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
@@ -90,7 +86,6 @@ const SuportePage: React.FC = () => {
           </ErrorBoundary>
         </section>
 
-        {/* 5. Support Levels - Fundo escuro */}
         <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -129,7 +124,6 @@ const SuportePage: React.FC = () => {
           </div>
         </section>
 
-        {/* 6. Support Tools - Fundo branco */}
         <section className="bg-white py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -185,27 +179,27 @@ const SuportePage: React.FC = () => {
               ].map((tool, index) => {
                 const IconComponent = tool.icon
                 return (
-                <div key={index} className="bg-white rounded-3xl p-8 border border-gray-100 hover:border-blue-200 hover:shadow-2xl transition-all duration-500">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
-                    <IconComponent className="w-8 h-8 text-white" />
+                  <div key={index} className="bg-white rounded-3xl p-8 border border-gray-100 hover:border-blue-200 hover:shadow-2xl transition-all duration-500">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
+                      <IconComponent className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-manrope font-bold text-gray-900 mb-4">{tool.title}</h3>
+                    <p className="text-gray-600 leading-relaxed mb-6">{tool.description}</p>
+                    <ul className="space-y-2">
+                      {tool.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-gray-600 text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <h3 className="text-xl font-manrope font-bold text-gray-900 mb-4">{tool.title}</h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">{tool.description}</p>
-                  <ul className="space-y-2">
-                    {tool.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span className="text-gray-600 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}}
+                )
+              })}
             </div>
           </div>
         </section>
 
-        {/* 7. CTA Final - Fundo escuro */}
         <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
