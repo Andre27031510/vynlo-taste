@@ -375,24 +375,30 @@ export const traceApiCall = async (endpoint: string, method: string) => {
 
 // Web Vitals Tracking
 const initWebVitalsTracking = () => {
-  if (typeof window === 'undefined') return
-
-  // Core Web Vitals tracking
-  const observer = new PerformanceObserver((list) => {
-    list.getEntries().forEach((entry) => {
-      if (entry.entryType === 'largest-contentful-paint') {
-        trackPerformance('LCP', entry.startTime, 'ms')
-      }
-      if (entry.entryType === 'first-input') {
-        trackPerformance('FID', (entry as any).processingStart - entry.startTime, 'ms')
-      }
-      if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
-        trackPerformance('CLS', (entry as any).value, 'score')
-      }
-    })
-  })
+  if (typeof window === 'undefined' || !('PerformanceObserver' in window)) return
 
   try {
+    // Core Web Vitals tracking
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach((entry) => {
+        if (entry.entryType === 'largest-contentful-paint') {
+          trackPerformance('LCP', entry.startTime, 'ms')
+        }
+        if (entry.entryType === 'first-input') {
+          const processingStart = (entry as any).processingStart
+          if (processingStart) {
+            trackPerformance('FID', processingStart - entry.startTime, 'ms')
+          }
+        }
+        if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
+          const value = (entry as any).value
+          if (typeof value === 'number') {
+            trackPerformance('CLS', value, 'score')
+          }
+        }
+      })
+    })
+
     observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] })
     debugLog('Web Vitals tracking initialized')
   } catch (error) {
@@ -424,33 +430,40 @@ export const checkPerformanceBudget = async (metric: string, value: number) => {
 
 // Real User Monitoring
 export const trackRealUserMetrics = async () => {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined' || !performance?.getEntriesByType) return
 
-  // Navigation timing
-  const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
-  if (navigation) {
-    const metrics = {
-      dns_lookup: navigation.domainLookupEnd - navigation.domainLookupStart,
-      tcp_connect: navigation.connectEnd - navigation.connectStart,
-      server_response: navigation.responseEnd - navigation.requestStart,
-      dom_processing: navigation.domContentLoadedEventEnd - navigation.responseEnd,
-      page_load: navigation.loadEventEnd - navigation.navigationStart
+  try {
+    // Navigation timing
+    const navigationEntries = performance.getEntriesByType('navigation')
+    const navigation = navigationEntries[0] as PerformanceNavigationTiming
+    if (navigation) {
+      const metrics = {
+        dns_lookup: navigation.domainLookupEnd - navigation.domainLookupStart,
+        tcp_connect: navigation.connectEnd - navigation.connectStart,
+        server_response: navigation.responseEnd - navigation.requestStart,
+        dom_processing: navigation.domContentLoadedEventEnd - navigation.responseEnd,
+        page_load: navigation.loadEventEnd - navigation.startTime
+      }
+
+      Object.entries(metrics).forEach(([metric, value]) => {
+        if (typeof value === 'number' && !isNaN(value) && value >= 0) {
+          trackPerformance(`rum_${metric}`, value, 'ms')
+          checkPerformanceBudget(metric.toUpperCase(), value)
+        }
+      })
     }
 
-    Object.entries(metrics).forEach(([metric, value]) => {
-      trackPerformance(`rum_${metric}`, value, 'ms')
-      checkPerformanceBudget(metric.toUpperCase(), value)
-    })
-  }
-
-  // Resource timing
-  const resources = performance.getEntriesByType('resource')
-  const slowResources = resources.filter(r => r.duration > 1000)
-  if (slowResources.length > 0) {
-    await trackEvent('slow_resources_detected', {
-      count: slowResources.length,
-      slowest: Math.max(...slowResources.map(r => r.duration))
-    })
+    // Resource timing
+    const resources = performance.getEntriesByType('resource')
+    const slowResources = resources.filter(r => r.duration > 1000)
+    if (slowResources.length > 0) {
+      await trackEvent('slow_resources_detected', {
+        count: slowResources.length,
+        slowest: Math.max(...slowResources.map(r => r.duration))
+      })
+    }
+  } catch (error) {
+    debugLog('Real user metrics tracking error:', error)
   }
 }
 

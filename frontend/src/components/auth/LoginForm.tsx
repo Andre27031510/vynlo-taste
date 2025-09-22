@@ -170,8 +170,8 @@ const LoginForm = memo(function LoginForm() {
   useEffect(() => {
     trackEvent('login_form_viewed', {
       timestamp: Date.now(),
-      user_agent: navigator.userAgent,
-      screen_resolution: `${screen.width}x${screen.height}`
+      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+      screen_resolution: typeof screen !== 'undefined' ? `${screen.width}x${screen.height}` : 'unknown'
     });
   }, []);
 
