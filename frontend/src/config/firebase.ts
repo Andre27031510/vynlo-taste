@@ -459,7 +459,7 @@ export const trackRealUserMetrics = async () => {
     if (slowResources.length > 0) {
       await trackEvent('slow_resources_detected', {
         count: slowResources.length,
-        slowest: Math.max(...slowResources.map(r => r.duration))
+        slowest: Math.max(...slowResources.map((r: PerformanceEntry) => r.duration))
       })
     }
   } catch (error) {
