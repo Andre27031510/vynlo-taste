@@ -11,6 +11,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { auth } from '@/config/firebase';
+import { trackLogin, trackLogout, trackError, trackEvent } from '@/config/firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -52,8 +53,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     if (!auth) throw new Error('Firebase não inicializado');
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      await trackLogin('email_password', result.user.uid);
+      await trackEvent('auth_login_success', {
+        method: 'email_password',
+        user_id: result.user.uid,
+        timestamp: Date.now()
+      });
+    } catch (error: any) {
+      await trackError(`Login failed: ${error?.code || 'unknown'}`, 'AuthContext');
+      await trackEvent('auth_login_failed', {
+        method: 'email_password',
+        error_code: error?.code || 'unknown',
+        timestamp: Date.now()
+      });
       console.error('Erro no login:', error);
       throw error;
     }
@@ -62,8 +75,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, password: string) => {
     if (!auth) throw new Error('Firebase não inicializado');
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (error) {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      await trackEvent('auth_register_success', {
+        method: 'email_password',
+        user_id: result.user.uid,
+        timestamp: Date.now()
+      });
+    } catch (error: any) {
+      await trackError(`Register failed: ${error?.code || 'unknown'}`, 'AuthContext');
+      await trackEvent('auth_register_failed', {
+        method: 'email_password',
+        error_code: error?.code || 'unknown',
+        timestamp: Date.now()
+      });
       console.error('Erro no registro:', error);
       throw error;
     }
@@ -73,8 +97,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!auth) throw new Error('Firebase não inicializado');
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-    } catch (error) {
+      const result = await signInWithPopup(auth, provider);
+      await trackLogin('google', result.user.uid);
+      await trackEvent('auth_login_success', {
+        method: 'google',
+        user_id: result.user.uid,
+        timestamp: Date.now()
+      });
+    } catch (error: any) {
+      await trackError(`Google login failed: ${error?.code || 'unknown'}`, 'AuthContext');
+      await trackEvent('auth_login_failed', {
+        method: 'google',
+        error_code: error?.code || 'unknown',
+        timestamp: Date.now()
+      });
       console.error('Erro no login com Google:', error);
       throw error;
     }
@@ -83,8 +119,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     if (!auth) throw new Error('Firebase não inicializado');
     try {
+      const currentUser = user;
       await signOut(auth);
-    } catch (error) {
+      await trackLogout();
+      await trackEvent('auth_logout_success', {
+        user_id: currentUser?.uid || 'unknown',
+        timestamp: Date.now()
+      });
+    } catch (error: any) {
+      await trackError(`Logout failed: ${error?.code || 'unknown'}`, 'AuthContext');
+      await trackEvent('auth_logout_failed', {
+        error_code: error?.code || 'unknown',
+        timestamp: Date.now()
+      });
       console.error('Erro no logout:', error);
       throw error;
     }

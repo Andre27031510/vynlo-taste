@@ -1,51 +1,260 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Eye, EyeOff, Lock, Mail, TrendingUp, Users, Shield, Zap } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, CheckCircle, AlertCircle } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { useDebounce } from '@/hooks/useDebounce';
+import { trackLogin, trackError, trackPerformance, trackEvent } from '@/config/firebase';
 
-export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+// Validation schema - memoized to prevent recreation
+const loginSchema = yup.object({
+  email: yup
+    .string()
+    .required('E-mail é obrigatório')
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      'Digite um e-mail válido'
+    ),
+  password: yup
+    .string()
+    .required('Senha é obrigatória')
+    .min(6, 'Senha deve ter pelo menos 6 caracteres')
+});
+
+// Form options - memoized to prevent recreation
+const formOptions = {
+  resolver: yupResolver(loginSchema),
+  mode: 'onChange' as const,
+  reValidateMode: 'onChange' as const
+};
+
+type LoginFormData = {
+  email: string;
+  password: string;
+};
+
+const LoginForm = memo(function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
   const { login, user } = useAuth();
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isValid, touchedFields },
+    trigger
+  } = useForm<LoginFormData>(formOptions);
+
+  const watchedEmail = watch('email');
+  const watchedPassword = watch('password');
+  const debouncedEmail = useDebounce(watchedEmail, 500);
+  const debouncedPassword = useDebounce(watchedPassword, 500);
+
+  // Real-time validation with debounce - optimized
+  useEffect(() => {
+    if (debouncedEmail && touchedFields.email) {
+      trigger('email');
+      
+      // Track email validation
+      if (errors.email) {
+        trackEvent('form_validation_error', {
+          field: 'email',
+          error: errors.email.message,
+          timestamp: Date.now()
+        });
+      }
+    }
+  }, [debouncedEmail, trigger, touchedFields.email, errors.email]);
+
+  useEffect(() => {
+    if (debouncedPassword && touchedFields.password) {
+      trigger('password');
+      
+      // Track password validation
+      if (errors.password) {
+        trackEvent('form_validation_error', {
+          field: 'password',
+          error: errors.password.message,
+          timestamp: Date.now()
+        });
+      }
+    }
+  }, [debouncedPassword, trigger, touchedFields.password, errors.password]);
+
+  // Toggle password visibility - memoized
+  const togglePasswordVisibility = useCallback(async () => {
+    const newState = !showPassword;
+    setShowPassword(newState);
+    
+    // Track password visibility toggle
+    await trackEvent('password_visibility_toggle', {
+      action: newState ? 'show' : 'hide',
+      timestamp: Date.now()
+    });
+  }, [showPassword]);
+
+  // Memoized field states
+  const emailState = useMemo(() => getFieldState('email'), [getFieldState]);
+  const passwordState = useMemo(() => getFieldState('password'), [getFieldState]);
+  const emailClasses = useMemo(() => getFieldClasses('email'), [getFieldClasses]);
+  const passwordClasses = useMemo(() => getFieldClasses('password'), [getFieldClasses]);
+
+  // Memoized aria-describedby values
+  const emailAriaDescribedBy = useMemo(() => {
+    return `${errors.email ? 'email-error' : ''} ${error ? 'login-error' : ''}`.trim() || undefined;
+  }, [errors.email, error]);
+
+  const passwordAriaDescribedBy = useMemo(() => {
+    return `${errors.password ? 'password-error' : ''} ${error ? 'login-error' : ''}`.trim() || undefined;
+  }, [errors.password, error]);
+
   useEffect(() => {
     if (user) {
       // Fazer redirecionamento quando usuário estiver autenticado
-      user.getIdTokenResult().then((idTokenResult) => {
+      user.getIdTokenResult().then(async (idTokenResult) => {
         const claims = idTokenResult.claims;
-        if (claims.isSuperAdmin) {
-          router.push('/super-admin');
-        } else {
-          router.push('/dashboard');
-        }
+        const userRole = claims.isSuperAdmin ? 'super_admin' : 'user';
+        const redirectPath = claims.isSuperAdmin ? '/super-admin' : '/dashboard';
+        
+        // Track successful authentication and redirect
+        await trackEvent('user_authenticated', {
+          user_role: userRole,
+          redirect_path: redirectPath,
+          timestamp: Date.now()
+        });
+        
+        router.push(redirectPath);
         setLoading(false);
-      }).catch(() => {
+      }).catch(async () => {
+        // Track authentication error
+        await trackError('Token validation failed', 'LoginForm');
         router.push('/dashboard');
         setLoading(false);
       });
     }
   }, [user, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Track component mount
+  useEffect(() => {
+    trackEvent('login_form_viewed', {
+      timestamp: Date.now(),
+      user_agent: navigator.userAgent,
+      screen_resolution: `${screen.width}x${screen.height}`
+    });
+  }, []);
+
+  const getFirebaseErrorMessage = useCallback((errorCode: string): string => {
+    switch (errorCode) {
+      case 'auth/user-not-found':
+        return 'Usuário não encontrado. Verifique o e-mail digitado.';
+      case 'auth/wrong-password':
+        return 'Senha incorreta. Tente novamente.';
+      case 'auth/invalid-email':
+        return 'E-mail inválido. Digite um e-mail válido.';
+      case 'auth/user-disabled':
+        return 'Esta conta foi desabilitada. Entre em contato com o suporte.';
+      case 'auth/too-many-requests':
+        return 'Muitas tentativas de login. Tente novamente em alguns minutos.';
+      case 'auth/network-request-failed':
+        return 'Erro de conexão. Verifique sua internet e tente novamente.';
+      case 'auth/invalid-credential':
+        return 'Credenciais inválidas. Verifique e-mail e senha.';
+      case 'auth/operation-not-allowed':
+        return 'Login com e-mail/senha não está habilitado.';
+      case 'auth/weak-password':
+        return 'Senha muito fraca. Use pelo menos 6 caracteres.';
+      case 'auth/email-already-in-use':
+        return 'Este e-mail já está em uso por outra conta.';
+      case 'auth/requires-recent-login':
+        return 'Por segurança, faça login novamente para continuar.';
+      case 'auth/account-exists-with-different-credential':
+        return 'Já existe uma conta com este e-mail usando outro método de login.';
+      default:
+        return 'Erro no login. Verifique suas credenciais e tente novamente.';
+    }
+  }, []);
+
+  const onSubmit = useCallback(async (data: LoginFormData) => {
+    const loginStartTime = performance.now();
     setLoading(true);
     setError('');
 
+    // Track login attempt
+    await trackEvent('login_attempt', {
+      method: 'email_password',
+      timestamp: Date.now()
+    });
+
     try {
-      await login(email, password);
+      await login(data.email, data.password);
+      
+      // Track successful login
+      const loginDuration = performance.now() - loginStartTime;
+      await trackLogin('email_password');
+      await trackPerformance('login_duration', loginDuration, 'ms');
+      await trackEvent('login_success', {
+        method: 'email_password',
+        duration: loginDuration,
+        timestamp: Date.now()
+      });
+      
       // O redirecionamento será feito pelo useEffect quando o user for atualizado
     } catch (error: any) {
-      setError('Email ou senha incorretos');
-      console.error('Erro no login:', error);
+      const errorCode = error?.code || 'unknown';
+      const errorMessage = getFirebaseErrorMessage(errorCode);
+      const loginDuration = performance.now() - loginStartTime;
+      
+      // Track login error
+      await trackError(`Login failed: ${errorCode}`, 'LoginForm');
+      await trackEvent('login_failed', {
+        error_code: errorCode,
+        error_message: errorMessage,
+        method: 'email_password',
+        duration: loginDuration,
+        timestamp: Date.now()
+      });
+      
+      setError(errorMessage);
+      console.error('Erro no login:', {
+        code: errorCode,
+        message: error?.message,
+        email: data.email
+      });
       setLoading(false);
     }
-  };
+  }, [login, getFirebaseErrorMessage]);
+
+  // Visual validation state helpers - memoized
+  const getFieldState = useCallback((fieldName: keyof LoginFormData) => {
+    const hasError = errors[fieldName];
+    const isTouched = touchedFields[fieldName];
+    const hasValue = fieldName === 'email' ? watchedEmail : watchedPassword;
+    
+    if (hasError && isTouched) return 'error';
+    if (!hasError && isTouched && hasValue) return 'success';
+    return 'default';
+  }, [errors, touchedFields, watchedEmail, watchedPassword]);
+
+  const getFieldClasses = useCallback((fieldName: keyof LoginFormData) => {
+    const state = getFieldState(fieldName);
+    const baseClasses = 'block w-full pl-12 pr-12 py-3.5 border rounded-xl focus:ring-2 transition-all duration-200 placeholder-blue-300 text-white bg-blue-800/30';
+    
+    switch (state) {
+      case 'error':
+        return `${baseClasses} border-red-400/60 focus:ring-red-400 focus:border-red-400 focus:bg-red-900/20`;
+      case 'success':
+        return `${baseClasses} border-green-400/60 focus:ring-green-400 focus:border-green-400 focus:bg-green-900/20`;
+      default:
+        return `${baseClasses} border-blue-400/30 focus:ring-blue-400 focus:border-blue-400 focus:bg-blue-700/40`;
+    }
+  }, [getFieldState]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-800 to-black flex">
@@ -78,63 +287,122 @@ export default function LoginForm() {
 
             {/* Erro de Login */}
             {error && (
-              <div className="mb-6 p-4 bg-red-900/50 border border-red-400 rounded-xl">
+              <div 
+                id="login-error"
+                role="alert"
+                aria-live="polite"
+                className="mb-6 p-4 bg-red-900/50 border border-red-400 rounded-xl"
+              >
                 <span className="text-red-200 font-medium">{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form 
+              onSubmit={handleSubmit(onSubmit)} 
+              className="space-y-6"
+              noValidate
+              aria-label="Formulário de login do sistema"
+            >
               {/* Campo Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-blue-200 mb-2">
-                  E-mail
+                  E-mail *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none" aria-hidden="true">
                     <Mail className="h-5 w-5 text-blue-300" />
                   </div>
                   <input
                     id="email"
-                    name="email"
                     type="email"
                     autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-3.5 border border-blue-400/30 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 placeholder-blue-300 text-white bg-blue-800/30 focus:bg-blue-700/40"
+                    {...register('email')}
+                    className={emailClasses}
                     placeholder="seu@email.com"
+                    aria-required="true"
+                    aria-invalid={errors.email ? 'true' : 'false'}
+                    aria-describedby={emailAriaDescribedBy}
+                    aria-label="Digite seu endereço de e-mail"
                   />
+                  {/* Validation Icon */}
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center" aria-hidden="true">
+                    {emailState === 'success' && (
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                    )}
+                    {emailState === 'error' && (
+                      <AlertCircle className="h-5 w-5 text-red-400" />
+                    )}
+                  </div>
                 </div>
+                {/* Error Message */}
+                {errors.email && (
+                  <p 
+                    id="email-error"
+                    className="mt-2 text-sm text-red-400 font-medium"
+                    role="alert"
+                    aria-live="polite"
+                  >
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               {/* Campo Senha */}
               <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-blue-200 mb-2">
-                  Senha
+                  Senha *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none" aria-hidden="true">
                     <Lock className="h-5 w-5 text-blue-300" />
                   </div>
                   <input
                     id="password"
-                    name="password"
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-12 pr-12 py-3.5 border border-blue-400/30 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 placeholder-blue-300 text-white bg-blue-800/30 focus:bg-blue-700/40"
+                    {...register('password')}
+                    className={passwordClasses}
                     placeholder="••••••••••••"
+                    aria-required="true"
+                    aria-invalid={errors.password ? 'true' : 'false'}
+                    aria-describedby={passwordAriaDescribedBy}
+                    aria-label="Digite sua senha"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-blue-300 hover:text-blue-100 transition-colors duration-200"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
+                  {/* Icons Container */}
+                  <div className="absolute inset-y-0 right-0 flex items-center space-x-2 pr-4">
+                    {/* Validation Icon */}
+                    <div aria-hidden="true">
+                      {passwordState === 'success' && (
+                        <CheckCircle className="h-5 w-5 text-green-400" />
+                      )}
+                      {passwordState === 'error' && (
+                        <AlertCircle className="h-5 w-5 text-red-400" />
+                      )}
+                    </div>
+                    {/* Show/Hide Password */}
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="text-blue-300 hover:text-blue-100 focus:text-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-blue-900 rounded transition-colors duration-200"
+                      aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                      aria-pressed={showPassword}
+                      tabIndex={0}
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
+                {/* Error Message */}
+                {errors.password && (
+                  <p 
+                    id="password-error"
+                    className="mt-2 text-sm text-red-400 font-medium"
+                    role="alert"
+                    aria-live="polite"
+                  >
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               {/* Lembrar Login */}
@@ -144,16 +412,32 @@ export default function LoginForm() {
                     id="remember"
                     name="remember"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-500 focus:ring-blue-400 border-blue-400 rounded bg-blue-800/30"
+                    onChange={async (e) => {
+                      await trackEvent('remember_me_toggle', {
+                        checked: e.target.checked,
+                        timestamp: Date.now()
+                      });
+                    }}
+                    className="h-4 w-4 text-blue-500 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-blue-900 border-blue-400 rounded bg-blue-800/30"
+                    aria-describedby="remember-description"
                   />
                   <label htmlFor="remember" className="ml-3 block text-sm text-blue-200 font-medium">
                     Manter conectado
                   </label>
+                  <span id="remember-description" className="sr-only">
+                    Marque esta opção para permanecer logado no sistema
+                  </span>
                 </div>
 
                 <button
                   type="button"
-                  className="text-sm text-blue-300 hover:text-blue-100 font-semibold transition-colors duration-200"
+                  onClick={async () => {
+                    await trackEvent('forgot_password_clicked', {
+                      timestamp: Date.now()
+                    });
+                  }}
+                  className="text-sm text-blue-300 hover:text-blue-100 focus:text-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-blue-900 rounded px-2 py-1 font-semibold transition-colors duration-200"
+                  aria-label="Recuperar senha esquecida"
                 >
                   Esqueceu a senha?
                 </button>
@@ -162,18 +446,28 @@ export default function LoginForm() {
               {/* Botão de Login */}
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                disabled={loading || !isValid}
+                className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-blue-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                aria-label={loading ? 'Processando login, aguarde' : 'Entrar no sistema'}
+                aria-describedby={!isValid ? 'form-validation-message' : undefined}
               >
                 {loading ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                    Entrando no Sistema...
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" aria-hidden="true"></div>
+                    <span>Entrando no Sistema...</span>
+                    <span className="sr-only">Processando login, por favor aguarde</span>
                   </div>
                 ) : (
                   <span>Entrar no Sistema</span>
                 )}
               </button>
+              
+              {/* Form Validation Message for Screen Readers */}
+              {!isValid && (touchedFields.email || touchedFields.password) && (
+                <div id="form-validation-message" className="sr-only" aria-live="polite">
+                  Corrija os erros no formulário antes de continuar
+                </div>
+              )}
             </form>
           </div>
 
@@ -232,5 +526,9 @@ export default function LoginForm() {
       </div>
     </div>
   );
-}
+});
+
+LoginForm.displayName = 'LoginForm';
+
+export default LoginForm;
 
