@@ -123,7 +123,6 @@ const SuportePage: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-
                 </div>
               ))}
             </div>
