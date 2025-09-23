@@ -1,49 +1,132 @@
-// Performance utilities for React components
-import React, { ComponentType } from 'react';
+// Performance optimization utilities
 
-// Retry logic for dynamic imports
-export const retryImport = async <T>(
-  importFn: () => Promise<{ default: ComponentType<T> }>,
-  retries = 3,
-  delay = 1000
-): Promise<{ default: ComponentType<T> }> => {
-  try {
-    return await importFn();
-  } catch (error) {
-    if (retries > 0) {
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return retryImport(importFn, retries - 1, delay * 2);
-    }
-    throw error;
+// Debounce function for search inputs
+export const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): ((...args: Parameters<T>) => void) => {
+  let timeout: NodeJS.Timeout
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), wait)
   }
-};
+}
 
-// Memoization helper for component props
-export const createMemoizedComponent = <T extends object>(
-  Component: ComponentType<T>,
-  propsAreEqual?: (prevProps: T, nextProps: T) => boolean
-) => {
-  return React.memo(Component, propsAreEqual);
-};
+// Throttle function for scroll events
+export const throttle = <T extends (...args: any[]) => any>(
+  func: T,
+  limit: number
+): ((...args: Parameters<T>) => void) => {
+  let inThrottle: boolean
+  return (...args: Parameters<T>) => {
+    if (!inThrottle) {
+      func(...args)
+      inThrottle = true
+      setTimeout(() => (inThrottle = false), limit)
+    }
+  }
+}
+
+// Memoization utility
+export const memoize = <T extends (...args: any[]) => any>(fn: T): T => {
+  const cache = new Map()
+  return ((...args: Parameters<T>) => {
+    const key = JSON.stringify(args)
+    if (cache.has(key)) {
+      return cache.get(key)
+    }
+    const result = fn(...args)
+    cache.set(key, result)
+    return result
+  }) as T
+}
 
 // Performance monitoring
-export const measurePerformance = (name: string, fn: () => void) => {
-  const start = performance.now();
-  fn();
-  const end = performance.now();
-  console.log(`${name} took ${end - start} milliseconds`);
-};
+export class PerformanceMonitor {
+  private static instance: PerformanceMonitor
+  private metrics: Map<string, number[]> = new Map()
 
-// Props comparison for complex objects
-export const shallowEqual = <T extends object>(prevProps: T, nextProps: T): boolean => {
-  const keys1 = Object.keys(prevProps) as (keyof T)[];
-  const keys2 = Object.keys(nextProps) as (keyof T)[];
-  
-  if (keys1.length !== keys2.length) return false;
-  
-  for (const key of keys1) {
-    if (prevProps[key] !== nextProps[key]) return false;
+  static getInstance(): PerformanceMonitor {
+    if (!PerformanceMonitor.instance) {
+      PerformanceMonitor.instance = new PerformanceMonitor()
+    }
+    return PerformanceMonitor.instance
   }
-  
-  return true;
-};
+
+  startMeasure(name: string): void {
+    performance.mark(`${name}-start`)
+  }
+
+  endMeasure(name: string): number {
+    performance.mark(`${name}-end`)
+    performance.measure(name, `${name}-start`, `${name}-end`)
+    
+    const measure = performance.getEntriesByName(name)[0]
+    const duration = measure.duration
+
+    if (!this.metrics.has(name)) {
+      this.metrics.set(name, [])
+    }
+    this.metrics.get(name)!.push(duration)
+
+    // Clean up
+    performance.clearMarks(`${name}-start`)
+    performance.clearMarks(`${name}-end`)
+    performance.clearMeasures(name)
+
+    return duration
+  }
+
+  getAverageTime(name: string): number {
+    const times = this.metrics.get(name) || []
+    return times.length > 0 ? times.reduce((a, b) => a + b, 0) / times.length : 0
+  }
+
+  getMetrics(): Record<string, { average: number; count: number }> {
+    const result: Record<string, { average: number; count: number }> = {}
+    
+    this.metrics.forEach((times, name) => {
+      result[name] = {
+        average: this.getAverageTime(name),
+        count: times.length
+      }
+    })
+
+    return result
+  }
+
+  clearMetrics(): void {
+    this.metrics.clear()
+  }
+}
+
+// Bundle size analyzer
+export const analyzeBundleSize = () => {
+  if (typeof window !== 'undefined' && 'performance' in window) {
+    const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+    
+    return {
+      domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
+      loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
+      totalTime: navigation.loadEventEnd - navigation.fetchStart,
+      transferSize: navigation.transferSize,
+      encodedBodySize: navigation.encodedBodySize,
+      decodedBodySize: navigation.decodedBodySize
+    }
+  }
+  return null
+}
+
+// Memory usage monitoring
+export const getMemoryUsage = () => {
+  if (typeof window !== 'undefined' && 'performance' in window && 'memory' in performance) {
+    const memory = (performance as any).memory
+    return {
+      usedJSHeapSize: memory.usedJSHeapSize,
+      totalJSHeapSize: memory.totalJSHeapSize,
+      jsHeapSizeLimit: memory.jsHeapSizeLimit,
+      usedPercentage: (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100
+    }
+  }
+  return null
+}
