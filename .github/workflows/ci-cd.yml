@@ -22,9 +22,9 @@ jobs:
     env:
       TAG: ${{ github.sha }}
     outputs:
-      backend_changed: ${{ steps.changes.outputs.backend_any_changed || 'true' }}
-      frontend_changed: ${{ steps.changes.outputs.frontend_any_changed || 'true' }}
-      infra_changed: ${{ steps.changes.outputs.infra_any_changed || 'true' }}
+      backend_changed: ${{ steps.changes.outputs.backend_any_changed }}
+      frontend_changed: ${{ steps.changes.outputs.frontend_any_changed }}
+      infra_changed: ${{ steps.changes.outputs.infra_any_changed }}
     steps:
       - uses: actions/checkout@v4
 
@@ -33,7 +33,6 @@ jobs:
           echo "event_name=${{ github.event_name }}"
           echo "ref=${{ github.ref }}"
           echo "sha=${{ github.sha }}"
-      
       - name: Detect changes
         id: changes
         uses: tj-actions/changed-files@v44
@@ -46,14 +45,12 @@ jobs:
             infra:
               - 'docker-compose.prod.yml'
               - '.github/workflows/**'
-      
       - name: Debug context outputs
         run: |
-          echo "Debug: backend_any_changed = ${{ steps.changes.outputs.backend_any_changed || 'true' }}"
-          echo "Debug: frontend_any_changed = ${{ steps.changes.outputs.frontend_any_changed || 'true' }}"
-          echo "Debug: infra_any_changed = ${{ steps.changes.outputs.infra_any_changed || 'true' }}"
+          echo "Debug: backend_any_changed = ${{ steps.changes.outputs.backend_any_changed || 'null' }}"
+          echo "Debug: frontend_any_changed = ${{ steps.changes.outputs.frontend_any_changed || 'null' }}"
+          echo "Debug: infra_any_changed = ${{ steps.changes.outputs.infra_any_changed || 'null' }}"
           echo "Debug: context validation complete"
-      
       - uses: docker/setup-buildx-action@v3
 
       - name: Validate secrets
@@ -64,7 +61,6 @@ jobs:
           else
             echo "GITHUB_TOKEN available"
           fi
-      
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -82,13 +78,12 @@ jobs:
           fi
           echo "OWNER_LC=$OWNER" >> $GITHUB_ENV
           echo "Debug: OWNER_LC set to $OWNER"
-      
       - name: Validate context outputs
         run: |
           echo "Validating context outputs for self-hosted runner..."
-          BACKEND_CHANGED="${{ steps.changes.outputs.backend_any_changed || 'true' }}"
-          FRONTEND_CHANGED="${{ steps.changes.outputs.frontend_any_changed || 'true' }}"
-          INFRA_CHANGED="${{ steps.changes.outputs.infra_any_changed || 'true' }}"
+          BACKEND_CHANGED="${{ steps.changes.outputs.backend_any_changed || 'null' }}"
+          FRONTEND_CHANGED="${{ steps.changes.outputs.frontend_any_changed || 'null' }}"
+          INFRA_CHANGED="${{ steps.changes.outputs.infra_any_changed || 'null' }}"
           
           if [ "$BACKEND_CHANGED" = "" ] || [ "$BACKEND_CHANGED" = "null" ]; then
             BACKEND_CHANGED="true"
@@ -113,9 +108,8 @@ jobs:
           
           echo "Owner LC: andre27031510"
           echo "Context validation complete"
-      
       - name: Setup Node.js
-        if: ${{ ((steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.frontend_any_changed == '')) || ((steps.changes.outputs.infra_any_changed == 'true' || steps.changes.outputs.infra_any_changed == '')) || (github.event_name == 'workflow_dispatch') }}
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -123,22 +117,21 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Frontend prebuild
-        if: ${{ ((steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.frontend_any_changed == '')) || ((steps.changes.outputs.infra_any_changed == 'true' || steps.changes.outputs.infra_any_changed == '')) || (github.event_name == 'workflow_dispatch') }}
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         working-directory: frontend
         env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY || '' }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '' }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '' }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '' }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '' }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID || '' }}
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_TELEMETRY_DISABLED: '1'
         run: |
           npm ci
           npm run build
-      
       - name: Build and push backend image
-        if: ${{ ((steps.changes.outputs.backend_any_changed == 'true' || steps.changes.outputs.backend_any_changed == '')) || ((steps.changes.outputs.infra_any_changed == 'true' || steps.changes.outputs.infra_any_changed == '')) || (github.event_name == 'workflow_dispatch') }}
+        if: ${{ steps.changes.outputs.backend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: docker/build-push-action@v6
         with:
           context: ./backend
@@ -151,7 +144,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push frontend image
-        if: ${{ ((steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.frontend_any_changed == '')) || ((steps.changes.outputs.infra_any_changed == 'true' || steps.changes.outputs.infra_any_changed == '')) || (github.event_name == 'workflow_dispatch') }}
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
@@ -163,13 +156,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY || '' }}
-            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '' }}
-            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '' }}
-            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '' }}
-            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '' }}
-            NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID || '' }}
-
+            NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+            NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
   deploy:
     needs: build
     runs-on: [self-hosted, production, vynlo]
@@ -190,7 +182,6 @@ jobs:
           echo "GitHub ref: ${{ github.ref || 'unknown' }}"
           echo "GitHub sha: ${{ github.sha || 'unknown' }}"
           echo "=== Context validation complete ==="
-      
       - name: Validate secrets and environment
         run: |
           echo "=== Validating secrets and environment for self-hosted runner ==="
@@ -201,7 +192,6 @@ jobs:
           echo "Infra changed: ${{ needs.build.outputs.infra_changed || 'null' }}"
           echo "Commit SHA: ${{ github.sha || 'unknown' }}"
           echo "=== Validation complete ==="
-      
       - name: Deploy Application
         env:
           COMMIT_SHA: ${{ github.sha || 'latest' }}
@@ -309,7 +299,7 @@ jobs:
           echo "=== Self-Hosted Runner Deploy Status ==="
           if [ "${JOB_STATUS}" == "success" ]; then
             echo "✅ Deploy realizado com sucesso no runner $(hostname)!"
-            echo "�� Frontend: http://${SSH_HOST}:3000"
+            echo "🌐 Frontend: http://${SSH_HOST}:3000"
             echo "🔧 Backend: http://${SSH_HOST}:8080"
             echo "📊 Commit: ${{ github.sha || 'unknown' }}"
           else
@@ -317,4 +307,4 @@ jobs:
             echo "Status: ${JOB_STATUS}"
             echo "Verifique os logs acima para mais detalhes."
           fi
-          echo "=== Status notification complete ==="
+          echo "=== Status notification complete ===
