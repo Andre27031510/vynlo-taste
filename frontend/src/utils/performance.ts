@@ -130,3 +130,20 @@ export const getMemoryUsage = () => {
   }
   return null
 }
+
+// Retry import utility for lazy loading
+export const retryImport = async <T>(
+  importFn: () => Promise<T>,
+  retries: number = 3,
+  delay: number = 1000
+): Promise<T> => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await importFn()
+    } catch (error) {
+      if (i === retries - 1) throw error
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1)))
+    }
+  }
+  throw new Error('Max retries exceeded')
+}

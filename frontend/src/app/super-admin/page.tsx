@@ -157,10 +157,10 @@ const ordersData = [
 ]
 
 const kpiData = {
-  activeUsers: { value: 1234, change: 12.5, trend: 'up' },
-  revenue: { value: 205000, change: 8.7, trend: 'up' },
-  orders: { value: 2847, change: -2.3, trend: 'down' },
-  performance: { value: 98.5, change: 1.2, trend: 'up' }
+  activeUsers: { value: 1234, change: 12.5, trend: 'up' as const },
+  revenue: { value: 205000, change: 8.7, trend: 'up' as const },
+  orders: { value: 2847, change: -2.3, trend: 'down' as const },
+  performance: { value: 98.5, change: 1.2, trend: 'up' as const }
 }
 
 const criticalAlerts = [
@@ -824,7 +824,7 @@ const UserForm = ({ user, onSave, onCancel }: any) => {
     setFormData(prev => ({
       ...prev,
       permissions: prev.permissions.includes(permission)
-        ? prev.permissions.filter(p => p !== permission)
+        ? prev.permissions.filter((p: string) => p !== permission)
         : [...prev.permissions, permission]
     }))
   }
@@ -1207,13 +1207,13 @@ export default function SuperAdminPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedAction, setSelectedAction] = useState('')
   const [isUserModalOpen, setIsUserModalOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
   const [users, setUsers] = useState(mockUsers)
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedUsers, setSelectedUsers] = useState([])
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([])
   const [showUserForm, setShowUserForm] = useState(false)
   const [monitoringTab, setMonitoringTab] = useState('services')
   const [logFilter, setLogFilter] = useState('all')
