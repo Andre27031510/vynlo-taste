@@ -307,4 +307,4 @@ jobs:
             echo "Status: ${JOB_STATUS}"
             echo "Verifique os logs acima para mais detalhes."
           fi
-          echo "=== Status notification complete ===
+          echo "=== Status notification complete ==="
