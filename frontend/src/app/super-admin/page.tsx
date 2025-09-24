@@ -1,8 +1,6 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback, memo, Suspense, lazy } from 'react'
-import { apiService } from '../../../services/api'
-import { useWebSocket } from '../../../hooks/useWebSocket'
 import { 
   Users, 
   Settings, 
@@ -38,7 +36,6 @@ import {
   Eye,
   UserCheck,
   UserX,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -60,18 +57,12 @@ import {
   XOctagon,
   Sliders,
   FileBarChart,
-  PieChart,
-  LineChart,
   BarChart4,
-  Calendar,
-  Filter,
   FileSpreadsheet,
   FileDown,
-  TrendingUp,
   TrendingDown,
   Percent,
   MapPin,
-  Clock,
   Star,
   Award
 } from 'lucide-react'
@@ -1181,45 +1172,32 @@ const useRealTimeData = () => {
   const [lastUpdate, setLastUpdate] = useState(new Date())
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { subscribe } = useWebSocket()
   
   useEffect(() => {
-    // Load initial KPI data
-    const loadKPIs = async () => {
-      try {
-        setIsLoading(true)
-        const data = await apiService.getKPIs()
-        setRealTimeKpis(data)
-        setError(null)
-      } catch (err) {
-        console.error('Failed to load KPIs:', err)
-        setError('Failed to load KPI data')
-        // Fallback to mock data
-        setRealTimeKpis(kpiData)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadKPIs()
-
-    // Subscribe to real-time KPI updates
-    const unsubscribeKPIs = subscribe('kpi_update', (data) => {
-      setRealTimeKpis(data)
+    const interval = setInterval(() => {
+      setRealTimeKpis(prev => ({
+        activeUsers: {
+          ...prev.activeUsers,
+          value: prev.activeUsers.value + Math.floor(Math.random() * 10 - 5)
+        },
+        revenue: {
+          ...prev.revenue,
+          value: prev.revenue.value + Math.floor(Math.random() * 1000 - 500)
+        },
+        orders: {
+          ...prev.orders,
+          value: prev.orders.value + Math.floor(Math.random() * 20 - 10)
+        },
+        performance: {
+          ...prev.performance,
+          value: Math.max(95, Math.min(100, prev.performance.value + (Math.random() * 2 - 1)))
+        }
+      }))
       setLastUpdate(new Date())
-    })
-
-    // Subscribe to system alerts
-    const unsubscribeAlerts = subscribe('system_alert', (alert) => {
-      console.log('New system alert:', alert)
-      // Handle new alerts
-    })
-
-    return () => {
-      unsubscribeKPIs()
-      unsubscribeAlerts()
-    }
-  }, [subscribe])
+    }, 5000)
+    
+    return () => clearInterval(interval)
+  }, [])
   
   return { realTimeKpis, lastUpdate, isLoading, error }
 }
@@ -1254,30 +1232,12 @@ export default function SuperAdminPage() {
   })
   const { realTimeKpis, lastUpdate, isLoading: kpiLoading } = useRealTimeData()
 
-  // Load initial data
+  // Initialize with mock data
   useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        // Load users data
-        const usersData = await apiService.getUsers({
-          page: currentPage,
-          limit: usersPerPage,
-          search: searchTerm,
-          role: roleFilter,
-          status: statusFilter
-        })
-        setUsers(usersData.users || mockUsers)
-      } catch (error) {
-        console.error('Failed to load users:', error)
-        // Fallback to mock data
-        setUsers(mockUsers)
-      }
-    }
-
     if (activeTab === 'users') {
-      loadInitialData()
+      setUsers(mockUsers)
     }
-  }, [activeTab, currentPage, searchTerm, roleFilter, statusFilter])
+  }, [activeTab])
 
   // Memoized User Management Functions for Performance
   const filteredUsers = useMemo(() => {
@@ -1317,16 +1277,9 @@ export default function SuperAdminPage() {
     setShowUserForm(true)
   }, [])
 
-  const handleDeleteUser = useCallback(async (user: any) => {
+  const handleDeleteUser = useCallback((user: any) => {
     if (confirm(`Tem certeza que deseja excluir ${user.name}?`)) {
-      try {
-        await apiService.deleteUser(user.id)
-        setUsers(prev => prev.filter(u => u.id !== user.id))
-      } catch (error) {
-        console.error('Failed to delete user:', error)
-        // Fallback to local state update
-        setUsers(prev => prev.filter(u => u.id !== user.id))
-      }
+      setUsers(prev => prev.filter(u => u.id !== user.id))
     }
   }, [])
 
@@ -1335,102 +1288,48 @@ export default function SuperAdminPage() {
     setIsUserModalOpen(true)
   }, [])
 
-  const handleSaveUser = useCallback(async (userData: any) => {
-    try {
-      if (userData.id && users.find(u => u.id === userData.id)) {
-        // Update existing user
-        const updatedUser = await apiService.updateUser(userData.id, userData)
-        setUsers(prev => prev.map(u => u.id === userData.id ? updatedUser : u))
-      } else {
-        // Create new user
-        const newUser = await apiService.createUser(userData)
-        setUsers(prev => [...prev, newUser])
-      }
-      setShowUserForm(false)
-      setSelectedUser(null)
-    } catch (error) {
-      console.error('Failed to save user:', error)
-      // Fallback to local state update
-      if (userData.id && users.find(u => u.id === userData.id)) {
-        setUsers(prev => prev.map(u => u.id === userData.id ? userData : u))
-      } else {
-        setUsers(prev => [...prev, { ...userData, id: Date.now(), createdAt: new Date().toISOString().split('T')[0] }])
-      }
-      setShowUserForm(false)
-      setSelectedUser(null)
+  const handleSaveUser = useCallback((userData: any) => {
+    if (userData.id && users.find(u => u.id === userData.id)) {
+      setUsers(prev => prev.map(u => u.id === userData.id ? userData : u))
+    } else {
+      setUsers(prev => [...prev, { ...userData, id: Date.now(), createdAt: new Date().toISOString().split('T')[0] }])
     }
+    setShowUserForm(false)
+    setSelectedUser(null)
   }, [users])
 
-  const handleBulkAction = async (action: string) => {
+  const handleBulkAction = (action: string) => {
     if (selectedUsers.length === 0) return
     
-    try {
-      await apiService.bulkUpdateUsers(selectedUsers, action)
-      
-      switch (action) {
-        case 'activate':
-          setUsers(prev => prev.map(u => 
-            selectedUsers.includes(u.id) ? { ...u, status: 'active' } : u
-          ))
-          break
-        case 'deactivate':
-          setUsers(prev => prev.map(u => 
-            selectedUsers.includes(u.id) ? { ...u, status: 'inactive' } : u
-          ))
-          break
-        case 'delete':
-          if (confirm(`Tem certeza que deseja excluir ${selectedUsers.length} usuários?`)) {
-            setUsers(prev => prev.filter(u => !selectedUsers.includes(u.id)))
-          }
-          break
-      }
-    } catch (error) {
-      console.error('Failed to perform bulk action:', error)
-      // Fallback to local state update
-      switch (action) {
-        case 'activate':
-          setUsers(prev => prev.map(u => 
-            selectedUsers.includes(u.id) ? { ...u, status: 'active' } : u
-          ))
-          break
-        case 'deactivate':
-          setUsers(prev => prev.map(u => 
-            selectedUsers.includes(u.id) ? { ...u, status: 'inactive' } : u
-          ))
-          break
-        case 'delete':
-          if (confirm(`Tem certeza que deseja excluir ${selectedUsers.length} usuários?`)) {
-            setUsers(prev => prev.filter(u => !selectedUsers.includes(u.id)))
-          }
-          break
-      }
+    switch (action) {
+      case 'activate':
+        setUsers(prev => prev.map(u => 
+          selectedUsers.includes(u.id) ? { ...u, status: 'active' } : u
+        ))
+        break
+      case 'deactivate':
+        setUsers(prev => prev.map(u => 
+          selectedUsers.includes(u.id) ? { ...u, status: 'inactive' } : u
+        ))
+        break
+      case 'delete':
+        if (confirm(`Tem certeza que deseja excluir ${selectedUsers.length} usuários?`)) {
+          setUsers(prev => prev.filter(u => !selectedUsers.includes(u.id)))
+        }
+        break
     }
     setSelectedUsers([])
   }
 
   // Reports and Analytics Functions
   const generateReport = async (template: any) => {
-    try {
-      console.log('Gerando relatório:', template.name)
-      const result = await apiService.generateReport(template.id)
-      console.log('Relatório gerado:', result)
-    } catch (error) {
-      console.error('Failed to generate report:', error)
-      // Fallback to simulation
-      await new Promise(resolve => setTimeout(resolve, 2000))
-    }
+    console.log('Gerando relatório:', template.name)
+    await new Promise(resolve => setTimeout(resolve, 2000))
   }
 
   const exportData = async (format: 'pdf' | 'excel') => {
-    try {
-      console.log(`Exportando dados em formato ${format}`)
-      const result = await apiService.exportData(format, reportFilters)
-      console.log('Dados exportados:', result)
-    } catch (error) {
-      console.error('Failed to export data:', error)
-      // Fallback to simulation
-      await new Promise(resolve => setTimeout(resolve, 1500))
-    }
+    console.log(`Exportando dados em formato ${format}`)
+    await new Promise(resolve => setTimeout(resolve, 1500))
   }
 
   const updateReportFilters = (key: string, value: any) => {
@@ -1451,57 +1350,30 @@ export default function SuperAdminPage() {
     })
   }, [logs, logFilter, logSearch])
 
-  const startBackup = async () => {
-    try {
-      setIsBackupRunning(true)
-      setBackupProgress(0)
-      
-      const result = await apiService.startBackup()
-      console.log('Backup started:', result)
-      
-      // Simulate progress updates
-      const interval = setInterval(() => {
-        setBackupProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval)
-            setIsBackupRunning(false)
-            return 100
-          }
-          return prev + Math.random() * 15
-        })
-      }, 500)
-    } catch (error) {
-      console.error('Failed to start backup:', error)
-      setIsBackupRunning(false)
-    }
+  const startBackup = () => {
+    setIsBackupRunning(true)
+    setBackupProgress(0)
+    
+    const interval = setInterval(() => {
+      setBackupProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setIsBackupRunning(false)
+          return 100
+        }
+        return prev + Math.random() * 15
+      })
+    }, 500)
   }
 
-  // Load monitoring data
+  // Initialize monitoring data
   useEffect(() => {
-    const loadMonitoringData = async () => {
-      if (activeTab === 'monitoring') {
-        try {
-          const [servicesData, logsData, configData] = await Promise.all([
-            apiService.getSystemServices(),
-            apiService.getAuditLogs({ level: logFilter, search: logSearch }),
-            apiService.getSystemConfig()
-          ])
-          
-          setServices(servicesData || systemServices)
-          setLogs(logsData || auditLogs)
-          setConfig(configData || systemConfig)
-        } catch (error) {
-          console.error('Failed to load monitoring data:', error)
-          // Fallback to mock data
-          setServices(systemServices)
-          setLogs(auditLogs)
-          setConfig(systemConfig)
-        }
-      }
+    if (activeTab === 'monitoring') {
+      setServices(systemServices)
+      setLogs(auditLogs)
+      setConfig(systemConfig)
     }
-
-    loadMonitoringData()
-  }, [activeTab, logFilter, logSearch])
+  }, [activeTab])
 
   const updateConfig = (category: string, key: string, value: any) => {
     setConfig(prev => ({

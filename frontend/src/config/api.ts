@@ -1,5 +1,11 @@
  // Configurações de API para busca de artigos
 export const API_CONFIG = {
+  BACKEND: {
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+    endpoints: {
+      syncFirebase: '/api/v1/users/sync-firebase'
+    }
+  },
   NEWS_API: {
     url: 'https://newsapi.org/v2/everything',
     apiKey: process.env.NEXT_PUBLIC_NEWS_API_KEY || 'demo',

@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import com.vynlotaste.financial.Supplier;
 
 /**
  * Entidade para gerenciar transações financeiras do sistema Vynlo Taste
@@ -181,6 +182,7 @@ public class FinancialTransaction {
     private Supplier supplier;
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private Set<TransactionSplit> splits = new HashSet<>();
 
     // Métodos de negócio

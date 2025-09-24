@@ -241,4 +241,12 @@ public class UserService {
     public List<User> getUsersByRole(UserRole role) {
         return userRepository.findByRole(role);
     }
+
+
+    @Transactional
+    @CacheEvict(value = "users", allEntries = true)
+    public User save(User user) {
+        log.debug("Salvando usuário: {}", user.getId());
+        return userRepository.save(user);
+    }
 }

@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { trackLogin, trackLogout, trackError, trackEvent } from '@/config/firebase';
+import { API_CONFIG } from '@/config/api';
 
 interface AuthContextType {
   user: User | null;
@@ -76,6 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!auth) throw new Error('Firebase não inicializado');
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Sincronizar usuário com backend automaticamente
+      await syncUserWithBackend(result.user);
+      
       await trackEvent('auth_register_success', {
         method: 'email_password',
         user_id: result.user.uid,
@@ -98,6 +103,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
+      
+      // Sincronizar usuário com backend automaticamente (apenas se for novo usuário)
+      await syncUserWithBackend(result.user);
+      
       await trackLogin('google', result.user.uid);
       await trackEvent('auth_login_success', {
         method: 'google',
@@ -134,6 +143,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       console.error('Erro no logout:', error);
       throw error;
+    }
+  };
+
+  // Função para sincronizar usuário Firebase com backend
+  const syncUserWithBackend = async (firebaseUser: User) => {
+    try {
+      const response = await fetch(`${API_CONFIG.BACKEND.baseUrl}${API_CONFIG.BACKEND.endpoints.syncFirebase}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await firebaseUser.getIdToken()}`
+        },
+        body: JSON.stringify({
+          firebaseUid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          emailVerified: firebaseUser.emailVerified,
+          phoneNumber: firebaseUser.phoneNumber,
+          photoURL: firebaseUser.photoURL,
+          creationTime: firebaseUser.metadata.creationTime,
+          lastSignInTime: firebaseUser.metadata.lastSignInTime
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.warn('Falha na sincronização com backend:', errorData);
+        // Não falha o registro/login se a sincronização falhar
+        return;
+      }
+
+      const userData = await response.json();
+      console.log('Usuário sincronizado com backend:', userData);
+      
+      // Track evento de sincronização
+      await trackEvent('user_sync_success', {
+        user_id: firebaseUser.uid,
+        backend_user_id: userData.id,
+        timestamp: Date.now()
+      });
+      
+    } catch (error) {
+      console.warn('Erro na sincronização com backend:', error);
+      // Track erro de sincronização
+      await trackError(`User sync failed: ${error}`, 'AuthContext');
+      // Não falha o registro/login se a sincronização falhar
     }
   };
 

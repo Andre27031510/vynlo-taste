@@ -3,6 +3,8 @@ package com.vynlotaste.controller;
 import com.vynlotaste.dto.common.PagedResponseDto;
 import com.vynlotaste.dto.user.UserRequestDto;
 import com.vynlotaste.dto.user.UserResponseDto;
+import com.vynlotaste.dto.user.FirebaseUserSyncRequest;
+import com.vynlotaste.dto.user.FirebaseUserSyncResponse;
 import com.vynlotaste.dto.validation.ValidationGroups;
 import com.vynlotaste.entity.User;
 import com.vynlotaste.mapper.UserMapper;
@@ -17,6 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -96,5 +101,39 @@ public class UserController {
         User user = userService.deactivateUser(id);
         UserResponseDto response = userMapper.toResponseDto(user);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/sync-firebase")
+    public ResponseEntity<FirebaseUserSyncResponse> syncFirebaseUser(
+            @Valid @RequestBody FirebaseUserSyncRequest request) {
+        
+        try {
+            // Verificar se usuário já existe pelo email
+            Optional<User> existingUserByEmail = userService.findByEmail(request.getEmail());
+            if (existingUserByEmail.isPresent()) {
+                User user = existingUserByEmail.get();
+                return ResponseEntity.ok(FirebaseUserSyncResponse.alreadyExists(
+                    user.getId(), request.getFirebaseUid(), user.getEmail()));
+            }
+            
+            // Criar novo usuário
+            User newUser = userService.createUserFromFirebase(request.getEmail(), request.getDisplayName());
+            newUser.setEmailVerified(request.getEmailVerified());
+            if (request.getPhoneNumber() != null) {
+                newUser.setPhone(request.getPhoneNumber());
+            }
+            if (request.getPhotoURL() != null) {
+                newUser.setProfileImage(request.getPhotoURL());
+            }
+            
+            User savedUser = userService.save(newUser);
+            
+            return ResponseEntity.ok(FirebaseUserSyncResponse.success(
+                savedUser.getId(), request.getFirebaseUid(), savedUser.getEmail()));
+                
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(FirebaseUserSyncResponse.error("Erro ao sincronizar usuário: " + e.getMessage()));
+        }
     }
 }
