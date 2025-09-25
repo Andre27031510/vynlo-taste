@@ -19,6 +19,20 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
+            
+            // Tentar GOOGLE_APPLICATION_CREDENTIALS primeiro (produção)
+            String credentialsPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+            if (credentialsPath != null) {
+                GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
+                FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(credentials)
+                    .build();
+                
+                log.info("Firebase initialized with GOOGLE_APPLICATION_CREDENTIALS");
+                return FirebaseApp.initializeApp(options);
+            }
+            
+            // Fallback: usar arquivo JSON do classpath
             try {
                 InputStream serviceAccount = new ClassPathResource("firebase-service-account.json").getInputStream();
                 
@@ -26,14 +40,12 @@ public class FirebaseConfig {
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
                 
+                log.info("Firebase initialized with classpath JSON file");
                 return FirebaseApp.initializeApp(options);
-            } catch (Exception e) {
-                log.warn("Firebase service account not found, using default credentials");
-                FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.getApplicationDefault())
-                    .build();
                 
-                return FirebaseApp.initializeApp(options);
+            } catch (Exception e) {
+                log.error("Failed to initialize Firebase: {}", e.getMessage());
+                throw new RuntimeException("Firebase configuration required", e);
             }
         }
         return FirebaseApp.getInstance();

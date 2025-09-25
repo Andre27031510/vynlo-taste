@@ -19,8 +19,8 @@ import java.util.concurrent.TimeoutException;
 @EnableRetry
 public class RetryConfiguration {
 
-    @Bean
-    public RetryRegistry retryRegistry() {
+    @Bean(name = "basicRetryRegistry")
+    public RetryRegistry basicRetryRegistry() {
         return RetryRegistry.ofDefaults();
     }
 

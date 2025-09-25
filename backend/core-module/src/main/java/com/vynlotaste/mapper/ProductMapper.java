@@ -15,13 +15,21 @@ import java.util.Locale;
     componentModel = "spring",
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
-    unmappedTargetPolicy = ReportingPolicy.WARN,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
     uses = {DateTimeMapper.class}
 )
 @Component
 public interface ProductMapper {
     
     ProductResponseDto toResponseDto(Product product);
+    
+    @AfterMapping
+    default void enrichProductResponse(@MappingTarget ProductResponseDto dto, Product product) {
+        if (product != null && dto != null) {
+            dto.setStockStatus(getStockStatus(product));
+            dto.setFormattedPrice(formatPrice(product.getPrice()));
+        }
+    }
     
     List<ProductResponseDto> toResponseDtoList(List<Product> products);
     
@@ -30,8 +38,6 @@ public interface ProductMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deleted", constant = "false")
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "available", constant = "true")
-    @Mapping(target = "stockQuantity", constant = "0")
     Product toEntity(ProductRequestDto dto);
     
     @Mapping(target = "id", ignore = true)

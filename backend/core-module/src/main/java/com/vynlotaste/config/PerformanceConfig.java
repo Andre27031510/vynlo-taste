@@ -13,8 +13,8 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class PerformanceConfig implements WebMvcConfigurer {
 
-    @Bean(name = "taskExecutor")
-    public Executor taskExecutor() {
+    @Bean(name = "performanceTaskExecutor")
+    public Executor performanceTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(50);
         executor.setMaxPoolSize(200);
@@ -30,6 +30,6 @@ public class PerformanceConfig implements WebMvcConfigurer {
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setDefaultTimeout(30000);
-        configurer.setTaskExecutor((ThreadPoolTaskExecutor) taskExecutor());
+        configurer.setTaskExecutor((ThreadPoolTaskExecutor) performanceTaskExecutor());
     }
 }

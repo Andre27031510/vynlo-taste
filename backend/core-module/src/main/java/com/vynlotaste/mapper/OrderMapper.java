@@ -16,7 +16,7 @@ import java.util.List;
     componentModel = "spring",
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
-    unmappedTargetPolicy = ReportingPolicy.WARN,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
     uses = {UserMapper.class, DateTimeMapper.class}
 )
 @Component

@@ -8,17 +8,20 @@ import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring")
 @Component
-public class DateTimeMapper {
+public interface DateTimeMapper {
     
-    private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     
-    public String localDateTimeToString(LocalDateTime dateTime) {
+    default String toIsoString(LocalDateTime dateTime) {
         return dateTime != null ? dateTime.format(ISO_FORMATTER) : null;
     }
     
-    public LocalDateTime stringToLocalDateTime(String dateTime) {
-        return dateTime != null && !dateTime.trim().isEmpty() 
-            ? LocalDateTime.parse(dateTime, ISO_FORMATTER) 
-            : null;
+    default String toDisplayString(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.format(DISPLAY_FORMATTER) : null;
+    }
+    
+    default LocalDateTime fromIsoString(String dateTimeString) {
+        return dateTimeString != null ? LocalDateTime.parse(dateTimeString, ISO_FORMATTER) : null;
     }
 }

@@ -39,26 +39,31 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
             String token = extractTokenFromRequest(request);
             
             if (StringUtils.hasText(token)) {
-                FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
-                String email = decodedToken.getEmail();
-                
-                if (StringUtils.hasText(email)) {
-                    Optional<User> userOpt = userRepository.findByEmail(email);
-                    if (userOpt.isPresent()) {
-                        User user = userOpt.get();
-                        if (user.isActive()) {
-                            UserDetails userDetails = createUserDetails(user);
-                            UsernamePasswordAuthenticationToken authentication = 
-                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                            
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-                            log.debug("Usuário autenticado: {}", email);
+                try {
+                    FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
+                    String email = decodedToken.getEmail();
+                    
+                    if (StringUtils.hasText(email)) {
+                        Optional<User> userOpt = userRepository.findByEmail(email);
+                        if (userOpt.isPresent()) {
+                            User user = userOpt.get();
+                            if (user.isActive()) {
+                                UserDetails userDetails = createUserDetails(user);
+                                UsernamePasswordAuthenticationToken authentication = 
+                                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                                
+                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                                log.debug("Usuário autenticado: {}", email);
+                            } else {
+                                log.warn("Usuário inativo tentou acessar: {}", email);
+                            }
                         } else {
-                            log.warn("Usuário inativo tentou acessar: {}", email);
+                            log.warn("Usuário não encontrado no banco: {}", email);
                         }
-                    } else {
-                        log.warn("Usuário não encontrado no banco: {}", email);
                     }
+                } catch (Exception firebaseException) {
+                    log.warn("Firebase token validation failed: {}", firebaseException.getMessage());
+                    // Token inválido - continua sem autenticação
                 }
             }
         } catch (Exception e) {
