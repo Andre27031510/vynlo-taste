@@ -26,6 +26,7 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
+
 // Validate configuration
 const validateConfig = (): boolean => {
   const required = ['apiKey', 'authDomain', 'projectId', 'appId']

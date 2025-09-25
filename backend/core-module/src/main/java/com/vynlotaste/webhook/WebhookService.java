@@ -1,6 +1,7 @@
 package com.vynlotaste.webhook;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vynlotaste.repository.WebhookConfigRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;

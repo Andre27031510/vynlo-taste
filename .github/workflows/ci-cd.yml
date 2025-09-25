@@ -308,3 +308,4 @@ jobs:
             echo "Verifique os logs acima para mais detalhes."
           fi
           echo "=== Status notification complete ==="
+          

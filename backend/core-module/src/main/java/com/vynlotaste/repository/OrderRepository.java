@@ -43,6 +43,6 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     
     long countByCreatedAtAfter(LocalDateTime since);
     
-    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.createdAtAfter >= :since")
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.createdAt >= :since")
     java.math.BigDecimal sumTotalAmountByCreatedAtAfter(@Param("since") LocalDateTime since);
 }

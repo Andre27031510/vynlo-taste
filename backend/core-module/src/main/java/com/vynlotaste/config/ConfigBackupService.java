@@ -34,7 +34,7 @@ public class ConfigBackupService {
         }
     }
 
-    @Scheduled(cron = "${vynlo.backup.schedule:0 2 * * *}")
+    @Scheduled(cron = "${vynlo.backup.schedule:0 0 2 * * *}")
     public void scheduledBackup() {
         if (vynloProperties.getBackup().isEnabled()) {
             backupCurrentConfiguration();

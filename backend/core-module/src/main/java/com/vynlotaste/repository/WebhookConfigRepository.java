@@ -1,5 +1,6 @@
-package com.vynlotaste.webhook;
+package com.vynlotaste.repository;
 
+import com.vynlotaste.webhook.WebhookConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

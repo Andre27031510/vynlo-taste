@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "com.vynlotaste")
-@EntityScan(basePackages = "com.vynlotaste.entity")
-@EnableJpaRepositories(basePackages = "com.vynlotaste.repository")
+@EntityScan(basePackages = {"com.vynlotaste.entity", "com.vynlotaste.webhook"})
+@EnableJpaRepositories(basePackages = {"com.vynlotaste.repository", "com.vynlotaste.webhook"})
 public class CoreModuleApplication {
 
     public static void main(String[] args) {

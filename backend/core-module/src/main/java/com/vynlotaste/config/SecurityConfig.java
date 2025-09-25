@@ -66,6 +66,8 @@ public class SecurityConfig {
                 // Endpoints públicos
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
+                .requestMatchers("/api/v1/test/**").permitAll()
+                .requestMatchers("/api/v1/users/sync-firebase").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 

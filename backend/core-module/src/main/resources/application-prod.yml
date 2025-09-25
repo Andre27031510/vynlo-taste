@@ -42,8 +42,21 @@ spring:
       time-to-live: ${CACHE_TTL:1800000} # 30 minutos produção
 
 firebase:
-  project-id: ${FIREBASE_PROJECT_ID}
-  credentials-path: ${FIREBASE_CREDENTIALS}
+  project-id: ${FIREBASE_PROJECT_ID:}
+  private-key: ${FIREBASE_PRIVATE_KEY:}
+  client-email: ${FIREBASE_CLIENT_EMAIL:}
+  aws-secret-name: ${FIREBASE_AWS_SECRET_NAME:vynlo-taste-firebase-prod}
+
+# AWS Configuration
+aws:
+  region: ${AWS_REGION:us-east-1}
+
+# Security Configuration
+security:
+  jwt:
+    secret: ${JWT_SECRET:}
+    expiration: ${JWT_EXPIRATION:86400000}
+    aws-secret-name: ${JWT_AWS_SECRET_NAME:vynlo-taste-jwt-prod}
 
 vynlo:
   features:

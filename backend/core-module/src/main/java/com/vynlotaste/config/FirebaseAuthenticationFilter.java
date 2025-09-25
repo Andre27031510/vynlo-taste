@@ -15,12 +15,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "firebase.auth.enabled", havingValue = "true", matchIfMissing = false)
 public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
     private final FirebaseAuth firebaseAuth;
@@ -35,39 +37,73 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
                                   FilterChain filterChain) throws ServletException, IOException {
         
+        // Aplicar apenas ao endpoint de sincronização Firebase
+        if (!request.getRequestURI().equals("/api/v1/users/sync-firebase") || 
+            !request.getMethod().equals("POST")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         try {
             String token = extractTokenFromRequest(request);
             
-            if (StringUtils.hasText(token)) {
-                try {
-                    FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
-                    String email = decodedToken.getEmail();
-                    
-                    if (StringUtils.hasText(email)) {
-                        Optional<User> userOpt = userRepository.findByEmail(email);
-                        if (userOpt.isPresent()) {
-                            User user = userOpt.get();
-                            if (user.isActive()) {
-                                UserDetails userDetails = createUserDetails(user);
-                                UsernamePasswordAuthenticationToken authentication = 
-                                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                                
-                                SecurityContextHolder.getContext().setAuthentication(authentication);
-                                log.debug("Usuário autenticado: {}", email);
-                            } else {
-                                log.warn("Usuário inativo tentou acessar: {}", email);
-                            }
+            if (!StringUtils.hasText(token)) {
+                log.warn("Token Firebase não fornecido para endpoint de sincronização");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Token de autenticação Firebase obrigatório\"}");
+                return;
+            }
+            
+            try {
+                FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
+                String email = decodedToken.getEmail();
+                
+                if (StringUtils.hasText(email)) {
+                    Optional<User> userOpt = userRepository.findByEmail(email);
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        if (user.isActive()) {
+                            UserDetails userDetails = createUserDetails(user);
+                            UsernamePasswordAuthenticationToken authentication = 
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                            log.debug("Usuário autenticado para sincronização: {}", email);
                         } else {
-                            log.warn("Usuário não encontrado no banco: {}", email);
+                            log.warn("Usuário inativo tentou sincronizar: {}", email);
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\":\"Usuário inativo\"}");
+                            return;
                         }
+                    } else {
+                        log.warn("Usuário não encontrado no banco para sincronização: {}", email);
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.setContentType("application/json");
+                        response.getWriter().write("{\"error\":\"Usuário não encontrado\"}");
+                        return;
                     }
-                } catch (Exception firebaseException) {
-                    log.warn("Firebase token validation failed: {}", firebaseException.getMessage());
-                    // Token inválido - continua sem autenticação
+                } else {
+                    log.warn("Email não encontrado no token Firebase");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Token Firebase inválido\"}");
+                    return;
                 }
+            } catch (Exception firebaseException) {
+                log.warn("Firebase token validation failed: {}", firebaseException.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Token Firebase inválido ou expirado\"}");
+                return;
             }
         } catch (Exception e) {
             log.warn("Erro na autenticação Firebase: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\":\"Erro interno de autenticação\"}");
+            return;
         }
         
         filterChain.doFilter(request, response);
