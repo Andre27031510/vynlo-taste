@@ -18,6 +18,15 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  # Enterprise Async Configuration
+  task:
+    execution:
+      pool:
+        core-size: 8
+        max-size: 32
+        queue-capacity: 1000
+      thread-name-prefix: firebase-sync-
+
 management:
   endpoints:
     web:
@@ -52,13 +61,3 @@ firebase:
   project-id: ${FIREBASE_PROJECT_ID:vynlo-sistema}
   private-key: ${FIREBASE_PRIVATE_KEY:}
   client-email: ${FIREBASE_CLIENT_EMAIL:}
-
-# Enterprise Async Configuration
-spring:
-  task:
-    execution:
-      pool:
-        core-size: 8
-        max-size: 32
-        queue-capacity: 1000
-      thread-name-prefix: firebase-sync-
