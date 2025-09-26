@@ -145,23 +145,22 @@ export const getDbInstance = async (): Promise<Firestore | null> => {
 
 // Optimized Analytics instance with enterprise features
 export const getAnalyticsInstance = async (): Promise<Analytics | null> => {
+  // Desabilitar Analytics em produção para evitar CSP issues
+  if (isProduction) {
+    debugLog('Analytics desabilitado em produção (CSP)')
+    return null
+  }
+
   if (cachedAnalytics) {
     debugLog('Returning cached Analytics instance')
     return cachedAnalytics
   }
 
-  const app = await getFirebaseApp()
+  const app = getFirebaseApp()
   if (!app || typeof window === 'undefined') return null
 
   try {
     cachedAnalytics = getAnalytics(app)
-    
-    // Enterprise configuration for 3M+ users
-    if (isProduction) {
-      // Enable automatic event collection
-      debugLog('Analytics enterprise features enabled')
-    }
-
     debugLog('Analytics instance created')
     return cachedAnalytics
   } catch (error) {
@@ -201,7 +200,10 @@ export const getPerformanceInstance = async (): Promise<any | null> => {
 // Custom Analytics Events for Enterprise
 export const trackEvent = async (eventName: string, parameters?: Record<string, any>) => {
   const analytics = await getAnalyticsInstance()
-  if (!analytics) return
+  if (!analytics) {
+    debugLog(`Analytics desabilitado - evento ignorado: ${eventName}`)
+    return
+  }
 
   try {
     logEvent(analytics, eventName, parameters)
@@ -237,7 +239,10 @@ export const trackPerformance = async (metric: string, value: number, unit?: str
 // User Properties for Segmentation
 export const setUserProperty = async (property: string, value: string) => {
   const analytics = await getAnalyticsInstance()
-  if (!analytics) return
+  if (!analytics) {
+    debugLog(`Analytics desabilitado - propriedade ignorada: ${property}`)
+    return
+  }
 
   try {
     setUserProperties(analytics, { [property]: value })
