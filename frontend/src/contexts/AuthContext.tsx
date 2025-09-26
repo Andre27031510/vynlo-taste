@@ -10,7 +10,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { auth } from '@/config/firebase';
+import { getAuthInstance } from '@/config/firebase';
 import { trackLogin, trackLogout, trackError, trackEvent } from '@/config/firebase';
 import { API_CONFIG } from '@/config/api';
 
@@ -38,7 +38,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const auth = getAuthInstance();
     if (!auth) {
+      console.warn('Firebase Auth não inicializado no AuthContext');
       setLoading(false);
       return;
     }
@@ -52,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
+    const auth = getAuthInstance();
     if (!auth) throw new Error('Firebase não inicializado');
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
@@ -74,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (email: string, password: string) => {
+    const auth = getAuthInstance();
     if (!auth) throw new Error('Firebase não inicializado');
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -99,6 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginWithGoogle = async () => {
+    const auth = getAuthInstance();
     if (!auth) throw new Error('Firebase não inicializado');
     try {
       const provider = new GoogleAuthProvider();
@@ -126,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
+    const auth = getAuthInstance();
     if (!auth) throw new Error('Firebase não inicializado');
     try {
       const currentUser = user;

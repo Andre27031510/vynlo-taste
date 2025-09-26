@@ -2,24 +2,40 @@ import { useEffect } from 'react'
 import { getAuthInstance } from '@/config/firebase'
 import { onAuthStateChanged, User } from 'firebase/auth'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com/api'
 
 export const useFirebaseAutoSync = () => {
   useEffect(() => {
-    const auth = getAuthInstance()
-    if (!auth) {
-      console.warn('Firebase Auth não inicializado')
-      return
+    let retryCount = 0
+    const maxRetries = 3
+    
+    const initializeAuth = () => {
+      const auth = getAuthInstance()
+      if (!auth) {
+        if (retryCount < maxRetries) {
+          retryCount++
+          console.warn(`Firebase Auth não inicializado, tentativa ${retryCount}/${maxRetries}`)
+          setTimeout(initializeAuth, 1000 * retryCount)
+          return
+        }
+        console.error('Firebase Auth falhou após múltiplas tentativas')
+        return
+      }
+
+      const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+        if (user) {
+          console.log('🔥 Firebase user detected, auto-syncing...', user.uid)
+          await syncUserWithBackend(user)
+        }
+      })
+
+      return unsubscribe
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      if (user) {
-        console.log('🔥 Firebase user detected, auto-syncing...', user.uid)
-        await syncUserWithBackend(user)
-      }
-    })
-
-    return () => unsubscribe()
+    const unsubscribe = initializeAuth()
+    return () => {
+      if (unsubscribe) unsubscribe()
+    }
   }, [])
 }
 
