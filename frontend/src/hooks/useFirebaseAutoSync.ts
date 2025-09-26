@@ -6,21 +6,20 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/a
 
 export const useFirebaseAutoSync = () => {
   useEffect(() => {
-    const initAutoSync = async () => {
-      const auth = await getAuthInstance()
-      if (!auth) return
-
-      const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-        if (user) {
-          console.log('🔥 Firebase user detected, auto-syncing...', user.uid)
-          await syncUserWithBackend(user)
-        }
-      })
-
-      return unsubscribe
+    const auth = getAuthInstance()
+    if (!auth) {
+      console.warn('Firebase Auth não inicializado')
+      return
     }
 
-    initAutoSync()
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+      if (user) {
+        console.log('🔥 Firebase user detected, auto-syncing...', user.uid)
+        await syncUserWithBackend(user)
+      }
+    })
+
+    return () => unsubscribe()
   }, [])
 }
 

@@ -48,18 +48,12 @@ let cachedPerformance: any | null = null
 let initializationPromise: Promise<FirebaseApp | null> | null = null
 let activeTraces: Map<string, any> = new Map()
 
-// Optimized Firebase app initialization
-export const getFirebaseApp = async (): Promise<FirebaseApp | null> => {
+// Simplified Firebase app initialization
+export const getFirebaseApp = (): FirebaseApp | null => {
   // Return cached instance immediately
   if (cachedApp) {
     debugLog('Returning cached Firebase app')
     return cachedApp
-  }
-
-  // Return existing initialization promise to prevent multiple initializations
-  if (initializationPromise) {
-    debugLog('Waiting for existing initialization')
-    return initializationPromise
   }
 
   // Server-side rendering check
@@ -74,64 +68,42 @@ export const getFirebaseApp = async (): Promise<FirebaseApp | null> => {
     return null
   }
 
-  // Create initialization promise
-  initializationPromise = new Promise((resolve) => {
-    try {
-      debugLog('Initializing Firebase app', { 
-        environment: isDevelopment ? 'development' : 'production',
-        projectId: firebaseConfig.projectId 
-      })
+  try {
+    debugLog('Initializing Firebase app', { 
+      environment: isDevelopment ? 'development' : 'production',
+      projectId: firebaseConfig.projectId 
+    })
 
-      // Check for existing apps to prevent duplicate initialization
-      const existingApp = getApps().find(app => app.name === '[DEFAULT]')
-      
-      if (existingApp) {
-        debugLog('Using existing Firebase app')
-        cachedApp = existingApp
-      } else {
-        debugLog('Creating new Firebase app')
-        cachedApp = initializeApp(firebaseConfig)
-      }
-
-      // Performance optimization for production
-      if (isProduction) {
-        // Enable persistence and offline support
-        debugLog('Production optimizations enabled')
-      }
-
-      resolve(cachedApp)
-    } catch (error) {
-      debugLog('Firebase initialization error:', error)
-      resolve(null)
+    // Check for existing apps to prevent duplicate initialization
+    const existingApp = getApps().find(app => app.name === '[DEFAULT]')
+    
+    if (existingApp) {
+      debugLog('Using existing Firebase app')
+      cachedApp = existingApp
+    } else {
+      debugLog('Creating new Firebase app')
+      cachedApp = initializeApp(firebaseConfig)
     }
-  })
 
-  return initializationPromise
+    return cachedApp
+  } catch (error) {
+    debugLog('Firebase initialization error:', error)
+    return null
+  }
 }
 
-// Optimized Auth instance with connection pooling
-export const getAuthInstance = async (): Promise<Auth | null> => {
+// Simplified Auth instance
+export const getAuthInstance = (): Auth | null => {
   if (cachedAuth) {
     debugLog('Returning cached Auth instance')
     return cachedAuth
   }
 
-  const app = await getFirebaseApp()
+  const app = getFirebaseApp()
   if (!app) return null
 
   try {
     cachedAuth = getAuth(app)
-    
-    // Development emulator connection
-    if (isDevelopment) {
-      try {
-        connectAuthEmulator(cachedAuth, 'http://localhost:9099', { disableWarnings: true })
-        debugLog('Connected to Auth emulator')
-      } catch (error) {
-        debugLog('Auth emulator connection failed:', error)
-      }
-    }
-
     debugLog('Auth instance created')
     return cachedAuth
   } catch (error) {
