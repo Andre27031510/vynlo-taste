@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { NotificationProvider } from '@/contexts/NotificationContext'
+import FirebaseAutoSync from '@/components/FirebaseAutoSync'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -116,7 +117,8 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <NotificationProvider>
-            {children}
+              <FirebaseAutoSync />
+              {children}
             </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>

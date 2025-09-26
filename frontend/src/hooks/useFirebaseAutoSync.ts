@@ -1,0 +1,56 @@
+import { useEffect } from 'react'
+import { getAuthInstance } from '@/config/firebase'
+import { onAuthStateChanged, User } from 'firebase/auth'
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
+
+export const useFirebaseAutoSync = () => {
+  useEffect(() => {
+    const initAutoSync = async () => {
+      const auth = await getAuthInstance()
+      if (!auth) return
+
+      const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+        if (user) {
+          console.log('🔥 Firebase user detected, auto-syncing...', user.uid)
+          await syncUserWithBackend(user)
+        }
+      })
+
+      return unsubscribe
+    }
+
+    initAutoSync()
+  }, [])
+}
+
+const syncUserWithBackend = async (user: User) => {
+  try {
+    const token = await user.getIdToken()
+    
+    const response = await fetch(`${API_BASE_URL}/api/v1/users/sync-firebase`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        email: user.email,
+        firebaseUid: user.uid,
+        displayName: user.displayName || 'Usuário Firebase',
+        emailVerified: user.emailVerified,
+        phoneNumber: user.phoneNumber,
+        photoURL: user.photoURL
+      })
+    })
+
+    if (response.ok) {
+      const result = await response.json()
+      console.log('✅ Auto-sync successful:', result)
+    } else {
+      console.warn('⚠️ Auto-sync failed:', response.status)
+    }
+  } catch (error) {
+    console.error('❌ Auto-sync error:', error)
+  }
+}
