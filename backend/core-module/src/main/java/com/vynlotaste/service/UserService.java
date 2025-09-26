@@ -32,20 +32,68 @@ public class UserService {
     public User createUserFromFirebase(String email, String name) {
         log.info("Criando usuário Firebase: email={}, name={}", email, name);
         
+        // Gerar username válido a partir do email
+        String username = generateUsernameFromEmail(email);
+        
+        // Processar nome
+        String firstName = "Usuário";
+        String lastName = "Firebase";
+        
+        if (name != null && !name.trim().isEmpty()) {
+            String[] nameParts = name.trim().split(" ");
+            firstName = nameParts[0];
+            if (nameParts.length > 1) {
+                lastName = nameParts[nameParts.length - 1];
+            }
+        }
+        
         User user = new User();
         user.setEmail(email);
-        user.setUsername(email);
-        user.setFirstName(name != null ? name.split(" ")[0] : "");
-        user.setLastName(name != null && name.split(" ").length > 1 ? name.split(" ")[1] : "");
+        user.setUsername(username);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         user.setRole(UserRole.CUSTOMER);
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         
         User savedUser = userRepository.save(user);
-        log.info("Usuário Firebase criado com sucesso: id={}, email={}", savedUser.getId(), savedUser.getEmail());
+        log.info("Usuário Firebase criado com sucesso: id={}, email={}, username={}", 
+                savedUser.getId(), savedUser.getEmail(), savedUser.getUsername());
         
         return savedUser;
+    }
+    
+    private String generateUsernameFromEmail(String email) {
+        log.info("Gerando username para email: {}", email);
+        
+        // Extrair parte antes do @ e limpar caracteres especiais
+        String baseUsername = email.split("@")[0]
+                .replaceAll("[^a-zA-Z0-9_]", "_")
+                .toLowerCase();
+        
+        log.info("Username base após limpeza: {}", baseUsername);
+        
+        // Garantir que não comece com número
+        if (baseUsername.matches("^[0-9].*")) {
+            baseUsername = "user_" + baseUsername;
+        }
+        
+        // Garantir que tenha pelo menos 3 caracteres
+        if (baseUsername.length() < 3) {
+            baseUsername = "user_" + baseUsername;
+        }
+        
+        // Verificar se já existe e adicionar sufixo se necessário
+        String finalUsername = baseUsername;
+        int counter = 1;
+        while (!isUsernameAvailable(finalUsername)) {
+            finalUsername = baseUsername + "_" + counter;
+            counter++;
+        }
+        
+        log.info("Username final gerado: {}", finalUsername);
+        return finalUsername;
     }
 
     @Transactional
@@ -161,6 +209,8 @@ public class UserService {
         return userRepository.findAll(pageable);
     }
 
+    @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public User createUser(com.vynlotaste.dto.user.UserRequestDto userRequest) {
         // Verificar se email já existe
         if (!isEmailAvailable(userRequest.getEmail())) {

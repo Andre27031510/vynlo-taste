@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -58,37 +59,33 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
             try {
                 FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
                 String email = decodedToken.getEmail();
+                String uid = decodedToken.getUid();
                 
-                if (StringUtils.hasText(email)) {
-                    Optional<User> userOpt = userRepository.findByEmail(email);
-                    if (userOpt.isPresent()) {
-                        User user = userOpt.get();
-                        if (user.isActive()) {
-                            UserDetails userDetails = createUserDetails(user);
-                            UsernamePasswordAuthenticationToken authentication = 
-                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                            
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-                            log.debug("Usuário autenticado para sincronização: {}", email);
-                        } else {
-                            log.warn("Usuário inativo tentou sincronizar: {}", email);
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.setContentType("application/json");
-                            response.getWriter().write("{\"error\":\"Usuário inativo\"}");
-                            return;
-                        }
-                    } else {
-                        log.warn("Usuário não encontrado no banco para sincronização: {}", email);
-                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                        response.setContentType("application/json");
-                        response.getWriter().write("{\"error\":\"Usuário não encontrado\"}");
-                        return;
-                    }
+                if (StringUtils.hasText(email) && StringUtils.hasText(uid)) {
+                    // Para sincronização, criar autenticação temporária com dados do Firebase
+                    UserDetails tempUserDetails = org.springframework.security.core.userdetails.User.builder()
+                            .username(email)
+                            .password("")
+                            .authorities("ROLE_USER") // Role padrão para novos usuários
+                            .build();
+                    
+                    UsernamePasswordAuthenticationToken authentication = 
+                        new UsernamePasswordAuthenticationToken(tempUserDetails, null, tempUserDetails.getAuthorities());
+                    
+                    // Adicionar informações do Firebase ao contexto
+                    authentication.setDetails(Map.of(
+                        "firebaseUid", uid,
+                        "email", email,
+                        "emailVerified", decodedToken.isEmailVerified()
+                    ));
+                    
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Token Firebase válido para sincronização: {} (UID: {})", email, uid);
                 } else {
-                    log.warn("Email não encontrado no token Firebase");
+                    log.warn("Email ou UID não encontrado no token Firebase");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"error\":\"Token Firebase inválido\"}");
+                    response.getWriter().write("{\"error\":\"Token Firebase inválido - dados incompletos\"}");
                     return;
                 }
             } catch (Exception firebaseException) {

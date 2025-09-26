@@ -45,3 +45,10 @@ server:
   error:
     include-stacktrace: never
     include-message: always
+
+firebase:
+  auth:
+    enabled: true
+  project-id: ${FIREBASE_PROJECT_ID:vynlo-sistema}
+  private-key: ${FIREBASE_PRIVATE_KEY:}
+  client-email: ${FIREBASE_CLIENT_EMAIL:}
