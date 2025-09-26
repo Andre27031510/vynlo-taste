@@ -9,7 +9,7 @@ exports.syncUserToBackend = functions.auth.user().onCreate(async (user) => {
   console.log('🔥 Novo usuário Firebase criado:', user.uid);
   
   try {
-    const webhookUrl = process.env.BACKEND_WEBHOOK_URL || 'http://localhost:8080/api/api/v1/webhooks/firebase-auth';
+    const webhookUrl = process.env.BACKEND_WEBHOOK_URL || 'http://localhost:8080/api/v1/webhooks/firebase-auth';
     
     const payload = {
       eventType: 'user.create',
