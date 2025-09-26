@@ -119,6 +119,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isPublicEndpoint(String requestURI) {
         return requestURI.startsWith("/api/v1/auth/") ||
+               requestURI.startsWith("/api/v1/test/") ||
+               requestURI.startsWith("/api/v1/users/sync-firebase") ||
                requestURI.startsWith("/actuator/") ||
                requestURI.startsWith("/api/v1/public/") ||
                requestURI.equals("/api/v1/health") ||

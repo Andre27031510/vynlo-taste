@@ -5,6 +5,8 @@ import { useLandingPage } from '../../hooks/useLandingPage';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { logger } from '../../utils/logger';
 import { retryImport } from '../../utils/performance';
+import { useAuth } from '../../contexts/AuthContext';
+import TokenDisplay from '../../components/debug/TokenDisplay';
 import '../../styles/landing.css';
 
 // Code splitting with React.lazy and retry logic for better performance
@@ -151,6 +153,9 @@ const LandingPrincipal: React.FC = () => {
         <SuspenseWrapper componentName="Footer">
           <Footer />
         </SuspenseWrapper>
+        
+        {/* Componente temporário para debug - remover em produção */}
+        <TokenDisplay />
       </div>
     </ErrorBoundary>
   );

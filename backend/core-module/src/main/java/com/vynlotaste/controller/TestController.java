@@ -12,6 +12,11 @@ import java.util.Map;
 @RequestMapping("/api/v1/test")
 public class TestController {
 
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello from TestController!";
+    }
+
     @GetMapping("/ping")
     public Map<String, String> ping() {
         return Map.of("status", "ok", "message", "Backend is running");

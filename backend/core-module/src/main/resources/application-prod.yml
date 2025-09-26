@@ -58,6 +58,58 @@ security:
     expiration: ${JWT_EXPIRATION:86400000}
     aws-secret-name: ${JWT_AWS_SECRET_NAME:vynlo-taste-jwt-prod}
 
+# Spring Boot Actuator Configuration - Produção Enterprise
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+        exclude: shutdown,env,configprops,beans,mappings,loggers,threaddump,heapdump,jfr
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: never # Nunca mostrar detalhes em produção
+      show-components: always
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+      threshold: 1GB # Limite mais restritivo para produção
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      slo:
+        http.server.requests: 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
+  tracing:
+    sampling:
+      probability: 0.01 # Apenas 1% de sampling para produção
+  info:
+    env:
+      enabled: false # Desabilitar informações sensíveis em produção
+    java:
+      enabled: true
+    os:
+      enabled: false # Desabilitar informações do OS em produção
+    build:
+      enabled: true
+    git:
+      enabled: false # Desabilitar informações do Git em produção
+
 vynlo:
   features:
     new-ui: ${FEATURE_NEW_UI:false}

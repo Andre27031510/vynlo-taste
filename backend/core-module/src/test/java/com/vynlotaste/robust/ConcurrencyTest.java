@@ -55,15 +55,13 @@ class ConcurrencyTest {
             executor.submit(() -> {
                 for (int op = 0; op < operationsPerThread; op++) {
                     try {
-                        String requestBody = String.format("""
-                            {
-                                "firebaseUid": "race_%d_%d_%d",
-                                "email": "race%d_%d@vynlotaste.com",
-                                "displayName": "Race Condition User %d-%d",
-                                "emailVerified": true,
-                                "phoneNumber": "+5511999999%04d"
-                            }
-                            """, threadId, op, System.currentTimeMillis(), threadId, op, threadId, op, (threadId * operationsPerThread + op) % 10000);
+                        String requestBody = String.format("{"
+                            + "\"firebaseUid\": \"race_%d_%d_%d\","
+                            + "\"email\": \"race%d_%d@vynlotaste.com\","
+                            + "\"displayName\": \"Race Condition User %d-%d\","
+                            + "\"emailVerified\": true,"
+                            + "\"phoneNumber\": \"+5511999999%04d\""
+                            + "}", threadId, op, System.currentTimeMillis(), threadId, op, threadId, op, (threadId * operationsPerThread + op) % 10000);
 
                         lock.lock();
                         try {
@@ -132,15 +130,13 @@ class ConcurrencyTest {
             executor.submit(() -> {
                 for (int op = 0; op < operationsPerThread; op++) {
                     try {
-                        String requestBody = String.format("""
-                            {
-                                "firebaseUid": "deadlock_%d_%d_%d",
-                                "email": "deadlock%d_%d@vynlotaste.com",
-                                "displayName": "Deadlock Prevention User %d-%d",
-                                "emailVerified": true,
-                                "phoneNumber": "+5511888888%04d"
-                            }
-                            """, threadId, op, System.currentTimeMillis(), threadId, op, threadId, op, (threadId * operationsPerThread + op) % 10000);
+                        String requestBody = String.format("{"
+                            + "\"firebaseUid\": \"deadlock_%d_%d_%d\","
+                            + "\"email\": \"deadlock%d_%d@vynlotaste.com\","
+                            + "\"displayName\": \"Deadlock Prevention User %d-%d\","
+                            + "\"emailVerified\": true,"
+                            + "\"phoneNumber\": \"+5511888888%04d\""
+                            + "}", threadId, op, System.currentTimeMillis(), threadId, op, threadId, op, (threadId * operationsPerThread + op) % 10000);
 
                         // Simular operação com timeout para detectar deadlock
                         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
@@ -221,15 +217,13 @@ class ConcurrencyTest {
                     try {
                         long startTime = System.currentTimeMillis();
                         
-                        String requestBody = String.format("""
-                            {
-                                "firebaseUid": "thread_safety_%d_%d_%d",
-                                "email": "threadsafety%d_%d@vynlotaste.com",
-                                "displayName": "Thread Safety User %d-%d",
-                                "emailVerified": true,
-                                "phoneNumber": "+5511777777%04d"
-                            }
-                            """, threadId, op, System.currentTimeMillis(), threadId, op, threadId, op, (threadId * operationsPerThread + op) % 10000);
+                        String requestBody = String.format("{"
+                            + "\"firebaseUid\": \"thread_safety_%d_%d_%d\","
+                            + "\"email\": \"threadsafety%d_%d@vynlotaste.com\","
+                            + "\"displayName\": \"Thread Safety User %d-%d\","
+                            + "\"emailVerified\": true,"
+                            + "\"phoneNumber\": \"+5511777777%04d\""
+                            + "}", threadId, op, System.currentTimeMillis(), threadId, op, threadId, op, (threadId * operationsPerThread + op) % 10000);
 
                         mockMvc.perform(post("/api/v1/users/sync-firebase")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -302,15 +296,13 @@ class ConcurrencyTest {
             writerExecutor.submit(() -> {
                 for (int op = 0; op < operationsPerThread; op++) {
                     try {
-                        String requestBody = String.format("""
-                            {
-                                "firebaseUid": "writer_%d_%d_%d",
-                                "email": "writer%d_%d@vynlotaste.com",
-                                "displayName": "Writer User %d-%d",
-                                "emailVerified": true,
-                                "phoneNumber": "+5511666666%04d"
-                            }
-                            """, writerId, op, System.currentTimeMillis(), writerId, op, writerId, op, (writerId * operationsPerThread + op) % 10000);
+                        String requestBody = String.format("{"
+                            + "\"firebaseUid\": \"writer_%d_%d_%d\","
+                            + "\"email\": \"writer%d_%d@vynlotaste.com\","
+                            + "\"displayName\": \"Writer User %d-%d\","
+                            + "\"emailVerified\": true,"
+                            + "\"phoneNumber\": \"+5511666666%04d\""
+                            + "}", writerId, op, System.currentTimeMillis(), writerId, op, writerId, op, (writerId * operationsPerThread + op) % 10000);
 
                         mockMvc.perform(post("/api/v1/users/sync-firebase")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -336,17 +328,17 @@ class ConcurrencyTest {
                 for (int op = 0; op < operationsPerThread; op++) {
                     try {
                         // Simular operação de leitura
+                        String readerRequestBody = "{"
+                            + "\"firebaseUid\": \"reader_" + readerId + "_" + op + "_" + System.currentTimeMillis() + "\","
+                            + "\"email\": \"reader" + readerId + "_" + op + "@vynlotaste.com\","
+                            + "\"displayName\": \"Reader User " + readerId + "-" + op + "\","
+                            + "\"emailVerified\": true,"
+                            + "\"phoneNumber\": \"+5511555555" + String.format("%04d", (readerId * operationsPerThread + op) % 10000) + "\""
+                            + "}";
+                        
                         mockMvc.perform(post("/api/v1/users/sync-firebase")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("""
-                                    {
-                                        "firebaseUid": "reader_""" + readerId + "_" + op + "_" + System.currentTimeMillis() + """",
-                                        "email": "reader""" + readerId + "_" + op + """@vynlotaste.com",
-                                        "displayName": "Reader User """ + readerId + "-" + op + """",
-                                        "emailVerified": true,
-                                        "phoneNumber": "+5511555555""" + String.format("%04d", (readerId * operationsPerThread + op) % 10000) + """"
-                                    }
-                                    """))
+                                .content(readerRequestBody))
                                 .andExpect(status().isOk());
 
                         readSuccessCount.incrementAndGet();
@@ -414,15 +406,13 @@ class ConcurrencyTest {
             try {
                 executor.submit(() -> {
                     try {
-                        String requestBody = String.format("""
-                            {
-                                "firebaseUid": "pool_exhaustion_%d_%d",
-                                "email": "poolexhaustion%d@vynlotaste.com",
-                                "displayName": "Pool Exhaustion User %d",
-                                "emailVerified": true,
-                                "phoneNumber": "+5511444444%04d"
-                            }
-                            """, threadId, System.currentTimeMillis(), threadId, threadId, threadId % 10000);
+                        String requestBody = String.format("{"
+                            + "\"firebaseUid\": \"pool_exhaustion_%d_%d\","
+                            + "\"email\": \"poolexhaustion%d@vynlotaste.com\","
+                            + "\"displayName\": \"Pool Exhaustion User %d\","
+                            + "\"emailVerified\": true,"
+                            + "\"phoneNumber\": \"+5511444444%04d\""
+                            + "}", threadId, System.currentTimeMillis(), threadId, threadId, threadId % 10000);
 
                         mockMvc.perform(post("/api/v1/users/sync-firebase")
                                 .contentType(MediaType.APPLICATION_JSON)
