@@ -91,6 +91,12 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'firebase:' + #firebaseUid")
+    public Optional<User> findByFirebaseUid(String firebaseUid) {
+        log.debug("Buscando usuário por Firebase UID: {}", firebaseUid);
+        return userRepository.findByFirebaseUid(firebaseUid);
+    }
+
     @Cacheable(value = CacheConfig.USERS_CACHE, key = "'id:' + #id")
     public User findById(Long id) {
         log.debug("Buscando usuário por ID: {}", id);

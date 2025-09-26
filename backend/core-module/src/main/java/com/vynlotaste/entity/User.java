@@ -33,6 +33,9 @@ public class User {
     @Column(unique = true, nullable = false, length = 30)
     private String username;
 
+    @Column(unique = true, length = 128)
+    private String firebaseUid;
+
     @NotBlank(message = "Nome é obrigatório")
     @Size(min = 2, max = 50, message = "Nome deve ter entre 2 e 50 caracteres")
     @Pattern(regexp = "^[a-zA-ZÀ-ÿ\\s]+$", message = "Nome deve conter apenas letras")
@@ -133,6 +136,9 @@ public class User {
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
+
+    public String getFirebaseUid() { return firebaseUid; }
+    public void setFirebaseUid(String firebaseUid) { this.firebaseUid = firebaseUid; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

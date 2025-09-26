@@ -23,6 +23,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     Optional<User> findByUsername(String username);
     
     @EntityGraph(attributePaths = {"role"})
+    Optional<User> findByFirebaseUid(String firebaseUid);
+    
+    @EntityGraph(attributePaths = {"role"})
     List<User> findByActiveTrue();
     
     @Query("SELECT u FROM User u WHERE u.active = true AND u.role = :role")

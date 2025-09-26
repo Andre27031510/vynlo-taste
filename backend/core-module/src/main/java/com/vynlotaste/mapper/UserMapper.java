@@ -37,6 +37,7 @@ public interface UserMapper {
     @Mapping(target = "emailVerified", constant = "false")
     @Mapping(target = "active", defaultValue = "true")
     @Mapping(target = "role", defaultValue = "CUSTOMER")
+    @Mapping(target = "firebaseUid", ignore = true)
     User toEntity(UserRequestDto dto);
     
     // Conversão para Entity com contexto de criação
@@ -49,6 +50,7 @@ public interface UserMapper {
     @Mapping(target = "emailVerified", constant = "false")
     @Mapping(target = "active", constant = "true")
     @Mapping(target = "role", source = "role", defaultValue = "CUSTOMER")
+    @Mapping(target = "firebaseUid", ignore = true)
     User toEntityForCreate(UserRequestDto dto);
     
     // Atualização de Entity existente (Update)
@@ -61,6 +63,7 @@ public interface UserMapper {
     @Mapping(target = "lastActivityAt", ignore = true)
     @Mapping(target = "emailVerified", ignore = true)
     @Mapping(target = "role", ignore = true) // Role só pode ser alterado por admin
+    @Mapping(target = "firebaseUid", ignore = true)
     void updateEntityFromDto(UserRequestDto dto, @MappingTarget User user);
     
     // Atualização com contexto de admin
@@ -71,6 +74,7 @@ public interface UserMapper {
     @Mapping(target = "lastLoginAt", ignore = true)
     @Mapping(target = "lastActivityAt", ignore = true)
     @Mapping(target = "emailVerified", ignore = true)
+    @Mapping(target = "firebaseUid", ignore = true)
     void updateEntityFromDtoAsAdmin(UserRequestDto dto, @MappingTarget User user);
     
     // Conversão parcial para perfil público
