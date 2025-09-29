@@ -1,15 +1,15 @@
-FROM node:18-alpine AS base
-RUN apk add --no-cache libc6-compat curl
+# Build stage
+FROM node:18-alpine AS builder
 WORKDIR /app
 
-FROM base AS deps
+# Install dependencies
 COPY package*.json ./
 RUN npm ci --frozen-lockfile
 
-FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source code
 COPY . .
 
+# Build arguments for Firebase
 ARG NEXT_PUBLIC_FIREBASE_API_KEY
 ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
 ARG NEXT_PUBLIC_FIREBASE_PROJECT_ID
@@ -17,6 +17,7 @@ ARG NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 ARG NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 ARG NEXT_PUBLIC_FIREBASE_APP_ID
 
+# Set environment variables
 ENV NEXT_PUBLIC_FIREBASE_API_KEY=$NEXT_PUBLIC_FIREBASE_API_KEY
 ENV NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
 ENV NEXT_PUBLIC_FIREBASE_PROJECT_ID=$NEXT_PUBLIC_FIREBASE_PROJECT_ID
@@ -25,24 +26,42 @@ ENV NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$NEXT_PUBLIC_FIREBASE_MESSAGING_SEN
 ENV NEXT_PUBLIC_FIREBASE_APP_ID=$NEXT_PUBLIC_FIREBASE_APP_ID
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build the application
 RUN npm run build
 
-FROM base AS runner
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# Production stage with Nginx
+FROM nginx:1.25-alpine AS production
 
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+# Install security updates
+RUN apk update && apk upgrade && apk add --no-cache curl
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy public directory (create if empty)
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
-USER nextjs
-EXPOSE 3000
-ENV PORT=3000 HOSTNAME="0.0.0.0"
+# Copy built application
+COPY --from=builder /app/out /usr/share/nginx/html
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 CMD curl -f http://localhost:3000/ || exit 1
+# Create nginx user and set permissions
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /etc/nginx/conf.d
 
-CMD ["node", "server.js"]
+# Create pid file directory
+RUN mkdir -p /var/run/nginx && chown -R nginx:nginx /var/run/nginx
+
+# Switch to non-root user
+USER nginx
+
+# Expose port 80
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
