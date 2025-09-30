@@ -80,7 +80,7 @@ management:
   endpoint:
     health:
       show-details: when-authorized
-      show-components: true
+      show-components: when-authorized
   health:
     redis:
       enabled: true
@@ -107,8 +107,8 @@ security:
     expiration: ${JWT_EXPIRATION:86400000}
   firebase:
     project-id: ${FIREBASE_PROJECT_ID:vynlo-sistema}
-    private-key: ${FIREBASE_PRIVATE_KEY:-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n}
-    client-email: ${FIREBASE_CLIENT_EMAIL:temp@vynlo-sistema.iam.gserviceaccount.com}
+    private-key: ${FIREBASE_PRIVATE_KEY:}
+    client-email: ${FIREBASE_CLIENT_EMAIL:}
 
 # Configurações de servidor otimizadas para container
 server:
