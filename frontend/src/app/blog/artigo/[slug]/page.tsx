@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import Header from '../../../landingpages/Header'
@@ -30,7 +32,6 @@ interface LibraryData {
   searchTime: number
 }
 
-'use client'
 function ArtigoPageClient() {
   const params = useParams()
   const searchParams = useSearchParams()
@@ -505,21 +506,6 @@ function ArtigoPageClient() {
   )
 }
 
-// Generate static params for build
-export async function generateStaticParams() {
-  return [
-    { slug: 'restaurantes-biblioteca' },
-    { slug: 'educacao-biblioteca' },
-    { slug: 'servicos-biblioteca' },
-    { slug: 'saude-biblioteca' },
-    { slug: 'barbearias-biblioteca' },
-    { slug: 'petshops-biblioteca' },
-    { slug: 'igrejas-biblioteca' },
-    { slug: 'ia-bot-biblioteca' }
-  ]
-}
-
-// Server component wrapper
 export default function ArtigoPage() {
   return <ArtigoPageClient />
 }
