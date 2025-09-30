@@ -3,9 +3,9 @@ spring:
     name: vynlo-taste-backend
   
   datasource:
-    url: jdbc:postgresql://${DB_HOST:vynlo-postgres-prod}:${DB_PORT:5432}/${DB_NAME:vynlo_taste}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:}
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:vynlotech}
+    username: ${DB_USERNAME:vynlo_user}
+    password: ${DB_PASSWORD:vynlo_pass_2024}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 15
@@ -38,7 +38,7 @@ spring:
           use_query_cache: false
   
   redis:
-    host: ${REDIS_HOST:vynlo-redis-prod}
+    host: ${REDIS_HOST:redis}
     port: ${REDIS_PORT:6379}
     password: ${REDIS_PASSWORD:}
     database: ${REDIS_DATABASE:0}
@@ -107,8 +107,8 @@ security:
     expiration: ${JWT_EXPIRATION:86400000}
   firebase:
     project-id: ${FIREBASE_PROJECT_ID:vynlo-sistema}
-    private-key: ${FIREBASE_PRIVATE_KEY:}
-    client-email: ${FIREBASE_CLIENT_EMAIL:}
+    private-key: ${FIREBASE_PRIVATE_KEY:-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n}
+    client-email: ${FIREBASE_CLIENT_EMAIL:temp@vynlo-sistema.iam.gserviceaccount.com}
 
 # Configurações de servidor otimizadas para container
 server:
