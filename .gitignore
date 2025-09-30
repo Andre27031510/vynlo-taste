@@ -91,3 +91,5 @@ aws/
 *.deb
 *.zip
 actions-runner/
+.env
+.env

@@ -94,7 +94,7 @@ services:
     image: ghcr.io/andre27031510/vynlotaste-frontend:latest
     container_name: vynlo-frontend-prod
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       backend:
         condition: service_started

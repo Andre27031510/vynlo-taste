@@ -120,7 +120,7 @@ vynlo:
   
   cors:
     allowed-origins:
-      - ${CORS_ALLOWED_ORIGINS:https://vynlotaste.com,https://admin.vynlotaste.com}
+      - ${CORS_ALLOWED_ORIGINS:https://vynlotech.com,https://vynlotaste.com,https://admin.vynlotech.com}
     allowed-methods:
       - GET
       - POST

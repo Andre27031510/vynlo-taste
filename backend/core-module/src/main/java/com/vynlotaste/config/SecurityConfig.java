@@ -117,6 +117,8 @@ public class SecurityConfig {
         
         // Configurar origens permitidas (restritivo para produção)
         configuration.setAllowedOriginPatterns(Arrays.asList(
+            "https://vynlotech.com",
+            "https://*.vynlotech.com",
             "https://vynlotaste.com",
             "https://*.vynlotaste.com",
             "http://localhost:3000", // Apenas para desenvolvimento

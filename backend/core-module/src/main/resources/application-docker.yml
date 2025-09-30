@@ -135,6 +135,7 @@ cors:
   allowed-origins: 
     - http://localhost:3000
     - http://localhost:3001
+    - https://vynlotech.com
     - https://vynlotaste.com
   allowed-methods:
     - GET
