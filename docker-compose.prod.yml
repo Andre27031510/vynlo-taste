@@ -54,7 +54,7 @@ services:
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
       FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
       FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
-      # Datasource/Hikari - evitar erro de commit com autocommit
+      # Datasource/Hikari - evitar erro de commit com autocommit - Deploy fix
       SPRING_DATASOURCE_HIKARI_AUTO_COMMIT: "false"
       # Spring Boot Actuator health config (fix enum binding)
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
