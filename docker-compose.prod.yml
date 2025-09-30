@@ -3,7 +3,7 @@ services:
     image: postgres:15-alpine
     container_name: vynlo-postgres
     environment:
-      POSTGRES_DB: vynlotaste
+      POSTGRES_DB: vynlotech
       POSTGRES_USER: vynlo_user
       POSTGRES_PASSWORD: ${DB_PASSWORD:-vynlo_pass_2024}
     ports:
@@ -13,7 +13,7 @@ services:
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vynlo_user -d vynlotaste"]
+      test: ["CMD-SHELL", "pg_isready -U vynlo_user -d vynlotech"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -39,12 +39,16 @@ services:
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /app/firebase-service-account.json
       FIREBASE_CONFIG: /app/firebase-service-account.json
-      SPRING_PROFILES_ACTIVE: prod
-      DATABASE_URL: jdbc:postgresql://postgres:5432/vynlotaste
-      DB_USER: vynlo_user
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: vynlotech
+      DB_USERNAME: vynlo_user
       DB_PASSWORD: ${DB_PASSWORD:-vynlo_pass_2024}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_PASSWORD: 
+      REDIS_DATABASE: 0
       JWT_SECRET: ${JWT_SECRET:-default_jwt_secret_change_in_production}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
       FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
@@ -79,7 +83,7 @@ services:
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
