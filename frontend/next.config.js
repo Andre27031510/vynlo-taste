@@ -4,6 +4,9 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
+  // Force DOCTYPE for static export
+  trailingSlash: false,
+  generateEtags: false,
 }
 
 module.exports = nextConfig
