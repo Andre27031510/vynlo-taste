@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import Header from '../../../landingpages/Header'
@@ -32,6 +30,7 @@ interface LibraryData {
   searchTime: number
 }
 
+'use client'
 function ArtigoPageClient() {
   const params = useParams()
   const searchParams = useSearchParams()
