@@ -32,21 +32,7 @@ interface LibraryData {
   searchTime: number
 }
 
-// Generate static params for build
-export async function generateStaticParams() {
-  return [
-    { slug: 'restaurantes-biblioteca' },
-    { slug: 'educacao-biblioteca' },
-    { slug: 'servicos-biblioteca' },
-    { slug: 'saude-biblioteca' },
-    { slug: 'barbearias-biblioteca' },
-    { slug: 'petshops-biblioteca' },
-    { slug: 'igrejas-biblioteca' },
-    { slug: 'ia-bot-biblioteca' }
-  ]
-}
-
-export default function ArtigoPage() {
+function ArtigoPageClient() {
   const params = useParams()
   const searchParams = useSearchParams()
   const [libraryData, setLibraryData] = useState<LibraryData | null>(null)
@@ -518,4 +504,23 @@ export default function ArtigoPage() {
       <Footer />
     </div>
   )
+}
+
+// Generate static params for build
+export async function generateStaticParams() {
+  return [
+    { slug: 'restaurantes-biblioteca' },
+    { slug: 'educacao-biblioteca' },
+    { slug: 'servicos-biblioteca' },
+    { slug: 'saude-biblioteca' },
+    { slug: 'barbearias-biblioteca' },
+    { slug: 'petshops-biblioteca' },
+    { slug: 'igrejas-biblioteca' },
+    { slug: 'ia-bot-biblioteca' }
+  ]
+}
+
+// Server component wrapper
+export default function ArtigoPage() {
+  return <ArtigoPageClient />
 }
