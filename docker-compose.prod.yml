@@ -53,6 +53,25 @@ services:
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
       FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
       FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
+      # Datasource/Hikari - evitar erro de commit com autocommit
+      SPRING_DATASOURCE_HIKARI_AUTO_COMMIT: "false"
+      # Spring Boot Actuator health config (fix enum binding)
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_COMPONENTS: ALWAYS
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: ALWAYS
+      # Spring Mail (AWS SES)
+      SPRING_MAIL_HOST: email-smtp.${SES_REGION:-us-east-1}.amazonaws.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: ${SES_SMTP_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SES_SMTP_PASSWORD}
+      SPRING_MAIL_PROTOCOL: smtp
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_DEBUG: "false"
+      # Hibernate/DataSource ajustes de transação
+      SPRING_JPA_PROPERTIES_HIBERNATE_CONNECTION_PROVIDER_DISABLES_AUTOCOMMIT: "true"
+      SPRING_DATASOURCE_HIKARI_TRANSACTION_ISOLATION: TRANSACTION_READ_COMMITTED
     volumes:
       - /opt/secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
     # Backend port NOT exposed to host - only accessible via Nginx proxy
@@ -66,7 +85,7 @@ services:
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
