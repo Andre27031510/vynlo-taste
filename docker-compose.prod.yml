@@ -37,8 +37,9 @@ services:
     image: ghcr.io/andre27031510/vynlotaste-backend:latest
     container_name: vynlo-backend
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: /app/firebase-service-account.json
-      FIREBASE_CONFIG: /app/firebase-service-account.json
+      # Firebase credentials via environment variables (no file needed)
+      # GOOGLE_APPLICATION_CREDENTIALS: /app/firebase-service-account.json
+      # FIREBASE_CONFIG: /app/firebase-service-account.json
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: postgres
       DB_PORT: 5432
@@ -59,11 +60,12 @@ services:
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_COMPONENTS: ALWAYS
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: ALWAYS
+      MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
       # Spring Mail (AWS SES)
       SPRING_MAIL_HOST: email-smtp.${SES_REGION:-us-east-1}.amazonaws.com
       SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: ${SES_SMTP_USERNAME}
-      SPRING_MAIL_PASSWORD: ${SES_SMTP_PASSWORD}
+      SPRING_MAIL_USERNAME: ${SES_SMTP_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SES_SMTP_PASSWORD:-}
       SPRING_MAIL_PROTOCOL: smtp
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
@@ -72,8 +74,8 @@ services:
       # Hibernate/DataSource ajustes de transação
       SPRING_JPA_PROPERTIES_HIBERNATE_CONNECTION_PROVIDER_DISABLES_AUTOCOMMIT: "true"
       SPRING_DATASOURCE_HIKARI_TRANSACTION_ISOLATION: TRANSACTION_READ_COMMITTED
-    volumes:
-      - /opt/secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
+    # volumes:
+      # - /opt/secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
     # Backend port NOT exposed to host - only accessible via Nginx proxy
     expose:
       - "8080"
