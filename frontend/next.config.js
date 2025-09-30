@@ -2,15 +2,19 @@
 const nextConfig = {
   output: 'export',
   images: {
+    unoptimized: true, // Necessário para static export
     domains: ['localhost'],
   },
-  // Configurações para evitar Quirks Mode
+  // Configurações para static export com nginx
   trailingSlash: false,
   generateEtags: false,
-  // Força HTML5 DOCTYPE
+  // Desabilitar features que não funcionam com static export
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
   },
+  // Configurações específicas para nginx
+  assetPrefix: '',
+  basePath: '',
 }
 
 module.exports = nextConfig
