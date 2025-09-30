@@ -51,8 +51,9 @@ services:
       FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
     volumes:
       - /opt/secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
-    ports:
-      - "8080:8080"
+    # Backend port NOT exposed to host - only accessible via Nginx proxy
+    expose:
+      - "8080"
     depends_on:
       postgres:
         condition: service_healthy

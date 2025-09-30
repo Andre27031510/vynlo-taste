@@ -32,6 +32,20 @@ interface LibraryData {
   searchTime: number
 }
 
+// Generate static params for build
+export async function generateStaticParams() {
+  return [
+    { slug: 'restaurantes-biblioteca' },
+    { slug: 'educacao-biblioteca' },
+    { slug: 'servicos-biblioteca' },
+    { slug: 'saude-biblioteca' },
+    { slug: 'barbearias-biblioteca' },
+    { slug: 'petshops-biblioteca' },
+    { slug: 'igrejas-biblioteca' },
+    { slug: 'ia-bot-biblioteca' }
+  ]
+}
+
 export default function ArtigoPage() {
   const params = useParams()
   const searchParams = useSearchParams()
