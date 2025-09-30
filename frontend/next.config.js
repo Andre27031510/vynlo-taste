@@ -4,9 +4,13 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
-  // Force DOCTYPE for static export
+  // Configurações para evitar Quirks Mode
   trailingSlash: false,
   generateEtags: false,
+  // Força HTML5 DOCTYPE
+  experimental: {
+    optimizeCss: true,
+  },
 }
 
 module.exports = nextConfig
