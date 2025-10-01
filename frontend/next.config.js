@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'export',
   images: {
+
     unoptimized: true, // Necessário para static export
     domains: ['localhost'],
   },
@@ -9,9 +10,6 @@ const nextConfig = {
   trailingSlash: false,
   generateEtags: false,
   // Desabilitar features que não funcionam com static export
-  experimental: {
-    optimizeCss: false,
-  },
   // Configurações específicas para nginx
   assetPrefix: '',
   basePath: '',
