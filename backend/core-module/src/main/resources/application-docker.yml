@@ -17,7 +17,7 @@ spring:
   
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     open-in-view: false
     properties:
@@ -51,9 +51,12 @@ spring:
         max-wait: 3000ms
   
   flyway:
-    enabled: ${SPRING_FLYWAY_ENABLED:false}
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
     baseline-on-migrate: true
-    validate-on-migrate: false
+    baseline-version: 0
+    validate-on-migrate: true
+    out-of-order: false
+    locations: classpath:db/migration
   
   main:
     allow-bean-definition-overriding: ${SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING:true}

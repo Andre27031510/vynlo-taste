@@ -262,24 +262,27 @@ jobs:
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
           
           echo "=== Verificando saúde dos serviços ==="
+          # Aguardar subida inicial
           sleep 30
           
-          for i in {1..6}; do
-            if docker ps | grep -q "vynlo-backend" && curl -f http://localhost:8080/actuator/health 2>/dev/null; then
-              echo "✅ Backend funcionando"
+          # Backend pela rede interna Docker (recomendado p/ produção)
+          for i in {1..12}; do
+            if docker ps | grep -q "vynlo-frontend-prod" && docker exec vynlo-frontend-prod sh -lc 'curl -fsS http://backend:8080/api/actuator/health' >/dev/null 2>&1; then
+              echo "✅ Backend funcionando (rede interna Docker)"
               break
             else
-              echo "⏳ Aguardando backend... ($i/6)"
+              echo "⏳ Aguardando backend (rede interna)... ($i/12)"
               sleep 10
             fi
           done
           
-          for i in {1..6}; do
-            if docker ps | grep -q "vynlo-frontend" && curl -f http://localhost:3000 2>/dev/null; then
-              echo "✅ Frontend funcionando"
+          # Frontend + proxy externo (valida Nginx e roteamento)
+          for i in {1..12}; do
+            if docker ps | grep -q "vynlo-frontend" && curl -fsS http://localhost:3000 >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/actuator/health >/dev/null 2>&1; then
+              echo "✅ Frontend e proxy funcionando"
               break
             else
-              echo "⏳ Aguardando frontend... ($i/6)"
+              echo "⏳ Aguardando frontend/proxy... ($i/12)"
               sleep 10
             fi
           done
@@ -300,7 +303,7 @@ jobs:
           if [ "${JOB_STATUS}" == "success" ]; then
             echo "✅ Deploy realizado com sucesso no runner $(hostname)!"
             echo "🌐 Frontend: http://${SSH_HOST}:3000"
-            echo "🔧 Backend: http://${SSH_HOST}:8080"
+            echo "🔧 Backend (via proxy): http://${SSH_HOST}:3000/api/actuator/health"
             echo "📊 Commit: ${{ github.sha || 'unknown' }}"
           else
             echo "❌ Deploy falhou no runner $(hostname)!"
@@ -308,4 +311,4 @@ jobs:
             echo "Verifique os logs acima para mais detalhes."
           fi
           echo "=== Status notification complete ==="
-          
+

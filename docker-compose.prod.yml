@@ -37,9 +37,6 @@ services:
     image: ghcr.io/andre27031510/vynlotaste-backend:latest
     container_name: vynlo-backend
     environment:
-      # Firebase credentials via environment variables (no file needed)
-      # GOOGLE_APPLICATION_CREDENTIALS: /app/firebase-service-account.json
-      # FIREBASE_CONFIG: /app/firebase-service-account.json
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: postgres
       DB_PORT: 5432
@@ -48,20 +45,17 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-vynlo_pass_2024}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: 
+      REDIS_PASSWORD:
       REDIS_DATABASE: 0
       JWT_SECRET: ${JWT_SECRET:-default_jwt_secret_change_in_production}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
       FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
       FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
-      # Datasource/Hikari - evitar erro de commit com autocommit - Deploy fix
       SPRING_DATASOURCE_HIKARI_AUTO_COMMIT: "false"
-      # Spring Boot Actuator health config (fix enum binding)
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_COMPONENTS: ALWAYS
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: ALWAYS
       MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
-      # Spring Mail (AWS SES)
       SPRING_MAIL_HOST: email-smtp.${SES_REGION:-us-east-1}.amazonaws.com
       SPRING_MAIL_PORT: 587
       SPRING_MAIL_USERNAME: ${SES_SMTP_USERNAME:-}
@@ -71,12 +65,8 @@ services:
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "true"
       SPRING_MAIL_PROPERTIES_MAIL_DEBUG: "false"
-      # Hibernate/DataSource ajustes de transação
       SPRING_JPA_PROPERTIES_HIBERNATE_CONNECTION_PROVIDER_DISABLES_AUTOCOMMIT: "true"
       SPRING_DATASOURCE_HIKARI_TRANSACTION_ISOLATION: TRANSACTION_READ_COMMITTED
-    # volumes:
-      # - /opt/secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
-    # Backend port NOT exposed to host - only accessible via Nginx proxy
     expose:
       - "8080"
     depends_on:
@@ -87,7 +77,8 @@ services:
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      # Respeita o contexto /api
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -103,7 +94,7 @@ services:
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3

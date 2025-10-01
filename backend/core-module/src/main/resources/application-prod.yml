@@ -10,6 +10,7 @@ spring:
       idle-timeout: ${DB_IDLE_TIMEOUT:600000}
       max-lifetime: ${DB_MAX_LIFETIME:1800000}
       leak-detection-threshold: ${DB_LEAK_DETECTION:60000}
+      auto-commit: false
 
   redis:
     host: ${REDIS_HOST:redis}
@@ -34,6 +35,8 @@ spring:
           batch_size: 20
         order_inserts: true
         order_updates: true
+        connection:
+          provider_disables_autocommit: true
 
   cache:
     redis:
@@ -45,18 +48,15 @@ firebase:
   client-email: ${FIREBASE_CLIENT_EMAIL:}
   aws-secret-name: ${FIREBASE_AWS_SECRET_NAME:vynlo-taste-firebase-prod}
 
-# AWS Configuration
 aws:
   region: ${AWS_REGION:us-east-1}
 
-# Security Configuration
 security:
   jwt:
     secret: ${JWT_SECRET:}
     expiration: ${JWT_EXPIRATION:86400000}
     aws-secret-name: ${JWT_AWS_SECRET_NAME:vynlo-taste-jwt-prod}
 
-# Spring Boot Actuator Configuration - Produção Enterprise
 management:
   endpoints:
     web:
@@ -66,7 +66,7 @@ management:
       base-path: /actuator
   endpoint:
     health:
-      show-details: never # Nunca mostrar detalhes em produção
+      show-details: never
       show-components: always
     info:
       enabled: true
@@ -81,11 +81,12 @@ management:
       enabled: true
     diskspace:
       enabled: true
-      threshold: 1GB # Limite mais restritivo para produção
+      threshold: 1GB
   metrics:
     export:
       prometheus:
         enabled: true
+        step: 30s
     distribution:
       percentiles-histogram:
         http.server.requests: true
@@ -95,29 +96,27 @@ management:
         http.server.requests: 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
   tracing:
     sampling:
-      probability: 0.01 # Apenas 1% de sampling para produção
+      probability: 0.01
   info:
     env:
-      enabled: false # Desabilitar informações sensíveis em produção
+      enabled: false
     java:
       enabled: true
     os:
-      enabled: false # Desabilitar informações do OS em produção
+      enabled: false
     build:
       enabled: true
     git:
-      enabled: false # Desabilitar informações do Git em produção
+      enabled: false
 
 vynlo:
   features:
     new-ui: ${FEATURE_NEW_UI:false}
     analytics: ${FEATURE_ANALYTICS:true}
     beta-features: ${FEATURE_BETA:false}
-  
   rate-limit:
     requests-per-minute: ${RATE_LIMIT_RPM:300}
     burst-capacity: ${RATE_LIMIT_BURST:30}
-  
   cors:
     allowed-origins:
       - ${CORS_ALLOWED_ORIGINS:https://vynlotech.com,https://vynlotaste.com,https://admin.vynlotech.com}
@@ -134,7 +133,6 @@ vynlo:
       - X-Request-ID
     allow-credentials: true
     max-age: 3600
-
   ssl:
     enabled: true
     key-store: ${SSL_KEYSTORE_PATH}
@@ -142,10 +140,9 @@ vynlo:
     key-store-type: ${SSL_KEYSTORE_TYPE:PKCS12}
     trust-store: ${SSL_TRUSTSTORE_PATH}
     trust-store-password: ${SSL_TRUSTSTORE_PASSWORD}
-
   backup:
     enabled: ${BACKUP_ENABLED:true}
-    schedule: ${BACKUP_SCHEDULE:0 2 * * *} # 2h da manhã
+    schedule: ${BACKUP_SCHEDULE:0 2 * * *}
     retention-days: ${BACKUP_RETENTION:30}
     s3-bucket: ${BACKUP_S3_BUCKET}
 
@@ -160,24 +157,6 @@ logging:
     max-history: ${LOG_MAX_HISTORY:30}
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId:-}] [%X{traceId:-}] %logger{36} - %msg%n"
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-      base-path: /actuator
-  endpoint:
-    health:
-      show-details: never
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-        step: 30s
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
 
 server:
   port: ${SERVER_PORT:8080}
