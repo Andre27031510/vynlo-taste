@@ -147,3 +147,5 @@ volumes:
 
 networks:
   vynlo-network:
+
+# Deploy trigger: nginx container separado - 2025-01-04
