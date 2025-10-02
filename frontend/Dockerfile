@@ -29,39 +29,40 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Build the application
 RUN npm run build
 
-# Production stage with Nginx
-FROM nginx:1.25-alpine AS production
+# Production stage with Next.js
+FROM node:18-alpine AS production
 
-# Install security updates
+# Install security updates and curl for health checks
 RUN apk update && apk upgrade && apk add --no-cache curl
 
-# Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+# Create app directory
+WORKDIR /app
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copy built application and dependencies
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
 
-# Copy built application
-COPY --from=builder /app/out /usr/share/nginx/html
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
 
-# Create nginx user and set permissions
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d
+# Set ownership
+RUN chown -R nextjs:nodejs /app
+USER nextjs
 
-# Create pid file directory
-RUN mkdir -p /var/run/nginx && chown -R nginx:nginx /var/run/nginx
+# Expose port 3000
+EXPOSE 3000
 
-# Switch to non-root user
-USER nginx
-
-# Expose port 80
-EXPOSE 80
+# Set environment
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
+    CMD curl -f http://localhost:3000/ || exit 1
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start Next.js
+CMD ["npm", "start"]

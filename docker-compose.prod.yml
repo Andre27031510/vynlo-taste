@@ -77,8 +77,7 @@ services:
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      # Respeita o contexto /api
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -87,14 +86,14 @@ services:
     image: ghcr.io/andre27031510/vynlotaste-frontend:latest
     container_name: vynlo-frontend-prod
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       backend:
         condition: service_started
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3

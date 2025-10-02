@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 const Header: React.FC = () => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -164,7 +165,7 @@ const Header: React.FC = () => {
       <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 9999, padding: '16px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginLeft: '40px' }}>
-            <a href="/landingpages/landprincipal" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</a>
+            <Link href="/" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</Link>
             <nav className={`desktop-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`} ref={mobileMenuRef}>
               <button 
                 className="mobile-menu" 
@@ -197,7 +198,7 @@ const Header: React.FC = () => {
                     ref={dropdownRef}
                     className="dropdown-menu"
                   >
-                    <a href="/taste" className="dropdown-item">
+                    <Link href="/taste" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
                         <path d="M7 2v20"/>
@@ -207,8 +208,8 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>Restaurantes</div>
                         <div style={{ fontSize: '12px', color: '#10b981' }}>Vynlo Taste - Disponível</div>
                       </div>
-                    </a>
-                    <a href="/iabot" className="dropdown-item">
+                    </Link>
+                    <Link href="/iabot" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 8V4H8"/>
                         <rect width="16" height="12" x="4" y="8" rx="2"/>
@@ -221,8 +222,8 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>IA Bot</div>
                         <div style={{ fontSize: '12px', color: '#3b82f6' }}>Vynlo Bot - Disponível</div>
                       </div>
-                    </a>
-                    <a href="/igrejas" className="dropdown-item">
+                    </Link>
+                    <Link href="/igrejas" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M8 21l4-7 4 7"/>
                         <path d="M12 2v7"/>
@@ -233,8 +234,8 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>Igrejas</div>
                         <div style={{ fontSize: '12px', color: '#f59e0b' }}>Vynlo Ekklesia - Disponível</div>
                       </div>
-                    </a>
-                    <a href="/barbearias" className="dropdown-item">
+                    </Link>
+                    <Link href="/barbearias" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M6 12h12"/>
                         <path d="M6 20V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16l-6-3-6 3z"/>
@@ -243,8 +244,8 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>Barbearias</div>
                         <div style={{ fontSize: '12px', color: '#3b82f6' }}>Vynlo Barber - Disponível</div>
                       </div>
-                    </a>
-                    <a href="/petshops" className="dropdown-item">
+                    </Link>
+                    <Link href="/petshops" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M8 5a3 3 0 1 0-6 0c0 1.61 1.16 2.94 2.69 3.24A6.93 6.93 0 0 0 8 12"/>
                         <path d="M16 5a3 3 0 1 1 6 0c0 1.61-1.16 2.94-2.69 3.24A6.93 6.93 0 0 1 16 12"/>
@@ -255,8 +256,8 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>Petshops</div>
                         <div style={{ fontSize: '12px', color: '#ec4899' }}>Vynlo Pet - Disponível</div>
                       </div>
-                    </a>
-                    <a href="/educacao" className="dropdown-item">
+                    </Link>
+                    <Link href="/educacao" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                         <path d="M6 12v5c3 3 9 3 12 0v-5"/>
@@ -265,8 +266,8 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>Educação</div>
                         <div style={{ fontSize: '12px', color: '#06b6d4' }}>Vynlo Edu - Disponível</div>
                       </div>
-                    </a>
-                    <a href="/servicos" className="dropdown-item">
+                    </Link>
+                    <Link href="/servicos" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                       </svg>
@@ -274,8 +275,8 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>Serviços</div>
                         <div style={{ fontSize: '12px', color: '#84cc16' }}>Vynlo Field - Disponível</div>
                       </div>
-                    </a>
-                    <a href="/saude" className="dropdown-item">
+                    </Link>
+                    <Link href="/saude" className="dropdown-item">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>
                         <path d="M12 5L8 21l4-7 4 7-4-16"/>
@@ -284,21 +285,21 @@ const Header: React.FC = () => {
                         <div style={{ fontWeight: 600 }}>Saúde</div>
                         <div style={{ fontSize: '12px', color: '#ef4444' }}>Vynlo Health - Disponível</div>
                       </div>
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>
-              <a href="/landingpages/sobre" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Sobre</a>
-              <a href="/landingpages/recursos" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Recursos</a>
-              <a href="/landingpages/blog" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Blog</a>
-              <a href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</a>
+              <Link href="/landingpages/sobre" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Sobre</Link>
+              <Link href="/landingpages/recursos" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Recursos</Link>
+              <Link href="/landingpages/blog" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Blog</Link>
+              <Link href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</Link>
             </nav>
           </div>
           <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '80px' }}>
-            <a href="/contato" style={{ background: '#60a5fa', color: '#1e40af', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 600, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>LIGAMOS PARA VOCÊ</a>
-            <a href="/login" style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 500, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
+            <Link href="/contato" style={{ background: '#60a5fa', color: '#1e40af', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 600, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>LIGAMOS PARA VOCÊ</Link>
+            <Link href="/login" style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 500, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
               SOU CLIENTE
-            </a>
+            </Link>
           </div>
         </div>
       </header>
