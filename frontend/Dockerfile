@@ -29,40 +29,48 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Build the application
 RUN npm run build
 
-# Production stage with Next.js
-FROM node:18-alpine AS production
-
-# Install security updates and curl for health checks
-RUN apk update && apk upgrade && apk add --no-cache curl
-
-# Create app directory
+# Next.js stage
+FROM node:18-alpine AS nextjs
 WORKDIR /app
-
-# Copy built application and dependencies
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/public ./public
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-# Set ownership
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 RUN chown -R nextjs:nodejs /app
 USER nextjs
-
-# Expose port 3000
-EXPOSE 3000
-
-# Set environment
+EXPOSE 3001
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3000/ || exit 1
+# Production stage with Nginx + Next.js
+FROM nginx:1.25-alpine AS production
+RUN apk update && apk upgrade && apk add --no-cache curl supervisor nodejs npm
 
-# Start Next.js
-CMD ["npm", "start"]
+# Copy Next.js app
+COPY --from=nextjs /app /app
+WORKDIR /app
+
+# Copy nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Create supervisor config
+RUN echo '[supervisord]' > /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'nodaemon=true' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo '[program:nginx]' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'command=nginx -g "daemon off;"' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo '[program:nextjs]' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'command=npm start' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'directory=/app' >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo 'user=nextjs' >> /etc/supervisor/conf.d/supervisord.conf
+
+# Create users
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+RUN chown -R nextjs:nodejs /app
+
+EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

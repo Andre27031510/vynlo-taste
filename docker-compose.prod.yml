@@ -86,14 +86,16 @@ services:
     image: ghcr.io/andre27031510/vynlotaste-frontend:latest
     container_name: vynlo-frontend-prod
     ports:
-      - "3000:3000"
+      - "3000:80"
+    environment:
+      - NEXTJS_PORT=3001
     depends_on:
       backend:
         condition: service_started
     networks: [vynlo-network]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3

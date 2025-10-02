@@ -8,7 +8,7 @@ const nextConfig = {
   generateEtags: false,
   // Força HTML5 DOCTYPE
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
   },
 }
 
