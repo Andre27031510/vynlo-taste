@@ -163,8 +163,6 @@ vynlo:
     key-store: ${SSL_KEYSTORE_PATH}
     key-store-password: ${SSL_KEYSTORE_PASSWORD}
     key-store-type: ${SSL_KEYSTORE_TYPE:PKCS12}
-    trust-store: ${SSL_TRUSTSTORE_PATH}
-    trust-store-password: ${SSL_TRUSTSTORE_PASSWORD}
   backup:
     enabled: ${BACKUP_ENABLED:true}
     schedule: ${BACKUP_SCHEDULE:0 2 * * *}
