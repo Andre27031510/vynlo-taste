@@ -37,7 +37,7 @@ services:
     image: ghcr.io/andre27031510/vynlotaste-backend:latest
     container_name: vynlo-backend
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: vynlotech

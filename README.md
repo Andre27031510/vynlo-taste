@@ -226,3 +226,4 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 # Deploy trigger 10/02/2025 17:32:54
 
 # Fix CORS bean conflict - 2025-01-04
+# Fix Spring Boot profile - backend restart issue - 2025-01-04
