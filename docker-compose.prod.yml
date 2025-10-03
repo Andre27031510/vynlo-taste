@@ -67,8 +67,16 @@ services:
       SPRING_MAIL_PROPERTIES_MAIL_DEBUG: "false"
       SPRING_JPA_PROPERTIES_HIBERNATE_CONNECTION_PROVIDER_DISABLES_AUTOCOMMIT: "true"
       SPRING_DATASOURCE_HIKARI_TRANSACTION_ISOLATION: TRANSACTION_READ_COMMITTED
-    expose:
-      - "8080"
+      SSL_ENABLED: "true"
+      SSL_KEYSTORE_PATH: /opt/ssl/vynlotech.p12
+      SSL_KEYSTORE_PASSWORD: vynlo2024
+      SSL_KEYSTORE_TYPE: PKCS12
+      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/ssl:/opt/ssl:ro
     depends_on:
       postgres:
         condition: service_healthy
