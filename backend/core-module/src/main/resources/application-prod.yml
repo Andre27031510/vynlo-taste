@@ -4,13 +4,14 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
-      minimum-idle: ${DB_POOL_MIN_IDLE:10}
-      connection-timeout: ${DB_CONNECTION_TIMEOUT:30000}
-      idle-timeout: ${DB_IDLE_TIMEOUT:600000}
-      max-lifetime: ${DB_MAX_LIFETIME:1800000}
-      leak-detection-threshold: ${DB_LEAK_DETECTION:60000}
-      auto-commit: false
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:10000}
+      idle-timeout: ${DB_IDLE_TIMEOUT:300000}
+      max-lifetime: ${DB_MAX_LIFETIME:900000}
+      leak-detection-threshold: 0
+      auto-commit: true
+      initialization-fail-timeout: 10000
 
   redis:
     host: ${REDIS_HOST:redis}
@@ -25,6 +26,14 @@ spring:
         min-idle: ${REDIS_POOL_MIN:2}
         max-wait: ${REDIS_POOL_WAIT:3000ms}
 
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    connect-retries: 3
+    connect-retries-interval: 10s
+    lock-retry-count: 3
+    
   jpa:
     hibernate:
       ddl-auto: validate
@@ -32,15 +41,31 @@ spring:
     properties:
       hibernate:
         jdbc:
-          batch_size: 20
+          batch_size: 10
         order_inserts: true
         order_updates: true
         connection:
-          provider_disables_autocommit: true
+          provider_disables_autocommit: false
 
   cache:
     redis:
       time-to-live: ${CACHE_TTL:1800000} # 30 minutos produção
+      
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
 
 firebase:
   project-id: ${FIREBASE_PROJECT_ID:}
