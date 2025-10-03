@@ -54,8 +54,8 @@ spring:
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    username: ${MAIL_USERNAME:noreply@vynlotech.com}
+    password: ${MAIL_PASSWORD:dummy_password}
     properties:
       mail:
         smtp:
@@ -66,6 +66,7 @@ spring:
           connectiontimeout: 5000
           timeout: 3000
           writetimeout: 5000
+    test-connection: false
 
 firebase:
   project-id: ${FIREBASE_PROJECT_ID:}
