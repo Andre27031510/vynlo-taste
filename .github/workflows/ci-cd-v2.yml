@@ -242,8 +242,10 @@ jobs:
             export FRONTEND_TAG="${{ github.sha }}"
           fi
           
-          echo "=== Parando containers antigos ==="
-          docker compose -f docker-compose.prod.yml down 2>/dev/null || true
+          echo "=== Parando e removendo containers antigos ==="
+          docker compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
+          docker stop vynlo-backend vynlo-frontend vynlo-postgres vynlo-redis vynlo-prometheus vynlo-grafana 2>/dev/null || true
+          docker rm vynlo-backend vynlo-frontend vynlo-postgres vynlo-redis vynlo-prometheus vynlo-grafana 2>/dev/null || true
           
           echo "=== Baixando novas imagens ==="
           for i in {1..3}; do
