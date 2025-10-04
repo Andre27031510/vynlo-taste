@@ -18,37 +18,34 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
-@Order(1) // Prioridade alta para ser aplicado antes da configuração principal
+@Order(1)
 public class ActuatorSecurityConfig {
 
     @Bean
     public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher(EndpointRequest.toAnyEndpoint())
+            .securityMatcher("/api/actuator/**")
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> authz
-                // Endpoints públicos (health check com base-path customizado)
-                .requestMatchers("/api/actuator/health", "/actuator/health").permitAll()
-                .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                // Health endpoint público para ALB
+                .requestMatchers("/api/actuator/health").permitAll()
+                .requestMatchers("/api/actuator/health/**").permitAll()
                 
-                // Endpoints sensíveis - apenas ADMIN com autenticação
-                .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ADMIN")
+                // Endpoints sensíveis protegidos
+                .requestMatchers("/api/actuator/info").hasRole("ADMIN")
+                .requestMatchers("/api/actuator/metrics").hasRole("ADMIN")
+                .requestMatchers("/api/actuator/metrics/**").hasRole("ADMIN")
+                .requestMatchers("/api/actuator/prometheus").hasRole("ADMIN")
                 
-                // Bloquear endpoints perigosos em produção
-                .requestMatchers(EndpointRequest.to("shutdown")).denyAll()
-                .requestMatchers(EndpointRequest.to("env")).denyAll()
-                .requestMatchers(EndpointRequest.to("configprops")).denyAll()
-                .requestMatchers(EndpointRequest.to("beans")).denyAll()
-                .requestMatchers(EndpointRequest.to("mappings")).denyAll()
-                .requestMatchers(EndpointRequest.to("loggers")).denyAll()
-                .requestMatchers(EndpointRequest.to("threaddump")).denyAll()
-                .requestMatchers(EndpointRequest.to("heapdump")).denyAll()
-                .requestMatchers(EndpointRequest.to("jfr")).denyAll()
-                
-                // Permitir apenas endpoints seguros para monitoramento
-                .requestMatchers(EndpointRequest.to(InfoEndpoint.class)).hasRole("ADMIN")
-                .requestMatchers(EndpointRequest.to(MetricsEndpoint.class)).hasRole("ADMIN")
-                .requestMatchers(EndpointRequest.to("prometheus")).hasRole("ADMIN")
+                // Bloquear endpoints perigosos
+                .requestMatchers("/api/actuator/shutdown").denyAll()
+                .requestMatchers("/api/actuator/env").denyAll()
+                .requestMatchers("/api/actuator/configprops").denyAll()
+                .requestMatchers("/api/actuator/beans").denyAll()
+                .requestMatchers("/api/actuator/mappings").denyAll()
+                .requestMatchers("/api/actuator/loggers").denyAll()
+                .requestMatchers("/api/actuator/threaddump").denyAll()
+                .requestMatchers("/api/actuator/heapdump").denyAll()
                 
                 .anyRequest().denyAll()
             )
