@@ -48,10 +48,16 @@ public class ActuatorSecurityConfig {
                 .requestMatchers("/api/actuator/threaddump").denyAll()
                 .requestMatchers("/api/actuator/heapdump").denyAll()
                 
-                .anyRequest().denyAll()
+                .anyRequest().authenticated()
             )
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(401);
+                    response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                })
+            )
             .headers(headers -> headers
                 .contentTypeOptions(contentTypeOptions -> contentTypeOptions.and())
                 .frameOptions(frameOptions -> frameOptions.deny())
