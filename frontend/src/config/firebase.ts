@@ -15,15 +15,29 @@ const debugLog = (message: string, data?: any) => {
   }
 }
 
-// Firebase configuration with environment validation and fallback
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyApXH8Qx1n6B82sZyAtwJ6NNxJfQlEz36Q",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "vynlo-sistema.firebaseapp.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "vynlo-sistema",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "vynlo-sistema.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "348634037274",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:348634037274:web:169fa8a9c3d85850cda5a3",
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+// Firebase configuration from backend API
+let firebaseConfig: any = {
+  apiKey: "AIzaSyApXH8Qx1n6B82sZyAtwJ6NNxJfQlEz36Q",
+  authDomain: "vynlo-sistema.firebaseapp.com",
+  projectId: "vynlo-sistema",
+  storageBucket: "vynlo-sistema.firebasestorage.app",
+  messagingSenderId: "348634037274",
+  appId: "1:348634037274:web:169fa8a9c3d85850cda5a3",
+}
+
+// Load config from backend
+const loadFirebaseConfig = async () => {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+    const response = await fetch(`${apiUrl}/api/config/firebase`)
+    if (response.ok) {
+      const config = await response.json()
+      firebaseConfig = { ...firebaseConfig, ...config }
+      debugLog('Firebase config loaded from backend', firebaseConfig)
+    }
+  } catch (error) {
+    debugLog('Failed to load Firebase config from backend, using defaults', error)
+  }
 }
 
 
