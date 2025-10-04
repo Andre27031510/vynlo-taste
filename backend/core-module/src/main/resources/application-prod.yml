@@ -1,7 +1,4 @@
 spring:
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
   main:
     lazy-initialization: false
     allow-bean-definition-overriding: true
@@ -63,7 +60,7 @@ spring:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:noreply@vynlotech.com}
-    password: ${MAIL_PASSWORD:dummy_password}
+    password: ${MAIL_PASSWORD:VynloTaste2024!}
     properties:
       mail:
         smtp:
