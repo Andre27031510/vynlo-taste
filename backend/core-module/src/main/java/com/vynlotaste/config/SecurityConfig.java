@@ -77,7 +77,7 @@ public class SecurityConfig {
                 
                 // Endpoints administrativos - apenas ADMIN
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .requestMatchers("/actuator/**").hasRole("ADMIN")
+                .requestMatchers("/actuator/metrics", "/actuator/prometheus", "/api/actuator/metrics", "/api/actuator/prometheus").hasRole("ADMIN")
                 
                 // Endpoints de gestão - ADMIN ou MANAGER
                 .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
