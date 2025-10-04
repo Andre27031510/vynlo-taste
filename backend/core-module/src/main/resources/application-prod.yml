@@ -35,9 +35,8 @@ spring:
     enabled: true
     baseline-on-migrate: true
     validate-on-migrate: false
-    connect-retries: 5
-    connect-retries-interval: 5s
-    lock-retry-count: 5
+    connect-retries: 3
+    connect-retries-interval: 2s
     out-of-order: true
     ignore-missing-migrations: true
     
@@ -88,8 +87,9 @@ management:
       base-path: /api/actuator
   endpoint:
     health:
-      show-details: never
+      show-details: when-authorized
       show-components: always
+      enabled: true
     info:
       enabled: true
     metrics:
