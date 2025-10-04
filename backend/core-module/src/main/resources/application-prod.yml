@@ -154,7 +154,7 @@ vynlo:
     enabled: false
   backup:
     enabled: ${BACKUP_ENABLED:true}
-    schedule: ${BACKUP_SCHEDULE:0 2 * * *}
+    schedule: ${BACKUP_SCHEDULE:0 0 2 * * *}
     retention-days: ${BACKUP_RETENTION:30}
     s3-bucket: ${BACKUP_S3_BUCKET}
 
