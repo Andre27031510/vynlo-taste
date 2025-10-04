@@ -21,13 +21,15 @@ spring:
     port: ${REDIS_PORT:6379}
     password: ${REDIS_PASSWORD:}
     database: ${REDIS_DATABASE:0}
-    timeout: ${REDIS_TIMEOUT:3000ms}
+    timeout: ${REDIS_TIMEOUT:5000ms}
+    connect-timeout: ${REDIS_CONNECT_TIMEOUT:5000ms}
     lettuce:
       pool:
         max-active: ${REDIS_POOL_MAX:10}
         max-idle: ${REDIS_POOL_IDLE:5}
         min-idle: ${REDIS_POOL_MIN:2}
-        max-wait: ${REDIS_POOL_WAIT:3000ms}
+        max-wait: ${REDIS_POOL_WAIT:5000ms}
+      shutdown-timeout: 100ms
 
   flyway:
     enabled: true
@@ -53,8 +55,11 @@ spring:
           provider_disables_autocommit: false
 
   cache:
+    type: redis
     redis:
       time-to-live: ${CACHE_TTL:1800000} # 30 minutos produção
+      cache-null-values: false
+      use-key-prefix: true
       
   mail:
     test-connection: false
