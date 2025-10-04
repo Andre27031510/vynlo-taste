@@ -36,6 +36,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Fixed: Allow public access to actuator health endpoints for ALB health checks
         http
             // Desabilitar CSRF para APIs REST (usando JWT)
             .csrf(AbstractHttpConfigurer::disable)
@@ -64,21 +65,18 @@ public class SecurityConfig {
             
             // Configurar autorização de endpoints
             .authorizeHttpRequests(authz -> authz
-                // Endpoints públicos
+                // Endpoints públicos - ACTUATOR PRIMEIRO
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/actuator/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/test/**").permitAll()
                 .requestMatchers("/v1/test/**").permitAll() // Adicionar sem /api
                 .requestMatchers("/api/v1/users/sync-firebase").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/api/actuator/health").permitAll()
-                .requestMatchers("/actuator/info").permitAll()
-                .requestMatchers("/api/actuator/info").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 
                 // Endpoints administrativos - apenas ADMIN
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .requestMatchers("/actuator/metrics", "/actuator/prometheus", "/api/actuator/metrics", "/api/actuator/prometheus").hasRole("ADMIN")
                 
                 // Endpoints de gestão - ADMIN ou MANAGER
                 .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
