@@ -3,138 +3,83 @@ services:
     image: postgres:15-alpine
     container_name: vynlo-postgres
     environment:
-      POSTGRES_DB: vynlotech
+      POSTGRES_DB: vynlotaste
       POSTGRES_USER: vynlo_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-vynlo_pass_2024}
+      POSTGRES_PASSWORD: 96043020
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks: [vynlo-network]
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vynlo_user -d vynlotech"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    networks:
+      - vynlo-network
 
   redis:
     image: redis:7-alpine
     container_name: vynlo-redis
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks: [vynlo-network]
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    networks:
+      - vynlo-network
 
   backend:
     image: ghcr.io/andre27031510/vynlotaste-backend:latest
     container_name: vynlo-backend
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SSL_ENABLED: "false"
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: vynlotech
+      DB_NAME: vynlotaste
       DB_USERNAME: vynlo_user
-      DB_PASSWORD: ${DB_PASSWORD:-vynlo_pass_2024}
+      DB_PASSWORD: 96043020
       REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD:
-      REDIS_DATABASE: 0
-      JWT_SECRET: ${JWT_SECRET:-default_jwt_secret_change_in_production}
-      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
-      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
-      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
-      SPRING_DATASOURCE_HIKARI_AUTO_COMMIT: "false"
-      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
-      MANAGEMENT_ENDPOINT_HEALTH_SHOW_COMPONENTS: ALWAYS
-      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: ALWAYS
-      MANAGEMENT_HEALTH_MAIL_ENABLED: "false"
-      SPRING_MAIL_HOST: email-smtp.${SES_REGION:-us-east-1}.amazonaws.com
-      SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: ${SES_SMTP_USERNAME:-}
-      SPRING_MAIL_PASSWORD: ${SES_SMTP_PASSWORD:-}
-      SPRING_MAIL_PROTOCOL: smtp
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
-      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: "true"
-      SPRING_MAIL_PROPERTIES_MAIL_DEBUG: "false"
-      SPRING_JPA_PROPERTIES_HIBERNATE_CONNECTION_PROVIDER_DISABLES_AUTOCOMMIT: "true"
-      SPRING_DATASOURCE_HIKARI_TRANSACTION_ISOLATION: TRANSACTION_READ_COMMITTED
-      SSL_ENABLED: "true"
-      SSL_KEYSTORE_PATH: /opt/ssl/vynlotech.p12
-      SSL_KEYSTORE_PASSWORD: vynlo2024
-      SSL_KEYSTORE_TYPE: PKCS12
       SPRING_FLYWAY_ENABLED: "false"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    ports:
-      - "8080:8080"
-    volumes:
-      - /opt/ssl:/opt/ssl:ro
+      MAIL_HOST: smtp.gmail.com
+      MAIL_USERNAME: noreply@vynlotech.com
+      MAIL_PASSWORD: dummy
+    expose:
+      - "8080"
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks: [vynlo-network]
+      - postgres
+      - redis
     restart: unless-stopped
+    networks:
+      - vynlo-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
 
   frontend:
     image: ghcr.io/andre27031510/vynlotaste-frontend:latest
-    container_name: vynlo-frontend-prod
-    ports:
-      - "3000:3000"
+    container_name: vynlo-frontend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    expose:
+      - "3000"
     depends_on:
-      backend:
-        condition: service_started
-    networks: [vynlo-network]
+      - backend
     restart: unless-stopped
+    networks:
+      - vynlo-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: vynlo-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - prometheus_data:/prometheus
-    networks: [vynlo-network]
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: vynlo-grafana
-    ports:
-      - "3001:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
-    volumes:
-      - grafana_data:/var/lib/grafana
-    networks: [vynlo-network]
-    restart: unless-stopped
+      start_period: 30s
 
 volumes:
   postgres_data:
-  redis_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   vynlo-network:
+    driver: bridge
 
-# Deploy trigger: nginx container separado - 2025-01-04
+# ALB optimized configuration
