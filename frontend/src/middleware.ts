@@ -4,15 +4,15 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
-  // Content Security Policy
+  // Content Security Policy - Permitir Firebase e APIs necessárias
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' data: https:;
-    font-src 'self';
-    connect-src 'self';
-    frame-src 'none';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src 'self' data: https: blob:;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebase.googleapis.com https://firestore.googleapis.com wss: ws:;
+    frame-src 'self' https://vynlo-sistema.firebaseapp.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
