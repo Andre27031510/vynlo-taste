@@ -22,6 +22,7 @@ import java.util.Arrays;
  * Implementa autenticação JWT + Firebase, autorização baseada em roles,
  * proteção contra ataques comuns e headers de segurança
  * Updated: 2025-01-04 - Fixed actuator health endpoint access
+ * CRITICAL FIX: Allow public access to actuator endpoints
  */
 @Configuration
 @EnableWebSecurity
