@@ -27,7 +27,8 @@ public class ActuatorSecurityConfig {
             .securityMatcher(EndpointRequest.toAnyEndpoint())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> authz
-                // Endpoints públicos (apenas para health check)
+                // Endpoints públicos (health check com base-path customizado)
+                .requestMatchers("/api/actuator/health", "/actuator/health").permitAll()
                 .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
                 
                 // Endpoints sensíveis - apenas ADMIN com autenticação
