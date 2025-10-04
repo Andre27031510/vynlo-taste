@@ -84,10 +84,10 @@ management:
       exposure:
         include: health,info,metrics,prometheus
         exclude: shutdown,env,configprops,beans,mappings,loggers,threaddump,heapdump,jfr
-      base-path: /api/actuator
+      base-path: /actuator
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: never
       show-components: always
       enabled: true
     info:
@@ -98,11 +98,11 @@ management:
       enabled: true
   health:
     redis:
-      enabled: true
+      enabled: false
     db:
-      enabled: true
+      enabled: false
     diskspace:
-      enabled: true
+      enabled: false
       threshold: 1GB
   metrics:
     export:
