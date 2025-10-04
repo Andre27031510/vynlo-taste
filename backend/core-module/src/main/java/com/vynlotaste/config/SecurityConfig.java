@@ -70,7 +70,9 @@ public class SecurityConfig {
                 .requestMatchers("/v1/test/**").permitAll() // Adicionar sem /api
                 .requestMatchers("/api/v1/users/sync-firebase").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/api/actuator/health").permitAll()
                 .requestMatchers("/actuator/info").permitAll()
+                .requestMatchers("/api/actuator/info").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 
                 // Endpoints administrativos - apenas ADMIN
