@@ -26,6 +26,7 @@ public class ActuatorSecurityConfig {
         http
             .securityMatcher("/api/actuator/**")
             .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 // Health endpoint público para ALB
                 .requestMatchers("/api/actuator/health").permitAll()
@@ -49,7 +50,8 @@ public class ActuatorSecurityConfig {
                 
                 .anyRequest().denyAll()
             )
-            .httpBasic(basic -> basic.realmName("Vynlo Taste Actuator"))
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
             .headers(headers -> headers
                 .contentTypeOptions(contentTypeOptions -> contentTypeOptions.and())
                 .frameOptions(frameOptions -> frameOptions.deny())

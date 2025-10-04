@@ -29,11 +29,11 @@ import java.util.Arrays;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    // @Autowired
+    // private JwtAuthenticationFilter jwtAuthenticationFilter;
     
-    @Autowired
-    private SecurityAuditFilter securityAuditFilter;
+    // @Autowired
+    // private SecurityAuditFilter securityAuditFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -50,7 +50,7 @@ public class SecurityConfig {
             
             // Configurar headers de segurança
             .headers(headers -> headers
-                .contentTypeOptions(contentTypeOptions -> contentTypeOptions.and())
+                .contentTypeOptions(contentTypeOptions -> {})
                 .frameOptions(frameOptions -> frameOptions.deny())
                 .httpStrictTransportSecurity(hstsConfig -> hstsConfig
                     .maxAgeInSeconds(31536000)
@@ -69,6 +69,8 @@ public class SecurityConfig {
                 // Endpoints públicos - ACTUATOR PRIMEIRO
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/api/actuator/**").permitAll()
+                .requestMatchers("/api/actuator/health").permitAll()
+                .requestMatchers("/api/actuator/health/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/test/**").permitAll()
@@ -107,9 +109,10 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             
-            // Adicionar filtros customizados
-            .addFilterBefore(securityAuditFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            // Filtros customizados comentados temporariamente
+            // .addFilterBefore(securityAuditFilter, UsernamePasswordAuthenticationFilter.class)
+            // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .anonymous(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
