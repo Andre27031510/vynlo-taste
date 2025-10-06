@@ -35,9 +35,9 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
         retry: 1,
         retryDelay: 1000,
         throwOnError: false,
-      }
-    }
-  })
+      },
+    },
+  }))
 
   return (
     <QueryClientProvider client={queryClient}>
