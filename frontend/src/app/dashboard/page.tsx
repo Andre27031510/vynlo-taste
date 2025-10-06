@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const { currentTheme } = useTheme()
 
   const renderContent = () => {
-    const components: Record<DashboardSection, React.LazyExoticComponent<() => JSX.Element>> = {
+    const components: Record<DashboardSection, React.LazyExoticComponent<React.ComponentType<any>>> = {
       dashboard: DashboardHome,
       orders: OrdersManagement,
       menu: MenuManagement,
