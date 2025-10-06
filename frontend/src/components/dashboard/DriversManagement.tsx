@@ -62,9 +62,11 @@ const StatsSkeleton = memo(() => (
 StatsSkeleton.displayName = 'StatsSkeleton'
 
 // Componente de card de motorista memoizado
-const DriverCard = memo(({ driver, onViewDriver }: {
+const DriverCard = memo(({ driver, onViewDriver, onEditDriver, onDeleteDriver }: {
   driver: Driver
   onViewDriver: (driver: Driver) => void
+  onEditDriver: (driver: Driver) => void
+  onDeleteDriver: (driver: Driver) => void
 }) => {
   const statusColor = useMemo(() => {
     const colors = {
@@ -125,14 +127,25 @@ const DriverCard = memo(({ driver, onViewDriver }: {
           <button 
             onClick={() => onViewDriver(driver)}
             className="p-1 sm:p-2 text-secondary hover:text-blue-600 transition-colors duration-200"
+            title="Visualizar detalhes"
           >
             <Eye className="w-4 h-4" />
           </button>
           
           <button 
+            onClick={() => onEditDriver(driver)}
             className="p-1 sm:p-2 text-secondary hover:text-green-600 transition-colors duration-200"
+            title="Editar motorista"
           >
             <Edit className="w-4 h-4" />
+          </button>
+          
+          <button 
+            onClick={() => onDeleteDriver(driver)}
+            className="p-1 sm:p-2 text-secondary hover:text-red-600 transition-colors duration-200"
+            title="Excluir motorista"
+          >
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -201,9 +214,52 @@ export default function DriversManagement() {
     setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
   }, [])
 
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
   const handleViewDriver = useCallback((driver: Driver) => {
     setSelectedDriver(driver)
+    setShowViewModal(true)
   }, [])
+
+  const handleEditDriver = useCallback((driver: Driver) => {
+    setSelectedDriver(driver)
+    setDriverForm({
+      name: driver.name,
+      phone: driver.phone,
+      email: driver.email,
+      cpf: driver.cpf || '',
+      cnh: driver.cnh || '',
+      vehicle: driver.vehicle,
+      plate: driver.plate,
+      address: driver.address || ''
+    })
+    setShowEditModal(true)
+  }, [])
+
+  const handleDeleteDriver = useCallback((driver: Driver) => {
+    setSelectedDriver(driver)
+    setShowDeleteModal(true)
+  }, [])
+
+  const confirmDeleteDriver = useCallback(() => {
+    console.log('Excluindo motoboy:', selectedDriver)
+    // TODO: Implementar integração com backend
+    // const updatedDrivers = drivers.filter(d => d.id !== selectedDriver.id)
+    // setDrivers(updatedDrivers)
+    setShowDeleteModal(false)
+    setSelectedDriver(null)
+  }, [selectedDriver])
+
+  const handleUpdateDriver = useCallback((e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('Atualizando motoboy:', driverForm)
+    // TODO: Implementar integração com backend
+    setShowEditModal(false)
+    setSelectedDriver(null)
+    setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
+  }, [driverForm])
 
   // Os filtros agora são aplicados no backend via query parameters
   const filteredDrivers = drivers
@@ -362,6 +418,8 @@ export default function DriversManagement() {
               key={driver.id} 
               driver={driver}
               onViewDriver={handleViewDriver}
+              onEditDriver={handleEditDriver}
+              onDeleteDriver={handleDeleteDriver}
             />
           ))
         )}
@@ -486,14 +544,14 @@ export default function DriversManagement() {
         </div>
       )}
 
-      {/* Modal de Detalhes - Responsivo */}
-      {selectedDriver && (
+      {/* Modal de Visualização */}
+      {showViewModal && selectedDriver && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black bg-opacity-50">
           <div className="card-primary rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base sm:text-lg font-semibold text-primary font-manrope">Detalhes do Motoboy</h3>
-                <button onClick={() => setSelectedDriver(null)} className="text-muted hover:text-primary">
+                <button onClick={() => { setShowViewModal(false); setSelectedDriver(null) }} className="text-muted hover:text-primary">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -524,14 +582,145 @@ export default function DriversManagement() {
                   </p>
                 </div>
                 
-                <div className="pt-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
                   <button
-                    onClick={() => setSelectedDriver(null)}
-                    className="btn-ghost w-full px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                    onClick={() => { setShowViewModal(false); handleEditDriver(selectedDriver) }}
+                    className="btn-primary flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => { setShowViewModal(false); setSelectedDriver(null) }}
+                    className="btn-ghost flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
                   >
                     Fechar
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edição */}
+      {showEditModal && selectedDriver && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black bg-opacity-50">
+          <div className="card-primary rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-primary font-manrope">Editar Motoboy</h3>
+                <button onClick={() => { setShowEditModal(false); setSelectedDriver(null) }} className="text-muted hover:text-primary">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleUpdateDriver} className="space-y-3 sm:space-y-4">
+                <input
+                  type="text"
+                  required
+                  value={driverForm.name}
+                  onChange={(e) => setDriverForm({...driverForm, name: e.target.value})}
+                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  placeholder="Nome completo"
+                />
+                
+                <input
+                  type="tel"
+                  required
+                  value={driverForm.phone}
+                  onChange={(e) => setDriverForm({...driverForm, phone: e.target.value})}
+                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  placeholder="Telefone"
+                />
+                
+                <input
+                  type="email"
+                  required
+                  value={driverForm.email}
+                  onChange={(e) => setDriverForm({...driverForm, email: e.target.value})}
+                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  placeholder="E-mail"
+                />
+                
+                <select
+                  required
+                  value={driverForm.vehicle}
+                  onChange={(e) => setDriverForm({...driverForm, vehicle: e.target.value})}
+                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                >
+                  <option value="">Selecione o veículo</option>
+                  <option value="Moto 125cc">Moto 125cc</option>
+                  <option value="Moto 150cc">Moto 150cc</option>
+                  <option value="Bicicleta">Bicicleta</option>
+                </select>
+                
+                <input
+                  type="text"
+                  required
+                  value={driverForm.plate}
+                  onChange={(e) => setDriverForm({...driverForm, plate: e.target.value})}
+                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  placeholder="Placa do veículo"
+                />
+                
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => { setShowEditModal(false); setSelectedDriver(null) }}
+                    className="btn-ghost w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                  >
+                    Salvar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteModal && selectedDriver && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black bg-opacity-50">
+          <div className="card-primary rounded-2xl w-full max-w-sm sm:max-w-md">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-red-600 font-manrope">Confirmar Exclusão</h3>
+                <button onClick={() => { setShowDeleteModal(false); setSelectedDriver(null) }} className="text-muted hover:text-primary">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="mb-6">
+                <p className="text-sm text-secondary font-manrope mb-2">
+                  Tem certeza que deseja excluir o motoboy:
+                </p>
+                <p className="text-base font-semibold text-primary font-manrope">
+                  {selectedDriver.name}
+                </p>
+                <p className="text-xs text-red-600 mt-2">
+                  Esta ação não pode ser desfeita.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button
+                  onClick={() => { setShowDeleteModal(false); setSelectedDriver(null) }}
+                  className="btn-ghost w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteDriver}
+                  className="bg-red-600 hover:bg-red-700 text-white w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm transition-colors duration-200"
+                >
+                  Excluir
+                </button>
               </div>
             </div>
           </div>
