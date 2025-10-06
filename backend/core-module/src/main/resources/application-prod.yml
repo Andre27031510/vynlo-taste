@@ -98,6 +98,7 @@ management:
       enabled: false
     diskspace:
       enabled: false
+      threshold: 1GB
 
 vynlo:
   features:
