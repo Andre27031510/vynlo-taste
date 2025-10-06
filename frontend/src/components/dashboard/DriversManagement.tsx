@@ -201,48 +201,9 @@ export default function DriversManagement() {
     setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
   }, [])
 
-  const handleViewDriver = (driver: any) => {
+  const handleViewDriver = useCallback((driver: Driver) => {
     setSelectedDriver(driver)
-    setShowViewModal(true)
-  }
-
-  const handleEditDriver = (driver: any) => {
-    setSelectedDriver(driver)
-    setDriverForm({
-      name: driver.name,
-      phone: driver.phone,
-      email: driver.email,
-      cpf: driver.cpf || '',
-      cnh: driver.cnh || '',
-      vehicle: driver.vehicle,
-      plate: driver.plate,
-      address: driver.address || ''
-    })
-    setShowEditModal(true)
-  }
-
-  const handleDeleteDriver = (driver: any) => {
-    setSelectedDriver(driver)
-    setShowDeleteModal(true)
-  }
-
-  const confirmDeleteDriver = () => {
-    console.log('Excluindo motoboy:', selectedDriver)
-    // TODO: Implementar integração com backend
-    // const updatedDrivers = drivers.filter(d => d.id !== selectedDriver.id)
-    // setDrivers(updatedDrivers)
-    setShowDeleteModal(false)
-    setSelectedDriver(null)
-  }
-
-  const handleUpdateDriver = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Atualizando motoboy:', driverForm)
-    // TODO: Implementar integração com backend
-    setShowEditModal(false)
-    setSelectedDriver(null)
-    setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
-  }
+  }, [])
 
   // Os filtros agora são aplicados no backend via query parameters
   const filteredDrivers = drivers
@@ -400,7 +361,7 @@ export default function DriversManagement() {
             <DriverCard 
               key={driver.id} 
               driver={driver}
-              onViewDriver={setSelectedDriver}
+              onViewDriver={handleViewDriver}
             />
           ))
         )}
