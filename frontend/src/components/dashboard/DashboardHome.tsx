@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/hooks/useTheme'
+import { useDashboardStats } from '@/hooks/useDashboardStats'
 import { 
   TrendingUp, 
   ShoppingCart, 
@@ -57,15 +58,8 @@ export default function DashboardHome() {
     preferences: ''
   })
 
-  // Estados para métricas em tempo real
-  const [realTimeMetrics, setRealTimeMetrics] = useState({
-    totalOrders: 0,
-    pendingOrders: 0,
-    totalRevenue: 0,
-    activeDrivers: 0,
-    totalClients: 0,
-    lastUpdate: new Date()
-  })
+  // Hook para métricas em tempo real
+  const { stats, loading: statsLoading, error: statsError, refetch } = useDashboardStats()
 
   // Estados para notificações em tempo real
   const [notifications, setNotifications] = useState<Array<{
@@ -84,9 +78,7 @@ export default function DashboardHome() {
   const topClients = [
     { id: 1, name: 'João Silva', orders: 47, total: 2340.50, favorite: 'Pizza Margherita', avatar: 'JS' },
     { id: 2, name: 'Maria Santos', orders: 38, total: 1890.30, favorite: 'Hambúrguer Especial', avatar: 'MS' },
-    { id: 3, name: 'Pedro Costa', orders: 32, total: 1650.80, favorite: 'Combo Família', avatar: 'PC' },
-    { id: 4, name: 'Ana Lima', orders: 28, total: 1420.90, favorite: 'Salada Caesar', avatar: 'AL' },
-    { id: 5, name: 'Carlos Mendes', orders: 25, total: 1280.40, favorite: 'Pizza Portuguesa', avatar: 'CM' }
+    { id: 3, name: 'Pedro Costa', orders: 32, total: 1650.80, favorite: 'Combo Família', avatar: 'PC' }
   ]
 
   const registeredClients = [
@@ -95,26 +87,18 @@ export default function DashboardHome() {
     { id: 3, name: 'Pedro Costa', phone: '(11) 77777-7777', email: 'pedro@email.com', orders: 32 }
   ]
 
-  // Simular atualizações em tempo real
+  // Auto-sync com APIs reais
   useEffect(() => {
     if (!autoSync) return
 
     const updateInterval = setInterval(() => {
-      setRealTimeMetrics(prev => ({
-        ...prev,
-        totalOrders: Math.floor(Math.random() * 100) + 150,
-        pendingOrders: Math.floor(Math.random() * 20) + 5,
-        totalRevenue: Math.floor(Math.random() * 5000) + 15000,
-        activeDrivers: Math.floor(Math.random() * 10) + 15,
-        totalClients: Math.floor(Math.random() * 50) + 200,
-        lastUpdate: new Date()
-      }))
-    }, 5000)
+      refetch()
+    }, 30000) // Atualiza a cada 30 segundos
 
     return () => clearInterval(updateInterval)
-  }, [autoSync])
+  }, [autoSync, refetch])
 
-  // Simular notificações em tempo real
+  // Simular notificações em tempo real - Reduzido para 3 notificações
   useEffect(() => {
     if (!autoSync) return
 
@@ -128,7 +112,7 @@ export default function DashboardHome() {
         read: false
       }
       
-      setNotifications(prev => [newNotification, ...prev.slice(0, 4)])
+      setNotifications(prev => [newNotification, ...prev.slice(0, 2)])
     }, 10000)
 
     return () => clearInterval(notificationInterval)
@@ -159,6 +143,12 @@ export default function DashboardHome() {
         <div>
           <h1 className="text-4xl font-bold text-primary">Dashboard Vynlo Taste</h1>
           <p className="text-secondary text-lg">Visão geral completa do seu restaurante em tempo real</p>
+          {statsError && (
+            <div className="mt-2 flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="text-sm">Usando dados de fallback - Verifique a conexão com a API</span>
+            </div>
+          )}
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -173,6 +163,7 @@ export default function DashboardHome() {
             <span className="font-medium">
               {autoSync ? 'Sincronização Ativa' : 'Sincronização Inativa'}
             </span>
+            {statsLoading && <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>}
           </button>
           <button
             onClick={() => setShowDriverModal(true)}
@@ -191,13 +182,19 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* Cards de Métricas em Tempo Real */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Cards de Métricas em Tempo Real - Reduzido para 3 cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card-primary rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-blue-600 font-medium">Total de Pedidos</p>
-              <p className="text-2xl font-bold text-primary">{realTimeMetrics.totalOrders}</p>
+              <p className="text-2xl font-bold text-primary">
+                {statsLoading ? (
+                  <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-16 rounded"></div>
+                ) : (
+                  stats.totalOrders
+                )}
+              </p>
             </div>
             <ShoppingCart className="w-8 h-8 text-blue-600" />
           </div>
@@ -210,22 +207,14 @@ export default function DashboardHome() {
         <div className="card-primary rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-yellow-600 font-medium">Pedidos Pendentes</p>
-              <p className="text-2xl font-bold text-primary">{realTimeMetrics.pendingOrders}</p>
-            </div>
-            <Clock className="w-8 h-8 text-yellow-600" />
-          </div>
-          <div className="mt-2 flex items-center text-yellow-600 text-sm">
-            <AlertCircle className="w-4 h-4 mr-1" />
-            <span>5 aguardando</span>
-          </div>
-        </div>
-        
-        <div className="card-primary rounded-xl p-6">
-          <div className="flex items-center justify-between">
-            <div>
               <p className="text-sm text-green-600 font-medium">Receita Total</p>
-              <p className="text-2xl font-bold text-primary"></p>
+              <p className="text-2xl font-bold text-primary">
+                {statsLoading ? (
+                  <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-20 rounded"></div>
+                ) : (
+                  `R$ ${stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                )}
+              </p>
             </div>
             <DollarSign className="w-8 h-8 text-green-600" />
           </div>
@@ -238,10 +227,16 @@ export default function DashboardHome() {
         <div className="card-primary rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-purple-600 font-medium">Entregadores Ativos</p>
-              <p className="text-2xl font-bold text-primary">{realTimeMetrics.activeDrivers}</p>
+              <p className="text-sm text-purple-600 font-medium">Clientes Ativos</p>
+              <p className="text-2xl font-bold text-primary">
+                {statsLoading ? (
+                  <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-16 rounded"></div>
+                ) : (
+                  stats.totalClients
+                )}
+              </p>
             </div>
-            <Truck className="w-8 h-8 text-purple-600" />
+            <Users className="w-8 h-8 text-purple-600" />
           </div>
           <div className="mt-2 flex items-center text-green-600 text-sm">
             <CheckCircle className="w-4 h-4 mr-1" />
@@ -250,56 +245,53 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* Ações Rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card-primary rounded-2xl p-6">
-          <h3 className="label-primary text-lg mb-4">Ações Rápidas</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={() => setShowDriverModal(true)}
-              className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all duration-200 border border-blue-200 dark:border-blue-800"
-            >
-              <div className="flex flex-col items-center space-y-2">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
-                  <UserPlus className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Novo Entregador</span>
-              </div>
-            </button>
-            
-            <button
-              onClick={() => setShowClientModal(true)}
-              className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/40 transition-all duration-200 border border-green-200 dark:border-green-800"
-            >
-              <div className="flex flex-col items-center space-y-2">
-                <div className="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
-                <span className="text-sm font-medium text-green-700 dark:text-green-300">Novo Cliente</span>
-              </div>
-            </button>
+      {/* Status do Sistema - Simplificado */}
+      <div className="card-primary rounded-2xl p-6">
+        <h3 className="label-primary text-lg mb-4">Status do Sistema</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex items-center justify-between">
+            <span className="text-secondary">Pedidos</span>
+            <span className={`font-medium ${
+              stats.systemHealth.orders === 'up' ? 'text-green-600 dark:text-green-400' :
+              stats.systemHealth.orders === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+              'text-red-600 dark:text-red-400'
+            }`}>
+              {stats.systemHealth.orders === 'up' ? 'OK' :
+               stats.systemHealth.orders === 'warning' ? 'Atenção' : 'Offline'}
+            </span>
           </div>
-        </div>
-
-        <div className="card-primary rounded-2xl p-6">
-          <h3 className="label-primary text-lg mb-4">Status do Sistema</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-secondary">Pedidos</span>
-              <span className="text-green-600 dark:text-green-400 font-medium">Funcionando</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-secondary">Pagamentos</span>
-              <span className="text-green-600 dark:text-green-400 font-medium">Funcionando</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-secondary">Delivery</span>
-              <span className="text-green-600 dark:text-green-400 font-medium">Funcionando</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-secondary">Integrações</span>
-              <span className="text-green-600 dark:text-green-400 font-medium">Funcionando</span>
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-secondary">Pagamentos</span>
+            <span className={`font-medium ${
+              stats.systemHealth.payments === 'up' ? 'text-green-600 dark:text-green-400' :
+              stats.systemHealth.payments === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+              'text-red-600 dark:text-red-400'
+            }`}>
+              {stats.systemHealth.payments === 'up' ? 'OK' :
+               stats.systemHealth.payments === 'warning' ? 'Atenção' : 'Offline'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-secondary">Delivery</span>
+            <span className={`font-medium ${
+              stats.systemHealth.delivery === 'up' ? 'text-green-600 dark:text-green-400' :
+              stats.systemHealth.delivery === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+              'text-red-600 dark:text-red-400'
+            }`}>
+              {stats.systemHealth.delivery === 'up' ? 'OK' :
+               stats.systemHealth.delivery === 'warning' ? 'Atenção' : 'Offline'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-secondary">Integrações</span>
+            <span className={`font-medium ${
+              stats.systemHealth.integrations === 'up' ? 'text-green-600 dark:text-green-400' :
+              stats.systemHealth.integrations === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
+              'text-red-600 dark:text-red-400'
+            }`}>
+              {stats.systemHealth.integrations === 'up' ? 'OK' :
+               stats.systemHealth.integrations === 'warning' ? 'Atenção' : 'Offline'}
+            </span>
           </div>
         </div>
       </div>
