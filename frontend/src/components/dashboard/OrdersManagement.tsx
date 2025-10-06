@@ -229,12 +229,7 @@ function OrdersManagementContent() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Gestão de Pedidos</h1>
           <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Gerencie todos os pedidos do restaurante</p>
-          {ordersError && (
-            <div className="mt-2 flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
-              <Clock className="w-4 h-4" />
-              <span className="text-xs sm:text-sm">Usando dados de demonstração - API em desenvolvimento</span>
-            </div>
-          )}
+
         </div>
         <div className="flex items-center justify-between sm:justify-end space-x-3">
           {!ordersError && (

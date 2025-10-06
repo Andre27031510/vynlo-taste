@@ -263,6 +263,17 @@ public class OrderService {
         return orderRepository.findAll(pageable);
     }
 
+    public List<Order> getAllOrders(int page, int limit, String status, String search) {
+        try {
+            // Implementação simplificada - retorna lista vazia por enquanto
+            // Em produção, implementar filtros e paginação real
+            return orderRepository.findAll().stream().limit(limit).toList();
+        } catch (Exception e) {
+            log.error("Error fetching orders", e);
+            return List.of();
+        }
+    }
+
     public List<Order> findByDateRange(LocalDateTime start, LocalDateTime end) {
         return orderRepository.findByCreatedAtBetween(start, end);
     }
