@@ -1,5 +1,5 @@
 # Deploy Trigger
 
-Timestamp: $(Get-Date)
-Reason: Force deployment with optimized Flyway and HikariCP configuration
-Changes: JavaMailSender dependency fix, connection pool optimization
+Timestamp: 2025-01-10 17:38:00
+Reason: Fix API endpoint configuration
+Changes: Updated frontend to use relative API paths for ALB routing
