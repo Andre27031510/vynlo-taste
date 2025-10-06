@@ -18,12 +18,13 @@ import {
   Search,
   Clock
 } from 'lucide-react'
-import { useDriversQuery, useDriversStatsQuery, Driver } from '@/hooks/useDriversQuery'
+import { useDriversQuery, useDriversStatsQuery, type Driver } from '@/hooks/useDriversQuery'
 import { useDebounce } from '@/hooks/useDebounce'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 // Skeleton components - Memoizados
 const DriverSkeleton = memo(() => (
-  <div className="card-primary rounded-2xl p-4 animate-pulse">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 animate-pulse">
     <div className="flex justify-between items-start mb-3">
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
@@ -49,7 +50,7 @@ const DriverSkeleton = memo(() => (
 DriverSkeleton.displayName = 'DriverSkeleton'
 
 const StatsSkeleton = memo(() => (
-  <div className="card-primary rounded-2xl p-6 animate-pulse">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 animate-pulse">
     <div className="flex items-center space-x-3">
       <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
       <div className="space-y-2">
@@ -89,15 +90,15 @@ const DriverCard = memo(({ driver, onViewDriver, onEditDriver, onDeleteDriver }:
   const initial = useMemo(() => driver.name.charAt(0), [driver.name])
 
   return (
-    <div className="card-primary rounded-2xl p-3 sm:p-4 hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3">
         <div className="flex items-center space-x-3 flex-1">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-white font-manrope font-bold text-sm">{initial}</span>
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-base sm:text-lg font-semibold text-primary font-manrope truncate">{driver.name}</h3>
-            <p className="text-xs sm:text-sm text-secondary font-manrope">{driver.phone}</p>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">{driver.name}</h3>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{driver.phone}</p>
           </div>
         </div>
         <div className="flex justify-end sm:block">
@@ -108,25 +109,25 @@ const DriverCard = memo(({ driver, onViewDriver, onEditDriver, onDeleteDriver }:
       </div>
 
       <div className="mb-3 space-y-1">
-        <p className="text-xs sm:text-sm text-secondary font-manrope flex items-center space-x-2">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2">
           <Car className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">{driver.vehicle} • {driver.plate}</span>
         </p>
-        <p className="text-xs sm:text-sm text-secondary font-manrope flex items-center space-x-2">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2">
           <Star className="w-4 h-4 text-yellow-500 fill-current flex-shrink-0" />
           <span>{driver.rating} • {driver.deliveries} entregas</span>
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
-        <div className="text-xs text-muted font-manrope truncate order-2 sm:order-1">
+        <div className="text-xs text-gray-500 dark:text-gray-500 truncate order-2 sm:order-1">
           {driver.email}
         </div>
         
         <div className="flex space-x-2 order-1 sm:order-2">
           <button 
             onClick={() => onViewDriver(driver)}
-            className="p-1 sm:p-2 text-secondary hover:text-blue-600 transition-colors duration-200"
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors duration-200"
             title="Visualizar detalhes"
           >
             <Eye className="w-4 h-4" />
@@ -134,7 +135,7 @@ const DriverCard = memo(({ driver, onViewDriver, onEditDriver, onDeleteDriver }:
           
           <button 
             onClick={() => onEditDriver(driver)}
-            className="p-1 sm:p-2 text-secondary hover:text-green-600 transition-colors duration-200"
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 transition-colors duration-200"
             title="Editar motorista"
           >
             <Edit className="w-4 h-4" />
@@ -142,7 +143,7 @@ const DriverCard = memo(({ driver, onViewDriver, onEditDriver, onDeleteDriver }:
           
           <button 
             onClick={() => onDeleteDriver(driver)}
-            className="p-1 sm:p-2 text-secondary hover:text-red-600 transition-colors duration-200"
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 transition-colors duration-200"
             title="Excluir motorista"
           >
             <Trash2 className="w-4 h-4" />
@@ -154,7 +155,7 @@ const DriverCard = memo(({ driver, onViewDriver, onEditDriver, onDeleteDriver }:
 })
 DriverCard.displayName = 'DriverCard'
 
-export default function DriversManagement() {
+function DriversManagementContent() {
   const [showModal, setShowModal] = useState(false)
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -268,8 +269,8 @@ export default function DriversManagement() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-manrope font-bold text-primary">Gestão de Motoboys</h1>
-          <p className="text-secondary font-manrope text-sm sm:text-base">Cadastre e gerencie seus entregadores</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Gestão de Motoboys</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Cadastre e gerencie seus entregadores</p>
           {driversError && (
             <div className="mt-2 flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
               <Clock className="w-4 h-4" />
@@ -288,13 +289,13 @@ export default function DriversManagement() {
           <button
             onClick={() => refetchDrivers()}
             disabled={driversLoading}
-            className="p-2 text-secondary hover:text-primary transition-colors duration-200 disabled:opacity-50"
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${driversLoading ? 'animate-spin' : ''}`} />
           </button>
           <button 
             onClick={() => setShowModal(true)}
-            className="btn-primary px-3 sm:px-4 py-2 rounded-lg font-manrope font-medium flex items-center space-x-2 text-sm"
+            className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center space-x-2 text-sm"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Novo Motoboy</span>
@@ -306,20 +307,20 @@ export default function DriversManagement() {
       {/* Filtros - Simplificado */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Buscar motoboy..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="input-primary pl-10 pr-4 py-2 w-full rounded-lg font-manrope"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           />
         </div>
         
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="input-primary px-3 py-2 rounded-lg font-manrope"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
         >
           <option value="all">Todos</option>
           <option value="available">Disponível</option>
@@ -336,42 +337,42 @@ export default function DriversManagement() {
           ))
         ) : stats ? (
           <>
-            <div className="card-primary rounded-2xl p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
                   <UserPlus className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-secondary font-manrope text-xs sm:text-sm">Total</p>
-                  <p className="text-xl sm:text-2xl font-manrope font-bold text-primary">
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Total</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     {stats.totalDrivers}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="card-primary rounded-2xl p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
                   <Car className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-secondary font-manrope text-xs sm:text-sm">Disponíveis</p>
-                  <p className="text-xl sm:text-2xl font-manrope font-bold text-primary">
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Disponíveis</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     {stats.available}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="card-primary rounded-2xl p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 sm:col-span-2 lg:col-span-1">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center">
                   <Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 dark:text-yellow-400" />
                 </div>
                 <div>
-                  <p className="text-secondary font-manrope text-xs sm:text-sm">Avaliação</p>
-                  <p className="text-xl sm:text-2xl font-manrope font-bold text-primary">
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Avaliação</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     {stats.averageRating.toFixed(1)}
                   </p>
                 </div>
@@ -428,7 +429,7 @@ export default function DriversManagement() {
       {/* Paginação - Responsiva */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-4">
-          <div className="text-xs sm:text-sm text-secondary font-manrope text-center sm:text-left">
+          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
             Página {currentPage} de {totalPages}
           </div>
           
@@ -436,7 +437,7 @@ export default function DriversManagement() {
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1 || driversLoading}
-              className="px-2 sm:px-3 py-1 border border-adaptive rounded text-xs sm:text-sm hover:bg-adaptive disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 sm:px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Anterior
             </button>
@@ -444,7 +445,7 @@ export default function DriversManagement() {
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages || driversLoading}
-              className="px-2 sm:px-3 py-1 border border-adaptive rounded text-xs sm:text-sm hover:bg-adaptive disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 sm:px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Próximo
             </button>
@@ -455,11 +456,11 @@ export default function DriversManagement() {
       {/* Modal Responsivo */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black bg-opacity-50">
-          <div className="card-primary rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-semibold text-primary font-manrope">Novo Motoboy</h3>
-                <button onClick={() => setShowModal(false)} className="text-muted hover:text-primary">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Novo Motoboy</h3>
+                <button onClick={() => setShowModal(false)} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -471,7 +472,7 @@ export default function DriversManagement() {
                     required
                     value={driverForm.name}
                     onChange={(e) => setDriverForm({...driverForm, name: e.target.value})}
-                    className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                     placeholder="Nome completo"
                   />
                 </div>
@@ -482,7 +483,7 @@ export default function DriversManagement() {
                     required
                     value={driverForm.phone}
                     onChange={(e) => setDriverForm({...driverForm, phone: e.target.value})}
-                    className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                     placeholder="Telefone"
                   />
                 </div>
@@ -493,7 +494,7 @@ export default function DriversManagement() {
                     required
                     value={driverForm.email}
                     onChange={(e) => setDriverForm({...driverForm, email: e.target.value})}
-                    className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                     placeholder="E-mail"
                   />
                 </div>
@@ -503,7 +504,7 @@ export default function DriversManagement() {
                     required
                     value={driverForm.vehicle}
                     onChange={(e) => setDriverForm({...driverForm, vehicle: e.target.value})}
-                    className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                   >
                     <option value="">Selecione o veículo</option>
                     <option value="Moto 125cc">Moto 125cc</option>
@@ -518,7 +519,7 @@ export default function DriversManagement() {
                     required
                     value={driverForm.plate}
                     onChange={(e) => setDriverForm({...driverForm, plate: e.target.value})}
-                    className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                     placeholder="Placa do veículo"
                   />
                 </div>
@@ -527,13 +528,13 @@ export default function DriversManagement() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="btn-ghost w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                    className="w-full sm:flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium text-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="btn-primary w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                    className="w-full sm:flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-sm"
                   >
                     Cadastrar
                   </button>
@@ -547,11 +548,11 @@ export default function DriversManagement() {
       {/* Modal de Visualização */}
       {showViewModal && selectedDriver && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black bg-opacity-50">
-          <div className="card-primary rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-semibold text-primary font-manrope">Detalhes do Motoboy</h3>
-                <button onClick={() => { setShowViewModal(false); setSelectedDriver(null) }} className="text-muted hover:text-primary">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Detalhes do Motoboy</h3>
+                <button onClick={() => { setShowViewModal(false); setSelectedDriver(null) }} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -562,21 +563,21 @@ export default function DriversManagement() {
                     <span className="text-white font-manrope font-bold text-sm sm:text-base">{selectedDriver.name.charAt(0)}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-semibold text-primary font-manrope text-sm sm:text-base truncate">{selectedDriver.name}</h4>
-                    <p className="text-xs sm:text-sm text-secondary">{selectedDriver.phone}</p>
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">{selectedDriver.name}</h4>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{selectedDriver.phone}</p>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <p className="text-xs sm:text-sm text-secondary flex items-center space-x-2">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2">
                     <Mail className="w-4 h-4 flex-shrink-0" />
                     <span className="break-all">{selectedDriver.email}</span>
                   </p>
-                  <p className="text-xs sm:text-sm text-secondary flex items-center space-x-2">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2">
                     <Car className="w-4 h-4 flex-shrink-0" />
                     <span className="truncate">{selectedDriver.vehicle} • {selectedDriver.plate}</span>
                   </p>
-                  <p className="text-xs sm:text-sm text-secondary flex items-center space-x-2">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2">
                     <Star className="w-4 h-4 text-yellow-500 fill-current flex-shrink-0" />
                     <span>{selectedDriver.rating} • {selectedDriver.deliveries} entregas</span>
                   </p>
@@ -585,13 +586,13 @@ export default function DriversManagement() {
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
                   <button
                     onClick={() => { setShowViewModal(false); handleEditDriver(selectedDriver) }}
-                    className="btn-primary flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-sm"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => { setShowViewModal(false); setSelectedDriver(null) }}
-                    className="btn-ghost flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium text-sm"
                   >
                     Fechar
                   </button>
@@ -605,11 +606,11 @@ export default function DriversManagement() {
       {/* Modal de Edição */}
       {showEditModal && selectedDriver && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black bg-opacity-50">
-          <div className="card-primary rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-semibold text-primary font-manrope">Editar Motoboy</h3>
-                <button onClick={() => { setShowEditModal(false); setSelectedDriver(null) }} className="text-muted hover:text-primary">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Editar Motoboy</h3>
+                <button onClick={() => { setShowEditModal(false); setSelectedDriver(null) }} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -620,7 +621,7 @@ export default function DriversManagement() {
                   required
                   value={driverForm.name}
                   onChange={(e) => setDriverForm({...driverForm, name: e.target.value})}
-                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                   placeholder="Nome completo"
                 />
                 
@@ -629,7 +630,7 @@ export default function DriversManagement() {
                   required
                   value={driverForm.phone}
                   onChange={(e) => setDriverForm({...driverForm, phone: e.target.value})}
-                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                   placeholder="Telefone"
                 />
                 
@@ -638,7 +639,7 @@ export default function DriversManagement() {
                   required
                   value={driverForm.email}
                   onChange={(e) => setDriverForm({...driverForm, email: e.target.value})}
-                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                   placeholder="E-mail"
                 />
                 
@@ -646,7 +647,7 @@ export default function DriversManagement() {
                   required
                   value={driverForm.vehicle}
                   onChange={(e) => setDriverForm({...driverForm, vehicle: e.target.value})}
-                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                 >
                   <option value="">Selecione o veículo</option>
                   <option value="Moto 125cc">Moto 125cc</option>
@@ -659,7 +660,7 @@ export default function DriversManagement() {
                   required
                   value={driverForm.plate}
                   onChange={(e) => setDriverForm({...driverForm, plate: e.target.value})}
-                  className="input-primary w-full px-3 py-2 rounded-lg font-manrope text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                   placeholder="Placa do veículo"
                 />
                 
@@ -667,13 +668,13 @@ export default function DriversManagement() {
                   <button
                     type="button"
                     onClick={() => { setShowEditModal(false); setSelectedDriver(null) }}
-                    className="btn-ghost w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                    className="w-full sm:flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium text-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="btn-primary w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                    className="w-full sm:flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium text-sm"
                   >
                     Salvar
                   </button>
@@ -687,20 +688,20 @@ export default function DriversManagement() {
       {/* Modal de Confirmação de Exclusão */}
       {showDeleteModal && selectedDriver && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black bg-opacity-50">
-          <div className="card-primary rounded-2xl w-full max-w-sm sm:max-w-md">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm sm:max-w-md border border-gray-200 dark:border-gray-700">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base sm:text-lg font-semibold text-red-600 font-manrope">Confirmar Exclusão</h3>
-                <button onClick={() => { setShowDeleteModal(false); setSelectedDriver(null) }} className="text-muted hover:text-primary">
+                <h3 className="text-base sm:text-lg font-semibold text-red-600">Confirmar Exclusão</h3>
+                <button onClick={() => { setShowDeleteModal(false); setSelectedDriver(null) }} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               
               <div className="mb-6">
-                <p className="text-sm text-secondary font-manrope mb-2">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                   Tem certeza que deseja excluir o motoboy:
                 </p>
-                <p className="text-base font-semibold text-primary font-manrope">
+                <p className="text-base font-semibold text-gray-900 dark:text-white">
                   {selectedDriver.name}
                 </p>
                 <p className="text-xs text-red-600 mt-2">
@@ -711,13 +712,13 @@ export default function DriversManagement() {
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={() => { setShowDeleteModal(false); setSelectedDriver(null) }}
-                  className="btn-ghost w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm"
+                  className="w-full sm:flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 font-medium text-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmDeleteDriver}
-                  className="bg-red-600 hover:bg-red-700 text-white w-full sm:flex-1 px-4 py-2 rounded-lg font-manrope font-medium text-sm transition-colors duration-200"
+                  className="bg-red-600 hover:bg-red-700 text-white w-full sm:flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200"
                 >
                   Excluir
                 </button>
@@ -727,5 +728,23 @@ export default function DriversManagement() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function DriversManagement() {
+  return (
+    <ErrorBoundary 
+      componentName="Drivers Management"
+      retryCount={2}
+      onError={(error, errorInfo) => {
+        console.error('Drivers Management Error:', {
+          error: error.message,
+          component: 'DriversManagement',
+          timestamp: new Date().toISOString()
+        })
+      }}
+    >
+      <DriversManagementContent />
+    </ErrorBoundary>
   )
 }

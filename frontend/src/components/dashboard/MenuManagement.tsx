@@ -1,79 +1,197 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import toast from 'react-hot-toast'
 import { 
-  Package, Plus, Edit, Trash2, Eye, Settings, 
-  TrendingUp, AlertTriangle, CheckCircle, X, Save,
-  Search, Filter, Download, Upload, BarChart3,
-  PieChart, Target, Zap, Brain, Lightbulb
+  Package, Plus, Edit, Trash2, Eye, 
+  AlertTriangle, CheckCircle, X, Save,
+  Search, RefreshCw, Clock
 } from 'lucide-react'
+import { 
+  useProductsQuery, 
+  useProductStatsQuery, 
+  useCreateProduct, 
+  useUpdateProduct, 
+  useDeleteProduct,
+  Product,
+  CreateProductData,
+  UpdateProductData
+} from '@/hooks/useProductsQuery'
+import { useDebounce } from '@/hooks/useDebounce'
 
-export default function MenuManagement() {
-  // Estados principais
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: 'Hambúrguer Gourmet',
-      category: 'Lanches',
-      price: 28.90,
-      cost: 12.50,
-      stock: 45,
-      minStock: 10,
-      status: 'active',
-      description: 'Hambúrguer artesanal com queijo, alface e tomate',
-      image: null,
-      sales: 156,
-      revenue: 4508.40,
-      aiPrediction: 'Alta demanda - Reabastecer estoque'
-    },
-    {
-      id: 2,
-      name: 'Pizza Margherita',
-      category: 'Pizzas',
-      price: 42.00,
-      cost: 18.00,
-      stock: 23,
-      minStock: 15,
-      status: 'active',
-      description: 'Pizza tradicional com molho, mussarela e manjericão',
-      image: null,
-      sales: 89,
-      revenue: 3738.00,
-      aiPrediction: 'Demanda estável - Manter estoque atual'
-    },
-    {
-      id: 3,
-      name: 'Refrigerante Cola',
-      category: 'Bebidas',
-      price: 8.50,
-      cost: 3.20,
-      stock: 67,
-      minStock: 20,
-      status: 'active',
-      description: 'Refrigerante cola 350ml',
-      image: null,
-      sales: 234,
-      revenue: 1989.00,
-      aiPrediction: 'Alta rotatividade - Aumentar estoque'
-    }
-  ])
+// Skeleton components - Memoizados
+const ProductSkeleton = memo(() => (
+  <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700 animate-pulse">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3">
+      <div className="flex items-center space-x-3 flex-1">
+        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0"></div>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+      </div>
+    </div>
+    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-3"></div>
+    <div className="flex justify-between items-center">
+      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+      <div className="flex space-x-2">
+        <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+        <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+        <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+      </div>
+    </div>
+  </div>
+))
+ProductSkeleton.displayName = 'ProductSkeleton'
 
+// Componente de card de produto memoizado
+const ProductCard = memo(({ product, onView, onEdit, onDelete }: {
+  product: Product
+  onView: (product: Product) => void
+  onEdit: (product: Product) => void
+  onDelete: (product: Product) => void
+}) => {
+  const formattedPrice = useMemo(() => product.price.toFixed(2), [product.price])
+  
+  const stockStatus = useMemo(() => ({
+    isLow: product.stock <= product.minStock,
+    color: product.stock <= product.minStock 
+      ? 'text-red-600 dark:text-red-400' 
+      : 'text-green-600 dark:text-green-400',
+    text: product.stock <= product.minStock ? 'Baixo' : 'OK',
+    icon: product.stock <= product.minStock ? AlertTriangle : CheckCircle
+  }), [product.stock, product.minStock])
+  
+  const statusBadgeColor = useMemo(() => 
+    product.status === 'active' 
+      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    [product.status]
+  )
+  
+  const StatusIcon = stockStatus.icon
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3">
+        <div className="flex items-center space-x-3 flex-1">
+          <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Package className="w-5 h-5 text-white" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white font-manrope truncate">{product.name}</h4>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-manrope">{product.category}</p>
+          </div>
+        </div>
+        <div className="flex justify-between sm:block sm:text-right">
+          <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white font-manrope">
+            R$ {formattedPrice}
+          </p>
+          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusBadgeColor}`}>
+            {product.status === 'active' ? 'Ativo' : 'Inativo'}
+          </span>
+        </div>
+      </div>
+
+      <div className="mb-3">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-manrope flex items-center space-x-2">
+          <span>Estoque: {product.stock}</span>
+          <span className={`flex items-center space-x-1 ${stockStatus.color}`}>
+            <StatusIcon className="w-4 h-4" />
+            <span>{stockStatus.text}</span>
+          </span>
+        </p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+        <div className="text-xs text-gray-500 dark:text-gray-500 font-manrope truncate order-2 sm:order-1">
+          {product.description}
+        </div>
+        
+        <div className="flex space-x-2 order-1 sm:order-2">
+          <button
+            onClick={() => onView(product)}
+            className="p-2 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="Ver detalhes"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onEdit(product)}
+            className="p-2 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="Editar"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete(product)}
+            className="p-2 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="Remover"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+})
+ProductCard.displayName = 'ProductCard'
+
+const MenuManagement = memo(() => {
   // Estados para funcionalidades
   const [showNewProduct, setShowNewProduct] = useState(false)
   const [showEditProduct, setShowEditProduct] = useState(false)
   const [showProductDetails, setShowProductDetails] = useState(false)
-  const [showAIAnalysis, setShowAIAnalysis] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(10)
 
-  // Schema de validação com Yup para produtos
-  const productSchema = yup.object().shape({
+  // Debounce da busca para melhor performance
+  const debouncedSearchTerm = useDebounce(searchTerm, 500)
+
+  // Reset da página quando filtros mudam
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearchTerm, selectedCategory])
+
+  // Usando TanStack Query para buscar dados com filtros
+  const { 
+    data: productsData, 
+    isLoading: productsLoading, 
+    error: productsError,
+    refetch: refetchProducts 
+  } = useProductsQuery({
+    category: selectedCategory,
+    search: debouncedSearchTerm,
+    page: currentPage,
+    limit: pageSize
+  })
+
+  const products = productsData?.products || []
+  const totalPages = productsData?.totalPages || 1
+  const totalProducts = productsData?.total || 0
+
+  const { 
+    data: stats, 
+    isLoading: statsLoading 
+  } = useProductStatsQuery()
+
+  // Mutations
+  const createProductMutation = useCreateProduct()
+  const updateProductMutation = useUpdateProduct()
+  const deleteProductMutation = useDeleteProduct()
+
+  // Schema de validação memoizado para evitar recriação
+  const productSchema = useMemo(() => yup.object().shape({
     name: yup.string()
       .required('Nome do produto é obrigatório')
       .min(2, 'Nome deve ter pelo menos 2 caracteres')
@@ -110,7 +228,7 @@ export default function MenuManagement() {
       .required('Descrição é obrigatória')
       .min(10, 'Descrição deve ter pelo menos 10 caracteres')
       .max(500, 'Descrição deve ter no máximo 500 caracteres')
-  })
+  }), [])
 
   // Hook form para adicionar produto
   const {
@@ -134,350 +252,216 @@ export default function MenuManagement() {
     resolver: yupResolver(productSchema)
   })
 
-  // Watch para calcular margem em tempo real
-  const watchAddPrice = watchAdd('price')
-  const watchAddCost = watchAdd('cost')
 
-  // Categorias disponíveis
-  const categories = ['Lanches', 'Pizzas', 'Bebidas', 'Sobremesas', 'Acompanhamentos']
 
-  // Função para adicionar novo produto com validação robusta
-  const handleAddProduct = async (formData: any) => {
-    setIsLoading(true)
-    
+  // Categorias disponíveis - memoizadas
+  const categories = useMemo(() => ['Lanches', 'Pizzas', 'Bebidas', 'Sobremesas', 'Acompanhamentos'], [])
+
+  // Função para adicionar novo produto
+  const handleAddProduct = useCallback(async (formData: CreateProductData) => {
     try {
-      // Manter endpoint REST original
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-      
-      if (!response.ok) throw new Error('Erro na API')
-      
-      const newProduct = {
-        id: products.length + 1,
-        ...formData,
-        status: 'active',
-        image: null,
-        sales: 0,
-        revenue: 0,
-        aiPrediction: 'Novo produto - Monitorar demanda'
-      }
-      
-      setProducts([...products, newProduct])
-      
-      toast.success('Produto cadastrado com sucesso!', {
-        duration: 4000,
-        position: 'top-right'
-      })
-      
+      await createProductMutation.mutateAsync(formData)
       setShowNewProduct(false)
       resetAdd()
-      
     } catch (error) {
-      // Simulação para desenvolvimento
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      const newProduct = {
-        id: products.length + 1,
-        ...formData,
-        status: 'active',
-        image: null,
-        sales: 0,
-        revenue: 0,
-        aiPrediction: 'Novo produto - Monitorar demanda'
-      }
-      
-      setProducts([...products, newProduct])
-      
-      toast.success('Produto cadastrado com sucesso!', {
-        duration: 4000,
-        position: 'top-right'
-      })
-      
-      setShowNewProduct(false)
-      resetAdd()
-    } finally {
-      setIsLoading(false)
+      // Error já tratado no mutation
     }
-  }
+  }, [createProductMutation, resetAdd])
 
-  // Função para editar produto com validação
-  const handleEditProduct = async (formData: any) => {
+  // Função para editar produto (submit)
+  const handleEditProductSubmit = useCallback(async (formData: CreateProductData) => {
     if (!selectedProduct) return
     
-    setIsLoading(true)
-    
     try {
-      // Manter endpoint REST original
-      const response = await fetch(`/api/products/${selectedProduct.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-      
-      if (!response.ok) throw new Error('Erro na API')
-      
-      const updatedProducts = products.map(p => 
-        p.id === selectedProduct.id 
-          ? { ...p, ...formData }
-          : p
-      )
-      
-      setProducts(updatedProducts)
-      
-      toast.success('Produto atualizado com sucesso!', {
-        duration: 4000,
-        position: 'top-right'
-      })
-      
+      const updateData: UpdateProductData = {
+        ...formData,
+        id: selectedProduct.id
+      }
+      await updateProductMutation.mutateAsync(updateData)
       setShowEditProduct(false)
       setSelectedProduct(null)
       resetEdit()
-      
     } catch (error) {
-      // Simulação para desenvolvimento
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const updatedProducts = products.map(p => 
-        p.id === selectedProduct.id 
-          ? { ...p, ...formData }
-          : p
-      )
-      
-      setProducts(updatedProducts)
-      
-      toast.success('Produto atualizado com sucesso!', {
-        duration: 4000,
-        position: 'top-right'
-      })
-      
-      setShowEditProduct(false)
-      setSelectedProduct(null)
-      resetEdit()
-    } finally {
-      setIsLoading(false)
+      // Error já tratado no mutation
     }
-  }
+  }, [selectedProduct, updateProductMutation, resetEdit])
 
   // Função para remover produto
-  const removeProduct = (product: any) => {
+  const removeProduct = useCallback((product: Product) => {
     if (confirm(`Tem certeza que deseja remover ${product.name}?`)) {
-      setProducts(products.filter(p => p.id !== product.id))
-      alert('Produto removido com sucesso!')
+      deleteProductMutation.mutate(product.id)
     }
-  }
+  }, [deleteProductMutation])
 
-  // Função para análise de IA
-  const runAIAnalysis = async () => {
-    setIsLoading(true)
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Simular análise de IA
-      const aiInsights = [
-        'Hambúrguer Gourmet: Alta demanda - Reabastecer estoque',
-        'Pizza Margherita: Demanda estável - Manter estoque atual',
-        'Refrigerante Cola: Alta rotatividade - Aumentar estoque'
-      ]
-      
-      alert('Análise de IA concluída! Verifique as recomendações.')
-      setShowAIAnalysis(true)
-      
-    } catch (error) {
-      alert('Erro na análise de IA')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  // Handlers memoizados para ProductCard
+  const handleViewProduct = useCallback((product: Product) => {
+    setSelectedProduct(product)
+    setShowProductDetails(true)
+  }, [])
 
-  // Função para exportar cardápio
-  const exportMenu = async (format: string) => {
-    setIsLoading(true)
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      alert(`Cardápio exportado em ${format} com sucesso!`)
-    } catch (error) {
-      alert('Erro ao exportar cardápio')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const handleEditProduct = useCallback((product: Product) => {
+    setSelectedProduct(product)
+    setValueEdit('name', product.name)
+    setValueEdit('category', product.category)
+    setValueEdit('price', product.price)
+    setValueEdit('cost', product.cost)
+    setValueEdit('stock', product.stock)
+    setValueEdit('minStock', product.minStock)
+    setValueEdit('description', product.description)
+    setShowEditProduct(true)
+  }, [setValueEdit])
 
-  // Filtrar produtos
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === '' || product.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  // Os filtros agora são aplicados no backend via query parameters
+  const filteredProducts = products
 
   return (
     <div className="space-y-8">
-      {/* Header Principal */}
-      <div className="bg-gradient-to-r from-green-900 to-green-800 rounded-2xl p-8 text-white">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-manrope font-bold mb-3">Cardápio & Estoque</h1>
-            <p className="text-green-200 font-manrope text-lg">Gestão inteligente de produtos com IA preditiva</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={runAIAnalysis}
-              disabled={isLoading}
-              className="bg-green-700 hover:bg-green-600 text-white px-6 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3 group"
-            >
-              <Brain className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
-              <span className="font-manrope font-medium">Análise de IA</span>
-            </button>
-            <button
-              onClick={() => setShowNewProduct(true)}
-              className="bg-white hover:bg-gray-100 text-green-700 px-6 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3 shadow-lg shadow-white/25"
-            >
-              <Plus className="w-5 h-4" />
-              <span className="font-manrope font-medium">Novo Produto</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtros e Busca */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
-        <div className="flex items-center space-x-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Buscar produtos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-              />
+      {/* Header - Simplificado */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-manrope font-bold text-gray-900 dark:text-white">Cardápio & Estoque</h1>
+          <p className="text-gray-600 dark:text-gray-400 font-manrope text-sm sm:text-base">Gerencie produtos e estoque</p>
+          {productsError && (
+            <div className="mt-2 flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
+              <Clock className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">Usando dados de demonstração - API em desenvolvimento</span>
             </div>
-          </div>
-          <div>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-            >
-              <option value="">Todas as categorias</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
+          )}
+        </div>
+        <div className="flex items-center justify-between sm:justify-end space-x-3">
+          {!productsError && (
+            <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-xs sm:text-sm font-medium">API Conectada</span>
+            </div>
+          )}
           <button
-            onClick={() => exportMenu('PDF')}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3"
+            onClick={() => refetchProducts()}
+            disabled={productsLoading}
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200 disabled:opacity-50 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
-            <Download className="w-4 h-4" />
-            <span className="font-manrope font-medium">Exportar</span>
+            <RefreshCw className={`w-4 h-4 ${productsLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={() => setShowNewProduct(true)}
+            className="bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg font-manrope font-medium flex items-center space-x-2 text-sm min-h-[44px]"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Novo Produto</span>
+            <span className="sm:hidden">Novo</span>
           </button>
         </div>
       </div>
 
-      {/* Lista de Produtos */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-xl font-manrope font-bold text-gray-900">Produtos ({filteredProducts.length})</h3>
+      {/* Filtros - Simplificado */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar produtos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white min-h-[44px]"
+          />
         </div>
         
-        <div className="divide-y divide-gray-100">
-          {filteredProducts.map((product) => (
-            <div key={product.id} className="p-6 hover:bg-gray-50 transition-colors duration-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-                    <Package className="w-8 h-8 text-white" />
-                  </div>
-                  
-                  <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h4 className="text-lg font-manrope font-bold text-gray-900">{product.name}</h4>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        product.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {product.status === 'active' ? 'Ativo' : 'Inativo'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-6 text-sm text-gray-600">
-                      <span className="font-manrope">{product.category}</span>
-                      <span className="font-manrope">Preço: </span>
-                      <span className="font-manrope">Estoque: {product.stock}</span>
-                      <span className={`font-manrope flex items-center space-x-1 ${
-                        product.stock <= product.minStock ? 'text-red-600' : 'text-green-600'
-                      }`}>
-                        {product.stock <= product.minStock ? (
-                          <AlertTriangle className="w-4 h-4" />
-                        ) : (
-                          <CheckCircle className="w-4 h-4" />
-                        )}
-                        <span>{product.stock <= product.minStock ? 'Estoque Baixo' : 'OK'}</span>
-                      </span>
-                    </div>
-                    
-                    <div className="mt-2 p-3 bg-blue-50 rounded-lg">
-                      <div className="flex items-center space-x-2">
-                        <Lightbulb className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm text-blue-800 font-medium">{product.aiPrediction}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => {
-                      setSelectedProduct(product)
-                      setShowProductDetails(true)
-                    }}
-                    className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                    title="Ver detalhes"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedProduct(product)
-                      // Preencher formulário com dados atuais usando setValue
-                      setValueEdit('name', product.name)
-                      setValueEdit('category', product.category)
-                      setValueEdit('price', product.price)
-                      setValueEdit('cost', product.cost)
-                      setValueEdit('stock', product.stock)
-                      setValueEdit('minStock', product.minStock)
-                      setValueEdit('description', product.description)
-                      setShowEditProduct(true)
-                    }}
-                    className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
-                    title="Editar"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => removeProduct(product)}
-                    className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors duration-200"
-                    title="Remover"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white min-h-[44px]"
+        >
+          <option value="">Todas</option>
+          {categories.map(category => (
+            <option key={category} value={category}>{category}</option>
           ))}
-        </div>
+        </select>
       </div>
+
+      {/* Lista de Produtos - Simplificada */}
+      <div className="space-y-4">
+        {productsLoading ? (
+          // Skeleton loading para produtos
+          Array.from({ length: 4 }).map((_, index) => (
+            <ProductSkeleton key={index} />
+          ))
+        ) : productsError ? (
+          // Estado de erro
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
+            <X className="w-10 h-10 text-red-500 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+              Erro ao carregar produtos
+            </h3>
+            <button
+              onClick={() => refetchProducts()}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+            >
+              Tentar Novamente
+            </button>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          // Estado vazio
+          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
+            <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Nenhum produto encontrado
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              {searchTerm || selectedCategory !== '' 
+                ? 'Ajuste os filtros.' 
+                : 'Cadastre um novo produto.'}
+            </p>
+          </div>
+        ) : (
+          // Lista de produtos memoizada
+          filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onView={handleViewProduct}
+              onEdit={handleEditProduct}
+              onDelete={removeProduct}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Paginação - Responsiva */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-4">
+          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
+            Página {currentPage} de {totalPages} • {totalProducts} produtos
+          </div>
+          
+          <div className="flex items-center justify-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1 || productsLoading}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center"
+            >
+              Anterior
+            </button>
+            
+            <span className="px-3 py-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              {currentPage}
+            </span>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || productsLoading}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center"
+            >
+              Próximo
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal para Novo Produto */}
       {showNewProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card-primary rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 text-white rounded-t-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-[95vw] sm:max-w-md md:max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-green-600 p-4 sm:p-6 text-white rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-manrope font-bold">Novo Produto</h3>
                 <button
@@ -490,8 +474,8 @@ export default function MenuManagement() {
             </div>
 
             <div className="p-6">
-              <form onSubmit={handleSubmitAdd(handleAddProduct)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+              <form onSubmit={handleSubmitAdd(handleAddProduct)} className="space-y-4 md:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {/* Nome do Produto */}
                   <div>
                     <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
@@ -611,43 +595,7 @@ export default function MenuManagement() {
                   </div>
                 </div>
 
-                {/* Margem de Lucro (calculada automaticamente) */}
-                {watchAddPrice && watchAddCost && (
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                    <h5 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                      Cálculo Automático de Margem
-                    </h5>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <span className="text-blue-600 dark:text-blue-300">Margem:</span>
-                        <span className="ml-2 font-bold text-blue-800 dark:text-blue-100">
-                          {watchAddPrice && watchAddCost 
-                            ? `${(((watchAddPrice - watchAddCost) / watchAddPrice) * 100).toFixed(1)}%`
-                            : '0%'
-                          }
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-blue-600 dark:text-blue-300">Lucro Unitário:</span>
-                        <span className="ml-2 font-bold text-green-600 dark:text-green-400">
-                          R$ {watchAddPrice && watchAddCost 
-                            ? (watchAddPrice - watchAddCost).toFixed(2)
-                            : '0,00'
-                          }
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-blue-600 dark:text-blue-300">Markup:</span>
-                        <span className="ml-2 font-bold text-purple-600 dark:text-purple-400">
-                          {watchAddPrice && watchAddCost && watchAddCost > 0
-                            ? `${((watchAddPrice / watchAddCost) * 100).toFixed(0)}%`
-                            : '0%'
-                          }
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+
 
                 {/* Descrição */}
                 <div>
@@ -680,10 +628,10 @@ export default function MenuManagement() {
                   </button>
                   <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={createProductMutation.isPending}
                     className="px-8 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed font-manrope font-bold flex items-center space-x-3"
                   >
-                    {isLoading ? (
+                    {createProductMutation.isPending ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>Cadastrando...</span>
@@ -704,9 +652,9 @@ export default function MenuManagement() {
 
       {/* Modal para Editar Produto */}
       {showEditProduct && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card-primary rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white rounded-t-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-[95vw] sm:max-w-md md:max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-blue-600 p-4 sm:p-6 text-white rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-manrope font-bold">Editar Produto</h3>
                 <button
@@ -719,8 +667,8 @@ export default function MenuManagement() {
             </div>
 
             <div className="p-6">
-              <form onSubmit={handleSubmitEdit(handleEditProduct)} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
+              <form onSubmit={handleSubmitEdit(handleEditProductSubmit)} className="space-y-4 md:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {/* Nome do Produto */}
                   <div>
                     <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
@@ -871,10 +819,10 @@ export default function MenuManagement() {
                   </button>
                   <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={updateProductMutation.isPending}
                     className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed font-manrope font-bold flex items-center space-x-3"
                   >
-                    {isLoading ? (
+                    {updateProductMutation.isPending ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>Salvando...</span>
@@ -895,9 +843,9 @@ export default function MenuManagement() {
 
       {/* Modal para Detalhes do Produto */}
       {showProductDetails && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="card-primary rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white rounded-t-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-[95vw] sm:max-w-md md:max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-purple-600 p-4 sm:p-6 text-white rounded-t-2xl">
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-manrope font-bold">Detalhes do Produto</h3>
                 <button
@@ -928,7 +876,7 @@ export default function MenuManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-4">
                     <div className="bg-adaptive p-4 rounded-xl">
                       <h5 className="font-semibold text-primary mb-2">Informações de Preço</h5>
@@ -974,13 +922,7 @@ export default function MenuManagement() {
                   </div>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl">
-                  <h5 className="font-semibold text-primary mb-2 flex items-center space-x-2">
-                    <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <span>Análise de IA</span>
-                  </h5>
-                  <p className="text-blue-800 dark:text-blue-200">{selectedProduct.aiPrediction}</p>
-                </div>
+
 
                 <div className="bg-adaptive p-4 rounded-xl">
                   <h5 className="font-semibold text-primary mb-2">Descrição</h5>
@@ -993,4 +935,7 @@ export default function MenuManagement() {
       )}
     </div>
   )
-}
+})
+MenuManagement.displayName = 'MenuManagement'
+
+export default MenuManagement

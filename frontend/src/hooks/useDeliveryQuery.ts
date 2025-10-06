@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { apiRequest } from '@/services/api'
 
 export interface Delivery {
   id: string
@@ -94,7 +95,6 @@ const mockStats: DeliveryStats = {
   problems: 0
 }
 
-// Função para buscar entregas
 const fetchDeliveries = async (filters?: {
   status?: string
   search?: string
@@ -108,15 +108,10 @@ const fetchDeliveries = async (filters?: {
     if (filters?.page) params.append('page', filters.page.toString())
     if (filters?.limit) params.append('limit', filters.limit.toString())
 
-    const response = await fetch(`/api/deliveries?${params.toString()}`)
-    
-    if (!response.ok) {
-      throw new Error('API não disponível')
-    }
-    
+    const response = await apiRequest('core-service', `v1/deliveries?${params.toString()}`)
     return await response.json()
   } catch (error) {
-    console.warn('API de entregas não disponível, usando dados mock:', error)
+    console.warn('Deliveries API not available, using mock data:', error)
     
     // Aplicar filtros nos dados mock
     let filteredDeliveries = [...mockDeliveries]
@@ -141,27 +136,17 @@ const fetchDeliveries = async (filters?: {
     const endIndex = startIndex + limit
     const paginatedDeliveries = filteredDeliveries.slice(startIndex, endIndex)
     
-    return {
-      deliveries: paginatedDeliveries,
-      total: filteredDeliveries.length,
-      totalPages: Math.ceil(filteredDeliveries.length / limit)
-    }
+    throw error
   }
 }
 
-// Função para buscar estatísticas
 const fetchDeliveryStats = async (): Promise<DeliveryStats> => {
   try {
-    const response = await fetch('/api/deliveries/stats')
-    
-    if (!response.ok) {
-      throw new Error('API não disponível')
-    }
-    
+    const response = await apiRequest('core-service', 'v1/deliveries/stats')
     return await response.json()
   } catch (error) {
-    console.warn('API de estatísticas de entregas não disponível, usando dados mock:', error)
-    return mockStats
+    console.warn('Delivery stats API not available:', error)
+    throw error
   }
 }
 

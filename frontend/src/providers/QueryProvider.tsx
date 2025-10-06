@@ -11,27 +11,33 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
     defaultOptions: {
       queries: {
         // Configurações padrão para queries
-        staleTime: 60 * 1000, // 1 minuto
+        staleTime: 30 * 1000, // 30 segundos (reduzido)
         gcTime: 5 * 60 * 1000, // 5 minutos
         retry: (failureCount, error: any) => {
           // Não tentar novamente para erros 4xx
-          if (error?.status >= 400 && error?.status < 500) {
+          if (error?.message?.includes('HTTP 4')) {
             return false
           }
-          // Máximo 3 tentativas para outros erros
-          return failureCount < 3
+          // Circuit breaker errors
+          if (error?.message?.includes('Circuit breaker')) {
+            return false
+          }
+          // Máximo 2 tentativas para outros erros (reduzido)
+          return failureCount < 2
         },
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-        refetchOnWindowFocus: false, // Desabilitar refetch ao focar na janela
-        refetchOnReconnect: true, // Refetch quando reconectar à internet
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
+        // Error handling global
+        throwOnError: false, // Não lançar erros, usar fallback
       },
       mutations: {
-        // Configurações padrão para mutations
         retry: 1,
         retryDelay: 1000,
+        throwOnError: false,
       }
     }
-  }))
+  })
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -29,4 +29,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     List<Product> findByStockQuantityLessThanEqual(@Param("threshold") Integer threshold);
     
     List<Product> findByStockQuantityLessThan(Integer threshold);
+    
+    long countByAvailableTrue();
+    
+    long countByStockQuantityLessThan(Integer threshold);
 }

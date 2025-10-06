@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { apiRequest } from '@/services/api'
 
 export interface Driver {
   id: string
@@ -87,7 +88,6 @@ const mockStats: DriversStats = {
   averageRating: 4.7
 }
 
-// Função para buscar motoristas
 const fetchDrivers = async (filters?: {
   status?: string
   search?: string
@@ -101,15 +101,10 @@ const fetchDrivers = async (filters?: {
     if (filters?.page) params.append('page', filters.page.toString())
     if (filters?.limit) params.append('limit', filters.limit.toString())
 
-    const response = await fetch(`/api/drivers?${params.toString()}`)
-    
-    if (!response.ok) {
-      throw new Error('API não disponível')
-    }
-    
+    const response = await apiRequest('core-service', `v1/drivers?${params.toString()}`)
     return await response.json()
   } catch (error) {
-    console.warn('API de motoristas não disponível, usando dados mock:', error)
+    console.warn('Drivers API not available, using mock data:', error)
     
     // Aplicar filtros nos dados mock
     let filteredDrivers = [...mockDrivers]
@@ -135,27 +130,17 @@ const fetchDrivers = async (filters?: {
     const endIndex = startIndex + limit
     const paginatedDrivers = filteredDrivers.slice(startIndex, endIndex)
     
-    return {
-      drivers: paginatedDrivers,
-      total: filteredDrivers.length,
-      totalPages: Math.ceil(filteredDrivers.length / limit)
-    }
+    throw error
   }
 }
 
-// Função para buscar estatísticas
 const fetchDriversStats = async (): Promise<DriversStats> => {
   try {
-    const response = await fetch('/api/drivers/stats')
-    
-    if (!response.ok) {
-      throw new Error('API não disponível')
-    }
-    
+    const response = await apiRequest('core-service', 'v1/drivers/stats')
     return await response.json()
   } catch (error) {
-    console.warn('API de estatísticas de motoristas não disponível, usando dados mock:', error)
-    return mockStats
+    console.warn('Drivers stats API not available:', error)
+    throw error
   }
 }
 

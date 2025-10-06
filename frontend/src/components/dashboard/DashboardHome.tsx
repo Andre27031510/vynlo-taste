@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import { useDashboardStats } from '@/hooks/useDashboardStats'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import { 
   TrendingUp, 
   ShoppingCart, 
@@ -34,7 +35,7 @@ import {
   AlertTriangle
 } from 'lucide-react'
 
-export default function DashboardHome() {
+function DashboardHomeContent() {
   const [showDriverModal, setShowDriverModal] = useState(false)
   const [showClientModal, setShowClientModal] = useState(false)
   const [clientModalTab, setClientModalTab] = useState('register')
@@ -119,21 +120,29 @@ export default function DashboardHome() {
   }, [autoSync])
 
   const handleDriverSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Simular envio
-    setShowDriverModal(false)
-    setDriverForm({
-      name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: ''
-    })
+    try {
+      e.preventDefault()
+      console.log('Cadastrando entregador:', driverForm)
+      setShowDriverModal(false)
+      setDriverForm({
+        name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: ''
+      })
+    } catch (error) {
+      console.error('Erro ao cadastrar entregador:', error)
+    }
   }
 
   const handleClientSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Simular envio
-    setShowClientModal(false)
-    setClientForm({
-      name: '', phone: '', email: '', address: '', birthDate: '', preferences: ''
-    })
+    try {
+      e.preventDefault()
+      console.log('Cadastrando cliente:', clientForm)
+      setShowClientModal(false)
+      setClientForm({
+        name: '', phone: '', email: '', address: '', birthDate: '', preferences: ''
+      })
+    } catch (error) {
+      console.error('Erro ao cadastrar cliente:', error)
+    }
   }
 
   return (
@@ -623,5 +632,23 @@ export default function DashboardHome() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function DashboardHome() {
+  return (
+    <ErrorBoundary 
+      componentName="Dashboard Home"
+      retryCount={3}
+      onError={(error, errorInfo) => {
+        console.error('Dashboard Home Error:', {
+          error: error.message,
+          component: 'DashboardHome',
+          timestamp: new Date().toISOString()
+        })
+      }}
+    >
+      <DashboardHomeContent />
+    </ErrorBoundary>
   )
 }

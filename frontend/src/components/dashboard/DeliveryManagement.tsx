@@ -19,12 +19,13 @@ import {
   RefreshCw,
   Eye
 } from 'lucide-react'
-import { useDeliveriesQuery, useDeliveryStatsQuery, Delivery } from '@/hooks/useDeliveryQuery'
+import { useDeliveriesQuery, useDeliveryStatsQuery, type Delivery } from '@/hooks/useDeliveryQuery'
 import { useDebounce } from '@/hooks/useDebounce'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 // Skeleton components - Memoizados
 const DeliverySkeleton = memo(() => (
-  <div className="card-primary rounded-2xl p-4 animate-pulse">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 animate-pulse">
     <div className="flex justify-between items-start mb-3">
       <div className="space-y-2">
         <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
@@ -48,7 +49,7 @@ const DeliverySkeleton = memo(() => (
 DeliverySkeleton.displayName = 'DeliverySkeleton'
 
 const StatsSkeleton = memo(() => (
-  <div className="card-primary rounded-2xl p-6 animate-pulse">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 animate-pulse">
     <div className="flex items-center space-x-3">
       <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
       <div className="space-y-2">
@@ -97,14 +98,14 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
   }, [delivery.source])
 
   return (
-    <div className="card-primary rounded-2xl p-3 sm:p-4 hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl p-3 sm:p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3">
         <div className="flex-1">
-          <h3 className="text-base sm:text-lg font-semibold text-primary font-manrope">{delivery.customer}</h3>
-          <p className="text-xs sm:text-sm text-secondary font-manrope">#{delivery.orderId} • {delivery.id}</p>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{delivery.customer}</h3>
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">#{delivery.orderId} • {delivery.id}</p>
         </div>
         <div className="flex justify-between sm:block sm:text-right">
-          <p className="text-lg sm:text-xl font-bold text-primary font-manrope">
+          <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
             R$ {formattedTotal}
           </p>
           <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${statusInfo.color}`}>
@@ -115,18 +116,18 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
       </div>
 
       <div className="mb-3 space-y-1">
-        <p className="text-xs sm:text-sm text-secondary font-manrope flex items-start space-x-2">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-start space-x-2">
           <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <span className="break-words">{delivery.address}</span>
         </p>
-        <p className="text-xs sm:text-sm text-secondary font-manrope flex items-center space-x-2">
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center space-x-2">
           <Truck className="w-4 h-4 flex-shrink-0" />
           <span className="truncate">{delivery.driver} • {delivery.estimatedTime} • {delivery.distance}</span>
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
-        <div className="text-xs text-muted font-manrope order-2 sm:order-1">
+        <div className="text-xs text-gray-500 dark:text-gray-500 order-2 sm:order-1">
           {delivery.createdAt}
           {delivery.source && (
             <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${sourceColor}`}>
@@ -165,19 +166,19 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
           
           <button 
             onClick={() => openMaps(delivery.address)}
-            className="p-1 sm:p-2 text-secondary hover:text-blue-600 transition-colors duration-200"
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors duration-200"
           >
             <Navigation className="w-4 h-4" />
           </button>
           
           <button 
             onClick={() => callCustomer(delivery.phone)}
-            className="p-1 sm:p-2 text-secondary hover:text-green-600 transition-colors duration-200"
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 transition-colors duration-200"
           >
             <Phone className="w-4 h-4" />
           </button>
           
-          <button className="p-1 sm:p-2 text-secondary hover:text-blue-600 transition-colors duration-200">
+          <button className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors duration-200">
             <Eye className="w-4 h-4" />
           </button>
         </div>
@@ -187,7 +188,7 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
 })
 DeliveryCard.displayName = 'DeliveryCard'
 
-export default function DeliveryManagement() {
+function DeliveryManagementContent() {
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -318,8 +319,8 @@ export default function DeliveryManagement() {
       {/* Header - Responsivo */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-manrope font-bold text-primary">Gestão de Delivery</h1>
-          <p className="text-secondary font-manrope text-sm sm:text-base">Controle completo das entregas em tempo real</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Gestão de Delivery</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Controle completo das entregas em tempo real</p>
           {deliveriesError && (
             <div className="mt-2 flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
               <Clock className="w-4 h-4" />
@@ -338,7 +339,7 @@ export default function DeliveryManagement() {
           <button
             onClick={() => refetchDeliveries()}
             disabled={deliveriesLoading}
-            className="btn-primary px-3 sm:px-4 py-2 rounded-lg font-manrope font-medium flex items-center space-x-2 disabled:opacity-50 text-sm"
+            className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center space-x-2 disabled:opacity-50 text-sm"
           >
             <RefreshCw className={`w-4 h-4 ${deliveriesLoading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Atualizar</span>
@@ -354,42 +355,42 @@ export default function DeliveryManagement() {
           ))
         ) : stats ? (
           <>
-            <div className="card-primary rounded-2xl p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
                   <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-secondary font-manrope text-xs sm:text-sm">Em Trânsito</p>
-                  <p className="text-xl sm:text-2xl font-manrope font-bold text-primary">
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Em Trânsito</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     {stats.inTransit}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="card-primary rounded-2xl p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl flex items-center justify-center">
                   <Package className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 dark:text-yellow-400" />
                 </div>
                 <div>
-                  <p className="text-secondary font-manrope text-xs sm:text-sm">Preparando</p>
-                  <p className="text-xl sm:text-2xl font-manrope font-bold text-primary">
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Preparando</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     {stats.preparing}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="card-primary rounded-2xl p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 sm:col-span-2 lg:col-span-1">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
                   <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-secondary font-manrope text-xs sm:text-sm">Entregues</p>
-                  <p className="text-xl sm:text-2xl font-manrope font-bold text-primary">
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Entregues</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     {stats.delivered}
                   </p>
                 </div>
@@ -404,20 +405,20 @@ export default function DeliveryManagement() {
       {/* Filters - Simplificado */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Buscar por cliente, pedido ou entregador..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="input-primary pl-10 pr-4 py-2 w-full rounded-lg font-manrope"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           />
         </div>
         
         <select 
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="input-primary px-4 py-2 rounded-lg font-manrope"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
         >
           <option value="all">Todos os Status</option>
           <option value="preparing">Preparando</option>
@@ -478,7 +479,7 @@ export default function DeliveryManagement() {
       {/* Paginação - Responsiva */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-4">
-          <div className="text-xs sm:text-sm text-secondary font-manrope text-center sm:text-left">
+          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
             Página {currentPage} de {totalPages}
           </div>
           
@@ -486,7 +487,7 @@ export default function DeliveryManagement() {
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1 || deliveriesLoading}
-              className="px-2 sm:px-3 py-1 border border-adaptive rounded text-xs sm:text-sm hover:bg-adaptive disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 sm:px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Anterior
             </button>
@@ -494,7 +495,7 @@ export default function DeliveryManagement() {
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages || deliveriesLoading}
-              className="px-2 sm:px-3 py-1 border border-adaptive rounded text-xs sm:text-sm hover:bg-adaptive disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-2 sm:px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Próximo
             </button>
@@ -503,5 +504,23 @@ export default function DeliveryManagement() {
       )}
 
     </div>
+  )
+}
+
+export default function DeliveryManagement() {
+  return (
+    <ErrorBoundary 
+      componentName="Delivery Management"
+      retryCount={2}
+      onError={(error, errorInfo) => {
+        console.error('Delivery Management Error:', {
+          error: error.message,
+          component: 'DeliveryManagement',
+          timestamp: new Date().toISOString()
+        })
+      }}
+    >
+      <DeliveryManagementContent />
+    </ErrorBoundary>
   )
 }

@@ -7,29 +7,29 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: ${DB_POOL_MAX_SIZE:5}
-      minimum-idle: ${DB_POOL_MIN_IDLE:1}
-      connection-timeout: ${DB_CONNECTION_TIMEOUT:30000}
-      idle-timeout: ${DB_IDLE_TIMEOUT:600000}
-      max-lifetime: ${DB_MAX_LIFETIME:1800000}
-      leak-detection-threshold: 60000
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:50} # Aumentado para 3M usuários
+      minimum-idle: ${DB_POOL_MIN_IDLE:10}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:10000} # Reduzido
+      idle-timeout: ${DB_IDLE_TIMEOUT:300000} # Reduzido
+      max-lifetime: ${DB_MAX_LIFETIME:900000} # Reduzido
+      leak-detection-threshold: 30000 # Reduzido
       auto-commit: false
-      initialization-fail-timeout: 30000
+      initialization-fail-timeout: 10000
 
   redis:
-    host: ${REDIS_HOST:redis}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: ${REDIS_DATABASE:0}
-    timeout: ${REDIS_TIMEOUT:5000ms}
-    connect-timeout: ${REDIS_CONNECT_TIMEOUT:5000ms}
+    cluster:
+      nodes: ${REDIS_CLUSTER_NODES:redis-cluster.vynlotech.com:6379}
+    password: ${REDIS_PASSWORD}
+    timeout: ${REDIS_TIMEOUT:2000ms} # Reduzido para produção
+    connect-timeout: ${REDIS_CONNECT_TIMEOUT:2000ms}
     lettuce:
       pool:
-        max-active: ${REDIS_POOL_MAX:10}
-        max-idle: ${REDIS_POOL_IDLE:5}
-        min-idle: ${REDIS_POOL_MIN:2}
-        max-wait: ${REDIS_POOL_WAIT:5000ms}
+        max-active: ${REDIS_POOL_MAX:100} # Aumentado para alta carga
+        max-idle: ${REDIS_POOL_IDLE:20}
+        min-idle: ${REDIS_POOL_MIN:10}
+        max-wait: ${REDIS_POOL_WAIT:1000ms} # Reduzido
       shutdown-timeout: 100ms
+    ssl: true # Habilitado para produção
 
   flyway:
     enabled: true
@@ -56,9 +56,10 @@ spring:
   cache:
     type: redis
     redis:
-      time-to-live: ${CACHE_TTL:1800000} # 30 minutos produção
+      time-to-live: ${CACHE_TTL:300000} # 5 minutos para alta carga
       cache-null-values: false
       use-key-prefix: true
+      enable-statistics: true # Para monitoramento
       
   mail:
     test-connection: false
@@ -137,11 +138,12 @@ vynlo:
     analytics: ${FEATURE_ANALYTICS:true}
     beta-features: ${FEATURE_BETA:false}
   rate-limit:
-    requests-per-minute: ${RATE_LIMIT_RPM:300}
-    burst-capacity: ${RATE_LIMIT_BURST:30}
+    requests-per-minute: ${RATE_LIMIT_RPM:1000} # Aumentado para 3M usuários
+    burst-capacity: ${RATE_LIMIT_BURST:100}
+    distributed: true # Rate limiting distribuído
   cors:
     allowed-origins:
-      - ${CORS_ALLOWED_ORIGINS:https://vynlotech.com,https://vynlotaste.com,https://admin.vynlotech.com}
+      - ${CORS_ALLOWED_ORIGINS:https://vynlotech.com,https://vynlotaste.com,https://admin.vynlotech.com,https://cdn.vynlotech.com}
     allowed-methods:
       - GET
       - POST
@@ -178,16 +180,22 @@ logging:
 server:
   port: ${SERVER_PORT:8080}
   ssl:
-    enabled: false
+    enabled: ${SSL_ENABLED:true} # Habilitado para produção
+    key-store: ${SSL_KEYSTORE_PATH}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+    key-store-type: PKCS12
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 1024
   http2:
-    enabled: false
+    enabled: true # Habilitado para performance
   tomcat:
-    connection-timeout: 20000
-    keep-alive-timeout: 60000
-    max-connections: 8192
+    connection-timeout: 10000 # Reduzido
+    keep-alive-timeout: 30000 # Reduzido
+    max-connections: 20000 # Aumentado para 3M usuários
     threads:
-      max: 200
-      min-spare: 10
+      max: 500 # Aumentado
+      min-spare: 50 # Aumentado
+    accept-count: 1000 # Adicionado
+    max-http-post-size: 2MB # Limitado

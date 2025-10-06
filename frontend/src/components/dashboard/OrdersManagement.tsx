@@ -13,9 +13,10 @@ import {
   Eye,
   Edit
 } from 'lucide-react'
-import { useOrdersQuery, useOrdersStatsQuery, useUpdateOrderStatus, Order } from '@/hooks/useOrdersQuery'
+import { useOrdersQuery, useOrdersStatsQuery, useUpdateOrderStatus, type Order } from '@/hooks/useOrdersQuery'
 import { useDebounce } from '@/hooks/useDebounce'
 import toast from 'react-hot-toast'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 // Componente de skeleton para loading - Memoizado
 const OrderSkeleton = memo(() => (
@@ -148,7 +149,7 @@ const OrderCard = memo(({ order, onStatusUpdate, getStatusColor, getStatusIcon, 
 })
 OrderCard.displayName = 'OrderCard'
 
-export default function OrdersManagement() {
+function OrdersManagementContent() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -405,5 +406,23 @@ export default function OrdersManagement() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function OrdersManagement() {
+  return (
+    <ErrorBoundary 
+      componentName="Orders Management"
+      retryCount={2}
+      onError={(error, errorInfo) => {
+        console.error('Orders Management Error:', {
+          error: error.message,
+          component: 'OrdersManagement',
+          timestamp: new Date().toISOString()
+        })
+      }}
+    >
+      <OrdersManagementContent />
+    </ErrorBoundary>
   )
 }

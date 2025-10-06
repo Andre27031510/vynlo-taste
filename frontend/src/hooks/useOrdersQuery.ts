@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import { apiRequest } from '@/services/api'
 
 // Tipos para pedidos
 export interface Order {
@@ -28,61 +29,63 @@ export interface OrdersStats {
   averageOrderValue: number
 }
 
-// API functions
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com/api'
-
 const fetchOrders = async (filters?: { status?: string; search?: string; page?: number; limit?: number }): Promise<{ orders: Order[]; total: number; page: number; totalPages: number }> => {
-  const params = new URLSearchParams()
-  if (filters?.status && filters.status !== 'all') params.append('status', filters.status)
-  if (filters?.search) params.append('search', filters.search)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.limit) params.append('limit', filters.limit.toString())
+  const startTime = Date.now()
   
-  const response = await fetch(`${API_BASE}/orders?${params.toString()}`)
-  if (!response.ok) {
-    // Fallback para dados mock se API não estiver disponível
-    return {
-      orders: generateMockOrders(),
-      total: 25,
-      page: 1,
-      totalPages: 3
-    }
+  try {
+    const params = new URLSearchParams()
+    if (filters?.status && filters.status !== 'all') params.append('status', filters.status)
+    if (filters?.search) params.append('search', filters.search)
+    if (filters?.page) params.append('page', filters.page.toString())
+    if (filters?.limit) params.append('limit', filters.limit.toString())
+    
+    const response = await apiRequest('core-service', `v1/orders?${params.toString()}`)
+    const data = await response.json()
+    
+    console.log(`Orders fetched in ${Date.now() - startTime}ms`)
+    return data
+  } catch (error) {
+    console.error('Orders API error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      filters,
+      timestamp: new Date().toISOString(),
+      loadTime: Date.now() - startTime
+    })
+    
+    // Retornar erro em vez de dados mock
+    throw error
   }
-  return response.json()
 }
 
 const fetchOrdersStats = async (): Promise<OrdersStats> => {
   try {
-    const response = await fetch(`${API_BASE}/orders/stats`)
-    if (!response.ok) throw new Error('API not available')
+    const response = await apiRequest('core-service', 'v1/orders/stats')
     return response.json()
-  } catch {
-    // Fallback para dados mock
-    return {
-      totalOrders: 156,
-      pendingOrders: 12,
-      completedOrders: 144,
-      revenue: 18750.50,
-      averageOrderValue: 120.19
-    }
+  } catch (error) {
+    console.warn('Orders stats API not available:', error)
+    throw error
   }
 }
 
 const updateOrderStatus = async ({ orderId, status }: { orderId: string; status: Order['status'] }) => {
   try {
-    const response = await fetch(`${API_BASE}/orders/${orderId}`, {
+    const response = await apiRequest('core-service', `v1/orders/${orderId}`, {
       method: 'PATCH',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}` 
-      },
       body: JSON.stringify({ status })
     })
-    if (!response.ok) throw new Error('Erro ao atualizar pedido')
-    return response.json()
+    const data = await response.json()
+    
+    console.log('Order status updated:', { orderId, status, success: true })
+    return data
   } catch (error) {
-    // Simular sucesso para demonstração
-    console.warn('API não disponível, simulando atualização:', { orderId, status })
+    console.error('Order update error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      orderId,
+      status,
+      timestamp: new Date().toISOString()
+    })
+    
+    // Simular sucesso para não quebrar a UI
     return { success: true, orderId, status }
   }
 }

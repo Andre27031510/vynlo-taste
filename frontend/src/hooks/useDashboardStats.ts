@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { apiRequest } from '@/services/api'
 
 interface DashboardStats {
   totalOrders: number
@@ -32,77 +33,81 @@ export const useDashboardStats = () => {
   const [error, setError] = useState<string | null>(null)
 
   const fetchStats = async () => {
+    const startTime = Date.now()
+    
     try {
       setLoading(true)
       setError(null)
 
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com/api'
-
-      // Fetch health status
-      const healthResponse = await fetch(`${API_BASE}/v1/test/health`)
-      const healthData = await healthResponse.json()
-
-      // Fetch orders stats (fallback to mock data if endpoint doesn't exist)
-      let ordersStats = { total: 0, pending: 0 }
+      // Fetch health status com timeout
+      let healthData = { status: 'DOWN' }
       try {
-        const ordersResponse = await fetch(`${API_BASE}/orders/stats`)
-        if (ordersResponse.ok) {
-          ordersStats = await ordersResponse.json()
-        }
-      } catch {
-        // Use mock data if API not available
-        ordersStats = { total: 156, pending: 12 }
+        const healthResponse = await apiRequest('core-service', 'actuator/health')
+        healthData = await healthResponse.json()
+      } catch (error) {
+        console.warn('Health check failed:', error)
+        healthData = { status: 'DOWN' }
       }
 
-      // Fetch users stats
-      let usersStats = { total: 0 }
-      try {
-        const usersResponse = await fetch(`${API_BASE}/users/stats`)
-        if (usersResponse.ok) {
-          usersStats = await usersResponse.json()
-        }
-      } catch {
-        usersStats = { total: 234 }
-      }
+      // Fetch stats em paralelo com Promise.allSettled
+      const [ordersResult, usersResult, driversResult] = await Promise.allSettled([
+        apiRequest('core-service', 'v1/orders/stats').then(r => r.json()),
+        apiRequest('core-service', 'v1/users/stats').then(r => r.json()),
+        apiRequest('core-service', 'v1/drivers/stats').then(r => r.json())
+      ])
 
-      // Fetch drivers stats
-      let driversStats = { active: 0 }
-      try {
-        const driversResponse = await fetch(`${API_BASE}/drivers/stats`)
-        if (driversResponse.ok) {
-          driversStats = await driversResponse.json()
-        }
-      } catch {
-        driversStats = { active: 18 }
-      }
+      // Processar resultados - usar dados reais ou 0 se falhar
+      const ordersStats = ordersResult.status === 'fulfilled' 
+        ? ordersResult.value 
+        : { total: 0, pending: 0 }
+        
+      const usersStats = usersResult.status === 'fulfilled' 
+        ? usersResult.value 
+        : { total: 0 }
+        
+      const driversStats = driversResult.status === 'fulfilled' 
+        ? driversResult.value 
+        : { active: 0 }
 
       setStats({
-        totalOrders: ordersStats.total,
-        pendingOrders: ordersStats.pending,
-        totalRevenue: 18750.50,
-        activeDrivers: driversStats.active,
-        totalClients: usersStats.total,
+        totalOrders: ordersStats.total || 0,
+        pendingOrders: ordersStats.pending || 0,
+        totalRevenue: ordersStats.revenue || 0,
+        activeDrivers: driversStats.active || 0,
+        totalClients: usersStats.total || 0,
         systemHealth: {
           orders: healthData?.status === 'UP' ? 'up' : 'down',
-          payments: 'up',
-          delivery: 'up',
-          integrations: 'up'
+          payments: healthData?.status === 'UP' ? 'up' : 'down',
+          delivery: healthData?.status === 'UP' ? 'up' : 'down',
+          integrations: healthData?.status === 'UP' ? 'up' : 'down'
         }
       })
+      // Log performance
+      const loadTime = Date.now() - startTime
+      console.log(`Dashboard stats loaded in ${loadTime}ms`)
+      
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar estatísticas')
-      // Fallback to mock data on error
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar estatísticas'
+      console.error('Dashboard stats error:', {
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+        loadTime: Date.now() - startTime
+      })
+      
+      setError(errorMessage)
+      
+      // Fallback com dados zerados para indicar erro
       setStats({
-        totalOrders: 156,
-        pendingOrders: 12,
-        totalRevenue: 18750.50,
-        activeDrivers: 18,
-        totalClients: 234,
+        totalOrders: 0,
+        pendingOrders: 0,
+        totalRevenue: 0,
+        activeDrivers: 0,
+        totalClients: 0,
         systemHealth: {
-          orders: 'warning',
-          payments: 'up',
-          delivery: 'up',
-          integrations: 'up'
+          orders: 'down',
+          payments: 'down',
+          delivery: 'down',
+          integrations: 'down'
         }
       })
     } finally {

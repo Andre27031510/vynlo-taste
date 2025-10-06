@@ -1,13 +1,53 @@
 // Tipos para service discovery
 type ServiceName = 'core-service' | 'financial-service'
+type Environment = 'development' | 'production'
 
-// Service Discovery Simplificado
-const getServiceUrl = (serviceName: ServiceName): string => {
-  const urls: Record<ServiceName, string> = {
-    'core-service': process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
-    'financial-service': process.env.NEXT_PUBLIC_FINANCIAL_API_URL || 'http://localhost:8081/api'
+// Service Discovery Enterprise
+class ServiceDiscovery {
+  private static instance: ServiceDiscovery
+  private services: Map<ServiceName, string> = new Map()
+  private lastUpdate = 0
+  private readonly CACHE_TTL = 300000 // 5 minutos
+
+  static getInstance(): ServiceDiscovery {
+    if (!ServiceDiscovery.instance) {
+      ServiceDiscovery.instance = new ServiceDiscovery()
+    }
+    return ServiceDiscovery.instance
   }
-  return urls[serviceName]
+
+  async getServiceUrl(serviceName: ServiceName): Promise<string> {
+    const now = Date.now()
+    if (now - this.lastUpdate > this.CACHE_TTL) {
+      await this.updateServices()
+    }
+    return this.services.get(serviceName) || this.getFallbackUrl(serviceName)
+  }
+
+  private async updateServices(): Promise<void> {
+    try {
+      const env = (process.env.NEXT_PUBLIC_ENVIRONMENT as Environment) || 'development'
+      if (env === 'development') {
+        this.services.set('core-service', 'http://localhost:8080/api')
+        this.services.set('financial-service', 'http://localhost:8081/api')
+      } else {
+        // Em produção, usar AWS ELB/ALB com health checks
+        this.services.set('core-service', 'https://core-api.vynlotech.com/api')
+        this.services.set('financial-service', 'https://financial-api.vynlotech.com/api')
+      }
+      this.lastUpdate = Date.now()
+    } catch (error) {
+      console.error('Service discovery failed:', error)
+    }
+  }
+
+  private getFallbackUrl(serviceName: ServiceName): string {
+    const fallbacks: Record<ServiceName, string> = {
+      'core-service': 'http://localhost:8080/api',
+      'financial-service': 'http://localhost:8081/api'
+    }
+    return fallbacks[serviceName] || 'http://localhost:8080/api'
+  }
 }
 
 export const API_CONFIG = {
@@ -91,8 +131,9 @@ export const fetchWithCircuitBreaker = async (
 }
 
 // Service-aware URL builder
-export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string => {
-  const baseUrl = getServiceUrl(serviceName)
+export const buildApiUrl = async (serviceName: ServiceName, endpoint: string): Promise<string> => {
+  const serviceDiscovery = ServiceDiscovery.getInstance()
+  const baseUrl = await serviceDiscovery.getServiceUrl(serviceName)
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
   return `${baseUrl}/${cleanEndpoint}`
 }
@@ -126,7 +167,7 @@ export const apiRequest = async (
   options: RequestInit = {}
 ): Promise<Response> => {
   try {
-    const url = buildApiUrl(serviceName, endpoint)
+    const url = await buildApiUrl(serviceName, endpoint)
     const headers = {
       ...getAuthHeaders(),
       'X-Request-ID': generateUUID(),
