@@ -7,32 +7,30 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: ${DB_POOL_MAX_SIZE:50} # Aumentado para 3M usuários
-      minimum-idle: ${DB_POOL_MIN_IDLE:10}
-      connection-timeout: ${DB_CONNECTION_TIMEOUT:10000} # Reduzido
-      idle-timeout: ${DB_IDLE_TIMEOUT:300000} # Reduzido
-      max-lifetime: ${DB_MAX_LIFETIME:900000} # Reduzido
-      leak-detection-threshold: 30000 # Reduzido
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 900000
+      leak-detection-threshold: 30000
       auto-commit: false
       initialization-fail-timeout: 10000
 
   redis:
-    cluster:
-      nodes: ${REDIS_CLUSTER_NODES:redis-cluster.vynlotech.com:6379}
-    password: ${REDIS_PASSWORD}
-    timeout: ${REDIS_TIMEOUT:2000ms} # Reduzido para produção
-    connect-timeout: ${REDIS_CONNECT_TIMEOUT:2000ms}
+    host: ${REDIS_HOST:redis}
+    port: ${REDIS_PORT:6379}
+    timeout: 2000ms
+    connect-timeout: 2000ms
     lettuce:
       pool:
-        max-active: ${REDIS_POOL_MAX:100} # Aumentado para alta carga
-        max-idle: ${REDIS_POOL_IDLE:20}
-        min-idle: ${REDIS_POOL_MIN:10}
-        max-wait: ${REDIS_POOL_WAIT:1000ms} # Reduzido
+        max-active: 100
+        max-idle: 20
+        min-idle: 10
+        max-wait: 1000ms
       shutdown-timeout: 100ms
-    ssl: true # Habilitado para produção
 
   flyway:
-    enabled: true
+    enabled: false
     baseline-on-migrate: true
     validate-on-migrate: false
     connect-retries: 3
@@ -42,7 +40,7 @@ spring:
     
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -55,11 +53,9 @@ spring:
 
   cache:
     type: redis
-    redis:
-      time-to-live: ${CACHE_TTL:300000} # 5 minutos para alta carga
-      cache-null-values: false
-      use-key-prefix: true
-      enable-statistics: true # Para monitoramento
+    cache-null-values: false
+    use-key-prefix: true
+    enable-statistics: true
       
   mail:
     test-connection: false
@@ -83,7 +79,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
         exclude: shutdown,env,configprops,beans,mappings,loggers,threaddump,heapdump,jfr
       base-path: /actuator
   endpoint:
@@ -95,41 +91,12 @@ management:
       enabled: true
     metrics:
       enabled: true
-    prometheus:
-      enabled: true
   health:
     redis:
       enabled: false
     db:
       enabled: false
     diskspace:
-      enabled: false
-      threshold: 1GB
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-        step: 30s
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-      percentiles:
-        http.server.requests: 0.5, 0.95, 0.99
-      slo:
-        http.server.requests: 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
-  tracing:
-    sampling:
-      probability: 0.01
-  info:
-    env:
-      enabled: false
-    java:
-      enabled: true
-    os:
-      enabled: false
-    build:
-      enabled: true
-    git:
       enabled: false
 
 vynlo:

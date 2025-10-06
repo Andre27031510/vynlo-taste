@@ -26,6 +26,8 @@ services:
   backend:
     image: ghcr.io/andre27031510/vynlotaste-backend:latest
     container_name: vynlo-backend
+    ports:
+      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SSL_ENABLED: "false"
@@ -40,8 +42,6 @@ services:
       MAIL_HOST: smtp.gmail.com
       MAIL_USERNAME: noreply@vynlotech.com
       MAIL_PASSWORD: dummy
-    expose:
-      - "8080"
     depends_on:
       - postgres
       - redis
