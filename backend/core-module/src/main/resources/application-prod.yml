@@ -143,7 +143,7 @@ vynlo:
     distributed: true # Rate limiting distribuído
   cors:
     allowed-origins:
-      - ${CORS_ALLOWED_ORIGINS:https://vynlotech.com,https://vynlotaste.com,https://admin.vynlotech.com,https://cdn.vynlotech.com}
+      - ${CORS_ALLOWED_ORIGINS:https://vynlotech.com,https://vynlotaste.com,https://admin.vynlotech.com,https://cdn.vynlotech.com,https://api.vynlotech.com}
     allowed-methods:
       - GET
       - POST
@@ -157,8 +157,6 @@ vynlo:
       - X-Request-ID
     allow-credentials: true
     max-age: 3600
-  ssl:
-    enabled: false
   backup:
     enabled: ${BACKUP_ENABLED:true}
     schedule: ${BACKUP_SCHEDULE:0 0 2 * * *}

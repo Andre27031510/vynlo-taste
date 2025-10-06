@@ -32,8 +32,8 @@ class ServiceDiscovery {
         this.services.set('financial-service', 'http://localhost:8081/api')
       } else {
         // Em produção, usar AWS ELB/ALB com health checks
-        this.services.set('core-service', 'https://core-api.vynlotech.com/api')
-        this.services.set('financial-service', 'https://financial-api.vynlotech.com/api')
+        this.services.set('core-service', 'https://api.vynlotech.com')
+        this.services.set('financial-service', 'https://api.vynlotech.com')
       }
       this.lastUpdate = Date.now()
     } catch (error) {
