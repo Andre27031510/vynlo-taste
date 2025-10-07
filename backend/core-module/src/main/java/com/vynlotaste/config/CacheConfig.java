@@ -37,6 +37,9 @@ public class CacheConfig implements CachingConfigurer {
     public static final String ORDERS_CACHE = "orders";
     public static final String SYSTEM_CONFIG_CACHE = "system-config";
     public static final String PRODUCT_CATEGORIES_CACHE = "product-categories";
+    public static final String USER_STATS_CACHE = "userStats";
+    public static final String DRIVER_STATS_CACHE = "driverStats";
+    public static final String ORDER_STATS_CACHE = "orderStats";
 
     @Bean
     @Primary
@@ -68,6 +71,11 @@ public class CacheConfig implements CachingConfigurer {
         
         // Cache de categorias - TTL 2 horas
         cacheConfigurations.put(PRODUCT_CATEGORIES_CACHE, defaultConfig.entryTtl(Duration.ofHours(2)));
+        
+        // Cache de estatísticas - TTL 30 segundos (alta carga, dados dinâmicos)
+        cacheConfigurations.put(USER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
+        cacheConfigurations.put(DRIVER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
+        cacheConfigurations.put(ORDER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
 
         return RedisCacheManager.builder(connectionFactory)
             .cacheDefaults(defaultConfig)
@@ -81,7 +89,8 @@ public class CacheConfig implements CachingConfigurer {
     public CacheManager fallbackCacheManager() {
         log.warn("Redis indisponível - usando cache em memória como fallback");
         return new org.springframework.cache.concurrent.ConcurrentMapCacheManager(
-            USERS_CACHE, PRODUCTS_CACHE, ORDERS_CACHE, SYSTEM_CONFIG_CACHE, PRODUCT_CATEGORIES_CACHE
+            USERS_CACHE, PRODUCTS_CACHE, ORDERS_CACHE, SYSTEM_CONFIG_CACHE, PRODUCT_CATEGORIES_CACHE,
+            USER_STATS_CACHE, DRIVER_STATS_CACHE, ORDER_STATS_CACHE
         );
     }
 

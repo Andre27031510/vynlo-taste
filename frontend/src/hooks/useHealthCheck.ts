@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { apiRequest } from '@/lib/api'
+import { apiRequest } from '@/services/api'
 
 interface HealthStatus {
   status: 'UP' | 'DOWN'
