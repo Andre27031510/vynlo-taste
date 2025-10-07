@@ -3,7 +3,7 @@ export const API_CONFIG = {
   BACKEND: {
     baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
     endpoints: {
-      syncFirebase: '/v1/users/sync-firebase'
+      syncFirebase: '/api/v1/users/sync-firebase'
     }
   },
   NEWS_API: {

@@ -98,8 +98,21 @@ export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string 
 }
 
 // Headers padrão com autenticação
-export const getAuthHeaders = (): Record<string, string> => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+export const getAuthHeaders = async (): Promise<Record<string, string>> => {
+  let token = null
+  
+  if (typeof window !== 'undefined') {
+    try {
+      const { getAuthInstance } = await import('@/config/firebase')
+      const auth = getAuthInstance()
+      if (auth?.currentUser) {
+        token = await auth.currentUser.getIdToken()
+      }
+    } catch (error) {
+      console.warn('Erro ao obter token Firebase:', error)
+    }
+  }
+  
   return {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -127,8 +140,9 @@ export const apiRequest = async (
 ): Promise<Response> => {
   try {
     const url = buildApiUrl(serviceName, endpoint)
+    const authHeaders = await getAuthHeaders()
     const headers = {
-      ...getAuthHeaders(),
+      ...authHeaders,
       'X-Request-ID': generateUUID(),
       'X-Client-Version': process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
       ...options.headers

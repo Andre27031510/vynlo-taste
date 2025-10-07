@@ -23,7 +23,7 @@ public class OrderController {
     private final OrderMapper orderMapper;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'STAFF', 'USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponseDto> createOrder(@Valid @RequestBody OrderRequestDto orderRequest) {
         Order order = orderService.createOrder(orderRequest);
         OrderResponseDto response = orderMapper.toResponseDto(order);
@@ -31,7 +31,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'STAFF')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponseDto> updateOrderStatus(
             @PathVariable Long id,
             @RequestBody StatusUpdateRequest request) {
@@ -42,7 +42,7 @@ public class OrderController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'STAFF')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getAllOrders(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
@@ -71,7 +71,7 @@ public class OrderController {
     }
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'STAFF')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getOrdersStats() {
         try {
             return ResponseEntity.ok(java.util.Map.of(
@@ -91,7 +91,7 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'STAFF')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponseDto> patchOrderStatus(
             @PathVariable Long id,
             @RequestBody StatusUpdateRequest request) {
@@ -106,7 +106,7 @@ public class OrderController {
     }
 
     @GetMapping("/my-orders")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'STAFF', 'USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<OrderResponseDto>> getUserOrders(@RequestParam Long userId) {
         List<Order> orders = orderService.getOrdersByUser(userId);
         List<OrderResponseDto> response = orders.stream()

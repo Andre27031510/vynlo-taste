@@ -29,8 +29,8 @@ import java.util.Arrays;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    // @Autowired
-    // private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
     
     // @Autowired
     // private SecurityAuditFilter securityAuditFilter;
@@ -84,37 +84,22 @@ public class SecurityConfig {
                 // Endpoints administrativos - apenas ADMIN
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 
-                // Endpoints de gestão - ADMIN ou MANAGER
-                .requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
-                
-                // Endpoints financeiros - ADMIN ou MANAGER
-                .requestMatchers("/api/v1/financial/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers("/api/v1/reports/**").hasAnyRole("ADMIN", "MANAGER")
-                
-                // Endpoints de pedidos - ADMIN, MANAGER ou STAFF
-                .requestMatchers(HttpMethod.GET, "/api/v1/orders/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
-                .requestMatchers(HttpMethod.POST, "/api/v1/orders/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "CUSTOMER")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/orders/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
-                
-                // Endpoints de produtos - leitura para todos autenticados, escrita para ADMIN/MANAGER
-                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/v1/products/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("ADMIN")
-                
-                // Endpoints de clientes - acesso baseado em role
-                .requestMatchers(HttpMethod.GET, "/api/v1/customers/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
-                .requestMatchers(HttpMethod.POST, "/api/v1/customers/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                // Funcionalidades do sistema - qualquer usuário autenticado
+                .requestMatchers("/api/v1/users/**").authenticated()
+                .requestMatchers("/api/v1/financial/**").authenticated()
+                .requestMatchers("/api/v1/reports/**").authenticated()
+                .requestMatchers("/api/v1/orders/**").authenticated()
+                .requestMatchers("/api/v1/products/**").authenticated()
+                .requestMatchers("/api/v1/customers/**").authenticated()
+                .requestMatchers("/api/v1/drivers/**").authenticated()
                 
                 // Qualquer outra requisição requer autenticação
                 .anyRequest().authenticated()
             )
             
-            // Filtros customizados comentados temporariamente
+            // Filtros customizados
             // .addFilterBefore(securityAuditFilter, UsernamePasswordAuthenticationFilter.class)
-            // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .anonymous(AbstractHttpConfigurer::disable);
 
         return http.build();
