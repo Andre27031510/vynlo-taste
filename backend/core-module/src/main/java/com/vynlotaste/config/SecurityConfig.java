@@ -66,6 +66,9 @@ public class SecurityConfig {
             
             // Configurar autorização de endpoints
             .authorizeHttpRequests(authz -> authz
+                // Health endpoints para ALB
+                .requestMatchers("/health").permitAll()
+                .requestMatchers("/api/health").permitAll()
                 // Endpoints públicos - ACTUATOR PRIMEIRO
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/api/actuator/**").permitAll()
