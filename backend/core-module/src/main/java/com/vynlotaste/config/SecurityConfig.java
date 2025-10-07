@@ -104,8 +104,9 @@ public class SecurityConfig {
             
             // Filtros customizados
             // .addFilterBefore(securityAuditFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .anonymous(AbstractHttpConfigurer::disable);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            // REMOVIDO: .anonymous(AbstractHttpConfigurer::disable) 
+            // Esta configuração causava retorno de 403 em vez de 401 para requisições não autenticadas
 
         return http.build();
     }
