@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/cors")
+@RequestMapping("/admin/cors")
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "vynlo.cors.logging-enabled", havingValue = "true")
 public class CorsInfoController {

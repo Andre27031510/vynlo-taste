@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/webhooks")
+@RequestMapping("/v1/webhooks")
 @RequiredArgsConstructor
 public class FirebaseWebhookController {
 

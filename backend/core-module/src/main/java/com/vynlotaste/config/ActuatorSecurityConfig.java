@@ -24,29 +24,29 @@ public class ActuatorSecurityConfig {
     @Bean
     public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/actuator/**")
+            .securityMatcher("/actuator/**")
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 // Health endpoint público para ALB
-                .requestMatchers("/api/actuator/health").permitAll()
-                .requestMatchers("/api/actuator/health/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/health/**").permitAll()
                 
                 // Endpoints sensíveis protegidos
-                .requestMatchers("/api/actuator/info").hasRole("ADMIN")
-                .requestMatchers("/api/actuator/metrics").hasRole("ADMIN")
-                .requestMatchers("/api/actuator/metrics/**").hasRole("ADMIN")
-                .requestMatchers("/api/actuator/prometheus").hasRole("ADMIN")
+                .requestMatchers("/actuator/info").hasRole("ADMIN")
+                .requestMatchers("/actuator/metrics").hasRole("ADMIN")
+                .requestMatchers("/actuator/metrics/**").hasRole("ADMIN")
+                .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
                 
                 // Bloquear endpoints perigosos
-                .requestMatchers("/api/actuator/shutdown").denyAll()
-                .requestMatchers("/api/actuator/env").denyAll()
-                .requestMatchers("/api/actuator/configprops").denyAll()
-                .requestMatchers("/api/actuator/beans").denyAll()
-                .requestMatchers("/api/actuator/mappings").denyAll()
-                .requestMatchers("/api/actuator/loggers").denyAll()
-                .requestMatchers("/api/actuator/threaddump").denyAll()
-                .requestMatchers("/api/actuator/heapdump").denyAll()
+                .requestMatchers("/actuator/shutdown").denyAll()
+                .requestMatchers("/actuator/env").denyAll()
+                .requestMatchers("/actuator/configprops").denyAll()
+                .requestMatchers("/actuator/beans").denyAll()
+                .requestMatchers("/actuator/mappings").denyAll()
+                .requestMatchers("/actuator/loggers").denyAll()
+                .requestMatchers("/actuator/threaddump").denyAll()
+                .requestMatchers("/actuator/heapdump").denyAll()
                 
                 .anyRequest().authenticated()
             )

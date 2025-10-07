@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/retry")
+@RequestMapping("/admin/retry")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class RetryController {

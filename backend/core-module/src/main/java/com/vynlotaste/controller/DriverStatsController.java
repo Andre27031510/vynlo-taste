@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/drivers")
+@RequestMapping("/v1/drivers")
 @RequiredArgsConstructor
 public class DriverStatsController {
 

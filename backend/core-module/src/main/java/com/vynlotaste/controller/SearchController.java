@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/search")
+@RequestMapping("/search")
 @RequiredArgsConstructor
 @Tag(name = "Dynamic Search", description = "Advanced search with dynamic filters")
 public class SearchController {

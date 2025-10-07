@@ -22,7 +22,7 @@ import java.util.Map;
  * Implementa logout seguro e validação de tokens
  */
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/v1/auth")
 @CrossOrigin(origins = {"https://vynlotaste.com", "https://*.vynlotaste.com"})
 public class SecureAuthController {
 

@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/performance")
+@RequestMapping("/v1/performance")
 @CrossOrigin(origins = "*")
 public class PerformanceController {
 

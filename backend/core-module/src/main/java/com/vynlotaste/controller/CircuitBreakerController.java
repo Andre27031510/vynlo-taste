@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/circuit-breakers")
+@RequestMapping("/admin/circuit-breakers")
 @RequiredArgsConstructor
 @Tag(name = "Circuit Breaker Management", description = "Circuit breaker monitoring and management")
 @ConditionalOnProperty(name = "management.endpoints.web.exposure.include", havingValue = "*")

@@ -9,7 +9,7 @@ import com.google.firebase.auth.ExportedUserRecord;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/v1/super-admin")
+@RequestMapping("/v1/super-admin")
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class SuperAdminController {
 

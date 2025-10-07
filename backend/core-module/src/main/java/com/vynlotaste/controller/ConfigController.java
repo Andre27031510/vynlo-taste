@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/config")
+@RequestMapping("/config")
 @CrossOrigin(origins = "*")
 public class ConfigController {
 

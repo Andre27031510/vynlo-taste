@@ -67,36 +67,33 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Health endpoints para ALB
                 .requestMatchers("/health").permitAll()
-                .requestMatchers("/api/health").permitAll()
                 // Endpoints públicos - ACTUATOR PRIMEIRO
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/api/actuator/**").permitAll()
-                .requestMatchers("/api/actuator/health").permitAll()
-                .requestMatchers("/api/actuator/health/**").permitAll()
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/public/**").permitAll()
-                .requestMatchers("/api/v1/test/**").permitAll()
-                .requestMatchers("/v1/test/**").permitAll() // Adicionar sem /api
-                .requestMatchers("/api/v1/users/sync-firebase").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/health/**").permitAll()
+                .requestMatchers("/v1/auth/**").permitAll()
+                .requestMatchers("/v1/public/**").permitAll()
+                .requestMatchers("/v1/test/**").permitAll()
+                .requestMatchers("/v1/users/sync-firebase").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 
-                // Stats endpoints - acessíveis para usuários logados (opcional: mudar para permitAll())
-                .requestMatchers("/api/v1/orders/stats").authenticated()
-                .requestMatchers("/api/v1/users/stats").authenticated()
-                .requestMatchers("/api/v1/drivers/stats").authenticated()
-                .requestMatchers("/api/v1/products/stats").authenticated()
+                // Stats endpoints - acessíveis para usuários logados
+                .requestMatchers("/v1/orders/stats").authenticated()
+                .requestMatchers("/v1/users/stats").authenticated()
+                .requestMatchers("/v1/drivers/stats").authenticated()
+                .requestMatchers("/v1/products/stats").authenticated()
                 
                 // Endpoints administrativos - apenas ADMIN
-                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                 
                 // Funcionalidades do sistema - qualquer usuário autenticado
-                .requestMatchers("/api/v1/users/**").authenticated()
-                .requestMatchers("/api/v1/financial/**").authenticated()
-                .requestMatchers("/api/v1/reports/**").authenticated()
-                .requestMatchers("/api/v1/orders/**").authenticated()
-                .requestMatchers("/api/v1/products/**").authenticated()
-                .requestMatchers("/api/v1/customers/**").authenticated()
-                .requestMatchers("/api/v1/drivers/**").authenticated()
+                .requestMatchers("/v1/users/**").authenticated()
+                .requestMatchers("/v1/financial/**").authenticated()
+                .requestMatchers("/v1/reports/**").authenticated()
+                .requestMatchers("/v1/orders/**").authenticated()
+                .requestMatchers("/v1/products/**").authenticated()
+                .requestMatchers("/v1/customers/**").authenticated()
+                .requestMatchers("/v1/drivers/**").authenticated()
                 
                 // Qualquer outra requisição requer autenticação
                 .anyRequest().authenticated()

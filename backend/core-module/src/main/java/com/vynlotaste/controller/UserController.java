@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/v1/users")
 @RequiredArgsConstructor
 @Validated
 public class UserController {
