@@ -3,9 +3,10 @@ type ServiceName = 'core-service' | 'financial-service'
 
 // Service Discovery Simplificado
 const getServiceUrl = (serviceName: ServiceName): string => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
   const urls: Record<ServiceName, string> = {
-    'core-service': process.env.NEXT_PUBLIC_API_URL || '/api',
-    'financial-service': process.env.NEXT_PUBLIC_FINANCIAL_API_URL || '/api'
+    'core-service': baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl,
+    'financial-service': baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl
   }
   return urls[serviceName]
 }
@@ -94,7 +95,7 @@ export const fetchWithCircuitBreaker = async (
 export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string => {
   const baseUrl = getServiceUrl(serviceName)
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
-  return `${baseUrl}/${cleanEndpoint}`
+  return `${baseUrl}/api/${cleanEndpoint}`
 }
 
 // Headers padrão com autenticação

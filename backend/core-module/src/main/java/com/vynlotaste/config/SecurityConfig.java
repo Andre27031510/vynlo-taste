@@ -60,7 +60,7 @@ public class SecurityConfig {
                     response.setHeader("X-XSS-Protection", "1; mode=block");
                     response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
                     response.setHeader("Content-Security-Policy", 
-                        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:; frame-ancestors 'none';");
+                        "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https: https://api.vynlotech.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebase.googleapis.com https://firestore.googleapis.com wss: ws:; frame-ancestors 'none';");
                 })
             )
             
