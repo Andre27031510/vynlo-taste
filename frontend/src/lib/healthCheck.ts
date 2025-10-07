@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { apiRequest } from './api'
+import { apiRequest } from '@/services/api'
 
 export interface HealthStatus {
   status: 'UP' | 'DOWN' | 'UNKNOWN'

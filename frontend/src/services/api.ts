@@ -104,13 +104,11 @@ export const getAuthHeaders = async (): Promise<Record<string, string>> => {
   
   if (typeof window !== 'undefined') {
     try {
-      const { getAuth } = await import('firebase/auth')
-      const auth = getAuth()
+      const { getAuthInstance } = await import('@/config/firebase')
+      const auth = getAuthInstance()
+      
       if (auth?.currentUser) {
         token = await auth.currentUser.getIdToken()
-        console.log('Token obtido:', token ? 'Sim' : 'Não')
-      } else {
-        console.warn('Usuário não está logado no Firebase')
       }
     } catch (error) {
       console.error('Erro ao obter token Firebase:', error)

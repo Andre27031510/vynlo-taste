@@ -65,8 +65,6 @@ firebase:
   private-key: ${FIREBASE_PRIVATE_KEY:}
   client-email: ${FIREBASE_CLIENT_EMAIL:}
   aws-secret-name: ${FIREBASE_AWS_SECRET_NAME:vynlo-taste-firebase-prod}
-  auth:
-    enabled: false # Desabilitado - usando JwtAuthenticationFilter
 
 aws:
   region: ${AWS_REGION:us-east-1}
