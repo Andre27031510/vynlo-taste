@@ -74,18 +74,31 @@ public class OrderController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getOrdersStats() {
         try {
+            // Buscar dados reais do banco
+            long totalOrders = orderService.countOrdersToday();
+            long pendingOrders = orderService.countPendingOrders();
+            java.math.BigDecimal revenue = orderService.getRevenueToday();
+            
+            // Calcular média se houver pedidos
+            double averageOrderValue = totalOrders > 0 
+                ? revenue.divide(java.math.BigDecimal.valueOf(totalOrders), 2, java.math.RoundingMode.HALF_UP).doubleValue()
+                : 0.0;
+            
+            return ResponseEntity.ok(java.util.Map.of(
+                "totalOrders", totalOrders,
+                "pendingOrders", pendingOrders,
+                "completedOrders", totalOrders - pendingOrders,
+                "revenue", revenue.doubleValue(),
+                "averageOrderValue", averageOrderValue
+            ));
+        } catch (Exception e) {
+            // Fallback com dados zerados em caso de erro
             return ResponseEntity.ok(java.util.Map.of(
                 "totalOrders", 0,
                 "pendingOrders", 0,
                 "completedOrders", 0,
                 "revenue", 0.0,
                 "averageOrderValue", 0.0
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.ok(java.util.Map.of(
-                "totalOrders", 0,
-                "pendingOrders", 0,
-                "completedOrders", 0
             ));
         }
     }
