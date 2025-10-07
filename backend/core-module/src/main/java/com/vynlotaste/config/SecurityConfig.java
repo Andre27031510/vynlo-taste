@@ -80,6 +80,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users/sync-firebase").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 
+                // Stats endpoints - acessíveis para usuários logados (opcional: mudar para permitAll())
+                .requestMatchers("/api/v1/orders/stats").authenticated()
+                .requestMatchers("/api/v1/users/stats").authenticated()
+                .requestMatchers("/api/v1/drivers/stats").authenticated()
+                .requestMatchers("/api/v1/products/stats").authenticated()
+                
                 // Endpoints administrativos - apenas ADMIN
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 
