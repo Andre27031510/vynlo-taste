@@ -51,8 +51,8 @@ logging:
 
 server:
   port: ${SERVER_PORT:8080}
-  servlet:
-    context-path: /api
+  # REMOVIDO: context-path: /api
+  # Os controllers já têm /api no @RequestMapping, adicionar context-path duplicaria para /api/api
   error:
     include-stacktrace: never
     include-message: always
