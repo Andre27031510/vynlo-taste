@@ -46,14 +46,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = extractTokenFromRequest(request);
             
+            // Apenas tenta autenticar se houver token
             if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 authenticateToken(token, request);
             }
+            // Se não houver token, deixa o Spring Security decidir (401 será retornado automaticamente)
         } catch (Exception e) {
-            logger.error("Erro na autenticação JWT: {}", e.getMessage());
+            // Token inválido - limpa contexto e deixa Spring Security retornar 401
+            logger.warn("Token inválido ou expirado: {} - deixando Spring Security gerenciar", e.getMessage());
             SecurityContextHolder.clearContext();
+            // NÃO lança exceção - deixa o filtro continuar para que Spring Security retorne 401
         }
 
+        // Sempre continua a cadeia de filtros
         filterChain.doFilter(request, response);
     }
 
@@ -67,38 +72,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private void authenticateToken(String token, HttpServletRequest request) {
-        try {
-            // Verificar token Firebase
-            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-            String uid = decodedToken.getUid();
-            String email = decodedToken.getEmail();
-            
-            // Extrair role do token (custom claims)
-            UserRole userRole = extractUserRole(decodedToken);
-            
-            // Criar authorities
-            List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority(userRole.getAuthority())
-            );
+    private void authenticateToken(String token, HttpServletRequest request) throws Exception {
+        // Verificar token Firebase
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+        String uid = decodedToken.getUid();
+        String email = decodedToken.getEmail();
+        
+        // Extrair role do token (custom claims)
+        UserRole userRole = extractUserRole(decodedToken);
+        
+        // Criar authorities
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+            new SimpleGrantedAuthority(userRole.getAuthority())
+        );
 
-            // Criar authentication
-            UsernamePasswordAuthenticationToken authentication = 
-                new UsernamePasswordAuthenticationToken(uid, null, authorities);
-            
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            
-            // Definir no contexto de segurança
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-            // Log de auditoria
-            logger.info("Usuário autenticado: uid={}, email={}, role={}, ip={}", 
-                       uid, email, userRole, getClientIpAddress(request));
-            
-        } catch (Exception e) {
-            logger.error("Falha na verificação do token Firebase: {}", e.getMessage());
-            throw new RuntimeException("Token inválido", e);
-        }
+        // Criar authentication
+        UsernamePasswordAuthenticationToken authentication = 
+            new UsernamePasswordAuthenticationToken(uid, null, authorities);
+        
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        
+        // Definir no contexto de segurança
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        // Log de auditoria
+        logger.info("Usuário autenticado: uid={}, email={}, role={}, ip={}", 
+                   uid, email, userRole, getClientIpAddress(request));
     }
 
     private UserRole extractUserRole(FirebaseToken token) {
