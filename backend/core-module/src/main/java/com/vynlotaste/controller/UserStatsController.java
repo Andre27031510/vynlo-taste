@@ -19,6 +19,7 @@ public class UserStatsController {
     private final UserRepository userRepository;
 
     @GetMapping("/stats")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> getUserStats() {
         long total = userRepository.count();
         long active = userRepository.countActiveUsers();

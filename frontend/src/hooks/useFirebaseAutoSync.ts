@@ -43,7 +43,7 @@ const syncUserWithBackend = async (user: User) => {
   try {
     const token = await user.getIdToken()
     
-    const response = await fetch(`${API_BASE_URL}/api/v1/users/sync-firebase`, {
+    const response = await fetch(`${API_BASE_URL}/v1/users/sync-firebase`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

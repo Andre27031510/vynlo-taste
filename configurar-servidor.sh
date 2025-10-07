@@ -41,21 +41,14 @@ cd /opt/vynlo
 
 # Instalar utilitários
 echo "🛠️ Instalando utilitários..."
-sudo apt install -y git curl wget htop nginx certbot python3-certbot-nginx
+sudo apt install -y git curl wget htop
 
-# Configurar firewall
+# Configurar firewall (ALB gerencia 80/443)
 echo "🛡️ Configurando firewall..."
 sudo ufw allow ssh
-sudo ufw allow 80
-sudo ufw allow 443
 sudo ufw allow 3000
 sudo ufw allow 8080
 sudo ufw --force enable
-
-# Configurar Nginx
-echo "🌐 Configurando Nginx..."
-sudo systemctl enable nginx
-sudo systemctl start nginx
 
 echo "✅ Servidor configurado com sucesso!"
 echo ""
@@ -64,8 +57,9 @@ echo "  ✅ Docker & Docker Compose"
 echo "  ✅ Node.js 18"
 echo "  ✅ Java 17"
 echo "  ✅ Maven"
-echo "  ✅ Nginx"
 echo "  ✅ Git"
+echo ""
+echo "🌐 Arquitetura: ALB → Containers (sem NGINX)"
 echo ""
 echo "📁 Diretório do projeto: /opt/vynlo"
 echo "🌐 IP público: $(curl -s http://checkip.amazonaws.com)"

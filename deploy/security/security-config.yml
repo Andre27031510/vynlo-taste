@@ -106,9 +106,7 @@ Resources:
           headers['frame-options'] = { value: 'DENY' };
           headers['xss-protection'] = { value: '1; mode=block' };
           headers['referrer-policy'] = { value: 'strict-origin-when-cross-origin' };
-          headers['content-security-policy'] = { 
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https://api.vynlotaste.com;" 
-          };
+          // CSP gerenciado pelo Next.js - não definir no CloudFront para evitar conflitos
           
           return response;
         }

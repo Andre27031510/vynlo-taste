@@ -15,6 +15,7 @@ import java.util.Map;
 public class DriverStatsController {
 
     @GetMapping("/stats")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> getDriverStats() {
         // Mock data - sistema de drivers não implementado ainda
         Map<String, Object> stats = Map.of(
