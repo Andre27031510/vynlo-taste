@@ -28,8 +28,8 @@ let firebaseConfig: any = {
 // Load config from backend
 const loadFirebaseConfig = async () => {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
-    const response = await fetch(`${apiUrl}/api/config/firebase`)
+    const { apiRequest } = await import('@/services/api')
+    const response = await apiRequest('core-service', 'config/firebase')
     if (response.ok) {
       const config = await response.json()
       firebaseConfig = { ...firebaseConfig, ...config }

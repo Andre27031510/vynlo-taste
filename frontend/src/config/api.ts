@@ -1,7 +1,7 @@
  // Configurações de API para busca de artigos
 export const API_CONFIG = {
   BACKEND: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com',
     endpoints: {
       syncFirebase: '/api/v1/users/sync-firebase'
     }

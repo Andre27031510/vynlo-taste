@@ -29,7 +29,7 @@ export interface FiscalSyncRequest {
 
 // Configuração do axios para Amazon Q
 const amazonQClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

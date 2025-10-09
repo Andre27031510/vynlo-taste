@@ -155,10 +155,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Função para sincronizar usuário Firebase com backend
   const syncUserWithBackend = async (firebaseUser: User) => {
     try {
-      const response = await fetch(`${API_CONFIG.BACKEND.baseUrl}${API_CONFIG.BACKEND.endpoints.syncFirebase}`, {
+      const { apiRequest } = await import('@/services/api')
+      const response = await apiRequest('core-service', 'v1/users/sync-firebase', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${await firebaseUser.getIdToken()}`
         },
         body: JSON.stringify({

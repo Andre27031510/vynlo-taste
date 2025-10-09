@@ -8,7 +8,7 @@ class WebSocketService {
   private listeners: Map<string, Set<(data: any) => void>> = new Map()
 
   constructor() {
-    this.url = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080/ws/admin'
+    this.url = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.vynlotech.com/ws/admin'
   }
 
   connect(): Promise<void> {

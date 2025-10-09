@@ -3,7 +3,7 @@ type ServiceName = 'core-service' | 'financial-service'
 
 // Service Discovery Simplificado
 const getServiceUrl = (serviceName: ServiceName): string => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
   const urls: Record<ServiceName, string> = {
     'core-service': baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl,
     'financial-service': baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl

@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { getAuthInstance } from '@/config/firebase'
 import { onAuthStateChanged, User } from 'firebase/auth'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com/api'
+import { apiRequest } from '@/services/api'
 
 export const useFirebaseAutoSync = () => {
   useEffect(() => {
@@ -43,10 +42,9 @@ const syncUserWithBackend = async (user: User) => {
   try {
     const token = await user.getIdToken()
     
-    const response = await fetch(`${API_BASE_URL}/v1/users/sync-firebase`, {
+    const response = await apiRequest('core-service', 'v1/users/sync-firebase', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
