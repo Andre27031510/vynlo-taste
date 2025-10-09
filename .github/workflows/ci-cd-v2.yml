@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *' # Executa diariamente para debug
-    # FORÇAR DEPLOY - 2025-10-09 14:40 - CACHE LIMPO - RUNNER CORRIGIDO
+    # FORÇAR DEPLOY - 2025-10-09 14:40 - CACHE LIMPO - RUNNER CORRIGIDO - RETRY
 
 permissions:
   contents: read
