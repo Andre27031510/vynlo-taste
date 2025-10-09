@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: vynlotaste
       POSTGRES_USER: vynlo_user
-      POSTGRES_PASSWORD: 96043020
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -35,13 +35,13 @@ services:
       DB_PORT: 5432
       DB_NAME: vynlotaste
       DB_USERNAME: vynlo_user
-      DB_PASSWORD: 96043020
+      DB_PASSWORD: ${DB_PASSWORD}
       REDIS_HOST: redis
       SPRING_FLYWAY_ENABLED: "false"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       MAIL_HOST: smtp.gmail.com
       MAIL_USERNAME: noreply@vynlotech.com
-      MAIL_PASSWORD: dummy
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
     depends_on:
       - postgres
       - redis

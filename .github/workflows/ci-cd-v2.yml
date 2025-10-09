@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: vynlo-productor-runnerr
     timeout-minutes: 30
     env:
       TAG: ${{ github.sha }}
@@ -170,7 +170,7 @@ jobs:
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: vynlo-productor-runnerr
     timeout-minutes: 30
     if: ${{ always() && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
     steps:
@@ -204,6 +204,8 @@ jobs:
           OWNER_LC: ${{ env.OWNER_LC || 'andre27031510' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_HOST: ${{ secrets.SSH_HOST || 'localhost' }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
           set -e
           echo "=== Deploy iniciado ==="
