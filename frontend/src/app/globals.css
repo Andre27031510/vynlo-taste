@@ -337,6 +337,7 @@ body {
 
 /* Classes utilitárias para modo escuro - FORÇAR APLICAÇÃO */
 /* Removido: [data-theme="dark"] .bg-white - mantém fundo branco nas landing pages */
+/* Deploy trigger: 2025-10-09 */
 
 [data-theme="dark"] .text-gray-900 {
   color: #f8fafc !important;
