@@ -22,7 +22,7 @@ concurrency:
 jobs:
   build:
     runs-on: self-hosted
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       TAG: ${{ github.sha }}
     outputs:
