@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: [self-hosted, production, vynlo]
+    runs-on: self-hosted
     timeout-minutes: 45
     env:
       TAG: ${{ github.sha }}
@@ -169,7 +169,7 @@ jobs:
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
   deploy:
     needs: build
-    runs-on: [self-hosted, production, vynlo]
+    runs-on: self-hosted
     timeout-minutes: 30
     if: ${{ always() && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
     steps:
