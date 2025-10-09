@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *' # Executa diariamente para debug
+    # FORÇAR DEPLOY - 2025-10-09 14:40
 
 permissions:
   contents: read
