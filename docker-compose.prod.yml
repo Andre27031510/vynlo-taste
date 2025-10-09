@@ -61,7 +61,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      NEXT_PUBLIC_API_URL: http://54.91.215.47:3000/api
+      # NEXT_PUBLIC_API_URL não funciona em runtime - deve ser definida no BUILD
+      # A URL correta é configurada no pipeline: https://api.vynlotech.com
     ports:
       - "3000:3000"
     depends_on:
