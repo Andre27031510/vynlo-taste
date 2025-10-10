@@ -19,10 +19,14 @@ const getServiceUrl = (serviceName: ServiceName): string => {
   return urls[serviceName]
 }
 
+// Build version para forçar cache-busting
+const BUILD_VERSION = '2.1.1-fix'
+
 export const API_CONFIG = {
   TIMEOUT: 5000, // Reduzido para produção
   MAX_RETRIES: 2, // Reduzido - retry deve ser no backend
-  CIRCUIT_BREAKER_THRESHOLD: 2 // Reduzido para facilitar fechamento
+  CIRCUIT_BREAKER_THRESHOLD: 2, // Reduzido para facilitar fechamento
+  BUILD_VERSION // Forçar rebuild
 }
 
 // Circuit Breaker Pattern para alta disponibilidade
