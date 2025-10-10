@@ -459,6 +459,16 @@ export const trackRealUserMetrics = async () => {
   }
 }
 
+// Auto-initialize Firebase on module load (client-side only)
+if (typeof window !== 'undefined') {
+  // Initialize Firebase immediately when module loads
+  setTimeout(() => {
+    debugLog('Auto-initializing Firebase...')
+    getFirebaseApp()
+    getAuthInstance()
+  }, 100)
+}
+
 // Synchronous getters for backward compatibility (with null safety)
 export const auth = cachedAuth
 export const db = cachedDb
