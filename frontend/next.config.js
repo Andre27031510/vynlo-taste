@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Build ID para forçar cache-busting (v2.1.1-fix)
+  generateBuildId: async () => {
+    return `build-${Date.now()}`
+  },
   images: {
     domains: ['localhost', 'api.vynlotech.com', 'cdn.vynlotech.com'],
   },
