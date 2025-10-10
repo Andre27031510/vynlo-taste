@@ -109,9 +109,12 @@ export const getAuthHeaders = async (): Promise<Record<string, string>> => {
       
       if (auth?.currentUser) {
         token = await auth.currentUser.getIdToken()
+        console.log('🔑 Token Firebase obtido para requisição')
+      } else {
+        console.warn('⚠️ Nenhum usuário Firebase autenticado')
       }
     } catch (error) {
-      console.error('Erro ao obter token Firebase:', error)
+      console.error('❌ Erro ao obter token Firebase:', error)
     }
   }
   
@@ -149,6 +152,10 @@ export const apiRequest = async (
       'X-Client-Version': process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
       ...options.headers
     }
+    
+    // Log detalhado para debug
+    const hasAuth = !!authHeaders.Authorization
+    console.log(`📡 API Request: ${endpoint} [Auth: ${hasAuth ? '✅' : '❌'}]`)
     
     return await fetchWithCircuitBreaker(url, { ...options, headers })
   } catch (error) {
