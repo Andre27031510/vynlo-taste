@@ -158,8 +158,10 @@ jobs:
           tags: |
             ghcr.io/andre27031510/vynlotaste-frontend:${{ env.TAG }}
             ghcr.io/andre27031510/vynlotaste-frontend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # CACHE TEMPORARIAMENTE DESABILITADO para forçar rebuild completo
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
+          no-cache: true
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com' }}
             NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
