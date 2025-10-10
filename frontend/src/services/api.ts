@@ -1,4 +1,4 @@
-// Tipos para service discovery
+// Tipos para service discovery (v2.1.1 - circuit breaker fix)
 type ServiceName = 'core-service' | 'financial-service'
 
 // Service Discovery Simplificado
