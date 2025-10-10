@@ -1,7 +1,16 @@
  // Configurações de API para busca de artigos
+const getBackendUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    const isProd = window.location.hostname === 'vynlotech.com' || 
+                   window.location.hostname === 'www.vynlotech.com'
+    if (isProd) return 'https://api.vynlotech.com'
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+}
+
 export const API_CONFIG = {
   BACKEND: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com',
+    baseUrl: getBackendUrl(),
     endpoints: {
       syncFirebase: '/api/v1/users/sync-firebase'
     }
