@@ -22,7 +22,7 @@ const getServiceUrl = (serviceName: ServiceName): string => {
 export const API_CONFIG = {
   TIMEOUT: 5000, // Reduzido para produção
   MAX_RETRIES: 2, // Reduzido - retry deve ser no backend
-  CIRCUIT_BREAKER_THRESHOLD: 5
+  CIRCUIT_BREAKER_THRESHOLD: 2 // Reduzido para facilitar fechamento
 }
 
 // Circuit Breaker Pattern para alta disponibilidade
@@ -31,7 +31,7 @@ class CircuitBreaker {
   private lastFailTime = 0
   private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED'
   private readonly threshold = API_CONFIG.CIRCUIT_BREAKER_THRESHOLD
-  private readonly timeout = 60000 // 1 minuto
+  private readonly timeout = 10000 // 10 segundos - reduzido para facilitar recuperação
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
     if (this.state === 'OPEN') {
