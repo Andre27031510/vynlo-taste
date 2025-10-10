@@ -8,7 +8,14 @@ class WebSocketService {
   private listeners: Map<string, Set<(data: any) => void>> = new Map()
 
   constructor() {
-    this.url = process.env.NEXT_PUBLIC_WS_URL || 'wss://api.vynlotech.com/ws/admin'
+    // Detectar produção pelo hostname
+    const isProd = typeof window !== 'undefined' && 
+                   (window.location.hostname === 'vynlotech.com' || 
+                    window.location.hostname === 'www.vynlotech.com')
+    
+    this.url = isProd 
+      ? 'wss://api.vynlotech.com/ws/admin'
+      : (process.env.NEXT_PUBLIC_WS_URL || 'wss://api.vynlotech.com/ws/admin')
   }
 
   connect(): Promise<void> {
