@@ -7,10 +7,16 @@ import org.springframework.boot.actuate.metrics.MetricsEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 /**
  * Configuração de segurança específica para Spring Boot Actuator
@@ -26,8 +32,12 @@ public class ActuatorSecurityConfig {
         http
             .securityMatcher("/actuator/**")
             .csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(actuatorCorsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
+                // Permitir OPTIONS requests para CORS preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/actuator/**").permitAll()
+                
                 // Health endpoint público para ALB
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/health/**").permitAll()
@@ -68,5 +78,49 @@ public class ActuatorSecurityConfig {
             );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource actuatorCorsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Configurar origens permitidas para Actuator
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "https://vynlotech.com",
+            "https://*.vynlotech.com",
+            "https://vynlotaste.com",
+            "https://*.vynlotaste.com",
+            "http://localhost:3000",
+            "http://localhost:3001"
+        ));
+        
+        // Métodos HTTP permitidos
+        configuration.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+        ));
+        
+        // Headers permitidos
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type",
+            "X-Requested-With",
+            "Accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers"
+        ));
+        
+        // Headers expostos
+        configuration.setExposedHeaders(Arrays.asList(
+            "Access-Control-Allow-Origin",
+            "Access-Control-Allow-Credentials"
+        ));
+        
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/actuator/**", configuration);
+        return source;
     }
 }
