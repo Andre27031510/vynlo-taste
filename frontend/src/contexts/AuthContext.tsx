@@ -8,7 +8,9 @@ import {
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence
 } from 'firebase/auth';
 import { getAuthInstance } from '@/config/firebase';
 import { trackLogin, trackLogout, trackError, trackEvent } from '@/config/firebase';
@@ -39,12 +41,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Inicializar Firebase apenas quando o AuthProvider for montado
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       const auth = getAuthInstance();
       if (!auth) {
         console.warn('Firebase Auth não inicializado no AuthContext');
         setLoading(false);
         return;
+      }
+      
+      // Configurar persistence para manter sessão no navegador
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        console.log('✅ Firebase persistence configurada');
+      } catch (error) {
+        console.error('❌ Erro ao configurar persistence:', error);
       }
       
       const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -55,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return unsubscribe;
     };
 
-    return initializeAuth();
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
