@@ -28,6 +28,7 @@ class ContentService {
   private cache = new Map<string, any>()
   private cacheExpiry = new Map<string, number>()
   private readonly CACHE_DURATION = 30 * 60 * 1000 // 30 minutos
+  private autoUpdateInterval: NodeJS.Timeout | null = null
 
   // Simular coleta de dados reais (em produção seria conectado a APIs reais)
   async fetchDynamicContent(): Promise<Article[]> {
@@ -242,12 +243,27 @@ class ContentService {
 
   // Simular atualização automática (em produção seria um cron job)
   startAutoUpdate(): void {
-    setInterval(async () => {
+    // Limpar intervalo anterior se existir
+    if (this.autoUpdateInterval) {
+      clearInterval(this.autoUpdateInterval)
+    }
+    
+    this.autoUpdateInterval = setInterval(async () => {
       this.cache.clear()
       this.cacheExpiry.clear()
       await this.fetchDynamicContent()
-      console.log('Content updated automatically')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Content updated automatically')
+      }
     }, this.CACHE_DURATION)
+  }
+
+  // Parar atualização automática (cleanup)
+  stopAutoUpdate(): void {
+    if (this.autoUpdateInterval) {
+      clearInterval(this.autoUpdateInterval)
+      this.autoUpdateInterval = null
+    }
   }
 }
 

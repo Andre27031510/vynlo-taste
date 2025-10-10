@@ -32,6 +32,7 @@ export const useContentData = (): UseContentDataReturn => {
     
     return () => {
       clearInterval(metricsInterval)
+      contentService.stopAutoUpdate() // Limpar intervalo para evitar memory leak
     }
   }, [])
 

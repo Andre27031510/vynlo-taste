@@ -22,7 +22,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -265,9 +267,10 @@ public class OrderService {
 
     public List<Order> getAllOrders(int page, int limit, String status, String search) {
         try {
-            // Implementação simplificada - retorna lista vazia por enquanto
-            // Em produção, implementar filtros e paginação real
-            return orderRepository.findAll().stream().limit(limit).toList();
+            // Usar paginação correta para evitar OutOfMemory com 3M+ usuários
+            Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+            Page<Order> orderPage = orderRepository.findAll(pageable);
+            return orderPage.getContent();
         } catch (Exception e) {
             log.error("Error fetching orders", e);
             return List.of();
