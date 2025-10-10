@@ -65,6 +65,9 @@ public class SecurityConfig {
             
             // Configurar autorização de endpoints
             .authorizeHttpRequests(authz -> authz
+                // Permitir OPTIONS requests para CORS preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
                 // Health endpoints para ALB
                 .requestMatchers("/health").permitAll()
                 // Endpoints públicos - ACTUATOR PRIMEIRO
