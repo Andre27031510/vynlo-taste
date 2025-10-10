@@ -38,19 +38,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const auth = getAuthInstance();
-    if (!auth) {
-      console.warn('Firebase Auth não inicializado no AuthContext');
-      setLoading(false);
-      return;
-    }
-    
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
+    // Inicializar Firebase apenas quando o AuthProvider for montado
+    const initializeAuth = () => {
+      const auth = getAuthInstance();
+      if (!auth) {
+        console.warn('Firebase Auth não inicializado no AuthContext');
+        setLoading(false);
+        return;
+      }
+      
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+        setLoading(false);
+      });
 
-    return unsubscribe;
+      return unsubscribe;
+    };
+
+    return initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
