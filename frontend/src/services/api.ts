@@ -177,11 +177,11 @@ export const apiRequest = async (
     const authHeaders = await getAuthHeaders()
     
     // Adicionar Content-Type apenas quando há body
-    const finalHeaders = {
+    const finalHeaders: Record<string, string> = {
       ...authHeaders,
       'X-Request-ID': generateUUID(),
       'X-Client-Version': process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
-      ...options.headers
+      ...(options.headers as Record<string, string>)
     }
     
     // Adicionar Content-Type se houver body e não foi especificado
