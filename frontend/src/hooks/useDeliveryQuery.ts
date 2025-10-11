@@ -1,5 +1,6 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
+// v2.1.2 - Type-safe queries
 
 import { useQuery } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'

@@ -1,0 +1,33 @@
+[33md9f4425[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: optimize operational dashboard for 3M+ users
+frontend/src/components/dashboard/DashboardStats.tsx
+frontend/src/components/dashboard/DriversManagement.tsx
+frontend/src/hooks/useDashboardStats.ts
+frontend/src/hooks/useDeliveryQuery.ts
+frontend/src/hooks/useDriversQuery.ts
+frontend/src/hooks/useHealthCheck.ts
+frontend/src/hooks/useOrdersQuery.ts
+frontend/src/hooks/useProductsQuery.ts
+[33md5fe5d4[m feat: optimize operational dashboard for 3M+ users
+frontend/src/components/dashboard/DashboardStats.tsx
+frontend/src/components/dashboard/DriversManagement.tsx
+frontend/src/hooks/useDashboardStats.ts
+frontend/src/hooks/useDeliveryQuery.ts
+frontend/src/hooks/useDriversQuery.ts
+frontend/src/hooks/useHealthCheck.ts
+frontend/src/hooks/useOrdersQuery.ts
+frontend/src/hooks/useProductsQuery.ts
+[33me6fdc86[m fix: correct .env.production API URL to use ALB (https://api.vynlotech.com) instead of direct IP
+frontend/src/components/dashboard/DashboardStats.tsx
+frontend/src/components/dashboard/DriversManagement.tsx
+frontend/src/hooks/useDashboardStats.ts
+frontend/src/hooks/useDeliveryQuery.ts
+frontend/src/hooks/useDriversQuery.ts
+frontend/src/hooks/useHealthCheck.ts
+frontend/src/hooks/useOrdersQuery.ts
+frontend/src/hooks/useProductsQuery.ts
+[33m03fa601[m fix: correct .env.production API URL to use ALB (https://api.vynlotech.com) instead of direct IP
+backend/core-module/pom.xml
+backend/financial-module/pom.xml
+backend/pom.xml
+[33m6ae3c4a[m fix: correct .env.production API URL to use ALB (https://api.vynlotech.com) instead of direct IP
+frontend/src/services/api.ts

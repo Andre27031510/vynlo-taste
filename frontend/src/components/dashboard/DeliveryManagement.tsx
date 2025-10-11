@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Eye
 } from 'lucide-react'
+// Otimizado para produção - v2.1.2
 import { useDeliveriesQuery, useDeliveryStatsQuery, type Delivery } from '@/hooks/useDeliveryQuery'
 import { useDebounce } from '@/hooks/useDebounce'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -215,9 +216,10 @@ function DeliveryManagementContent() {
     limit: pageSize
   })
 
-  const deliveries = deliveriesData?.deliveries || []
-  const totalPages = deliveriesData?.totalPages || 1
-  const totalDeliveries = deliveriesData?.total || 0
+  // Type-safe data extraction with proper fallback
+  const deliveries = deliveriesData?.deliveries ?? []
+  const totalPages = deliveriesData?.totalPages ?? 1
+  const totalDeliveries = deliveriesData?.total ?? 0
 
   const { 
     data: stats, 

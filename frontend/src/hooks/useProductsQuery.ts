@@ -1,5 +1,6 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
+// v2.1.2 - Type-safe queries with generics
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'

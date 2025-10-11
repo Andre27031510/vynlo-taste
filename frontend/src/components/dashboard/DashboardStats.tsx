@@ -1,6 +1,7 @@
 'use client';
 // Otimizado para produção - carrega dados reais das APIs
 // v2.1.2 - Produção ready para 3M+ usuários
+// Fixed: Dashboard stats now load from backend APIs
 
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useProductStatsQuery, type ProductStats } from '@/hooks/useProductsQuery';
