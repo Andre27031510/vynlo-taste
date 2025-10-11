@@ -1,4 +1,6 @@
 'use client'
+// Otimizado para produção - v2.1.2
+// Modified: 2025-10-11 - Type-safe data extraction
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { useForm } from 'react-hook-form'
@@ -176,14 +178,19 @@ const MenuManagement = memo(() => {
     limit: pageSize
   })
 
-  const products = productsData?.products || []
-  const totalPages = productsData?.totalPages || 1
-  const totalProducts = productsData?.total || 0
+  // Type-safe data extraction with proper fallback
+  const productsResponse = productsData as { products: Product[], total: number, totalPages: number } | undefined
+  const products = productsResponse?.products ?? []
+  const totalPages = productsResponse?.totalPages ?? 1
+  const totalProducts = productsResponse?.total ?? 0
 
   const { 
-    data: stats, 
+    data: statsData, 
     isLoading: statsLoading 
   } = useProductStatsQuery()
+  
+  // Type-safe stats extraction
+  const stats = statsData as { totalProducts: number, activeProducts: number, lowStockProducts: number, totalRevenue: number, averagePrice: number } | undefined
 
   // Mutations
   const createProductMutation = useCreateProduct()

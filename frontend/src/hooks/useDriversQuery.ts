@@ -1,6 +1,7 @@
 'use client'
 // Otimizado para produção - cache 5min, mutation sem reload
-// v2.1.2 - Added useCreateDriverMutation
+// v2.1.2 - Added useCreateDriverMutation for better UX
+// Modified: 2025-10-11 - Type-safe queries and mutations
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'

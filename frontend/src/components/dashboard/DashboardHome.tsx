@@ -1,4 +1,6 @@
 'use client'
+// Otimizado para produção - v2.1.2
+// Modified: 2025-10-11 - Type-safe stats with fallback
 
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/hooks/useTheme'
@@ -60,7 +62,17 @@ function DashboardHomeContent() {
   })
 
   // Hook para métricas em tempo real
-  const { stats, loading: statsLoading, error: statsError, refetch } = useDashboardStats()
+  const { stats: statsData, loading: statsLoading, error: statsError, refetch } = useDashboardStats()
+  
+  // Type-safe stats (garantir que não dará erro TypeScript)
+  const stats = statsData || {
+    totalOrders: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+    activeDrivers: 0,
+    totalClients: 0,
+    systemHealth: { orders: 'down', payments: 'down', delivery: 'down', integrations: 'down' }
+  }
 
   // Estados para notificações em tempo real
   const [notifications, setNotifications] = useState<Array<{

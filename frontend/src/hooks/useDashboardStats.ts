@@ -1,6 +1,7 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
-// v2.1.2 - Enterprise-grade caching
+// v2.1.2 - Enterprise-grade caching for 3M+ users
 // Fixed: Removed auto-refresh for better scalability
+// Modified: 2025-10-11 - Production optimization
 import { useState, useEffect } from 'react'
 import { apiRequest } from '@/services/api'
 

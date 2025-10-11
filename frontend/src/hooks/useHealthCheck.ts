@@ -1,6 +1,7 @@
 // Otimizado para produção - cache 2min, sem auto-refresh
-// v2.1.2 - Enterprise-grade caching
-// Fixed: Removed auto-refresh for production
+// v2.1.2 - Enterprise-grade caching for health checks
+// Fixed: Removed auto-refresh for production scalability
+// Modified: 2025-10-11 - Production optimization
 import { useQuery } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
 

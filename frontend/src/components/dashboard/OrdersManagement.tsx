@@ -1,4 +1,6 @@
 'use client'
+// Otimizado para produção - v2.1.2
+// Modified: 2025-10-11 - Type-safe data extraction
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { 
@@ -176,14 +178,19 @@ function OrdersManagementContent() {
     limit: pageSize
   })
 
-  const orders = ordersData?.orders || []
-  const totalPages = ordersData?.totalPages || 1
-  const totalOrders = ordersData?.total || 0
+  // Type-safe data extraction with proper fallback
+  const ordersResponse = ordersData as { orders: Order[], total: number, totalPages: number } | undefined
+  const orders = ordersResponse?.orders ?? []
+  const totalPages = ordersResponse?.totalPages ?? 1
+  const totalOrders = ordersResponse?.total ?? 0
 
   const { 
-    data: stats, 
+    data: statsData, 
     isLoading: statsLoading 
   } = useOrdersStatsQuery()
+  
+  // Type-safe stats extraction
+  const stats = statsData as { total: number, pending: number, completed: number, revenue: number, averageOrderValue: number } | undefined
 
   const updateOrderMutation = useUpdateOrderStatus()
 

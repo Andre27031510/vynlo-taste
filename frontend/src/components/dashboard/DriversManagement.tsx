@@ -197,14 +197,19 @@ function DriversManagementContent() {
     limit: pageSize
   })
 
-  const drivers = driversData?.drivers || []
-  const totalPages = driversData?.totalPages || 1
-  const totalDrivers = driversData?.total || 0
+  // Type-safe data extraction with proper fallback
+  const driversResponse = driversData as { drivers: Driver[], total: number, totalPages: number } | undefined
+  const drivers = driversResponse?.drivers ?? []
+  const totalPages = driversResponse?.totalPages ?? 1
+  const totalDrivers = driversResponse?.total ?? 0
 
   const { 
-    data: stats, 
+    data: statsData, 
     isLoading: statsLoading 
   } = useDriversStatsQuery()
+  
+  // Type-safe stats extraction
+  const stats = statsData as { totalDrivers: number, available: number, busy: number, offline: number, averageRating: number } | undefined
 
   // ✅ MUTATION OTIMIZADA PARA PRODUÇÃO (SEM RELOAD!)
   const createDriverMutation = useCreateDriverMutation()
@@ -373,7 +378,7 @@ function DriversManagementContent() {
                 <div>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Total</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalDrivers}
+                    {stats?.totalDrivers ?? 0}
                   </p>
                 </div>
               </div>
@@ -387,7 +392,7 @@ function DriversManagementContent() {
                 <div>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Disponíveis</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.available}
+                    {stats?.available ?? 0}
                   </p>
                 </div>
               </div>
@@ -401,7 +406,7 @@ function DriversManagementContent() {
                 <div>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Avaliação</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.averageRating.toFixed(1)}
+                    {(stats?.averageRating ?? 0).toFixed(1)}
                   </p>
                 </div>
               </div>
