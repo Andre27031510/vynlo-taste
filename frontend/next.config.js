@@ -18,6 +18,10 @@ const nextConfig = {
     optimizeCss: false,
   },
   async headers() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+    const apiOrigin = apiUrl.replace(/\/$/, '').replace(/\/api$/, '')
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `${apiOrigin}/ws/admin`
+    const wsOrigin = wsUrl.replace(/^http(s)?:\/\//, 'wss://').replace(/^wss:\/\//, 'wss://')
     return [
       {
         source: '/(.*)',
@@ -30,7 +34,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://api.vynlotech.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebase.googleapis.com https://firestore.googleapis.com https://*.firebaseapp.com wss: ws:",
+              `connect-src 'self' ${apiOrigin} https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebase.googleapis.com https://firestore.googleapis.com https://*.firebaseapp.com wss: ws:`,
               "frame-src 'self' https://*.firebaseapp.com",
               "object-src 'none'",
               "base-uri 'self'",

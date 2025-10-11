@@ -152,7 +152,9 @@ public class SecurityConfig {
             "Accept",
             "Origin",
             "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
+            "Access-Control-Request-Headers",
+            "X-Request-ID",
+            "X-Client-Version"
         ));
         
         // Headers expostos
