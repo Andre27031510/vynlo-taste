@@ -1,6 +1,6 @@
 'use client'
-// Otimizado para produção - v2.1.2
-// Modified: 2025-10-11 - Type-safe stats with fallback
+// Otimizado para produção - v2.1.2 - Type-safe stats
+// Deploy: 2025-10-11
 
 import { useState, useEffect } from 'react'
 import { useTheme } from '@/hooks/useTheme'

@@ -1,4 +1,6 @@
 'use client'
+// Otimizado para produção - v2.1.2 - Type-safe queries
+// Deploy: 2025-10-11
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { 

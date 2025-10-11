@@ -2,6 +2,7 @@
 // Otimizado para produção - cadastro com React Query mutation
 // v2.1.2 - Produção ready para 3M+ usuários
 // Fixed: Driver registration now persists to database
+// Deploy: 2025-10-11
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { 

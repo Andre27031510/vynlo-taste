@@ -1,6 +1,6 @@
 'use client'
-// Otimizado para produção - v2.1.2
-// Modified: 2025-10-11 - Type-safe data extraction
+// Otimizado para produção - v2.1.2 - Type-safe queries
+// Deploy: 2025-10-11
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { useForm } from 'react-hook-form'
