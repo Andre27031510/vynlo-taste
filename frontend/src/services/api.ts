@@ -1,4 +1,5 @@
-// Tipos para service discovery (v2.1.1 - circuit breaker fix)
+// Tipos para service discovery (v2.1.2 - circuit breaker robusto)
+// Fix: Threshold 4, isolamento por origem, não conta 4xx
 type ServiceName = 'core-service' | 'financial-service'
 
 // Service Discovery Simplificado
@@ -285,3 +286,5 @@ export const apiRequest = async (
     throw error
   }
 }
+
+// v2.1.2 - Circuit breaker robusto para produção (3M+ usuários)

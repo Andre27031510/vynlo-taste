@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Mapper para FiscalDocument
+ * Fix: Ambiguous mapping resolvido com @Named e @IterableMapping
+ * Modified: 2025-10-11
+ */
 @Mapper(
     componentModel = "spring",
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,

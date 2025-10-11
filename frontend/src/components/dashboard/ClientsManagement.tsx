@@ -2,6 +2,7 @@
 // v2.1.2 - Conectado com API real de users (clientes)
 // Modified: 2025-10-11 - Removed ALL mock data, 100% real APIs
 // CRITICAL: Clients fully functional with PostgreSQL backend
+// Fix: HTTP 500 corrigido - payload sem password
 // Deploy: 2025-10-11
 
 import React, { useMemo, useState, useCallback } from 'react'

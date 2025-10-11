@@ -8,6 +8,7 @@ COPY pom.xml .
 # Copy modules
 COPY core-module/ ./core-module/
 # financial-module DESABILITADO - funcionalidade movida para core-module
+# Disabled: 2025-10-11 - Evitar duplicação e conflitos
 # COPY financial-module/ ./financial-module/
 
 # Build application (apenas core-module agora)

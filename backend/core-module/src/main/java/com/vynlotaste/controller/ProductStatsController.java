@@ -12,6 +12,7 @@ import java.util.Map;
 /**
  * Controller para estatísticas de produtos
  * v2.1.2 - Added error handling para produção
+ * Deploy: 2025-10-11
  */
 @RestController
 @RequestMapping("/products")

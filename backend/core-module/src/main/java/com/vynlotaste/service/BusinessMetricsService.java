@@ -21,15 +21,15 @@ public class BusinessMetricsService {
     private final UserService userService;
     private final OrderService orderService;
     @SuppressWarnings("unused") // Usado por Micrometer reflexivamente
-    private final ProductService productService;
+    private final ProductService productService; // Cleanup: 2025-10-11
 
     // Contadores de negócio - inicializados via @PostConstruct
     private Counter ordersCreated;
     private Counter ordersCompleted;
     @SuppressWarnings("unused") // Usado por Micrometer reflexivamente
-    private Counter ordersCancelled;
+    private Counter ordersCancelled; // Usado via reflection
     @SuppressWarnings("unused") // Usado por Micrometer reflexivamente
-    private Counter usersRegistered;
+    private Counter usersRegistered; // Usado via reflection
     private Counter productsViewed;
 
     // Gauges para valores atuais

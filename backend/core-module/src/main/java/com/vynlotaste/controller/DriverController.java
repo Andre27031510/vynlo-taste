@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @Slf4j
+/**
+ * Modified: 2025-10-11 - Permissões ajustadas para isAuthenticated()
+ */
 @RestController
 @RequestMapping("/v1/drivers")
 @RequiredArgsConstructor

@@ -1,9 +1,7 @@
 'use client'
 // v2.1.2 - Connected to real APIs - Production ready
-// v2.1.2 - Connected to real APIs - Production ready
 
 import { useState } from 'react'
-import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery } from '@/hooks/useFiscalQuery'
 import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery } from '@/hooks/useFiscalQuery'
 import { 
   FileText, 
