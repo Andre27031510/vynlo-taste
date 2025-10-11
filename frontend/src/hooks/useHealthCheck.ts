@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { apiRequest } from '@/services/api'
+import { buildApiUrl } from '@/services/api'
 
 interface HealthStatus {
   status: 'UP' | 'DOWN'
@@ -8,18 +8,19 @@ interface HealthStatus {
 
 const fetchHealthStatus = async (): Promise<HealthStatus> => {
   try {
-    const response = await apiRequest('core-service', 'actuator/health')
-    const data = await response.json()
-    return {
-      status: data.status || 'DOWN',
-      timestamp: new Date().toISOString()
-    }
+    const url = buildApiUrl('core-service', 'actuator/health')
+    const resp = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store',
+      credentials: 'omit',
+      mode: 'cors'
+    })
+    const data = resp.ok ? await resp.json() : { status: 'DOWN' }
+    return { status: data.status || 'DOWN', timestamp: new Date().toISOString() }
   } catch (error) {
     console.warn('Health check failed, using fallback:', error)
-    return {
-      status: 'DOWN',
-      timestamp: new Date().toISOString()
-    }
+    return { status: 'DOWN', timestamp: new Date().toISOString() }
   }
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { apiRequest } from '@/services/api'
+import { apiRequest, buildApiUrl } from '@/services/api'
 
 interface DashboardStats {
   totalOrders: number
@@ -39,11 +39,22 @@ export const useDashboardStats = () => {
       setLoading(true)
       setError(null)
 
-      // Fetch health status com timeout
+      // Fetch health status com requisição simples (sem headers extras) para evitar preflight
       let healthData = { status: 'DOWN' }
       try {
-        const healthResponse = await apiRequest('core-service', 'actuator/health')
-        healthData = await healthResponse.json()
+        const healthUrl = buildApiUrl('core-service', 'actuator/health')
+        const resp = await fetch(healthUrl, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          cache: 'no-store',
+          credentials: 'omit',
+          mode: 'cors'
+        })
+        if (resp.ok) {
+          healthData = await resp.json()
+        } else {
+          console.warn('Health check non-OK:', resp.status)
+        }
       } catch (error) {
         console.warn('Health check failed:', error)
         healthData = { status: 'DOWN' }

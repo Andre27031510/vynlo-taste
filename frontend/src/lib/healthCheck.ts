@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { apiRequest } from '@/services/api'
+import { apiRequest, buildApiUrl } from '@/services/api'
 
 export interface HealthStatus {
   status: 'UP' | 'DOWN' | 'UNKNOWN'
@@ -28,9 +28,16 @@ export const performHealthCheck = async (): Promise<HealthStatus> => {
     errors: []
   }
 
-  // Test health endpoint
+  // Test health endpoint (simple request sem headers extras para evitar preflight)
   try {
-    const response = await apiRequest('core-service', 'actuator/health')
+    const url = buildApiUrl('core-service', 'actuator/health')
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store',
+      credentials: 'omit',
+      mode: 'cors'
+    })
     result.endpoints.health = response.ok
     if (!response.ok) {
       result.errors.push(`Health endpoint returned ${response.status}`)
