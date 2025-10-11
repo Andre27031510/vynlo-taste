@@ -160,17 +160,21 @@ export const useDeliveriesQuery = (filters?: {
   return useQuery({
     queryKey: ['deliveries', filters],
     queryFn: () => fetchDeliveries(filters),
-    staleTime: 30000, // 30 segundos
-    refetchInterval: 60000, // Refetch a cada 1 minuto
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    cacheTime: 10 * 60 * 1000, // 10 minutos
+    refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
   })
 }
 
-// Hook para buscar estatísticas
+// Hook para buscar estatísticas - OTIMIZADO PARA PRODUÇÃO
 export const useDeliveryStatsQuery = () => {
   return useQuery({
     queryKey: ['delivery-stats'],
     queryFn: fetchDeliveryStats,
-    staleTime: 60000, // 1 minuto
-    refetchInterval: 120000, // Refetch a cada 2 minutos
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    cacheTime: 10 * 60 * 1000, // 10 minutos
+    refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
   })
 }

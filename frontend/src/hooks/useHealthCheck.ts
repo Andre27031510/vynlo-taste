@@ -27,8 +27,10 @@ export const useHealthCheck = () => {
   return useQuery({
     queryKey: ['health-check'],
     queryFn: fetchHealthStatus,
-    staleTime: 30000, // 30 segundos
-    refetchInterval: 60000, // 1 minuto
+    staleTime: 2 * 60 * 1000, // 2 minutos (health check pode ser mais frequente)
+    cacheTime: 5 * 60 * 1000, // 5 minutos
+    refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 1,
     throwOnError: false
   })

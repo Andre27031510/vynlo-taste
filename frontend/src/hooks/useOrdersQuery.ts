@@ -68,8 +68,10 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
   return useQuery({
     queryKey: ['orders', filters],
     queryFn: () => fetchOrders(filters),
-    staleTime: 30000, // 30 segundos
-    refetchInterval: 60000, // Refetch a cada minuto
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    cacheTime: 10 * 60 * 1000, // 10 minutos em cache
+    refetchOnWindowFocus: true, // Atualiza ao focar janela
+    refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 1, // Tentar apenas 1 vez antes de usar fallback
     retryDelay: 1000
   })

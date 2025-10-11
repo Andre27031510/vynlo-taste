@@ -118,9 +118,8 @@ export const useDashboardStats = () => {
   useEffect(() => {
     fetchStats()
     
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchStats, 30000)
-    return () => clearInterval(interval)
+    // ❌ REMOVIDO auto-refresh para produção (3M+ usuários)
+    // Atualiza apenas quando usuário focar na janela ou fazer refresh manual
   }, [])
 
   return { stats, loading, error, refetch: fetchStats }

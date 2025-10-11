@@ -18,7 +18,7 @@ import {
   Search,
   Clock
 } from 'lucide-react'
-import { useDriversQuery, useDriversStatsQuery, type Driver } from '@/hooks/useDriversQuery'
+import { useDriversQuery, useDriversStatsQuery, useCreateDriverMutation, type Driver } from '@/hooks/useDriversQuery'
 import { useDebounce } from '@/hooks/useDebounce'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
@@ -203,13 +203,38 @@ function DriversManagementContent() {
     isLoading: statsLoading 
   } = useDriversStatsQuery()
 
+  // ✅ MUTATION OTIMIZADA PARA PRODUÇÃO (SEM RELOAD!)
+  const createDriverMutation = useCreateDriverMutation()
+
   // Funções memoizadas para gerenciar motoboys
-  const handleSubmit = useCallback((e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Cadastrando motoboy:', driverForm)
-    setShowModal(false)
-    setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
-  }, [driverForm])
+    
+    // ✅ Usar mutation em vez de fetch direto + reload
+    createDriverMutation.mutate(
+      {
+        name: driverForm.name,
+        phone: driverForm.phone,
+        email: driverForm.email,
+        cpf: driverForm.cpf,
+        cnh: driverForm.cnh,
+        vehicle: driverForm.vehicle,
+        plate: driverForm.plate,
+        address: driverForm.address,
+        status: 'offline'
+      },
+      {
+        onSuccess: () => {
+          // ✅ Fechar modal e limpar form (SEM reload - React Query invalida cache)
+          setShowModal(false)
+          setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
+        },
+        onError: (error) => {
+          alert(`Erro ao cadastrar motoboy: ${error.message}`)
+        }
+      }
+    )
+  }, [driverForm, createDriverMutation])
   
   const resetForm = useCallback(() => {
     setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
