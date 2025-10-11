@@ -1,7 +1,7 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11 - Production optimization
+// Modified: 2025-10-11 - Fixed React Query v5 API (gcTime)
 
 import { useQuery } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
@@ -164,7 +164,7 @@ export const useDeliveriesQuery = (filters?: {
     queryKey: ['deliveries', filters],
     queryFn: () => fetchDeliveries(filters),
     staleTime: 5 * 60 * 1000, // 5 minutos
-    cacheTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime em vez de cacheTime)
     refetchOnWindowFocus: true, // Atualiza ao focar
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
   })
@@ -176,7 +176,7 @@ export const useDeliveryStatsQuery = () => {
     queryKey: ['delivery-stats'],
     queryFn: fetchDeliveryStats,
     staleTime: 5 * 60 * 1000, // 5 minutos
-    cacheTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
     refetchOnWindowFocus: true, // Atualiza ao focar
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
   })

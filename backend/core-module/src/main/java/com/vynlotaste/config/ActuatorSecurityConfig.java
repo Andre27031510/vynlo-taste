@@ -112,10 +112,11 @@ public class ActuatorSecurityConfig {
             "X-Client-Version"
         ));
         
-        // Headers expostos
+        // Headers expostos (incluindo X-Request-ID para observabilidade)
         configuration.setExposedHeaders(Arrays.asList(
             "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Credentials"
+            "Access-Control-Allow-Credentials",
+            "X-Request-ID"
         ));
         
         configuration.setAllowCredentials(true);

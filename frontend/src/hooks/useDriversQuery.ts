@@ -1,7 +1,7 @@
 'use client'
 // Otimizado para produção - cache 5min, mutation sem reload
 // v2.1.2 - Added useCreateDriverMutation for better UX
-// Modified: 2025-10-11 - Type-safe queries and mutations
+// Modified: 2025-10-11 - Fixed React Query v5 API (gcTime)
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
@@ -158,7 +158,7 @@ export const useDriversQuery = (filters?: {
     queryKey: ['drivers', filters],
     queryFn: () => fetchDrivers(filters),
     staleTime: 5 * 60 * 1000, // 5 minutos (reduz carga no backend)
-    cacheTime: 10 * 60 * 1000, // 10 minutos em cache
+    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
     refetchOnWindowFocus: true, // Atualiza ao focar janela
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (economia de recursos)
   })
@@ -170,7 +170,7 @@ export const useDriversStatsQuery = () => {
     queryKey: ['drivers-stats'],
     queryFn: fetchDriversStats,
     staleTime: 5 * 60 * 1000, // 5 minutos (reduz carga)
-    cacheTime: 10 * 60 * 1000, // 10 minutos em cache
+    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
     refetchOnWindowFocus: true, // Atualiza ao focar
     refetchInterval: false, // ❌ REMOVIDO auto-refresh
   })

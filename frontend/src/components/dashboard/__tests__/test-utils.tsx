@@ -54,7 +54,7 @@ const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
-      cacheTime: 0,
+      gcTime: 0, // React Query v5
     },
     mutations: {
       retry: false,

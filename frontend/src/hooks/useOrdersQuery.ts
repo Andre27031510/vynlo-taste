@@ -1,6 +1,6 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11 - Production optimization for 3M+ users
+// Modified: 2025-10-11 - Fixed React Query v5 API (gcTime)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
@@ -72,7 +72,7 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
     queryKey: ['orders', filters],
     queryFn: () => fetchOrders(filters),
     staleTime: 5 * 60 * 1000, // 5 minutos
-    cacheTime: 10 * 60 * 1000, // 10 minutos em cache
+    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
     refetchOnWindowFocus: true, // Atualiza ao focar janela
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 1, // Tentar apenas 1 vez antes de usar fallback
@@ -85,7 +85,7 @@ export const useOrdersStatsQuery = () => {
     queryKey: ['orders', 'stats'],
     queryFn: fetchOrdersStats,
     staleTime: 5 * 60 * 1000, // 5 minutos
-    cacheTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
     refetchOnWindowFocus: true, // Atualiza ao focar
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 1,

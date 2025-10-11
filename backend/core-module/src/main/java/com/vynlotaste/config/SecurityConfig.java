@@ -157,11 +157,12 @@ public class SecurityConfig {
             "X-Client-Version"
         ));
         
-        // Headers expostos
+        // Headers expostos (incluindo X-Request-ID para observabilidade)
         configuration.setExposedHeaders(Arrays.asList(
             "Access-Control-Allow-Origin",
             "Access-Control-Allow-Credentials",
-            "X-Total-Count"
+            "X-Total-Count",
+            "X-Request-ID"
         ));
         
         configuration.setAllowCredentials(true);
