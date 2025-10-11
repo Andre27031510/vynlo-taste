@@ -20,7 +20,7 @@ const getServiceUrl = (serviceName: ServiceName): string => {
 }
 
 // Build version para forçar cache-busting
-const BUILD_VERSION = '2.1.1-fix'
+const BUILD_VERSION = '2.1.1-fix-final'
 
 // Timeout condicional: produção deve ser mais agressivo
 const getTimeout = () => {
@@ -176,16 +176,22 @@ export const apiRequest = async (
     const url = buildApiUrl(serviceName, endpoint)
     const authHeaders = await getAuthHeaders()
     
-    // Adicionar Content-Type apenas quando há body
-    const finalHeaders: Record<string, string> = {
+    // Montar headers base
+    const baseHeaders: Record<string, string> = {
       ...authHeaders,
       'X-Request-ID': generateUUID(),
       'X-Client-Version': process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
-      ...(options.headers as Record<string, string>)
     }
     
-    // Adicionar Content-Type se houver body e não foi especificado
-    if (options.body && !finalHeaders['Content-Type']) {
+    // Merge com headers customizados
+    const customHeaders = (options.headers || {}) as Record<string, string>
+    const finalHeaders: Record<string, string> = {
+      ...baseHeaders,
+      ...customHeaders
+    }
+    
+    // Adicionar Content-Type se houver body
+    if (options.body) {
       finalHeaders['Content-Type'] = 'application/json'
     }
     
