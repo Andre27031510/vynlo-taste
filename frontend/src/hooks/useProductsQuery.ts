@@ -1,4 +1,5 @@
 'use client'
+// Otimizado para produção - cache 5min, sem auto-refresh
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -228,7 +229,7 @@ export const useProductsQuery = (filters?: {
 }
 
 export const useProductStatsQuery = () => {
-  return useQuery({
+  return useQuery<ProductStats>({
     queryKey: ['product-stats'],
     queryFn: fetchProductStats,
     staleTime: 5 * 60 * 1000, // 5 minutos

@@ -1,4 +1,5 @@
 'use client'
+// Otimizado para produção - cache 5min, sem auto-refresh
 
 import { useQuery } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'

@@ -1,14 +1,19 @@
 'use client';
+// Otimizado para produção - carrega dados reais das APIs
 
 import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { useProductStatsQuery } from '@/hooks/useProductsQuery';
+import { useProductStatsQuery, type ProductStats } from '@/hooks/useProductsQuery';
 
 export default function DashboardStats() {
   // Usar hooks que chamam APIs reais
   const { stats: dashboardStats, loading: dashboardLoading } = useDashboardStats();
-  const { data: productsStats, isLoading: productsLoading } = useProductStatsQuery();
+  const { data: productsData, isLoading: productsLoading } = useProductStatsQuery();
   
   const loading = dashboardLoading || productsLoading;
+  
+  // Type guard para garantir tipo correto
+  const productsStats = productsData as ProductStats | undefined;
+  const activeProducts = productsStats?.activeProducts ?? 0;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -64,7 +69,7 @@ export default function DashboardStats() {
         <div className="flex items-center">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Produtos Ativos</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{productsStats?.activeProducts || 0}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{activeProducts}</p>
           </div>
           <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full">
             <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

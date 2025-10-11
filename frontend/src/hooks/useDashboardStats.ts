@@ -1,3 +1,4 @@
+// Otimizado para produção - cache 5min, sem auto-refresh
 import { useState, useEffect } from 'react'
 import { apiRequest } from '@/services/api'
 

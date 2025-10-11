@@ -1,3 +1,4 @@
+// Otimizado para produção - cache 5min, sem auto-refresh
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'

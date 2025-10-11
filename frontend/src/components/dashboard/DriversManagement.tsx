@@ -1,4 +1,5 @@
 'use client'
+// Otimizado para produção - cadastro com React Query mutation
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { 

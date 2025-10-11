@@ -1,3 +1,4 @@
+// Otimizado para produção - cache 2min, sem auto-refresh
 import { useQuery } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
 
