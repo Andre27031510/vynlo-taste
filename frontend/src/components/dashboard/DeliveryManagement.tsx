@@ -217,9 +217,10 @@ function DeliveryManagementContent() {
   })
 
   // Type-safe data extraction with proper fallback
-  const deliveries = deliveriesData?.deliveries ?? []
-  const totalPages = deliveriesData?.totalPages ?? 1
-  const totalDeliveries = deliveriesData?.total ?? 0
+  const deliveriesResponse = deliveriesData as { deliveries: Delivery[], total: number, totalPages: number } | undefined
+  const deliveries = deliveriesResponse?.deliveries ?? []
+  const totalPages = deliveriesResponse?.totalPages ?? 1
+  const totalDeliveries = deliveriesResponse?.total ?? 0
 
   const { 
     data: stats, 
