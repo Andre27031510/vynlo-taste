@@ -1,7 +1,8 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11 - Fixed React Query v5 API (gcTime)
+// Modified: 2025-10-11 - Removed ALL mock data, 100% real APIs
+// CRITICAL: Products and inventory must be fully functional
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -107,109 +108,81 @@ const fetchProducts = async (filters?: {
   page?: number
   limit?: number
 }): Promise<{ products: Product[], total: number, totalPages: number }> => {
-  try {
-    const params = new URLSearchParams()
-    if (filters?.category && filters.category !== '') params.append('category', filters.category)
-    if (filters?.search) params.append('search', filters.search)
-    if (filters?.page) params.append('page', filters.page.toString())
-    if (filters?.limit) params.append('limit', filters.limit.toString())
+  const params = new URLSearchParams()
+  if (filters?.category && filters.category !== '') params.append('category', filters.category)
+  if (filters?.search) params.append('search', filters.search)
+  if (filters?.page) params.append('page', filters.page.toString())
+  if (filters?.limit) params.append('limit', filters.limit.toString())
 
-    const response = await apiRequest('core-service', `products?${params.toString()}`)
-    return await response.json()
-  } catch (error) {
-    console.warn('API de produtos não disponível, usando dados mock:', error)
-    
-    // Aplicar filtros nos dados mock
-    let filteredProducts = [...mockProducts]
-    
-    if (filters?.category && filters.category !== '') {
-      filteredProducts = filteredProducts.filter(p => p.category === filters.category)
-    }
-    
-    if (filters?.search) {
-      const searchLower = filters.search.toLowerCase()
-      filteredProducts = filteredProducts.filter(p => 
-        p.name.toLowerCase().includes(searchLower) ||
-        p.category.toLowerCase().includes(searchLower) ||
-        p.description.toLowerCase().includes(searchLower)
-      )
-    }
-    
-    // Simular paginação
-    const page = filters?.page || 1
-    const limit = filters?.limit || 10
-    const startIndex = (page - 1) * limit
-    const endIndex = startIndex + limit
-    const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
-    
+  const response = await apiRequest('core-service', `products?${params.toString()}`)
+  
+  if (!response.ok) {
+    console.error('❌ Erro ao buscar produtos:', response.status)
+    // Retornar lista vazia em vez de mock data
     return {
-      products: paginatedProducts,
-      total: filteredProducts.length,
-      totalPages: Math.ceil(filteredProducts.length / limit)
+      products: [],
+      total: 0,
+      totalPages: 0
     }
   }
+  
+  return await response.json()
 }
 
 const fetchProductStats = async (): Promise<ProductStats> => {
-  try {
-    const response = await apiRequest('core-service', 'products/stats')
-    return await response.json()
-  } catch (error) {
-    console.warn('API de estatísticas de produtos não disponível, usando dados mock:', error)
-    return mockStats
+  const response = await apiRequest('core-service', 'products/stats')
+  
+  if (!response.ok) {
+    console.error('❌ Erro ao buscar stats de produtos:', response.status)
+    // Retornar stats zerados em vez de mock
+    return {
+      totalProducts: 0,
+      activeProducts: 0,
+      lowStockProducts: 0,
+      totalRevenue: 0,
+      averagePrice: 0
+    }
   }
+  
+  return await response.json()
 }
 
 const createProduct = async (productData: CreateProductData): Promise<Product> => {
-  try {
-    const response = await apiRequest('core-service', 'products', {
-      method: 'POST',
-      body: JSON.stringify(productData)
-    })
-    return await response.json()
-  } catch (error) {
-    // Simular sucesso para demonstração
-    console.warn('API não disponível, simulando criação:', productData)
-    const newProduct: Product = {
-      id: Date.now().toString(),
-      ...productData,
-      status: 'active',
-      sales: 0,
-      revenue: 0,
-      createdAt: new Date().toISOString()
-    }
-    return newProduct
+  const response = await apiRequest('core-service', 'products', {
+    method: 'POST',
+    body: JSON.stringify(productData)
+  })
+  
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => response.statusText)
+    throw new Error(`Erro ao criar produto: ${response.status} - ${errorText}`)
   }
+  
+  return await response.json()
 }
 
 const updateProduct = async (productData: UpdateProductData): Promise<Product> => {
-  try {
-    const response = await apiRequest('core-service', `products/${productData.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(productData)
-    })
-    return await response.json()
-  } catch (error) {
-    // Simular sucesso para demonstração
-    console.warn('API não disponível, simulando atualização:', productData)
-    return {
-      ...productData,
-      sales: 0,
-      revenue: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    } as Product
+  const response = await apiRequest('core-service', `products/${productData.id}`, {
+    method: 'PUT',
+    body: JSON.stringify(productData)
+  })
+  
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => response.statusText)
+    throw new Error(`Erro ao atualizar produto: ${response.status} - ${errorText}`)
   }
+  
+  return await response.json()
 }
 
 const deleteProduct = async (productId: string): Promise<void> => {
-  try {
-    await apiRequest('core-service', `products/${productId}`, {
-      method: 'DELETE'
-    })
-  } catch (error) {
-    // Simular sucesso para demonstração
-    console.warn('API não disponível, simulando exclusão:', productId)
+  const response = await apiRequest('core-service', `products/${productId}`, {
+    method: 'DELETE'
+  })
+  
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => response.statusText)
+    throw new Error(`Erro ao deletar produto: ${response.status} - ${errorText}`)
   }
 }
 
