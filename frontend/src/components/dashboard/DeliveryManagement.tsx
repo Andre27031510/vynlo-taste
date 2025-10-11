@@ -223,9 +223,12 @@ function DeliveryManagementContent() {
   const totalDeliveries = deliveriesResponse?.total ?? 0
 
   const { 
-    data: stats, 
+    data: statsData, 
     isLoading: statsLoading 
   } = useDeliveryStatsQuery()
+
+  // Type-safe stats extraction
+  const stats = statsData as { totalDeliveries: number, inTransit: number, preparing: number, delivered: number, problems: number } | undefined
 
   // Função para obter informações do status - Memoizada
   const getStatusInfo = useMemo(() => {
@@ -366,7 +369,7 @@ function DeliveryManagementContent() {
                 <div>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Em Trânsito</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.inTransit}
+                    {stats?.inTransit ?? 0}
                   </p>
                 </div>
               </div>
@@ -380,7 +383,7 @@ function DeliveryManagementContent() {
                 <div>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Preparando</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.preparing}
+                    {stats?.preparing ?? 0}
                   </p>
                 </div>
               </div>
@@ -394,7 +397,7 @@ function DeliveryManagementContent() {
                 <div>
                   <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">Entregues</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.delivered}
+                    {stats?.delivered ?? 0}
                   </p>
                 </div>
               </div>
