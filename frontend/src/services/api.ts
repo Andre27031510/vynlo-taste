@@ -25,7 +25,7 @@ const BUILD_VERSION = '2.1.1-fix'
 export const API_CONFIG = {
   TIMEOUT: 15000, // 15s para evitar aborts falsos em produção
   MAX_RETRIES: 2, // Reduzido - retry deve ser no backend
-  CIRCUIT_BREAKER_THRESHOLD: 2, // Reduzido para facilitar fechamento
+  CIRCUIT_BREAKER_THRESHOLD: 4, // Mais robusto: evita abrir por falhas pontuais/4xx
   BUILD_VERSION // Forçar rebuild
 }
 
@@ -35,12 +35,19 @@ class CircuitBreaker {
   private lastFailTime = 0
   private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED'
   private readonly threshold = API_CONFIG.CIRCUIT_BREAKER_THRESHOLD
-  private readonly timeout = 10000 // 10 segundos - reduzido para facilitar recuperação
+  private readonly timeout = 10000 // 10 segundos
+  private testingHalfOpen = false
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
     if (this.state === 'OPEN') {
+      // janela de resfriamento
       if (Date.now() - this.lastFailTime > this.timeout) {
+        // permitir apenas um teste em HALF_OPEN
+        if (this.testingHalfOpen) {
+          throw new Error('Circuit breaker is OPEN')
+        }
         this.state = 'HALF_OPEN'
+        this.testingHalfOpen = true
       } else {
         throw new Error('Circuit breaker is OPEN')
       }
@@ -51,7 +58,7 @@ class CircuitBreaker {
       this.onSuccess()
       return result
     } catch (error) {
-      this.onFailure()
+      this.onFailure(error)
       throw error
     }
   }
@@ -59,18 +66,66 @@ class CircuitBreaker {
   private onSuccess(): void {
     this.failures = 0
     this.state = 'CLOSED'
+    this.testingHalfOpen = false
   }
 
-  private onFailure(): void {
+  private shouldCountFailure(error: unknown): boolean {
+    // Abort/timeout e erros de rede contam
+    if (error && typeof error === 'object') {
+      const anyErr = error as any
+      if (anyErr.name === 'AbortError') return true
+      if (anyErr.cbRetryable === true) return true
+      if (typeof anyErr.message === 'string') {
+        const match = anyErr.message.match(/HTTP\s+(\d{3})/)
+        if (match) {
+          const status = parseInt(match[1], 10)
+          // Contabiliza apenas 5xx e 429 (sobrecarga/limite)
+          if (status >= 500 || status === 429) return true
+          return false
+        }
+        // TypeError: Failed to fetch (erros de rede)
+        if (/Failed to fetch|NetworkError/i.test(anyErr.message)) return true
+      }
+    }
+    // conservador: se não sabemos, não conta para não abrir indevidamente
+    return false
+  }
+
+  private onFailure(error: unknown): void {
+    // só abre o disjuntor para falhas recuperáveis (rede/5xx/429)
+    if (!this.shouldCountFailure(error)) {
+      // HALF_OPEN em teste deve ser liberado mesmo em falha não-contabilizada
+      this.testingHalfOpen = false
+      return
+    }
+
     this.failures++
     this.lastFailTime = Date.now()
     if (this.failures >= this.threshold) {
       this.state = 'OPEN'
     }
+    // liberar HALF_OPEN
+    this.testingHalfOpen = false
   }
 }
 
-const circuitBreaker = new CircuitBreaker()
+// Circuit breakers por ORIGIN para evitar blackout global entre serviços
+const circuitBreakersByOrigin: Map<string, CircuitBreaker> = new Map()
+
+const getCircuitBreakerForUrl = (url: string): CircuitBreaker => {
+  let origin = ''
+  try {
+    origin = new URL(url).origin
+  } catch {
+    origin = 'default'
+  }
+  let cb = circuitBreakersByOrigin.get(origin)
+  if (!cb) {
+    cb = new CircuitBreaker()
+    circuitBreakersByOrigin.set(origin, cb)
+  }
+  return cb
+}
 
 // Criar AbortController compatível
 const createTimeoutSignal = (timeout: number): AbortSignal => {
@@ -84,7 +139,8 @@ export const fetchWithCircuitBreaker = async (
   url: string,
   options: RequestInit = {}
 ): Promise<Response> => {
-  return circuitBreaker.execute(async () => {
+  const cb = getCircuitBreakerForUrl(url)
+  return cb.execute(async () => {
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -97,7 +153,11 @@ export const fetchWithCircuitBreaker = async (
     })
     
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
+      // Classificar erro para o CB: 5xx e 429 contam; 4xx típicos não
+      const err: any = new Error(`HTTP ${response.status}`)
+      err.cbStatus = response.status
+      err.cbRetryable = response.status >= 500 || response.status === 429
+      throw err
     }
     
     return response
