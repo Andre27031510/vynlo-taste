@@ -33,7 +33,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")  // Permitir usuários autenticados criarem clientes
     public ResponseEntity<UserResponseDto> createUser(
             @Validated(ValidationGroups.Create.class) @RequestBody UserRequestDto userRequest) {
         
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+    @PreAuthorize("isAuthenticated()")  // Permitir usuários autenticados atualizarem clientes
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
             @Validated(ValidationGroups.Update.class) @RequestBody UserRequestDto userRequest) {
@@ -81,7 +81,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")  // Permitir usuários autenticados deletarem clientes
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
