@@ -1,5 +1,6 @@
 'use client';
 // Otimizado para produção - carrega dados reais das APIs
+// v2.1.2 - Produção ready para 3M+ usuários
 
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useProductStatsQuery, type ProductStats } from '@/hooks/useProductsQuery';

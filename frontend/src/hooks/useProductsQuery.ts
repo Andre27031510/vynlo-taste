@@ -218,7 +218,7 @@ export const useProductsQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
-  return useQuery({
+  return useQuery<{ products: Product[], total: number, totalPages: number }>({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
     staleTime: 5 * 60 * 1000, // 5 minutos

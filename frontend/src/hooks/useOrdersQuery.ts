@@ -66,7 +66,7 @@ const updateOrderStatus = async ({ orderId, status }: { orderId: string; status:
 
 // Custom hooks
 export const useOrdersQuery = (filters?: { status?: string; search?: string; page?: number; limit?: number }) => {
-  return useQuery({
+  return useQuery<{ orders: Order[], total: number, totalPages: number }>({
     queryKey: ['orders', filters],
     queryFn: () => fetchOrders(filters),
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -79,10 +79,13 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
 }
 
 export const useOrdersStatsQuery = () => {
-  return useQuery({
+  return useQuery<OrdersStats>({
     queryKey: ['orders', 'stats'],
     queryFn: fetchOrdersStats,
-    staleTime: 60000, // 1 minuto
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    cacheTime: 10 * 60 * 1000, // 10 minutos
+    refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 1,
     retryDelay: 1000
   })

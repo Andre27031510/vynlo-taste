@@ -152,7 +152,7 @@ export const useDriversQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
-  return useQuery({
+  return useQuery<{ drivers: Driver[], total: number, totalPages: number }>({
     queryKey: ['drivers', filters],
     queryFn: () => fetchDrivers(filters),
     staleTime: 5 * 60 * 1000, // 5 minutos (reduz carga no backend)
@@ -164,7 +164,7 @@ export const useDriversQuery = (filters?: {
 
 // Hook para buscar estatísticas - OTIMIZADO PARA PRODUÇÃO
 export const useDriversStatsQuery = () => {
-  return useQuery({
+  return useQuery<DriversStats>({
     queryKey: ['drivers-stats'],
     queryFn: fetchDriversStats,
     staleTime: 5 * 60 * 1000, // 5 minutos (reduz carga)

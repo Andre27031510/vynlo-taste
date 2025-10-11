@@ -151,14 +151,14 @@ const fetchDeliveryStats = async (): Promise<DeliveryStats> => {
   }
 }
 
-// Hook para buscar entregas
+// Hook para buscar entregas - OTIMIZADO PARA PRODUÇÃO
 export const useDeliveriesQuery = (filters?: {
   status?: string
   search?: string
   page?: number
   limit?: number
 }) => {
-  return useQuery({
+  return useQuery<{ deliveries: Delivery[], total: number, totalPages: number }>({
     queryKey: ['deliveries', filters],
     queryFn: () => fetchDeliveries(filters),
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -170,7 +170,7 @@ export const useDeliveriesQuery = (filters?: {
 
 // Hook para buscar estatísticas - OTIMIZADO PARA PRODUÇÃO
 export const useDeliveryStatsQuery = () => {
-  return useQuery({
+  return useQuery<DeliveryStats>({
     queryKey: ['delivery-stats'],
     queryFn: fetchDeliveryStats,
     staleTime: 5 * 60 * 1000, // 5 minutos
