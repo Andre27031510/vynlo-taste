@@ -1,7 +1,8 @@
 'use client'
 // v2.1.2 - Clientes 100% conectados com API real (v1/users endpoint)
-// Modified: 2025-10-11 - Zero mock data, production ready for 3M+ users
+// Modified: 2025-10-11 - Removed password field (backend não aceita)
 // CRITICAL: Clients fully functional with PostgreSQL
+// FIX: HTTP 500 corrigido - payload alinhado com UserRequestDto
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
@@ -126,7 +127,6 @@ export const useCreateClientMutation = () => {
           lastName,
           username: clientData.email,
           email: clientData.email,
-          password: 'temp123', // Password temporário
           phone: clientData.phone || '',
           address: clientData.address || '',
           role: 'CUSTOMER',

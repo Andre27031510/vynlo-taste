@@ -1,6 +1,6 @@
 package com.vynlotaste.service;
 
-import io.github.resilience4j.retry.Retry;
+// Removed unused import: io.github.resilience4j.retry.Retry
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;

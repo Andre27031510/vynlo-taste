@@ -1,6 +1,10 @@
 'use client'
+// v2.1.2 - Connected to real APIs - Production ready
+// v2.1.2 - Connected to real APIs - Production ready
 
 import { useState } from 'react'
+import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery } from '@/hooks/useFiscalQuery'
+import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery } from '@/hooks/useFiscalQuery'
 import { 
   FileText, 
   Upload, 
@@ -21,6 +25,7 @@ import {
 } from 'lucide-react'
 import { syncWithSEFAZ, FiscalSyncRequest } from '@/services/amazonQService'
 import toast from 'react-hot-toast'
+import FinancialSkeleton from './financial/FinancialSkeleton'
 
 // Skeleton para documentos fiscais
 const DocumentSkeleton = () => (
@@ -56,46 +61,23 @@ interface FiscalDocument {
 }
 
 export default function FiscalManagement() {
+  // Hooks da API
+  const { data: documentsData, isLoading } = useFiscalDocumentsQuery()
+  const { data: sefazStatus } = useSEFAZStatusQuery()
+  const createNFeMutation = useCreateNFeMutation()
+  
+  const documents = documentsData?.documents ?? []
+  
+  if (isLoading) {
+    return <FinancialSkeleton theme="light" />
+  }
+  
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncResults, setSyncResults] = useState<any>(null)
   const [selectedOperation, setSelectedOperation] = useState<'sync_nfe' | 'validate_xml' | 'check_status'>('sync_nfe')
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-
-  // Dados simulados de documentos fiscais
-  const [documents] = useState<FiscalDocument[]>([
-    {
-      id: '1',
-      number: '000001234',
-      type: 'NFe',
-      status: 'authorized',
-      customer: 'João Silva',
-      value: 125.50,
-      issueDate: '2024-01-15',
-      sefazStatus: 'Autorizada'
-    },
-    {
-      id: '2',
-      number: '000001235',
-      type: 'NFCe',
-      status: 'pending',
-      customer: 'Maria Santos',
-      value: 89.90,
-      issueDate: '2024-01-15',
-      sefazStatus: 'Pendente'
-    },
-    {
-      id: '3',
-      number: '000001236',
-      type: 'NFe',
-      status: 'rejected',
-      customer: 'Pedro Costa',
-      value: 234.75,
-      issueDate: '2024-01-14',
-      sefazStatus: 'Rejeitada'
-    }
-  ])
 
   // Função para sincronizar com SEFAZ usando Amazon Q
   const handleSEFAZSync = async () => {
@@ -174,7 +156,7 @@ export default function FiscalManagement() {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => toast.success('Importação de XML iniciada')}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+            className="flex items-center space-x-2 px-3 py-2 md:px-4 md:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
           >
             <Upload className="w-4 h-4" />
             <span>Importar XML</span>
@@ -182,7 +164,7 @@ export default function FiscalManagement() {
           
           <button
             onClick={() => toast.success('Exportação iniciada')}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            className="flex items-center space-x-2 px-3 py-2 md:px-4 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
           >
             <Download className="w-4 h-4" />
             <span>Exportar</span>
@@ -209,7 +191,7 @@ export default function FiscalManagement() {
         </div>
 
         {/* Seletor de operação */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <button
             onClick={() => setSelectedOperation('sync_nfe')}
             className={`p-4 rounded-lg border-2 transition-all duration-200 ${

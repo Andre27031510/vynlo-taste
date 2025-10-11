@@ -37,7 +37,8 @@
 
     <modules>
         <module>core-module</module>
-        <module>financial-module</module>
+        <!-- financial-module DESABILITADO - funcionalidade movida para core-module -->
+        <!-- <module>financial-module</module> -->
     </modules>
 
     <dependencyManagement>

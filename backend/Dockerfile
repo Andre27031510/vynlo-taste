@@ -7,9 +7,10 @@ COPY pom.xml .
 
 # Copy modules
 COPY core-module/ ./core-module/
-COPY financial-module/ ./financial-module/
+# financial-module DESABILITADO - funcionalidade movida para core-module
+# COPY financial-module/ ./financial-module/
 
-# Build application
+# Build application (apenas core-module agora)
 RUN mvn -B -DskipTests clean package
 
 # Runtime: Temurin 21 JRE (Alpine)

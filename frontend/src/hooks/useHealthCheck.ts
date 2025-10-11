@@ -10,9 +10,25 @@ interface HealthStatus {
   timestamp: string
 }
 
+// ✅ Health check SIMPLES - sem X-headers, sem preflight, não contribui para circuit breaker
 const fetchHealthStatus = async (): Promise<HealthStatus> => {
   try {
-    const response = await apiRequest('core-service', 'actuator/health')
+    // Usar fetch direto (sem apiRequest) para evitar X-headers e preflight
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+    const url = `${baseUrl}/api/actuator/health`
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json' // Apenas Accept, sem custom headers
+      },
+      cache: 'no-cache'
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+    
     const data = await response.json()
     return {
       status: data.status || 'DOWN',

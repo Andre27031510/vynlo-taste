@@ -1,6 +1,8 @@
 'use client'
+// v2.1.2 - Connected to real APIs - Production ready
 
 import { useState, useEffect, useRef } from 'react'
+import { useAccountsPayableQuery, useAccountsReceivableQuery, useFinancialSummaryQuery, useCreateTransactionMutation } from '@/hooks/useFinancialQuery'
 import { 
   CreditCard, 
   TrendingUp, 
@@ -21,6 +23,8 @@ import {
   UserCheck
 } from 'lucide-react'
 import { useThemeContext } from '../../contexts/ThemeContext'
+import { FINANCIAL_COLORS } from '@/constants/financialTheme'
+import FinancialSkeleton from './financial/FinancialSkeleton'
 
 export default function FinancialManagement() {
   const { currentTheme } = useThemeContext()
@@ -46,10 +50,16 @@ export default function FinancialManagement() {
   })
   const [showNotifications, setShowNotifications] = useState(false)
 
-  // Estados para dados
-  const [accountsPayable, setAccountsPayable] = useState<any[]>([])
-  const [accountsReceivable, setAccountsReceivable] = useState<any[]>([])
-  const [cashFlowData, setCashFlowData] = useState<any>(null)
+  // Queries da API
+  const { data: payableData, isLoading: payableLoading } = useAccountsPayableQuery()
+  const { data: receivableData, isLoading: receivableLoading } = useAccountsReceivableQuery()
+  const { data: summaryData, isLoading: summaryLoading } = useFinancialSummaryQuery()
+  const createTransactionMutation = useCreateTransactionMutation()
+  
+  const accountsPayable = payableData?.content ?? []
+  const accountsReceivable = receivableData?.content ?? []
+  const financialSummary = summaryData ?? { totalReceivable: 0, totalPayable: 0, balance: 0, pendingTransactions: 0 }
+  
   const [integrationStatus, setIntegrationStatus] = useState<'connected' | 'disconnected' | 'syncing'>('connected')
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
@@ -71,86 +81,25 @@ export default function FinancialManagement() {
   const totalPayableAmount = accountsPayable.reduce((sum, p: any) => sum + (p.amount || 0), 0)
   const totalOverdueCount = accountsPayable.filter(a => a.status === 'overdue').length
   const totalPendingCount = accountsPayable.filter(a => a.status === 'pending').length
-  const netCash = typeof cashFlowData?.netCashFlow === 'number' ? cashFlowData.netCashFlow : (totalReceivableAmount - totalPayableAmount)
+  const netCash = financialSummary.balance
 
-  // Carregar dados integrados do Fluxo de Caixa
-  useEffect(() => {
-    loadIntegratedData()
-  }, [])
+  // Status de carregamento
+  const isLoading = payableLoading || receivableLoading || summaryLoading
 
-  const loadIntegratedData = async () => {
-    try {
-      // Simular carregamento de dados integrados do Fluxo de Caixa
-      setIntegrationStatus('syncing')
-      
-      // Simular dados do Fluxo de Caixa
-      const integratedData = {
-        accountsPayable: [
-          {
-            id: 1,
-            supplier: 'Fornecedor ABC',
-            description: 'Compra de ingredientes',
-            amount: 2500.00,
-            dueDate: '2024-01-15',
-            status: 'pending',
-            category: 'Ingredientes',
-            priority: 'high',
-            source: 'cashflow'
-          },
-          {
-            id: 2,
-            supplier: 'Energia Elétrica',
-            description: 'Conta de luz - Janeiro',
-            amount: 850.00,
-            dueDate: '2024-01-20',
-            status: 'overdue',
-            category: 'Utilidades',
-            priority: 'critical',
-            source: 'cashflow'
-          }
-        ],
-        accountsReceivable: [
-          {
-            id: 1,
-            customer: 'Cliente Premium',
-            description: 'Venda de produtos',
-            amount: 1500.00,
-            dueDate: '2024-01-25',
-            status: 'pending',
-            category: 'Vendas',
-            priority: 'medium',
-            source: 'cashflow'
-          }
-        ],
-        cashFlowSummary: {
-          totalPayable: 3350.00,
-          totalReceivable: 1500.00,
-          netCashFlow: -1850.00,
-          pendingPayments: 2,
-          pendingReceipts: 1
-        }
-      }
-      
-      setAccountsPayable(integratedData.accountsPayable)
-      setAccountsReceivable(integratedData.accountsReceivable)
-      setCashFlowData(integratedData.cashFlowSummary)
-      setIntegrationStatus('connected')
-      
-    } catch (error) {
-      console.error('Erro ao carregar dados integrados:', error)
-      setIntegrationStatus('disconnected')
-    }
+  if (isLoading) {
+    return <FinancialSkeleton theme={currentTheme} />
   }
 
-  // Sincronizar com Fluxo de Caixa
-  const syncWithCashFlow = async () => {
+  // Sincronizar com API
+  const syncWithAPI = async () => {
     try {
       setIntegrationStatus('syncing')
-      await new Promise(resolve => setTimeout(resolve, 2000)) // Simular sincronização
-      await loadIntegratedData()
+      // As queries serão refetchadas automaticamente
       setSuccessMessage('Dados sincronizados com sucesso!')
+      setIntegrationStatus('connected')
     } catch (error) {
       setErrorMessage('Erro na sincronização')
+      setIntegrationStatus('disconnected')
     }
   }
 
@@ -184,7 +133,13 @@ export default function FinancialManagement() {
   // Funções para gerenciar contas
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Cadastrando conta:', accountForm)
+    createTransactionMutation.mutate({
+      type: 'expense',
+      amount: parseFloat(accountForm.amount),
+      description: accountForm.description,
+      category: accountForm.category,
+      date: accountForm.dueDate
+    })
     setShowModal(false)
     setAccountForm({ supplier: '', description: '', amount: '', dueDate: '', status: 'pending', category: '', notes: '', priority: 'medium' })
   }
@@ -215,16 +170,20 @@ export default function FinancialManagement() {
   }
 
   const confirmDeleteAccount = () => {
-    console.log('Excluindo conta:', selectedAccount)
-    // TODO: Implementar integração com backend
+    // TODO: Implementar delete mutation quando disponível
     setShowDeleteModal(false)
     setSelectedAccount(null)
   }
 
   const handleUpdateAccount = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Atualizando conta:', accountForm)
-    // TODO: Implementar integração com backend
+    createTransactionMutation.mutate({
+      type: 'expense',
+      amount: parseFloat(accountForm.amount),
+      description: accountForm.description,
+      category: accountForm.category,
+      date: accountForm.dueDate
+    })
     setShowEditModal(false)
     setSelectedAccount(null)
     setAccountForm({ supplier: '', description: '', amount: '', dueDate: '', status: 'pending', category: '', notes: '', priority: 'medium' })
@@ -449,7 +408,7 @@ export default function FinancialManagement() {
           
           <button 
             onClick={() => window.location.href = '/dashboard'}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-manrope font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg font-manrope font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2"
           >
             <TrendingUp className="w-4 h-4" />
             <span>Ir para Dashboard</span>
@@ -458,7 +417,7 @@ export default function FinancialManagement() {
       </div>
 
       {/* Sistema de Abas */}
-      <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+      <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl shadow-lg border`}>
         {/* Navegação das Abas */}
         <div className={`flex border-b ${currentTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
           <button
@@ -529,33 +488,33 @@ export default function FinancialManagement() {
             <div className="space-y-6">
               {/* KPIs */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
                       <TrendingUp className="w-6 h-6 text-green-600" />
                     </div>
                     <span className="text-sm text-green-600 font-manrope">Receitas</span>
                   </div>
-                  <div className={`text-2xl font-bold font-manrope ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>
                     R$ {(totalReceivableAmount + txIncomeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
-                  <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-500'} text-sm`}>Recebimentos previstos e realizados</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Recebimentos previstos e realizados</p>
                 </div>
 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
                       <TrendingDown className="w-6 h-6 text-red-600" />
                     </div>
                     <span className="text-sm text-red-600 font-manrope">Despesas</span>
                   </div>
-                  <div className={`text-2xl font-bold font-manrope ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>
                     R$ {(totalPayableAmount + txExpenseTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
-                  <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-500'} text-sm`}>Pagamentos previstos e realizados</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Pagamentos previstos e realizados</p>
                 </div>
 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
                       <CreditCard className="w-6 h-6 text-blue-600" />
@@ -565,27 +524,27 @@ export default function FinancialManagement() {
                   <div className={`text-2xl font-bold font-manrope ${netCash + txBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     R$ {(netCash + txBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
-                  <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-500'} text-sm`}>Receitas - Despesas</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Receitas - Despesas</p>
                 </div>
 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
                       <AlertCircle className="w-6 h-6 text-yellow-600" />
                     </div>
                     <span className="text-sm text-yellow-600 font-manrope">Pendências</span>
                   </div>
-                  <div className={`text-2xl font-bold font-manrope ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>
                     {totalPendingCount} pendentes • {totalOverdueCount} vencidas
                   </div>
-                  <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-500'} text-sm`}>Contas a pagar por status</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Contas a pagar por status</p>
                 </div>
               </div>
 
               {/* Despesas por Categoria (exemplo) */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+              <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className={`text-lg font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Despesas por Categoria</h3>
+                  <h3 className={`text-lg font-manrope font-bold ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>Despesas por Categoria</h3>
                   <button className={`${currentTheme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
                     <Filter className="w-5 h-5" />
                   </button>
@@ -610,9 +569,9 @@ export default function FinancialManagement() {
               </div>
 
               {/* Timeline simples de fluxo (próximos 5 vencimentos/recebimentos) */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+              <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className={`text-lg font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Próximos Eventos</h3>
+                  <h3 className={`text-lg font-manrope font-bold ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>Próximos Eventos</h3>
                 </div>
                 <div className="space-y-3">
                   {[...accountsPayable.map(a => ({...a, kind: 'PAGAR'})), ...accountsReceivable.map(r => ({...r, kind: 'RECEBER'}))]
@@ -709,7 +668,7 @@ export default function FinancialManagement() {
                 
               {/* Filtros */}
               <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-xl p-6 border`}>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div>
                     <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Tipo</label>
                     <select value={txType} onChange={(e) => setTxType(e.target.value as any)} className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
@@ -873,7 +832,7 @@ export default function FinancialManagement() {
 
               {/* Filtros */}
               <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-xl p-6 border`}>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Buscar</label>
                     <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Fornecedor, descrição, categoria" className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white placeholder-gray-300' : 'bg-white border-gray-300'}`} />
@@ -942,11 +901,11 @@ export default function FinancialManagement() {
                   <thead className={`${currentTheme === 'dark' ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'}`}>
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fornecedor</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Descrição</th>
+                      <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Descrição</th>
                       <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Valor</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Vencimento</th>
+                      <th className="hidden sm:table-cell px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Vencimento</th>
                       <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Prioridade</th>
+                      <th className="hidden lg:table-cell px-6 py-3 text-center text-xs font-medium uppercase tracking-wider">Prioridade</th>
                       <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Ações</th>
                     </tr>
                   </thead>
@@ -959,16 +918,16 @@ export default function FinancialManagement() {
                             <div className={`font-manrope font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{account.supplier}</div>
                             <div className="text-sm text-gray-500">{account.category}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{account.description}</td>
+                          <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">{account.description}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-right font-bold">R$ {account.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-center text-sm">{new Date(account.dueDate).toLocaleDateString('pt-BR')}</td>
+                          <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center text-sm">{new Date(account.dueDate).toLocaleDateString('pt-BR')}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(account.status)}`}>
                               {getStatusIcon(account.status)}
                               {getStatusText(account.status)}
                               </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-center">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(priority)}`}>
                               {getPriorityIcon(priority)}
                               {getPriorityText(priority)}

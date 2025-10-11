@@ -119,7 +119,6 @@ export const useCreateTeamMemberMutation = () => {
           lastName,
           username: memberData.email,
           email: memberData.email,
-          password: memberData.password || 'temp123',
           role: memberData.role,
           active: true
         })

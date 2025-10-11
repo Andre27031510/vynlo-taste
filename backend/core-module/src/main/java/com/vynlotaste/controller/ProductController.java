@@ -8,6 +8,7 @@ import com.vynlotaste.mapper.ProductMapper;
 import com.vynlotaste.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +21,9 @@ import java.util.List;
 
 /**
  * Controller para gestão de produtos
- * v2.1.2 - Added error handling para produção
+ * v2.1.2 - Added error handling e logging para produção
  */
+@Slf4j
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -33,9 +35,16 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")  // Permitir usuários autenticados criarem produtos
     public ResponseEntity<ProductResponseDto> createProduct(@Valid @RequestBody ProductRequestDto productRequest) {
-        Product product = productService.createProduct(productRequest);
-        ProductResponseDto response = productMapper.toResponseDto(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            log.info("📝 Criando produto: {}", productRequest.getName());
+            Product product = productService.createProduct(productRequest);
+            ProductResponseDto response = productMapper.toResponseDto(product);
+            log.info("✅ Produto criado com sucesso: ID={}", product.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("❌ Erro ao criar produto: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao criar produto: " + e.getMessage(), e);
+        }
     }
 
     @GetMapping

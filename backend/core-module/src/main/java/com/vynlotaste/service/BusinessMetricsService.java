@@ -20,12 +20,15 @@ public class BusinessMetricsService {
     private final MeterRegistry meterRegistry;
     private final UserService userService;
     private final OrderService orderService;
+    @SuppressWarnings("unused") // Usado por Micrometer reflexivamente
     private final ProductService productService;
 
     // Contadores de negócio - inicializados via @PostConstruct
     private Counter ordersCreated;
     private Counter ordersCompleted;
+    @SuppressWarnings("unused") // Usado por Micrometer reflexivamente
     private Counter ordersCancelled;
+    @SuppressWarnings("unused") // Usado por Micrometer reflexivamente
     private Counter usersRegistered;
     private Counter productsViewed;
 

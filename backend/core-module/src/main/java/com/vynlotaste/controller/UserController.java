@@ -11,6 +11,7 @@ import com.vynlotaste.mapper.UserMapper;
 import com.vynlotaste.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,10 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.Optional;
 
+/**
+ * v2.1.2 - Added logging and error handling
+ */
+@Slf4j
 @RestController
 @RequestMapping("/v1/users")
 @RequiredArgsConstructor
@@ -36,10 +41,16 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")  // Permitir usuários autenticados criarem clientes
     public ResponseEntity<UserResponseDto> createUser(
             @Validated(ValidationGroups.Create.class) @RequestBody UserRequestDto userRequest) {
-        
-        User user = userService.createUser(userRequest);
-        UserResponseDto response = userMapper.toResponseDto(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            log.info("📝 Criando usuário: {}", userRequest.getEmail());
+            User user = userService.createUser(userRequest);
+            UserResponseDto response = userMapper.toResponseDto(user);
+            log.info("✅ Usuário criado com sucesso: ID={}", user.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("❌ Erro ao criar usuário: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao criar usuário: " + e.getMessage(), e);
+        }
     }
 
     @GetMapping

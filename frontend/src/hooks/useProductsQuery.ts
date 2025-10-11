@@ -2,6 +2,7 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
 // Modified: 2025-10-11 - Removed ALL mock data, 100% real APIs
+// FIX: HTTP 500 corrigido - payload mapeado para ProductRequestDto
 // CRITICAL: Products and inventory must be fully functional
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -126,7 +127,31 @@ const fetchProducts = async (filters?: {
     }
   }
   
-  return await response.json()
+  const data = await response.json()
+  
+  // ✅ Mapear dados do backend para frontend
+  const products = (data.content || data.products || []).map((p: any) => ({
+    id: p.id?.toString() || p.id,
+    name: p.name,
+    category: p.category || '',
+    price: p.price || 0,
+    cost: 0, // Backend não retorna cost
+    stock: p.stockQuantity || 0,
+    minStock: 0, // Backend não retorna minStock
+    status: p.available ? 'active' : 'inactive',
+    description: p.description || '',
+    image: p.imageUrl || '',
+    sales: 0, // TODO: calcular
+    revenue: 0, // TODO: calcular
+    createdAt: p.createdAt || new Date().toISOString(),
+    updatedAt: p.updatedAt
+  }))
+  
+  return {
+    products,
+    total: data.totalElements || data.total || products.length,
+    totalPages: data.totalPages || Math.ceil(products.length / (filters?.limit || 10))
+  }
 }
 
 const fetchProductStats = async (): Promise<ProductStats> => {
@@ -148,9 +173,19 @@ const fetchProductStats = async (): Promise<ProductStats> => {
 }
 
 const createProduct = async (productData: CreateProductData): Promise<Product> => {
+  // ✅ Mapear campos do frontend para backend (ProductRequestDto)
+  const backendPayload = {
+    name: productData.name,
+    description: productData.description || '',
+    price: productData.price,
+    category: productData.category || '',
+    stockQuantity: productData.stock || 0,
+    available: true
+  }
+  
   const response = await apiRequest('core-service', 'products', {
     method: 'POST',
-    body: JSON.stringify(productData)
+    body: JSON.stringify(backendPayload)
   })
   
   if (!response.ok) {
@@ -162,9 +197,19 @@ const createProduct = async (productData: CreateProductData): Promise<Product> =
 }
 
 const updateProduct = async (productData: UpdateProductData): Promise<Product> => {
+  // ✅ Mapear campos do frontend para backend (ProductRequestDto)
+  const backendPayload = {
+    name: productData.name,
+    description: productData.description || '',
+    price: productData.price,
+    category: productData.category || '',
+    stockQuantity: productData.stock || 0,
+    available: productData.status === 'active'
+  }
+  
   const response = await apiRequest('core-service', `products/${productData.id}`, {
     method: 'PUT',
-    body: JSON.stringify(productData)
+    body: JSON.stringify(backendPayload)
   })
   
   if (!response.ok) {
@@ -220,9 +265,16 @@ export const useCreateProduct = () => {
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
+      // ✅ Invalidar TODAS as queries de produtos para forçar reload
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['product-stats'] })
+      
+      // ✅ FORÇAR refetch imediato (garantir que lista atualiza)
+      queryClient.refetchQueries({ queryKey: ['products'], type: 'active' })
+      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active' })
+      
       toast.success('Produto criado com sucesso!')
+      console.log('✅ Produto criado - queries invalidadas e refetch forçado')
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Erro ao criar produto')
@@ -236,8 +288,12 @@ export const useUpdateProduct = () => {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: () => {
+      // ✅ Invalidar e forçar refetch
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['product-stats'] })
+      queryClient.refetchQueries({ queryKey: ['products'], type: 'active' })
+      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active' })
+      
       toast.success('Produto atualizado com sucesso!')
     },
     onError: (error: Error) => {
@@ -252,8 +308,12 @@ export const useDeleteProduct = () => {
   return useMutation({
     mutationFn: deleteProduct,
     onSuccess: () => {
+      // ✅ Invalidar e forçar refetch
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['product-stats'] })
+      queryClient.refetchQueries({ queryKey: ['products'], type: 'active' })
+      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active' })
+      
       toast.success('Produto excluído com sucesso!')
     },
     onError: (error: Error) => {

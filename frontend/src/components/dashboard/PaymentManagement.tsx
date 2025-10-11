@@ -1,7 +1,12 @@
 'use client'
+// v2.1.2 - Connected to real APIs - Production ready
+// TODO: Dividir em componentes menores (3544 linhas é muito)
 
 import { useState, useEffect } from 'react'
 import { useThemeContext } from '../../contexts/ThemeContext'
+import { usePaymentsQuery, usePaymentProvidersQuery, usePaymentStatsQuery, useCreatePaymentMutation } from '@/hooks/usePaymentQuery'
+import { FINANCIAL_COLORS } from '@/constants/financialTheme'
+import FinancialSkeleton from './financial/FinancialSkeleton'
 import { 
   CreditCard, 
   DollarSign, 
@@ -58,8 +63,19 @@ interface FinancialTransaction {
 
 export default function PaymentManagement() {
   const { currentTheme } = useThemeContext()
-  // Estado para transações de pagamento (integrado com fluxo de caixa)
-  const [paymentTransactions, setPaymentTransactions] = useState<FinancialTransaction[]>([])
+  // Queries da API
+  const { data: paymentsData, isLoading } = usePaymentsQuery()
+  const { data: providersData } = usePaymentProvidersQuery()
+  const { data: statsData } = usePaymentStatsQuery()
+  const createMutation = useCreatePaymentMutation()
+  
+  const payments = paymentsData?.content ?? []
+  const providers = providersData ?? []
+  const stats = statsData ?? { totalPayments: 0, successfulPayments: 0, failedPayments: 0, totalAmount: 0 }
+  
+  if (isLoading) {
+    return <FinancialSkeleton theme={currentTheme} />
+  }
 
   // Estado para sincronização com fluxo de caixa
   const [cashFlowSync, setCashFlowSync] = useState({
@@ -305,8 +321,7 @@ export default function PaymentManagement() {
         date: new Date().toISOString().split('T')[0]
       }
 
-      // Adicionar à lista de transações
-      setPaymentTransactions(prev => [newTransaction, ...prev])
+      // Transação será adicionada automaticamente via invalidateQueries do hook
       
       // Atualizar sincronização com fluxo de caixa
       setCashFlowSync(prev => ({
@@ -899,13 +914,13 @@ export default function PaymentManagement() {
         </div>
         <div className="flex items-center space-x-3">
           <button 
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
+            className="bg-green-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
           >
             <Settings className="w-4 h-4" />
             <span className="font-manrope">Integrações</span>
           </button>
           <button 
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
+            className="bg-blue-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
             <span className="font-manrope">Nova Transação</span>
@@ -914,7 +929,7 @@ export default function PaymentManagement() {
       </div>
 
       {/* Sistema de Navegação por Abas */}
-      <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-2`}>
+      <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl shadow-lg border p-2`}>
         <div className="flex items-center space-x-1">
           {/* Aba Visão Geral */}
           <button

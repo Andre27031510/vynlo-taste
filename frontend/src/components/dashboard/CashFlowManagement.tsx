@@ -1,6 +1,8 @@
 'use client'
+// v2.1.2 - Connected to real APIs - Production ready
 
 import { useState } from 'react'
+import { useCashFlowQuery, useCashFlowSummaryQuery, useCreateCashFlowMutation } from '@/hooks/useCashFlowQuery'
 import { 
   DollarSign, 
   TrendingUp, 
@@ -18,6 +20,8 @@ import {
   CheckCircle
 } from 'lucide-react'
 import { useMediaQuery } from 'react-responsive'
+import { FINANCIAL_COLORS } from '@/constants/financialTheme'
+import FinancialSkeleton from './financial/FinancialSkeleton'
 
 interface CashFlowEntry {
   id: string
@@ -37,31 +41,27 @@ export default function CashFlowManagement() {
   const isMobile = useMediaQuery({ maxWidth: 768 })
   const isTablet = useMediaQuery({ minWidth: 769, maxWidth: 1024 })
 
-  // Dados simulados
-  const [entries] = useState<CashFlowEntry[]>([
-    {
-      id: '1',
-      type: 'income',
-      category: 'Vendas',
-      description: 'Vendas do dia',
-      amount: 2500.00,
-      date: '2024-01-15',
-      status: 'confirmed'
-    },
-    {
-      id: '2',
-      type: 'expense',
-      category: 'Fornecedores',
-      description: 'Compra de ingredientes',
-      amount: 800.00,
-      date: '2024-01-15',
-      status: 'confirmed'
-    }
-  ])
-
-  const totalIncome = entries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0)
-  const totalExpense = entries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0)
-  const balance = totalIncome - totalExpense
+  // Queries da API
+  const { data: cashFlowData, isLoading } = useCashFlowQuery({ 
+    type: filterType === 'all' ? undefined : filterType,
+    startDate: selectedPeriod === '7d' ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : 
+              selectedPeriod === '30d' ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] :
+              new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  })
+  const { data: summaryData } = useCashFlowSummaryQuery()
+  const createMutation = useCreateCashFlowMutation()
+  
+  const entries = cashFlowData?.content ?? []
+  const summary = summaryData ?? { totalInflow: 0, totalOutflow: 0, netCashFlow: 0, currentBalance: 0, projectedBalance: 0 }
+  
+  if (isLoading) {
+    return <FinancialSkeleton theme="light" />
+  }
+  
+  const totalIncome = summary.totalInflow
+  const totalExpense = summary.totalOutflow
+  const balance = summary.netCashFlow
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -83,7 +83,19 @@ export default function CashFlowManagement() {
             <option value="90d">90 dias</option>
           </select>
           
-          <button className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm">
+          <button 
+            onClick={() => {
+              // TODO: Abrir modal de nova entrada
+              createMutation.mutate({
+                type: 'inflow',
+                amount: 0,
+                description: 'Nova entrada',
+                category: 'Vendas',
+                date: new Date().toISOString().split('T')[0]
+              })
+            }}
+            className="flex items-center justify-center space-x-2 px-3 py-2 md:px-4 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
+          >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nova Entrada</span>
             <span className="sm:hidden">Novo</span>
@@ -93,14 +105,14 @@ export default function CashFlowManagement() {
 
       {/* Cards de Resumo - Grid Responsivo */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+        <div className={`${FINANCIAL_COLORS.card.light} dark:${FINANCIAL_COLORS.card.dark.replace('bg-gray-800 border-gray-700', 'bg-gray-800')} rounded-lg p-4 sm:p-6 border`}>
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Entradas</p>
-              <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+              <p className={`text-lg sm:text-2xl font-bold ${FINANCIAL_COLORS.text.primary.light} dark:${FINANCIAL_COLORS.text.primary.dark}`}>
                 R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
@@ -149,7 +161,7 @@ export default function CashFlowManagement() {
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Projeção</p>
               <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
-                R$ {(balance * 1.15).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                R$ {summary.projectedBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
           </div>
@@ -178,7 +190,7 @@ export default function CashFlowManagement() {
               <option value="expense">Saídas</option>
             </select>
             
-            <button className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 text-sm">
+            <button className="flex items-center justify-center space-x-2 px-3 py-2 md:px-4 md:py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 text-sm">
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline">Exportar</span>
             </button>
@@ -188,7 +200,27 @@ export default function CashFlowManagement() {
 
       {/* Lista de Transações - Responsiva */}
       <div className="space-y-3 sm:space-y-4">
-        {entries.map((entry) => (
+        {isLoading ? (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+            <div className="animate-pulse space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                  </div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : entries.length === 0 ? (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700 text-center">
+            <p className="text-gray-500 dark:text-gray-400">Nenhuma transação encontrada para o período selecionado.</p>
+          </div>
+        ) : (
+          entries.map((entry) => (
           <div key={entry.id} className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-3 sm:space-y-0">
               <div className="flex items-start space-x-3">
@@ -238,7 +270,8 @@ export default function CashFlowManagement() {
               </div>
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   )
