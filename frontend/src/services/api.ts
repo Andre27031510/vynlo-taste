@@ -22,8 +22,18 @@ const getServiceUrl = (serviceName: ServiceName): string => {
 // Build version para forçar cache-busting
 const BUILD_VERSION = '2.1.1-fix'
 
+// Timeout condicional: produção deve ser mais agressivo
+const getTimeout = () => {
+  if (typeof window !== 'undefined') {
+    const isProd = window.location.hostname === 'vynlotech.com' || 
+                   window.location.hostname === 'www.vynlotech.com'
+    return isProd ? 10000 : 15000 // Produção: 10s, Dev: 15s
+  }
+  return process.env.NODE_ENV === 'production' ? 10000 : 15000
+}
+
 export const API_CONFIG = {
-  TIMEOUT: 5000, // Reduzido para produção
+  TIMEOUT: getTimeout(), // Condicional: 10s prod, 15s dev
   MAX_RETRIES: 2, // Reduzido - retry deve ser no backend
   CIRCUIT_BREAKER_THRESHOLD: 2, // Reduzido para facilitar fechamento
   BUILD_VERSION // Forçar rebuild
@@ -85,11 +95,20 @@ export const fetchWithCircuitBreaker = async (
   options: RequestInit = {}
 ): Promise<Response> => {
   return circuitBreaker.execute(async () => {
+    // Só adicionar Content-Type se houver body (evita preflight desnecessário em GET)
+    const baseHeaders: Record<string, string> = {
+      'Accept': 'application/json',
+    }
+    
+    // Adicionar Content-Type apenas quando há body (POST, PUT, PATCH)
+    if (options.body) {
+      baseHeaders['Content-Type'] = 'application/json'
+    }
+    
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        ...baseHeaders,
         ...options.headers
       },
       signal: options.signal || createTimeoutSignal(API_CONFIG.TIMEOUT)
@@ -110,7 +129,7 @@ export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string 
   return `${baseUrl}/api/${cleanEndpoint}`
 }
 
-// Headers padrão com autenticação
+// Headers padrão com autenticação (sem Content-Type para evitar preflight em GET)
 export const getAuthHeaders = async (): Promise<Record<string, string>> => {
   let token = null
   
@@ -130,7 +149,6 @@ export const getAuthHeaders = async (): Promise<Record<string, string>> => {
   }
   
   return {
-    'Content-Type': 'application/json',
     'Accept': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` })
   }
@@ -157,17 +175,54 @@ export const apiRequest = async (
   try {
     const url = buildApiUrl(serviceName, endpoint)
     const authHeaders = await getAuthHeaders()
-    const headers = {
+    
+    // Adicionar Content-Type apenas quando há body
+    const finalHeaders = {
       ...authHeaders,
       'X-Request-ID': generateUUID(),
       'X-Client-Version': process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
       ...options.headers
     }
     
-    return await fetchWithCircuitBreaker(url, { ...options, headers })
+    // Adicionar Content-Type se houver body e não foi especificado
+    if (options.body && !finalHeaders['Content-Type']) {
+      finalHeaders['Content-Type'] = 'application/json'
+    }
+    
+    // Log detalhado em desenvolvimento para diagnóstico
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔵 API Request:`, {
+        service: serviceName,
+        endpoint,
+        method: options.method || 'GET',
+        url,
+        hasBody: !!options.body,
+        headers: finalHeaders
+      })
+    }
+    
+    const response = await fetchWithCircuitBreaker(url, { ...options, headers: finalHeaders })
+    
+    // Log de sucesso em desenvolvimento
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ API Success:`, {
+        service: serviceName,
+        endpoint,
+        status: response.status,
+        url
+      })
+    }
+    
+    return response
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.error(`API request failed for ${serviceName}/${endpoint}:`, error)
+      console.error(`❌ API request failed:`, {
+        service: serviceName,
+        endpoint,
+        url: buildApiUrl(serviceName, endpoint),
+        error: error instanceof Error ? error.message : String(error),
+        method: options.method || 'GET'
+      })
     }
     throw error
   }

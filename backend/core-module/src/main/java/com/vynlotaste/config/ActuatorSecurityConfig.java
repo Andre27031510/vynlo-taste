@@ -99,7 +99,7 @@ public class ActuatorSecurityConfig {
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
         
-        // Headers permitidos
+        // Headers permitidos (incluindo headers customizados do frontend)
         configuration.setAllowedHeaders(Arrays.asList(
             "Authorization",
             "Content-Type",
@@ -107,7 +107,9 @@ public class ActuatorSecurityConfig {
             "Accept",
             "Origin",
             "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
+            "Access-Control-Request-Headers",
+            "X-Request-ID",
+            "X-Client-Version"
         ));
         
         // Headers expostos

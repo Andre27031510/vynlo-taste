@@ -1,4 +1,35 @@
 /** @type {import('next').NextConfig} */
+
+// CSP condicional: desenvolvimento vs produção
+const isDevelopment = process.env.NODE_ENV === 'development'
+
+const getConnectSrc = () => {
+  const baseConnectSrc = [
+    "'self'",
+    "https://api.vynlotech.com",
+    "https://identitytoolkit.googleapis.com",
+    "https://securetoken.googleapis.com",
+    "https://www.googleapis.com",
+    "https://firebase.googleapis.com",
+    "https://firestore.googleapis.com",
+    "https://*.firebaseapp.com",
+    "wss:",
+    "ws:"
+  ]
+  
+  // Adicionar localhost APENAS em desenvolvimento
+  if (isDevelopment) {
+    baseConnectSrc.push(
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:3001"
+    )
+  }
+  
+  return baseConnectSrc.join(' ')
+}
+
 const nextConfig = {
   // Build ID para forçar cache-busting (v2.1.1-fix-FORCE)
   generateBuildId: async () => {
@@ -30,7 +61,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://api.vynlotech.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebase.googleapis.com https://firestore.googleapis.com https://*.firebaseapp.com wss: ws:",
+              `connect-src ${getConnectSrc()}`,
               "frame-src 'self' https://*.firebaseapp.com",
               "object-src 'none'",
               "base-uri 'self'",
