@@ -56,3 +56,4 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpec
      */
     Page<Payment> findByMethod(String method, Pageable pageable);
 }
+// Modified: 2025-10-11

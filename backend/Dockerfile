@@ -24,3 +24,4 @@ COPY --from=builder /app/core-module/target/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
+# Modified: 2025-10-11

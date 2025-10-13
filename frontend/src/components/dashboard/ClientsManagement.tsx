@@ -216,10 +216,10 @@ export default function ClientsManagement() {
               </button>
             </div>
           </div>
-        </div>
       </div>
-    )
-  }, [filteredClients])
+    </div>
+  )
+}, [filteredClients])
 
   // Funções otimizadas com useCallback para evitar re-renders
   const handleCreateClient = useCallback((e: React.FormEvent) => {
@@ -842,3 +842,4 @@ export default function ClientsManagement() {
     </div>
   )
 }
+// Modified: 2025-10-11

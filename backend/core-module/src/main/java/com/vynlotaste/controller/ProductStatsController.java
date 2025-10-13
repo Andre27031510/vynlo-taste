@@ -43,7 +43,8 @@ public class ProductStatsController {
                 "lowStockProducts", 0,
                 "totalRevenue", 0.0,
                 "averagePrice", 0.0
-            ));
+            )            );
         }
     }
 }
+// Modified: 2025-10-11

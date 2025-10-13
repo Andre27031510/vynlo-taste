@@ -243,11 +243,11 @@ export default function CashFlowManagement() {
               
               <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start space-x-2 sm:space-x-0">
                 <p className={`text-lg sm:text-xl font-bold ${
-                  entry.type === 'income' 
+                  entry.type === 'inflow' 
                     ? 'text-green-600 dark:text-green-400' 
                     : 'text-red-600 dark:text-red-400'
                 }`}>
-                  {entry.type === 'income' ? '+' : '-'}R$ {entry.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {entry.type === 'inflow' ? '+' : '-'}R$ {entry.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
                 
                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
