@@ -1,6 +1,6 @@
 'use client'
 // v2.1.2 - Conectado com API real de users (clientes)
-// Modified: 2025-10-11 - Removed ALL mock data, 100% real APIs
+// Modified: 2025-10-11 13:52 UTC - Removed ALL mock data, 100% real APIs
 // CRITICAL: Clients fully functional with PostgreSQL backend
 // Fix: HTTP 500 corrigido - payload sem password
 // Deploy: 2025-10-11

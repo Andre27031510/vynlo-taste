@@ -1,7 +1,7 @@
 'use client'
 // v2.1.2 - Connected to real APIs - Production ready
 // TODO: Dividir em componentes menores (3544 linhas é muito)
-// Deploy: 2025-10-11 - Removido mock data
+// Deploy: 2025-10-11 14:07 UTC - Removido mock data
 
 import { useState, useEffect } from 'react'
 import { useThemeContext } from '../../contexts/ThemeContext'

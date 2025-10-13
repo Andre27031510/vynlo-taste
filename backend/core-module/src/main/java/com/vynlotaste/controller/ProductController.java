@@ -23,7 +23,7 @@ import java.util.List;
  * Controller para gestão de produtos
  * v2.1.2 - Added error handling e logging para produção
  * Fix: Payload mapeado para ProductRequestDto (stockQuantity)
- * Deploy: 2025-10-11
+ * Deploy: 2025-10-11 13:58 UTC
  */
 @Slf4j
 @RestController

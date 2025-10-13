@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Mapper para FiscalDocument
  * Fix: Ambiguous mapping resolvido com @Named e @IterableMapping
- * Modified: 2025-10-11
+ * Modified: 2025-10-11 14:03 UTC
  */
 @Mapper(
     componentModel = "spring",

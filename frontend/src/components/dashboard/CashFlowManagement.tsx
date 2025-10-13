@@ -1,6 +1,6 @@
 'use client'
 // v2.1.2 - Connected to real APIs - Production ready
-// Deploy: 2025-10-11 - Removido mock data
+// Deploy: 2025-10-11 14:05 UTC - Types alinhados (inflow/outflow)
 
 import { useState } from 'react'
 import { useCashFlowQuery, useCashFlowSummaryQuery, useCreateCashFlowMutation } from '@/hooks/useCashFlowQuery'

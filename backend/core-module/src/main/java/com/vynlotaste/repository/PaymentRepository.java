@@ -13,7 +13,7 @@ import java.util.Optional;
 /**
  * Repository for Payment entity operations
  * Provides data access methods for payment transactions
- * Modified: 2025-10-11 - Added findByMethod
+ * Modified: 2025-10-11 14:04 UTC - Added findByMethod
  */
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpecificationExecutor<Payment> {

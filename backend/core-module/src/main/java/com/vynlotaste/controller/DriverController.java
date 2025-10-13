@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Slf4j
 /**
- * Modified: 2025-10-11 - Permissões ajustadas para isAuthenticated()
+ * Modified: 2025-10-11 14:00 UTC - Permissões ajustadas para isAuthenticated()
  */
 @RestController
 @RequestMapping("/v1/drivers")

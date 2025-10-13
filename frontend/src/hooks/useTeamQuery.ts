@@ -1,6 +1,6 @@
 'use client'
 // v2.1.2 - Team members 100% conectados com API real (v1/users endpoint)
-// Modified: 2025-10-11 - Removido password (backend não aceita)
+// Modified: 2025-10-11 13:50 UTC - Removido password (backend não aceita)
 // CRITICAL: Team management fully functional with PostgreSQL
 // Deploy: 2025-10-11
 

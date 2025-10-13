@@ -1,6 +1,6 @@
 'use client'
 // v2.1.2 - Connected to real APIs - Production ready
-// Deploy: 2025-10-11 - Removido mock data, 100% APIs
+// Deploy: 2025-10-11 14:06 UTC - Removido mock data, 100% APIs
 
 import { useState, useEffect, useRef } from 'react'
 import { useAccountsPayableQuery, useAccountsReceivableQuery, useFinancialSummaryQuery, useCreateTransactionMutation } from '@/hooks/useFinancialQuery'

@@ -27,7 +27,7 @@ import java.util.Optional;
 /**
  * v2.1.2 - Added logging and error handling
  * Fix: Removido password do payload (UserRequestDto não aceita)
- * Deploy: 2025-10-11
+ * Deploy: 2025-10-11 13:57 UTC
  */
 @Slf4j
 @RestController

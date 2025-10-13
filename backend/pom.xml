@@ -38,7 +38,7 @@
     <modules>
         <module>core-module</module>
         <!-- financial-module DESABILITADO - funcionalidade movida para core-module -->
-        <!-- Module disabled: 2025-10-11 - Evitar duplicação -->
+        <!-- Module disabled: 2025-10-11 13:45 UTC - Evitar duplicação -->
         <!-- <module>financial-module</module> -->
     </modules>
 

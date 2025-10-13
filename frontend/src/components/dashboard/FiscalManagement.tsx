@@ -1,5 +1,6 @@
 'use client'
 // v2.1.2 - Connected to real APIs - Production ready
+// Updated: 2025-10-11 14:08 UTC - Import duplicado removido
 
 import { useState } from 'react'
 import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery } from '@/hooks/useFiscalQuery'

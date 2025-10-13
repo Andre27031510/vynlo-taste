@@ -21,7 +21,7 @@ public class BusinessMetricsService {
     private final UserService userService;
     private final OrderService orderService;
     @SuppressWarnings("unused") // Usado por Micrometer reflexivamente
-    private final ProductService productService; // Cleanup: 2025-10-11
+    private final ProductService productService; // Cleanup: 2025-10-11 14:02 UTC
 
     // Contadores de negócio - inicializados via @PostConstruct
     private Counter ordersCreated;

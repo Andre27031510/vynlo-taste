@@ -1,5 +1,6 @@
 // Tipos para service discovery (v2.1.2 - circuit breaker robusto)
 // Fix: Threshold 4, isolamento por origem, não conta 4xx
+// Updated: 2025-10-11 13:47 UTC
 type ServiceName = 'core-service' | 'financial-service'
 
 // Service Discovery Simplificado
