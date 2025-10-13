@@ -11,6 +11,7 @@ export interface CashFlowEntry {
   description: string
   category: string
   date: string
+  status: 'confirmed' | 'pending' | 'cancelled'
   reference?: string
   createdAt: string
 }
@@ -142,3 +143,5 @@ export const useCreateCashFlowMutation = () => {
     }
   })
 }
+
+// Modified: 2025-10-11 - Added status field
