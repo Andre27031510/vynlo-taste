@@ -24,15 +24,8 @@ import { useMediaQuery } from 'react-responsive'
 import { FINANCIAL_COLORS } from '@/constants/financialTheme'
 import FinancialSkeleton from './financial/FinancialSkeleton'
 
-interface CashFlowEntry {
-  id: string
-  type: 'income' | 'expense'
-  category: string
-  description: string
-  amount: number
-  date: string
-  status: 'confirmed' | 'pending' | 'cancelled'
-}
+// ✅ Tipo importado do hook (alinhado com backend)
+import { type CashFlowEntry } from '@/hooks/useCashFlowQuery'
 
 export default function CashFlowManagement() {
   const [selectedPeriod, setSelectedPeriod] = useState('30d')
@@ -44,7 +37,7 @@ export default function CashFlowManagement() {
 
   // Queries da API
   const { data: cashFlowData, isLoading } = useCashFlowQuery({ 
-    type: filterType === 'all' ? undefined : filterType,
+    type: filterType === 'all' ? undefined : (filterType as 'inflow' | 'outflow'),
     startDate: selectedPeriod === '7d' ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : 
               selectedPeriod === '30d' ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] :
               new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -226,11 +219,11 @@ export default function CashFlowManagement() {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-3 sm:space-y-0">
               <div className="flex items-start space-x-3">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  entry.type === 'income' 
+                  entry.type === 'inflow' 
                     ? 'bg-green-100 dark:bg-green-900' 
                     : 'bg-red-100 dark:bg-red-900'
                 }`}>
-                  {entry.type === 'income' ? (
+                  {entry.type === 'inflow' ? (
                     <Plus className="w-5 h-5 text-green-600 dark:text-green-400" />
                   ) : (
                     <Minus className="w-5 h-5 text-red-600 dark:text-red-400" />
