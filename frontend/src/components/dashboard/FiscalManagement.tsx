@@ -3,7 +3,7 @@
 // Updated: 2025-10-11 14:08 UTC - Import duplicado removido
 
 import { useState } from 'react'
-import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery } from '@/hooks/useFiscalQuery'
+import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery, type FiscalDocument } from '@/hooks/useFiscalQuery'
 import { 
   FileText, 
   Upload, 
