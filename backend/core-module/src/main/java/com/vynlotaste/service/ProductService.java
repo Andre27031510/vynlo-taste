@@ -477,11 +477,25 @@ public class ProductService {
             long activeProducts = productRepository.countByAvailableTrue();
             long lowStockProducts = productRepository.countByStockQuantityLessThan(10);
             
-            ProductStats stats = new ProductStats(totalProducts, activeProducts, lowStockProducts);
+            // ✅ Calcular receita total e preço médio (Modified: 2025-10-14 17:53 UTC)
+            double totalRevenue = productRepository.findAll().stream()
+                .filter(p -> p.getPrice() != null)
+                .mapToDouble(p -> p.getPrice().doubleValue() * (p.getSales() != null ? p.getSales() : 0))
+                .sum();
+            
+            double averagePrice = activeProducts > 0 
+                ? productRepository.findAll().stream()
+                    .filter(p -> p.getAvailable() && p.getPrice() != null)
+                    .mapToDouble(p -> p.getPrice().doubleValue())
+                    .average()
+                    .orElse(0.0)
+                : 0.0;
+            
+            ProductStats stats = new ProductStats(totalProducts, activeProducts, lowStockProducts, totalRevenue, averagePrice);
             
             long duration = System.currentTimeMillis() - startTime;
-            log.debug("Estatísticas de produtos calculadas - Total: {}, Ativos: {}, Estoque baixo: {}, Tempo: {}ms", 
-                totalProducts, activeProducts, lowStockProducts, duration);
+            log.debug("Estatísticas de produtos calculadas - Total: {}, Ativos: {}, Estoque baixo: {}, Receita: {}, Preço médio: {}, Tempo: {}ms", 
+                totalProducts, activeProducts, lowStockProducts, totalRevenue, averagePrice, duration);
             
             return stats;
             
@@ -496,15 +510,22 @@ public class ProductService {
         private final long totalProducts;
         private final long activeProducts;
         private final long lowStockProducts;
+        private final double totalRevenue;
+        private final double averagePrice;
         
-        public ProductStats(long totalProducts, long activeProducts, long lowStockProducts) {
+        public ProductStats(long totalProducts, long activeProducts, long lowStockProducts, double totalRevenue, double averagePrice) {
             this.totalProducts = totalProducts;
             this.activeProducts = activeProducts;
             this.lowStockProducts = lowStockProducts;
+            this.totalRevenue = totalRevenue;
+            this.averagePrice = averagePrice;
         }
         
         public long getTotalProducts() { return totalProducts; }
         public long getActiveProducts() { return activeProducts; }
         public long getLowStockProducts() { return lowStockProducts; }
+        public double getTotalRevenue() { return totalRevenue; }
+        public double getAveragePrice() { return averagePrice; }
     }
 }
+// Modified: 2025-10-14 17:52 UTC | Added totalRevenue and averagePrice to ProductStats

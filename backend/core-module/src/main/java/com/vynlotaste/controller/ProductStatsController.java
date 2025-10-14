@@ -26,12 +26,13 @@ public class ProductStatsController {
         try {
             ProductService.ProductStats stats = productService.getProductStats();
             
+            // ✅ HARDCODED REMOVIDO: totalRevenue e averagePrice agora calculados pelo ProductService
             Map<String, Object> response = Map.of(
                 "totalProducts", stats.getTotalProducts(),
                 "activeProducts", stats.getActiveProducts(),
                 "lowStockProducts", stats.getLowStockProducts(),
-                "totalRevenue", 18750.50,
-                "averagePrice", 26.47
+                "totalRevenue", stats.getTotalRevenue(),
+                "averagePrice", stats.getAveragePrice()
             );
             
             return ResponseEntity.ok(response);
@@ -43,8 +44,8 @@ public class ProductStatsController {
                 "lowStockProducts", 0,
                 "totalRevenue", 0.0,
                 "averagePrice", 0.0
-            )            );
+            ));
         }
     }
 }
-// Modified: 2025-10-11-v21 | Stats with fallback
+// Modified: 2025-10-14 17:53 UTC | Hardcoded stats removed - 100% real data from ProductService
