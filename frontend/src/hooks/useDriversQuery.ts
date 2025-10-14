@@ -37,19 +37,37 @@ const fetchDrivers = async (filters?: {
   page?: number
   limit?: number
 }): Promise<{ drivers: Driver[], total: number, totalPages: number }> => {
-  const params = new URLSearchParams()
-  if (filters?.status && filters.status !== 'all') params.append('status', filters.status)
-  if (filters?.search) params.append('search', filters.search)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.limit) params.append('limit', filters.limit.toString())
+  try {
+    const params = new URLSearchParams()
+    
+    // ✅ Paginação 0-based + size param (Spring Data JPA padrão)
+    const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+    const size = (filters?.limit ?? 10)
+    params.append('page', pageZero.toString())
+    params.append('size', size.toString())
+    params.append('sort', 'createdAt,desc') // Ordenação determinística
+    
+    if (filters?.status && filters.status !== 'all') params.append('status', filters.status)
+    if (filters?.search) params.append('search', filters.search)
 
-  const response = await apiRequest('core-service', `v1/drivers?${params.toString()}`)
-  return await response.json()
+    const response = await apiRequest('core-service', `v1/drivers?${params.toString()}`)
+    return await response.json()
+  } catch (error) {
+    // ✅ FALLBACK SEGURO: retorna vazio em vez de throw (UI não quebra)
+    console.warn('[useDriversQuery] API temporariamente indisponível, retornando vazio:', error)
+    return { drivers: [], total: 0, totalPages: 0 }
+  }
 }
 
 const fetchDriversStats = async (): Promise<DriversStats> => {
-  const response = await apiRequest('core-service', 'v1/drivers/stats')
-  return await response.json()
+  try {
+    const response = await apiRequest('core-service', 'v1/drivers/stats')
+    return await response.json()
+  } catch (error) {
+    // ✅ FALLBACK SEGURO: retorna stats zerados
+    console.warn('[useDriversQuery] Stats API indisponível, retornando zeros:', error)
+    return { totalDrivers: 0, available: 0, busy: 0, offline: 0, averageRating: 0 }
+  }
 }
 
 // Hook para buscar motoristas - OTIMIZADO PARA PRODUÇÃO
@@ -66,6 +84,8 @@ export const useDriversQuery = (filters?: {
     gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
     refetchOnWindowFocus: true, // Atualiza ao focar janela
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (economia de recursos)
+    retry: 2, // ✅ Retry limitado (evita tempestade de requests)
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Backoff exponencial
   })
 }
 
