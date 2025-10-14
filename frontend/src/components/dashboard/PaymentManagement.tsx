@@ -64,7 +64,7 @@ interface FinancialTransaction {
 
 export default function PaymentManagement() {
   const { currentTheme } = useThemeContext()
-  const theme: 'light' | 'dark' = theme === 'dark' ? 'dark' : 'light'
+  const theme: 'light' | 'dark' = currentTheme === 'dark' ? 'dark' : 'light'
   // Queries da API
   const { data: paymentsData, isLoading } = usePaymentsQuery()
   const { data: providersData } = usePaymentProvidersQuery()
