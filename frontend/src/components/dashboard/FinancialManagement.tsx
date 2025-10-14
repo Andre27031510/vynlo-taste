@@ -1,6 +1,7 @@
 'use client'
 // v2.1.2 - Connected to real APIs - Production ready
 // Deploy: 2025-10-11 14:06 UTC - Removido mock data, 100% APIs
+// TODO: Corrigir 19 erros TypeScript (Amazon Q)
 
 import { useState, useEffect, useRef } from 'react'
 import { useAccountsPayableQuery, useAccountsReceivableQuery, useFinancialSummaryQuery, useCreateTransactionMutation } from '@/hooks/useFinancialQuery'
@@ -29,6 +30,7 @@ import FinancialSkeleton from './financial/FinancialSkeleton'
 
 export default function FinancialManagement() {
   const { currentTheme } = useThemeContext()
+  const theme: 'light' | 'dark' = currentTheme === 'dark' ? 'dark' : 'light'
   const [activeTab, setActiveTab] = useState('overview')
   const [selectedPeriod, setSelectedPeriod] = useState('month')
   const [showModal, setShowModal] = useState(false)
@@ -88,7 +90,7 @@ export default function FinancialManagement() {
   const isLoading = payableLoading || receivableLoading || summaryLoading
 
   if (isLoading) {
-    return <FinancialSkeleton theme={currentTheme} />
+    return <FinancialSkeleton theme={theme} />
   }
 
   // Sincronizar com API
@@ -195,10 +197,10 @@ export default function FinancialManagement() {
     const matchesSearch = searchTerm === '' || 
       account.supplier.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.category.toLowerCase().includes(searchTerm.toLowerCase())
+      account.category?.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = statusFilter === 'all' || account.status === statusFilter
-    const matchesCategory = categoryFilter === 'all' || account.category === categoryFilter
+    const matchesCategory = categoryFilter === 'all' || account.category === categoryFilter || !account.category
     
     return matchesSearch && matchesStatus && matchesCategory
   })
@@ -387,8 +389,8 @@ export default function FinancialManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-3xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Gestão Financeira</h1>
-          <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>Controle completo das suas finanças</p>
+          <h1 className={`text-3xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Gestão Financeira</h1>
+          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>Controle completo das suas finanças</p>
         </div>
         
         <div className="flex items-center space-x-3">
@@ -396,7 +398,7 @@ export default function FinancialManagement() {
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
             className={`px-4 py-2 border rounded-lg font-manrope focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              currentTheme === 'dark' 
+              theme === 'dark' 
                 ? 'bg-gray-700 border-gray-600 text-white' 
                 : 'border-gray-300 bg-white text-gray-900'
             }`}
@@ -418,17 +420,17 @@ export default function FinancialManagement() {
       </div>
 
       {/* Sistema de Abas */}
-      <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl shadow-lg border`}>
+      <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl shadow-lg border`}>
         {/* Navegação das Abas */}
-        <div className={`flex border-b ${currentTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className={`flex border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-6 py-4 font-manrope font-medium transition-colors duration-200 ${
               activeTab === 'overview'
-                ? currentTheme === 'dark'
+                ? theme === 'dark'
                   ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-700'
                   : 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : currentTheme === 'dark'
+                : theme === 'dark'
                   ? 'text-gray-300 hover:text-gray-200 hover:bg-gray-700'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
@@ -440,10 +442,10 @@ export default function FinancialManagement() {
             onClick={() => setActiveTab('transactions')}
             className={`px-6 py-4 font-manrope font-medium transition-colors duration-200 ${
               activeTab === 'transactions'
-                ? currentTheme === 'dark'
+                ? theme === 'dark'
                   ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-700'
                   : 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : currentTheme === 'dark'
+                : theme === 'dark'
                   ? 'text-gray-300 hover:text-gray-200 hover:bg-gray-700'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
@@ -455,10 +457,10 @@ export default function FinancialManagement() {
             onClick={() => setActiveTab('accounts')}
             className={`px-6 py-4 font-manrope font-medium transition-colors duration-200 ${
               activeTab === 'accounts'
-                ? currentTheme === 'dark'
+                ? theme === 'dark'
                   ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-700'
                   : 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : currentTheme === 'dark'
+                : theme === 'dark'
                   ? 'text-gray-300 hover:text-gray-200 hover:bg-gray-700'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
@@ -470,10 +472,10 @@ export default function FinancialManagement() {
             onClick={() => setActiveTab('reports')}
             className={`px-6 py-4 font-manrope font-medium transition-colors duration-200 ${
               activeTab === 'reports'
-                ? currentTheme === 'dark'
+                ? theme === 'dark'
                   ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-700'
                   : 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                : currentTheme === 'dark'
+                : theme === 'dark'
                   ? 'text-gray-300 hover:text-gray-200 hover:bg-gray-700'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             }`}
@@ -489,33 +491,33 @@ export default function FinancialManagement() {
             <div className="space-y-6">
               {/* KPIs */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
                       <TrendingUp className="w-6 h-6 text-green-600" />
                     </div>
                     <span className="text-sm text-green-600 font-manrope">Receitas</span>
                   </div>
-                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>
+                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[theme]}`}>
                     R$ {(totalReceivableAmount + txIncomeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
-                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Recebimentos previstos e realizados</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[theme]} text-sm`}>Recebimentos previstos e realizados</p>
                 </div>
 
-                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
                       <TrendingDown className="w-6 h-6 text-red-600" />
                     </div>
                     <span className="text-sm text-red-600 font-manrope">Despesas</span>
                   </div>
-                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>
+                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[theme]}`}>
                     R$ {(totalPayableAmount + txExpenseTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
-                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Pagamentos previstos e realizados</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[theme]} text-sm`}>Pagamentos previstos e realizados</p>
                 </div>
 
-                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
                       <CreditCard className="w-6 h-6 text-blue-600" />
@@ -525,28 +527,28 @@ export default function FinancialManagement() {
                   <div className={`text-2xl font-bold font-manrope ${netCash + txBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     R$ {(netCash + txBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
-                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Receitas - Despesas</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[theme]} text-sm`}>Receitas - Despesas</p>
                 </div>
 
-                <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl p-6 shadow-lg border`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
                       <AlertCircle className="w-6 h-6 text-yellow-600" />
                     </div>
                     <span className="text-sm text-yellow-600 font-manrope">Pendências</span>
                   </div>
-                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>
+                  <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[theme]}`}>
                     {totalPendingCount} pendentes • {totalOverdueCount} vencidas
                   </div>
-                  <p className={`${FINANCIAL_COLORS.text.secondary[currentTheme]} text-sm`}>Contas a pagar por status</p>
+                  <p className={`${FINANCIAL_COLORS.text.secondary[theme]} text-sm`}>Contas a pagar por status</p>
                 </div>
               </div>
 
               {/* Despesas por Categoria (exemplo) */}
-              <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
+              <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl p-6 shadow-lg border`}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className={`text-lg font-manrope font-bold ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>Despesas por Categoria</h3>
-                  <button className={`${currentTheme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+                  <h3 className={`text-lg font-manrope font-bold ${FINANCIAL_COLORS.text.primary[theme]}`}>Despesas por Categoria</h3>
+                  <button className={`${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
                     <Filter className="w-5 h-5" />
                   </button>
                 </div>
@@ -561,39 +563,39 @@ export default function FinancialManagement() {
                     <div key={i} className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <div className={`w-3 h-3 rounded-full ${c.color}`} />
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'} font-manrope`}>{c.category}</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} font-manrope`}>{c.category}</span>
                       </div>
-                      <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>R$ {c.amount.toLocaleString('pt-BR')}</span>
+                      <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>R$ {c.amount.toLocaleString('pt-BR')}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Timeline simples de fluxo (próximos 5 vencimentos/recebimentos) */}
-              <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl p-6 shadow-lg border`}>
+              <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl p-6 shadow-lg border`}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className={`text-lg font-manrope font-bold ${FINANCIAL_COLORS.text.primary[currentTheme]}`}>Próximos Eventos</h3>
+                  <h3 className={`text-lg font-manrope font-bold ${FINANCIAL_COLORS.text.primary[theme]}`}>Próximos Eventos</h3>
                 </div>
                 <div className="space-y-3">
                   {[...accountsPayable.map(a => ({...a, kind: 'PAGAR'})), ...accountsReceivable.map(r => ({...r, kind: 'RECEBER'}))]
                     .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
                     .slice(0, 5)
                     .map((item: any) => (
-                      <div key={`${item.kind}-${item.id}`} className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-gray-50 border-gray-200'} border rounded-xl p-4 flex items-center justify-between`}>
+                      <div key={`${item.kind}-${item.id}`} className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-gray-50 border-gray-200'} border rounded-xl p-4 flex items-center justify-between`}>
                         <div className="flex items-center space-x-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${item.kind === 'RECEBER' ? 'bg-green-100' : 'bg-red-100'}`}>
                             {item.kind === 'RECEBER' ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
                           </div>
                           <div>
-                            <div className={`font-manrope font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                            <div className={`font-manrope font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                               {item.kind === 'RECEBER' ? (item.customer || 'Cliente') : item.supplier}
                             </div>
-                            <div className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{item.description}</div>
+                            <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{item.description}</div>
                           </div>
                       </div>
                       <div className="text-right">
                           <div className={`font-bold ${item.kind === 'RECEBER' ? 'text-green-600' : 'text-red-600'}`}>R$ {item.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-                          <div className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{new Date(item.dueDate).toLocaleDateString('pt-BR')}</div>
+                          <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{new Date(item.dueDate).toLocaleDateString('pt-BR')}</div>
                       </div>
                     </div>
                   ))}
@@ -606,7 +608,7 @@ export default function FinancialManagement() {
           {activeTab === 'transactions' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Transações Financeiras</h2>
+                <h2 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Transações Financeiras</h2>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => {
@@ -618,7 +620,7 @@ export default function FinancialManagement() {
                       setTxStartDate('')
                       setTxEndDate('')
                     }}
-                    className={`px-4 py-2 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                    className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Filter className="w-4 h-4 inline-block mr-2" />
                     Limpar Filtros
@@ -639,7 +641,7 @@ export default function FinancialManagement() {
                       link.click()
                       document.body.removeChild(link)
                     }}
-                    className={`px-4 py-2 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                    className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Download className="w-4 h-4 inline-block mr-2" />
                     Exportar CSV
@@ -649,38 +651,38 @@ export default function FinancialManagement() {
 
               {/* KPIs rápidos */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${currentTheme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Receitas</div>
                   <div className="text-2xl font-bold text-green-600">R$ {txIncomeTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                 </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${currentTheme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Despesas</div>
                   <div className="text-2xl font-bold text-red-600">R$ {txExpenseTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                 </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${currentTheme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Saldo</div>
                   <div className={`text-2xl font-bold ${txBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {txBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                 </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${currentTheme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Transações</div>
-                  <div className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{txCount}</div>
+                  <div className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{txCount}</div>
                 </div>
                 </div>
                 
               {/* Filtros */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-xl p-6 border`}>
+              <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-xl p-6 border`}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Tipo</label>
-                    <select value={txType} onChange={(e) => setTxType(e.target.value as any)} className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Tipo</label>
+                    <select value={txType} onChange={(e) => setTxType(e.target.value as any)} className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
                       <option value="all">Todas</option>
                       <option value="INCOME">Receitas</option>
                       <option value="EXPENSE">Despesas</option>
                     </select>
                   </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Categoria</label>
-                    <select value={txCategory} onChange={(e) => setTxCategory(e.target.value as any)} className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Categoria</label>
+                    <select value={txCategory} onChange={(e) => setTxCategory(e.target.value as any)} className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
                       <option value="all">Todas</option>
                       <option value="Vendas">Vendas</option>
                       <option value="Serviços">Serviços</option>
@@ -691,24 +693,24 @@ export default function FinancialManagement() {
                     </select>
                   </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Valor Mínimo</label>
-                    <input value={txMin} onChange={(e) => setTxMin(e.target.value)} type="number" className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Valor Mínimo</label>
+                    <input value={txMin} onChange={(e) => setTxMin(e.target.value)} type="number" className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
                   </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Valor Máximo</label>
-                    <input value={txMax} onChange={(e) => setTxMax(e.target.value)} type="number" className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Valor Máximo</label>
+                    <input value={txMax} onChange={(e) => setTxMax(e.target.value)} type="number" className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
                   </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Data Início</label>
-                    <input value={txStartDate} onChange={(e) => setTxStartDate(e.target.value)} type="date" className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Data Início</label>
+                    <input value={txStartDate} onChange={(e) => setTxStartDate(e.target.value)} type="date" className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
                   </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Data Fim</label>
-                    <input value={txEndDate} onChange={(e) => setTxEndDate(e.target.value)} type="date" className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Data Fim</label>
+                    <input value={txEndDate} onChange={(e) => setTxEndDate(e.target.value)} type="date" className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`} />
                   </div>
                   </div>
                 <div className="flex items-center justify-between mt-6">
-                  <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>Resultados: <strong>{txCount}</strong></span>
+                  <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>Resultados: <strong>{txCount}</strong></span>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => { 
@@ -719,7 +721,7 @@ export default function FinancialManagement() {
                         setTxStartDate(''); 
                         setTxEndDate('') 
                       }} 
-                      className={`px-4 py-2 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                      className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                     >
                       Limpar Filtros
                     </button>
@@ -739,7 +741,7 @@ export default function FinancialManagement() {
                         link.click()
                         document.body.removeChild(link)
                       }}
-                      className={`px-4 py-2 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                      className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                     >
                       <Download className="w-4 h-4 inline-block mr-2" />
                       Exportar CSV
@@ -749,22 +751,22 @@ export default function FinancialManagement() {
               </div>
 
               {/* Lista de transações */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+              <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
                 <div className="p-6 space-y-4">
                   {filteredTransactions.map((t) => (
-                    <div key={t.id} className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-gray-50 border-gray-200'} border rounded-xl p-4 flex items-center justify-between`}>
+                    <div key={t.id} className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-gray-50 border-gray-200'} border rounded-xl p-4 flex items-center justify-between`}>
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${t.type === 'INCOME' ? 'bg-green-100' : 'bg-red-100'}`}>
                           {t.type === 'INCOME' ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
                             </div>
                             <div>
-                          <div className={`font-manrope font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{t.description}</div>
-                          <div className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{t.category} • {t.provider}</div>
+                          <div className={`font-manrope font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{t.description}</div>
+                          <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{t.category} • {t.provider}</div>
                             </div>
                           </div>
                           <div className="text-right">
                         <div className={`font-bold ${t.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>{t.type === 'INCOME' ? '+' : '-'}R$ {t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-                        <div className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{new Date(t.date).toLocaleDateString('pt-BR')}</div>
+                        <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{new Date(t.date).toLocaleDateString('pt-BR')}</div>
                         </div>
                       </div>
                     ))}
@@ -805,7 +807,7 @@ export default function FinancialManagement() {
           {activeTab === 'accounts' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Gestão de Contas</h2>
+                <h2 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Gestão de Contas</h2>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => {
@@ -823,7 +825,7 @@ export default function FinancialManagement() {
                       link.click()
                       document.body.removeChild(link)
                     }}
-                    className={`px-4 py-2 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                    className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Download className="w-4 h-4 inline-block mr-2" />
                     Exportar CSV
@@ -832,15 +834,15 @@ export default function FinancialManagement() {
               </div>
 
               {/* Filtros */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-xl p-6 border`}>
+              <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'} rounded-xl p-6 border`}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Buscar</label>
-                    <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Fornecedor, descrição, categoria" className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white placeholder-gray-300' : 'bg-white border-gray-300'}`} />
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Buscar</label>
+                    <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Fornecedor, descrição, categoria" className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white placeholder-gray-300' : 'bg-white border-gray-300'}`} />
             </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Status</label>
-                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Status</label>
+                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
                       <option value="all">Todos</option>
                       <option value="pending">Pendente</option>
                       <option value="paid">Pago</option>
@@ -848,8 +850,8 @@ export default function FinancialManagement() {
                     </select>
         </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Categoria</label>
-                    <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Categoria</label>
+                    <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
                       <option value="all">Todas</option>
                       <option value="Ingredientes">Ingredientes</option>
                       <option value="Utilidades">Utilidades</option>
@@ -859,15 +861,15 @@ export default function FinancialManagement() {
                     </select>
       </div>
                   <div>
-                    <label className={`block text-sm font-manrope mb-2 ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Ordenar por</label>
+                    <label className={`block text-sm font-manrope mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Ordenar por</label>
                     <div className="flex gap-2">
-                      <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className={`flex-1 px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
+                      <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} className={`flex-1 px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
                         <option value="dueDate">Vencimento</option>
                         <option value="amount">Valor</option>
                         <option value="status">Status</option>
                         <option value="priority">Prioridade</option>
                       </select>
-                      <select value={sortDir} onChange={(e) => setSortDir(e.target.value as any)} className={`px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
+                      <select value={sortDir} onChange={(e) => setSortDir(e.target.value as any)} className={`px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'}`}>
                         <option value="asc">Asc</option>
                         <option value="desc">Desc</option>
                       </select>
@@ -878,28 +880,28 @@ export default function FinancialManagement() {
                             
               {/* KPIs de contas */}
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Total Pendente</div>
                   <div className="text-2xl font-bold text-yellow-600">R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                             </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Total Vencido</div>
                   <div className="text-2xl font-bold text-red-600">R$ {totalOverdue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                             </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Total Pago</div>
                   <div className="text-2xl font-bold text-green-600">R$ {totalPaid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                           </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Contas Críticas</div>
                   <div className="text-2xl font-bold text-red-600">{criticalAccounts.length}</div>
                     </div>
                   </div>
 
               {/* Tabela de Contas */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border overflow-x-auto`}>
+              <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border overflow-x-auto`}>
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className={`${currentTheme === 'dark' ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'}`}>
+                  <thead className={`${theme === 'dark' ? 'bg-gray-700 text-gray-200' : 'bg-gray-50 text-gray-600'}`}>
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Fornecedor</th>
                       <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Descrição</th>
@@ -910,13 +912,13 @@ export default function FinancialManagement() {
                       <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">Ações</th>
                     </tr>
                   </thead>
-                  <tbody className={`${currentTheme === 'dark' ? 'bg-gray-700 divide-gray-600' : 'bg-white divide-gray-200'} divide-y`}>
+                  <tbody className={`${theme === 'dark' ? 'bg-gray-700 divide-gray-600' : 'bg-white divide-gray-200'} divide-y`}>
                     {sortedAccounts.map((account: any) => {
                       const priority = getPriorityLevel(account)
                         return (
                         <tr key={account.id}>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className={`font-manrope font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{account.supplier}</div>
+                            <div className={`font-manrope font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{account.supplier}</div>
                             <div className="text-sm text-gray-500">{account.category}</div>
                           </td>
                           <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">{account.description}</td>
@@ -936,7 +938,7 @@ export default function FinancialManagement() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <button onClick={() => handleViewAccount(account)} className={`px-3 py-1 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200' : 'border-gray-300 text-gray-700'}`}><Eye className="w-4 h-4 inline-block" /></button>
+                              <button onClick={() => handleViewAccount(account)} className={`px-3 py-1 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200' : 'border-gray-300 text-gray-700'}`}><Eye className="w-4 h-4 inline-block" /></button>
                             </div>
                           </td>
                         </tr>
@@ -982,7 +984,7 @@ export default function FinancialManagement() {
           {activeTab === 'reports' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Relatórios Financeiros</h2>
+                <h2 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Relatórios Financeiros</h2>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
@@ -1116,7 +1118,7 @@ export default function FinancialManagement() {
                         alert('Erro ao gerar PDF. Verifique se a biblioteca jsPDF está instalada.')
                       })
                     }}
-                    className={`px-4 py-2 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                    className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Download className="w-4 h-4 inline-block mr-2" />
                     Exportar PDF
@@ -1141,7 +1143,7 @@ export default function FinancialManagement() {
                       link.click()
                       document.body.removeChild(link)
                     }}
-                    className={`px-4 py-2 rounded-lg border ${currentTheme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                    className={`px-4 py-2 rounded-lg border ${theme === 'dark' ? 'border-gray-500 text-gray-200 hover:bg-gray-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
                   >
                     <Download className="w-4 h-4 inline-block mr-2" />
                     Exportar Excel
@@ -1151,51 +1153,51 @@ export default function FinancialManagement() {
 
               {/* Resumo Executivo */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Receita Total</div>
                   <div className="text-2xl font-bold text-green-600">R$ {(totalReceivableAmount + txIncomeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
             </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Despesa Total</div>
                   <div className="text-2xl font-bold text-red-600">R$ {(totalPayableAmount + txExpenseTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
           </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Lucro Líquido</div>
                   <div className={`text-2xl font-bold ${txBalance + netCash >= 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {(txBalance + netCash).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                 </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Margem de Lucro</div>
                   <div className={`text-2xl font-bold ${txIncomeTotal > 0 ? 'text-blue-600' : 'text-gray-500'}`}>{txIncomeTotal > 0 ? `${Math.round(((txBalance + netCash) / Math.max(1, txIncomeTotal)) * 100)}%` : '--'}</div>
                 </div>
               </div>
 
               {/* Tendências (mock simples) */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
-                <h3 className={`text-lg font-manrope font-bold mb-4 ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Tendências (Últimos 6 meses)</h3>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-600' : 'bg-gray-50'} rounded-xl p-10 text-center text-gray-500`}>
+              <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <h3 className={`text-lg font-manrope font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Tendências (Últimos 6 meses)</h3>
+                <div className={`${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-50'} rounded-xl p-10 text-center text-gray-500`}>
                   Gráfico de linha (mock) - configure futuramente com Chart.js
                 </div>
               </div>
 
               {/* KPIs de Performance (mock) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">ROI</div>
                   <div className="text-2xl font-bold text-blue-600">18%</div>
                 </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Ponto de Equilíbrio</div>
                   <div className="text-2xl font-bold text-purple-600">R$ 42.000,00</div>
                 </div>
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Custo por Aquisição</div>
                   <div className="text-2xl font-bold text-orange-600">R$ 32,00</div>
               </div>
             </div>
             
               {/* Recomendações simples */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
-                <h3 className={`text-lg font-manrope font-bold mb-3 ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Recomendações</h3>
+              <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
+                <h3 className={`text-lg font-manrope font-bold mb-3 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Recomendações</h3>
                 <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
                   <li>Reduzir despesas em categorias com maior impacto (Ingredientes, Salários).</li>
                   <li>Antecipar recebíveis com alto valor para melhorar caixa.</li>
@@ -1210,45 +1212,45 @@ export default function FinancialManagement() {
       {/* Modal: Visualizar Conta */}
       {showViewModal && selectedAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className={`text-lg font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Detalhes da Conta</h3>
+              <h3 className={`text-lg font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Detalhes da Conta</h3>
               <button onClick={() => setShowViewModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="space-y-3">
                 <div>
-                <label className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Fornecedor</label>
-                <p className={`${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.supplier}</p>
+                <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Fornecedor</label>
+                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.supplier}</p>
                   </div>
               <div>
-                <label className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Descrição</label>
-                <p className={`${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.description}</p>
+                <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Descrição</label>
+                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.description}</p>
                 </div>
                 <div>
-                <label className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Valor</label>
-                <p className={`${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>R$ {selectedAccount.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Valor</label>
+                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>R$ {selectedAccount.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                   </div>
               <div>
-                <label className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Vencimento</label>
-                <p className={`${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{new Date(selectedAccount.dueDate).toLocaleDateString('pt-BR')}</p>
+                <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Vencimento</label>
+                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{new Date(selectedAccount.dueDate).toLocaleDateString('pt-BR')}</p>
                 </div>
                 <div>
-                <label className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Status</label>
+                <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Status</label>
                 <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedAccount.status)}`}>
                       {getStatusIcon(selectedAccount.status)}
                   {getStatusText(selectedAccount.status)}
                     </span>
                   </div>
               <div>
-                <label className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Categoria</label>
-                <p className={`${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.category}</p>
+                <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Categoria</label>
+                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.category}</p>
                 </div>
               {selectedAccount.notes && (
                 <div>
-                  <label className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Observações</label>
-                  <p className={`${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.notes}</p>
+                  <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Observações</label>
+                  <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{selectedAccount.notes}</p>
                 </div>
               )}
             </div>
@@ -1267,61 +1269,61 @@ export default function FinancialManagement() {
       {/* Modal: Editar Conta */}
       {showEditModal && selectedAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className={`text-lg font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Editar Conta</h3>
+              <h3 className={`text-lg font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Editar Conta</h3>
               <button onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
                 </button>
               </div>
             <form onSubmit={handleUpdateAccount} className="space-y-4">
                 <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Fornecedor</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Fornecedor</label>
                   <input
                     type="text"
                     value={accountForm.supplier}
                     onChange={(e) => setAccountForm({...accountForm, supplier: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                   />
                 </div>
                 <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Descrição</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Descrição</label>
                 <input 
                   type="text" 
                   value={accountForm.description} 
                   onChange={(e) => setAccountForm({...accountForm, description: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                     required
                 />
                 </div>
                 <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Valor</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Valor</label>
                   <input
                     type="number"
                     step="0.01"
                     value={accountForm.amount}
                     onChange={(e) => setAccountForm({...accountForm, amount: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                   />
                 </div>
                 <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Vencimento</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Vencimento</label>
                   <input
                     type="date"
                     value={accountForm.dueDate}
                     onChange={(e) => setAccountForm({...accountForm, dueDate: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                   />
                 </div>
                 <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Status</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Status</label>
                   <select
                     value={accountForm.status}
                     onChange={(e) => setAccountForm({...accountForm, status: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   >
                     <option value="pending">Pendente</option>
                     <option value="paid">Pago</option>
@@ -1329,11 +1331,11 @@ export default function FinancialManagement() {
                   </select>
                 </div>
                 <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Categoria</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Categoria</label>
                   <select
                   value={accountForm.category} 
                   onChange={(e) => setAccountForm({...accountForm, category: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                 >
                   <option value="">Selecione uma categoria</option>
@@ -1345,20 +1347,20 @@ export default function FinancialManagement() {
                   </select>
                 </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Observações</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Observações</label>
                 <textarea
                   value={accountForm.notes}
                   onChange={(e) => setAccountForm({...accountForm, notes: e.target.value})}
                   rows={3}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Prioridade</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Prioridade</label>
                 <select 
                   value={accountForm.priority} 
                   onChange={(e) => setAccountForm({...accountForm, priority: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                 >
                   <option value="low">Baixa</option>
                   <option value="medium">Média</option>
@@ -1386,18 +1388,18 @@ export default function FinancialManagement() {
       {/* Modal: Deletar Conta */}
       {showDeleteModal && selectedAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className={`text-lg font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Confirmar Exclusão</h3>
+              <h3 className={`text-lg font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Confirmar Exclusão</h3>
               <button onClick={() => setShowDeleteModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
               </button>
               </div>
             <div className="mb-6">
-              <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                 Tem certeza que deseja excluir a conta de <strong>{selectedAccount.supplier}</strong> no valor de <strong>R$ {selectedAccount.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>?
               </p>
-              <p className={`${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-2`}>
+              <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-2`}>
                   Esta ação não pode ser desfeita.
                 </p>
               </div>
@@ -1422,61 +1424,61 @@ export default function FinancialManagement() {
       {/* Modal: Nova Conta */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-2xl p-6 max-w-md w-full mx-4 border`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className={`text-lg font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Nova Conta</h3>
+              <h3 className={`text-lg font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Nova Conta</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Fornecedor</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Fornecedor</label>
                 <input 
                   type="text" 
                   value={accountForm.supplier} 
                   onChange={(e) => setAccountForm({...accountForm, supplier: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Descrição</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Descrição</label>
                 <input 
                   type="text" 
                   value={accountForm.description} 
                   onChange={(e) => setAccountForm({...accountForm, description: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Valor</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Valor</label>
                 <input 
                   type="number" 
                   step="0.01"
                   value={accountForm.amount} 
                   onChange={(e) => setAccountForm({...accountForm, amount: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Vencimento</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Vencimento</label>
                 <input 
                   type="date" 
                   value={accountForm.dueDate} 
                   onChange={(e) => setAccountForm({...accountForm, dueDate: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Categoria</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Categoria</label>
                 <select 
                   value={accountForm.category} 
                   onChange={(e) => setAccountForm({...accountForm, category: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                   required
                 >
                   <option value="">Selecione uma categoria</option>
@@ -1488,20 +1490,20 @@ export default function FinancialManagement() {
                 </select>
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Observações</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Observações</label>
                 <textarea 
                   value={accountForm.notes} 
                   onChange={(e) => setAccountForm({...accountForm, notes: e.target.value})}
                   rows={3}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                 />
               </div>
               <div>
-                <label className={`block text-sm font-medium mb-1 ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Prioridade</label>
+                <label className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Prioridade</label>
                 <select 
                   value={accountForm.priority} 
                   onChange={(e) => setAccountForm({...accountForm, priority: e.target.value})}
-                  className={`w-full px-3 py-2 rounded-lg border ${currentTheme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
+                  className={`w-full px-3 py-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-500 text-white' : 'bg-white border-gray-300'}`}
                 >
                   <option value="low">Baixa</option>
                   <option value="medium">Média</option>

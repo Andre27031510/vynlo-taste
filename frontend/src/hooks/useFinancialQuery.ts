@@ -11,6 +11,7 @@ export interface AccountPayable {
   dueDate: string
   status: 'pending' | 'paid' | 'overdue'
   supplier: string
+  category?: string
 }
 
 export interface AccountReceivable {
@@ -165,3 +166,5 @@ export const useCreateTransactionMutation = () => {
     }
   })
 }
+
+// Modified: 2025-10-11 - Added category field

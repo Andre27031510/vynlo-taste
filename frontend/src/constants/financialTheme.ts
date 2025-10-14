@@ -1,4 +1,16 @@
-export const FINANCIAL_COLORS = {
+export const FINANCIAL_COLORS: {
+  card: Record<'light' | 'dark', string>
+  text: {
+    primary: Record<'light' | 'dark', string>
+    secondary: Record<'light' | 'dark', string>
+  }
+  status: {
+    income: Record<'light' | 'dark', string>
+    expense: Record<'light' | 'dark', string>
+    pending: Record<'light' | 'dark', string>
+    approved: Record<'light' | 'dark', string>
+  }
+} = {
   card: {
     light: 'bg-white border-gray-200',
     dark: 'bg-gray-800 border-gray-700'
@@ -14,3 +26,5 @@ export const FINANCIAL_COLORS = {
     approved: { light: 'bg-blue-50 text-blue-700', dark: 'bg-blue-900 text-blue-300' }
   }
 }
+
+// Modified: 2025-10-11 - Added Record types
