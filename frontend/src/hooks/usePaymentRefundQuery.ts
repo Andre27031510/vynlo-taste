@@ -66,7 +66,7 @@ export function usePaymentRefundStatsQuery() {
     queryKey: ['payment-refund-stats'],
     queryFn: async () => {
       const response = await apiRequest('core-service', 'v1/payments/refunds/stats')
-      return response as PaymentRefundStats
+      return response as unknown as PaymentRefundStats
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
