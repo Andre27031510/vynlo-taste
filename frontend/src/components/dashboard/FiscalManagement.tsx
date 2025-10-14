@@ -65,7 +65,7 @@ export default function FiscalManagement() {
   const { data: sefazStatus } = useSEFAZStatusQuery()
   const createNFeMutation = useCreateNFeMutation()
   
-  const documents = documentsData?.documents ?? []
+  const documents = documentsData?.content ?? []
   
   if (isLoading) {
     return <FinancialSkeleton theme="light" />
@@ -394,5 +394,7 @@ export default function FiscalManagement() {
     </div>
   )
 }
+
+// Modified: 2025-10-11 - Fixed documents field
 
 // Modified: 2025-10-11
