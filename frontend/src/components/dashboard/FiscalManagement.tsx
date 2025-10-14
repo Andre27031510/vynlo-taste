@@ -54,7 +54,7 @@ interface FiscalDocument {
   status: 'pending' | 'authorized' | 'cancelled' | 'rejected'
   customer: string
   value: number
-  issueDate: string
+  issuedAt: string
   dueDate?: string
   sefazStatus?: string
 }
@@ -115,7 +115,7 @@ export default function FiscalManagement() {
   // Filtrar documentos
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.number.includes(searchTerm) || 
-                         doc.customer.toLowerCase().includes(searchTerm.toLowerCase())
+                         doc.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || doc.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -334,9 +334,9 @@ export default function FiscalManagement() {
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{doc.type}</span>
                     <span className="text-sm text-gray-500 dark:text-gray-500">#{doc.number}</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{doc.customer}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{doc.customerName || 'N/A'}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Emitida em {new Date(doc.issueDate).toLocaleDateString('pt-BR')}
+                    Emitida em {new Date(doc.issuedAt).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
                 
@@ -395,6 +395,4 @@ export default function FiscalManagement() {
   )
 }
 
-// Modified: 2025-10-11 - Fixed documents field
-
-// Modified: 2025-10-11
+// Modified: 2025-10-11 - Fixed documents field, customer → customerName, issueDate → issuedAt
