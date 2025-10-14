@@ -347,7 +347,7 @@ export default function PaymentManagement() {
     
     // Simular sincronização
     setTimeout(() => {
-      const completedTransactions = paymentTransactions
+      const completedTransactions = payments
       setCashFlowSync({
         lastSync: new Date(),
         status: 'synced',
@@ -1261,7 +1261,7 @@ export default function PaymentManagement() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className={`text-sm ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Total de Transações</p>
-                        <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>{paymentTransactions.length}</p>
+                        <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>{payments.length}</p>
                       </div>
                       <CreditCard className="w-8 h-8 text-blue-600" />
                     </div>
@@ -3560,4 +3560,4 @@ export default function PaymentManagement() {
   )
 }
 
-// Modified: 2025-10-11 - Fixed theme type
+// Modified: 2025-10-11 - Fixed theme type, paymentTransactions→payments
