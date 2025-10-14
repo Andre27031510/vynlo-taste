@@ -108,4 +108,4 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 }
-// Modified: 2025-10-11
+// Modified: 2025-10-11-v20 | Products API with logging

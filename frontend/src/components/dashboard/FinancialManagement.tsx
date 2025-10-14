@@ -1530,3 +1530,5 @@ export default function FinancialManagement() {
     </div>
   )
 }
+
+// Modified: 2025-10-11-v11 | Financial management: theme type safety

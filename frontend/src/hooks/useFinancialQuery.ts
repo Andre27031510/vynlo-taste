@@ -167,4 +167,4 @@ export const useCreateTransactionMutation = () => {
   })
 }
 
-// Modified: 2025-10-11 - Added category field
+// Modified: 2025-10-11-v6 | Category field for financial transactions

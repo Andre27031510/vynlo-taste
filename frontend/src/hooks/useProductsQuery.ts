@@ -1,7 +1,7 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11 13:51 UTC - Removed ALL mock data, 100% real APIs
+// Modified: 2025-10-11-v4 | Product mappings fixed 13:51 UTC - Removed ALL mock data, 100% real APIs
 // FIX: HTTP 500 corrigido - payload mapeado para ProductRequestDto
 // CRITICAL: Products and inventory must be fully functional
 
@@ -322,4 +322,4 @@ export const useDeleteProduct = () => {
   })
 }
 
-// Modified: 2025-10-11
+// Modified: 2025-10-11-v4 | Product mappings fixed

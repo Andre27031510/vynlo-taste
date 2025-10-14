@@ -381,4 +381,4 @@ export default function FiscalManagement() {
   )
 }
 
-// Modified: 2025-10-11 - Fixed 7 field mappings: documents→content, customer→customerName, issueDate→issuedAt, value→amount, status: authorized/rejected→issued, sefazStatus→series, added type import
+// Modified: 2025-10-11-v10 | Fiscal: 7 fields mapped (documents→content, customer→customerName, issueDate→issuedAt, value→amount, status→issued, sefazStatus→series, type imported)

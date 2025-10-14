@@ -49,4 +49,4 @@ public interface FiscalDocumentMapper {
     @Mapping(target = "updatedAt", ignore = true)
     void updateEntityFromDto(FiscalDocumentRequestDto dto, @MappingTarget FiscalDocument fiscalDocument);
 }
-// Modified: 2025-10-11
+// Modified: 2025-10-11-v25 | MapStruct @Named disambiguation

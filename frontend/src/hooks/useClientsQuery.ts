@@ -1,6 +1,6 @@
 'use client'
 // v2.1.2 - Clientes 100% conectados com API real (v1/users endpoint)
-// Modified: 2025-10-11 13:49 UTC - Removed password field (backend não aceita)
+// Modified: 2025-10-11-v2 | Clients API fully connected 13:49 UTC - Removed password field (backend não aceita)
 // CRITICAL: Clients fully functional with PostgreSQL
 // FIX: HTTP 500 corrigido - payload alinhado com UserRequestDto
 
@@ -222,5 +222,5 @@ export const useDeleteClientMutation = () => {
   })
 }
 
-// Modified: 2025-10-11
+// Modified: 2025-10-11-v2 | Clients API fully connected
 

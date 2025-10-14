@@ -1,6 +1,6 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11 - Fixed React Query v5 API (gcTime)
+// Modified: 2025-10-11-v13 | Orders query optimized - Fixed React Query v5 API (gcTime)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'

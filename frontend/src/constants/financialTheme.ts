@@ -27,4 +27,4 @@ export const FINANCIAL_COLORS: {
   }
 }
 
-// Modified: 2025-10-11 - Added Record types
+// Modified: 2025-10-11-v7 | Record types for theme safety

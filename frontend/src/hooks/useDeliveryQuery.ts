@@ -1,7 +1,7 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11 - Fixed React Query v5 API (gcTime)
+// Modified: 2025-10-11-v15 | Delivery query optimized - Fixed React Query v5 API (gcTime)
 
 import { useQuery } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'

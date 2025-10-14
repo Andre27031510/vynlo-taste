@@ -160,4 +160,4 @@ public class DriverController {
     }
 }
 
-// Modified: 2025-10-11
+// Modified: 2025-10-11-v22 | Driver API isAuthenticated

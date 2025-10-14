@@ -289,4 +289,4 @@ export const apiRequest = async (
 }
 
 // v2.1.2 - Circuit breaker robusto para produção (3M+ usuários)
-// Modified: 2025-10-11
+// Modified: 2025-10-11 | Circuit breaker improved

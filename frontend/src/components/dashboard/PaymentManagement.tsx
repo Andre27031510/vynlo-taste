@@ -3560,4 +3560,4 @@ export default function PaymentManagement() {
   )
 }
 
-// Modified: 2025-10-11 - Fixed theme type, paymentTransactions→payments
+// Modified: 2025-10-11-v12 | Payment: theme type + paymentTransactions→payments
