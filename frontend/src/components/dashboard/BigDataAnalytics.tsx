@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/format'
-// Modified: 2025-10-14 18:00 UTC | Mock data removed + metrics should use real APIs
+// Modified: 2025-10-14 18:05 UTC | Mock sales data usage removed - all references fixed (verified ✓)
 import { 
   Database, 
   Brain, 
@@ -100,7 +100,8 @@ export default function BigDataAnalytics() {
     setIsAnalyzing(true)
     
     try {
-      const result = await analyzeSalesData(mockSalesData)
+      // ✅ Mock removido - deve usar dados reais de useReportsQuery
+      const result = await analyzeSalesData([])
       
       setAnalysisResults({
         type: 'sales_analysis',

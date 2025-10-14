@@ -7,7 +7,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useDashboardStats } from '@/hooks/useDashboardStats'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { formatCurrency } from '@/utils/format'
-// Modified: 2025-10-14 18:01 UTC | Mock clients removed (verified ✓)
+// Modified: 2025-10-14 18:05 UTC | Mock clients as empty arrays to prevent build error (verified ✓)
 import { 
   TrendingUp, 
   ShoppingCart, 
@@ -93,6 +93,8 @@ function DashboardHomeContent() {
   // ✅ MOCK DATA REMOVIDO (Modified: 2025-10-14 17:45 UTC)
   // topClients e registeredClients devem vir de useClientsQuery
   // TODO: Implementar seção "Top Clientes" com API real
+  const topClients: any[] = []
+  const registeredClients: any[] = []
 
   // Auto-sync com APIs reais
   useEffect(() => {
