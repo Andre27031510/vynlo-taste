@@ -45,12 +45,8 @@ export default function BigDataAnalytics() {
   const [selectedAnalysisType, setSelectedAnalysisType] = useState<'sales_prediction' | 'customer_behavior' | 'inventory_optimization'>('sales_prediction')
   const [timeframe, setTimeframe] = useState('30d')
 
-  // Dados simulados para análise (em produção viriam da API)
-  const mockSalesData = [
-    { date: '2024-01-01', sales: 15000, orders: 120, avgTicket: 125 },
-    { date: '2024-01-02', sales: 18000, orders: 140, avgTicket: 128 },
-    { date: '2024-01-03', sales: 22000, orders: 165, avgTicket: 133 }
-  ]
+  // ✅ MOCK DATA REMOVIDO (Modified: 2025-10-14 17:46 UTC)
+  // Sales data deve vir de API real de analytics/reports
 
   // Função para executar análise preditiva usando Amazon Q
   const handlePredictiveAnalysis = async () => {

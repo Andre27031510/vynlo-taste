@@ -293,45 +293,9 @@ export default function FinancialManagement() {
   const salaryAccounts = accountsPayable.filter(account => account.category === 'Salários')
   const overdueAccounts = accountsPayable.filter(account => account.status === 'overdue')
 
-  // Dados de transações para demonstração
-  const recentTransactions = [
-    {
-      id: 1,
-      description: 'Venda de Produtos',
-      category: 'Vendas',
-      provider: 'Cliente Premium',
-      amount: 1500.00,
-      type: 'INCOME',
-      date: '2024-01-15'
-    },
-    {
-      id: 2,
-      description: 'Compra de Ingredientes',
-      category: 'Ingredientes',
-      provider: 'Fornecedor ABC',
-      amount: 2500.00,
-      type: 'EXPENSE',
-      date: '2024-01-14'
-    },
-    {
-      id: 3,
-      description: 'Pagamento de Energia',
-      category: 'Utilidades',
-      provider: 'Energia Elétrica',
-      amount: 850.00,
-      type: 'EXPENSE',
-      date: '2024-01-13'
-    },
-    {
-      id: 4,
-      description: 'Serviço de Marketing',
-      category: 'Marketing',
-      provider: 'Agência Digital',
-      amount: 1200.00,
-      type: 'EXPENSE',
-      date: '2024-01-12'
-    }
-  ]
+  // ✅ MOCK DATA REMOVIDO (Modified: 2025-10-14 17:47 UTC)
+  // recentTransactions deve vir de useFinancialQuery - transactions endpoint
+  const recentTransactions: any[] = []
 
   // ✅ DUPLICAÇÃO REMOVIDA: notificationsRef e useEffect já declarados no topo (linha 95)
   // (Fix React Error #310 - quantidade de hooks deve ser constante)

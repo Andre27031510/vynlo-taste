@@ -90,17 +90,9 @@ function DashboardHomeContent() {
   const [autoSync, setAutoSync] = useState(true)
   const [syncStatus, setSyncStatus] = useState('synced')
 
-  const topClients = [
-    { id: 1, name: 'João Silva', orders: 47, total: 2340.50, favorite: 'Pizza Margherita', avatar: 'JS' },
-    { id: 2, name: 'Maria Santos', orders: 38, total: 1890.30, favorite: 'Hambúrguer Especial', avatar: 'MS' },
-    { id: 3, name: 'Pedro Costa', orders: 32, total: 1650.80, favorite: 'Combo Família', avatar: 'PC' }
-  ]
-
-  const registeredClients = [
-    { id: 1, name: 'João Silva', phone: '(11) 99999-9999', email: 'joao@email.com', orders: 47 },
-    { id: 2, name: 'Maria Santos', phone: '(11) 88888-8888', email: 'maria@email.com', orders: 38 },
-    { id: 3, name: 'Pedro Costa', phone: '(11) 77777-7777', email: 'pedro@email.com', orders: 32 }
-  ]
+  // ✅ MOCK DATA REMOVIDO (Modified: 2025-10-14 17:45 UTC)
+  // topClients e registeredClients devem vir de useClientsQuery
+  // TODO: Implementar seção "Top Clientes" com API real
 
   // Auto-sync com APIs reais
   useEffect(() => {
