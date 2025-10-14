@@ -234,9 +234,9 @@ export default function PaymentManagement() {
         const newWebhookLog = {
           id: `webhook_${Date.now()}`,
           timestamp: new Date(),
-          provider: latestPayment.provider || 'PIX',
-          status: latestPayment.status === 'APPROVED' ? 'success' : 'pending',
-          message: latestPayment.status === 'APPROVED' ? 'Pagamento aprovado' : 'Aguardando confirmação',
+          provider: latestPayment.method || 'PIX', // ✅ Corrigido: usar 'method' em vez de 'provider'
+          status: latestPayment.status === 'completed' ? 'success' : 'pending', // ✅ Corrigido: usar 'completed' em vez de 'APPROVED'
+          message: latestPayment.status === 'completed' ? 'Pagamento aprovado' : 'Aguardando confirmação',
           orderId: latestPayment.orderId || `ORD${Date.now()}`,
           amount: latestPayment.amount || 0,
           customerName: 'Cliente Real'
