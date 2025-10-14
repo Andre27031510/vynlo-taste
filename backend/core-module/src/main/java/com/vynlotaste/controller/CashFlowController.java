@@ -23,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/v1/cashflow")
 @RequiredArgsConstructor
 public class CashFlowController {
+    // v2.1.2 - POSTs agora chamam services reais (não mock)
+    // Modified: 2025-10-11-v28
 
     private final CashFlowService cashFlowService;
     private final CashFlowMapper cashFlowMapper;
@@ -52,23 +54,16 @@ public class CashFlowController {
 
     @PostMapping("/entries")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> createCashFlowEntry(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<CashFlowResponseDto> createCashFlowEntry(@RequestBody CashFlowService.CashFlowRequestDto request) {
         try {
-            log.info("Criando nova entrada de fluxo de caixa");
-            Map<String, Object> response = Map.of(
-                "id", 1L,
-                "status", "created",
-                "message", "Entrada de fluxo de caixa criada com sucesso"
-            );
-            log.info("Entrada criada com sucesso");
+            log.info("Criando nova entrada de fluxo de caixa - tipo: {}, valor: {}", request.getType(), request.getAmount());
+            CashFlow cashFlow = cashFlowService.createEntry(request);
+            CashFlowResponseDto response = cashFlowMapper.toResponseDto(cashFlow);
+            log.info("✅ Entrada criada: ID={}, tipo={}, valor={}", cashFlow.getId(), cashFlow.getType(), cashFlow.getAmount());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Erro ao criar entrada do fluxo de caixa: {}", e.getMessage(), e);
-            Map<String, Object> fallback = Map.of(
-                "status", "error",
-                "message", "Erro interno do servidor"
-            );
-            return ResponseEntity.ok(fallback);
+            log.error("❌ Erro ao criar entrada: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao criar entrada de fluxo de caixa: " + e.getMessage(), e);
         }
     }
 

@@ -23,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/v1/fiscal")
 @RequiredArgsConstructor
 public class FiscalController {
+    // v2.1.2 - POSTs agora chamam services reais (não mock)
+    // Modified: 2025-10-11-v29
 
     private final FiscalDocumentService fiscalDocumentService;
     private final FiscalDocumentMapper fiscalDocumentMapper;
@@ -52,24 +54,16 @@ public class FiscalController {
 
     @PostMapping("/nfe")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> issueNFe(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<FiscalDocumentResponseDto> issueNFe(@RequestBody FiscalDocumentService.NFeRequestDto request) {
         try {
-            log.info("Emitindo NFe");
-            Map<String, Object> response = Map.of(
-                "id", 1L,
-                "status", "issued",
-                "nfeNumber", "000000001",
-                "message", "NFe emitida com sucesso"
-            );
-            log.info("NFe emitida com sucesso");
+            log.info("Emitindo NFe - cliente: {}", request.getCustomer());
+            FiscalDocument document = fiscalDocumentService.emitNFe(request);
+            FiscalDocumentResponseDto response = fiscalDocumentMapper.toResponseDto(document);
+            log.info("✅ NFe emitida: ID={}, número={}", document.getId(), document.getNumber());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Erro ao emitir NFe: {}", e.getMessage(), e);
-            Map<String, Object> fallback = Map.of(
-                "status", "error",
-                "message", "Erro interno do servidor"
-            );
-            return ResponseEntity.ok(fallback);
+            log.error("❌ Erro ao emitir NFe: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao emitir NFe: " + e.getMessage(), e);
         }
     }
 

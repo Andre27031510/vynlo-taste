@@ -1,7 +1,7 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11-v4 | Product mappings fixed 13:51 UTC - Removed ALL mock data, 100% real APIs
+// Modified: 2025-10-11-v4 | Product query key mismatch fixed (exact: false) 13:51 UTC - Removed ALL mock data, 100% real APIs
 // FIX: HTTP 500 corrigido - payload mapeado para ProductRequestDto
 // CRITICAL: Products and inventory must be fully functional
 
@@ -265,16 +265,16 @@ export const useCreateProduct = () => {
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      // ✅ Invalidar TODAS as queries de produtos para forçar reload
-      queryClient.invalidateQueries({ queryKey: ['products'] })
-      queryClient.invalidateQueries({ queryKey: ['product-stats'] })
+      // ✅ Invalidar TODAS as queries de produtos (com exact: false para pegar variações com filtros)
+      queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
+      queryClient.invalidateQueries({ queryKey: ['product-stats'], exact: false })
       
-      // ✅ FORÇAR refetch imediato (garantir que lista atualiza)
-      queryClient.refetchQueries({ queryKey: ['products'], type: 'active' })
-      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active' })
+      // ✅ FORÇAR refetch imediato de TODAS as variações (incluindo filtros)
+      queryClient.refetchQueries({ queryKey: ['products'], type: 'active', exact: false })
+      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active', exact: false })
       
       toast.success('Produto criado com sucesso!')
-      console.log('✅ Produto criado - queries invalidadas e refetch forçado')
+      console.log('✅ Produto criado - queries invalidadas (exact: false) e refetch forçado')
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Erro ao criar produto')
@@ -288,11 +288,11 @@ export const useUpdateProduct = () => {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: () => {
-      // ✅ Invalidar e forçar refetch
-      queryClient.invalidateQueries({ queryKey: ['products'] })
-      queryClient.invalidateQueries({ queryKey: ['product-stats'] })
-      queryClient.refetchQueries({ queryKey: ['products'], type: 'active' })
-      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active' })
+      // ✅ Invalidar e forçar refetch (exact: false para pegar todas variações)
+      queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
+      queryClient.invalidateQueries({ queryKey: ['product-stats'], exact: false })
+      queryClient.refetchQueries({ queryKey: ['products'], type: 'active', exact: false })
+      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active', exact: false })
       
       toast.success('Produto atualizado com sucesso!')
     },
@@ -308,11 +308,11 @@ export const useDeleteProduct = () => {
   return useMutation({
     mutationFn: deleteProduct,
     onSuccess: () => {
-      // ✅ Invalidar e forçar refetch
-      queryClient.invalidateQueries({ queryKey: ['products'] })
-      queryClient.invalidateQueries({ queryKey: ['product-stats'] })
-      queryClient.refetchQueries({ queryKey: ['products'], type: 'active' })
-      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active' })
+      // ✅ Invalidar e forçar refetch (exact: false para pegar todas variações)
+      queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
+      queryClient.invalidateQueries({ queryKey: ['product-stats'], exact: false })
+      queryClient.refetchQueries({ queryKey: ['products'], type: 'active', exact: false })
+      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active', exact: false })
       
       toast.success('Produto excluído com sucesso!')
     },
@@ -322,4 +322,4 @@ export const useDeleteProduct = () => {
   })
 }
 
-// Modified: 2025-10-11-v4 | Product mappings fixed
+// Modified: 2025-10-11-v4 | Product query key mismatch fixed (exact: false)

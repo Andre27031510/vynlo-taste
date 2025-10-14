@@ -23,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/v1/financial")
 @RequiredArgsConstructor
 public class FinancialController {
+    // v2.1.2 - POSTs agora chamam services reais (não mock)
+    // Modified: 2025-10-11-v30
 
     private final FinancialService financialService;
     private final FinancialMapper financialMapper;
@@ -75,23 +77,16 @@ public class FinancialController {
 
     @PostMapping("/transactions")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> createTransaction(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<FinancialResponseDto> createTransaction(@RequestBody FinancialService.FinancialRequestDto request) {
         try {
-            log.info("Criando nova transação financeira");
-            Map<String, Object> response = Map.of(
-                "id", 1L,
-                "status", "created",
-                "message", "Transação criada com sucesso"
-            );
-            log.info("Transação criada com sucesso");
+            log.info("Criando nova transação financeira - tipo: {}, valor: {}", request.getType(), request.getAmount());
+            Financial financial = financialService.createTransaction(request);
+            FinancialResponseDto response = financialMapper.toResponseDto(financial);
+            log.info("✅ Transação criada: ID={}, tipo={}", financial.getId(), financial.getType());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Erro ao criar transação: {}", e.getMessage(), e);
-            Map<String, Object> fallback = Map.of(
-                "status", "error",
-                "message", "Erro interno do servidor"
-            );
-            return ResponseEntity.ok(fallback);
+            log.error("❌ Erro ao criar transação: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao criar transação financeira: " + e.getMessage(), e);
         }
     }
 

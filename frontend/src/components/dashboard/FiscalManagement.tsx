@@ -49,23 +49,23 @@ const DocumentSkeleton = () => (
 
 
 export default function FiscalManagement() {
-  // Hooks da API
+  // ✅ TODOS OS HOOKS NO INÍCIO (antes de qualquer return)
   const { data: documentsData, isLoading } = useFiscalDocumentsQuery()
   const { data: sefazStatus } = useSEFAZStatusQuery()
   const createNFeMutation = useCreateNFeMutation()
-  
-  const documents = documentsData?.content ?? []
-  
-  if (isLoading) {
-    return <FinancialSkeleton theme="light" />
-  }
-  
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncResults, setSyncResults] = useState<any>(null)
   const [selectedOperation, setSelectedOperation] = useState<'sync_nfe' | 'validate_xml' | 'check_status'>('sync_nfe')
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  
+  const documents = documentsData?.content ?? []
+  
+  // ✅ Early return APÓS todos os hooks
+  if (isLoading) {
+    return <FinancialSkeleton theme="light" />
+  }
 
   // Função para sincronizar com SEFAZ usando Amazon Q
   const handleSEFAZSync = async () => {
@@ -381,4 +381,4 @@ export default function FiscalManagement() {
   )
 }
 
-// Modified: 2025-10-11-v10 | Fiscal: 7 fields mapped (documents→content, customer→customerName, issueDate→issuedAt, value→amount, status→issued, sefazStatus→series, type imported)
+// Modified: 2025-10-11-v10 | Fiscal: 7 fields + React Error #310 fixed (hooks order)

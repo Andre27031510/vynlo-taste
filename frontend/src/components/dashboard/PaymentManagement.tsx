@@ -365,28 +365,12 @@ export default function PaymentManagement() {
     setIsGeneratingReport(true)
     
     try {
-      // Simular geração de relatório
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      // ✅ TODO: Implementar endpoint /v1/payments/reports no backend
+      await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Simular dados do relatório
-      const mockReportData = {
-        period: reportPeriod,
-        startDate: reportStartDate,
-        endDate: reportEndDate,
-        provider: reportProvider,
-        status: reportStatus,
-        totalVolume: 45890.50,
-        totalTransactions: 680,
-        approvalRate: 98.7,
-        averageTicket: 67.45,
-        growthRate: 12.5,
-        generatedAt: new Date()
-      }
-      
-      setReportData(mockReportData)
-      
-      // Em um sistema real, aqui faríamos a chamada para a API
-      console.log('Relatório gerado:', mockReportData)
+      // ⚠️ TEMPORÁRIO: Aguardando endpoint de relatórios
+      console.warn('⚠️ Endpoint de relatórios não implementado ainda - retornando null')
+      setReportData(null)
       
     } catch (error) {
       console.error('Erro ao gerar relatório:', error)
@@ -455,29 +439,10 @@ export default function PaymentManagement() {
   const showProviderDetailedAnalysis = (provider: string) => {
     setSelectedProvider(provider)
     
-    // Simular dados detalhados do provedor
-    const mockProviderDetails = {
-      name: provider,
-      totalVolume: provider === 'Stone' ? 19245.30 : provider === 'Cielo' ? 15680.20 : provider === 'PIX' ? 8965.00 : 2000.00,
-      totalTransactions: provider === 'Stone' ? 285 : provider === 'Cielo' ? 232 : provider === 'PIX' ? 133 : 30,
-      approvalRate: provider === 'Stone' ? 99.2 : provider === 'Cielo' ? 98.7 : provider === 'PIX' ? 97.5 : 95.0,
-      averageTicket: provider === 'Stone' ? 67.53 : provider === 'Cielo' ? 67.59 : provider === 'PIX' ? 67.41 : 66.67,
-      processingTime: provider === 'Stone' ? 1.8 : provider === 'Cielo' ? 2.1 : provider === 'PIX' ? 0.5 : 3.2,
-      errorRate: provider === 'Stone' ? 0.8 : provider === 'Cielo' ? 1.3 : provider === 'PIX' ? 2.5 : 5.0,
-      lastSync: new Date(),
-      status: provider === 'Stone' ? 'connected' : provider === 'Cielo' ? 'connected' : provider === 'PIX' ? 'connected' : 'disconnected',
-      monthlyGrowth: provider === 'Stone' ? 15.2 : provider === 'Cielo' ? 12.8 : provider === 'PIX' ? 25.3 : 8.1,
-      topCategories: provider === 'Stone' ? ['Vendas Online', 'Serviços', 'Produtos'] : 
-                     provider === 'Cielo' ? ['Restaurantes', 'Varejo', 'Serviços'] :
-                     provider === 'PIX' ? ['Transferências', 'Pagamentos', 'Serviços'] : ['Outros'],
-      recentTransactions: [
-        { id: '1', amount: 45.90, status: 'completed', date: new Date(), customer: 'Cliente A' },
-        { id: '2', amount: 67.80, status: 'completed', date: new Date(), customer: 'Cliente B' },
-        { id: '3', amount: 32.50, status: 'pending', date: new Date(), customer: 'Cliente C' }
-      ]
-    }
-    
-    setProviderDetails(mockProviderDetails)
+    // ✅ TODO: Implementar endpoint /v1/payments/providers/{provider}/details no backend
+    // ⚠️ TEMPORÁRIO: Aguardando endpoint de detalhes de provedores
+    console.warn(`⚠️ Endpoint de detalhes do provedor ${provider} não implementado ainda - retornando null`)
+    setProviderDetails(null)
     setShowProviderDetails(true)
   }
 
@@ -3560,4 +3525,4 @@ export default function PaymentManagement() {
   )
 }
 
-// Modified: 2025-10-11-v12 | Payment: theme type + paymentTransactions→payments
+// Modified: 2025-10-11-v12 | Payment: theme type + mock data removed

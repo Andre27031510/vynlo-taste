@@ -23,6 +23,8 @@ import java.util.Map;
 @RequestMapping("/v1/payments")
 @RequiredArgsConstructor
 public class PaymentController {
+    // v2.1.2 - POSTs agora chamam services reais (não mock)
+    // Modified: 2025-10-11-v27
 
     private final PaymentService paymentService;
     private final PaymentMapper paymentMapper;
@@ -52,43 +54,33 @@ public class PaymentController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> createPayment(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<PaymentResponseDto> createPayment(@RequestBody PaymentService.PaymentRequestDto request) {
         try {
-            Map<String, Object> response = Map.of(
-                "id", 1L,
-                "status", "created",
-                "message", "Pagamento criado com sucesso"
-            );
+            log.info("Criando novo pagamento - método: {}, valor: {}", request.getMethod(), request.getAmount());
+            Payment payment = paymentService.createPayment(request);
+            PaymentResponseDto response = paymentMapper.toResponseDto(payment);
+            log.info("✅ Pagamento criado: ID={}, método={}", payment.getId(), payment.getMethod());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("Erro ao criar pagamento: " + e.getMessage());
-            Map<String, Object> fallback = Map.of(
-                "status", "error",
-                "message", "Erro interno do servidor"
-            );
-            return ResponseEntity.ok(fallback);
+            log.error("❌ Erro ao criar pagamento: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao criar pagamento: " + e.getMessage(), e);
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/status")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Map<String, Object>> updatePayment(
+    public ResponseEntity<PaymentResponseDto> updatePaymentStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, Object> request) {
+            @RequestParam String status) {
         try {
-            Map<String, Object> response = Map.of(
-                "id", id,
-                "status", "updated",
-                "message", "Pagamento atualizado com sucesso"
-            );
+            log.info("Atualizando pagamento ID: {} para status: {}", id, status);
+            Payment payment = paymentService.updateStatus(id, status);
+            PaymentResponseDto response = paymentMapper.toResponseDto(payment);
+            log.info("✅ Pagamento atualizado: ID={}, status={}", payment.getId(), payment.getStatus());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("Erro ao atualizar pagamento: " + e.getMessage());
-            Map<String, Object> fallback = Map.of(
-                "status", "error",
-                "message", "Erro interno do servidor"
-            );
-            return ResponseEntity.ok(fallback);
+            log.error("❌ Erro ao atualizar pagamento: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao atualizar pagamento: " + e.getMessage(), e);
         }
     }
 
