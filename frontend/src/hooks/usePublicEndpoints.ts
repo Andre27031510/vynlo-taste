@@ -12,7 +12,12 @@ export const usePublicEndpoints = () => {
     const checkEndpoints = async () => {
       // Test health endpoint
       try {
-        await apiRequest('core-service', 'actuator/health')
+        // ✅ CRITICAL FIX: /api/actuator/health + fetch direto (sem apiRequest/circuit breaker)
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+        await fetch(`${baseUrl}/api/actuator/health`, { 
+          headers: { 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(3000)
+        })
         setStatus(prev => ({ ...prev, health: 'ok' }))
       } catch (error) {
         setStatus(prev => ({ ...prev, health: 'error' }))

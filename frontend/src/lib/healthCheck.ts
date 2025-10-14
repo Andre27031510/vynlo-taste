@@ -30,7 +30,12 @@ export const performHealthCheck = async (): Promise<HealthStatus> => {
 
   // Test health endpoint
   try {
-    const response = await apiRequest('core-service', 'actuator/health')
+    // ✅ CRITICAL FIX: /api/actuator/health + fetch direto (sem apiRequest/circuit breaker)
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+    const response = await fetch(`${baseUrl}/api/actuator/health`, {
+      headers: { 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(3000)
+    })
     result.endpoints.health = response.ok
     if (!response.ok) {
       result.errors.push(`Health endpoint returned ${response.status}`)
