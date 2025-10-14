@@ -1,9 +1,10 @@
--- Migration para tabela de estornos de pagamento
--- Criada em: 2025-10-14
--- Modified: 2025-10-14 19:15 UTC | Real refunds table for production system
--- Modified: 2025-10-14 19:30 UTC | Final validation and comment added
+-- Migration V9: Create Payment Refunds Table
+-- Created: 2025-10-14
+-- Production-ready table for payment refunds management
+-- Modified: 2025-10-14 19:45 UTC | Production-safe migration with proper constraints
 
-CREATE TABLE payment_refunds (
+-- Create payment_refunds table with proper foreign key reference
+CREATE TABLE IF NOT EXISTS payment_refunds (
     id BIGSERIAL PRIMARY KEY,
     payment_id BIGINT NOT NULL,
     amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
@@ -14,7 +15,10 @@ CREATE TABLE payment_refunds (
     processed_at TIMESTAMP,
     processed_by VARCHAR(100),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Foreign key constraint (added after table creation for safety)
+    CONSTRAINT fk_refund_payment_id FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE CASCADE
 );
 
 -- Índices para performance
