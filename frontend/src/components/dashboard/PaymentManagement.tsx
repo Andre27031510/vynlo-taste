@@ -64,6 +64,7 @@ interface FinancialTransaction {
 
 export default function PaymentManagement() {
   const { currentTheme } = useThemeContext()
+  const theme: 'light' | 'dark' = theme === 'dark' ? 'dark' : 'light'
   // Queries da API
   const { data: paymentsData, isLoading } = usePaymentsQuery()
   const { data: providersData } = usePaymentProvidersQuery()
@@ -75,7 +76,7 @@ export default function PaymentManagement() {
   const stats = statsData ?? { totalPayments: 0, successfulPayments: 0, failedPayments: 0, totalAmount: 0 }
   
   if (isLoading) {
-    return <FinancialSkeleton theme={currentTheme} />
+    return <FinancialSkeleton theme={theme} />
   }
 
   // Estado para sincronização com fluxo de caixa
@@ -910,8 +911,8 @@ export default function PaymentManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className={`text-3xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Gestão de Pagamentos</h1>
-          <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>Controle todas as formas de pagamento</p>
+          <h1 className={`text-3xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Gestão de Pagamentos</h1>
+          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>Controle todas as formas de pagamento</p>
         </div>
         <div className="flex items-center space-x-3">
           <button 
@@ -930,7 +931,7 @@ export default function PaymentManagement() {
       </div>
 
       {/* Sistema de Navegação por Abas */}
-      <div className={`${FINANCIAL_COLORS.card[currentTheme]} rounded-2xl shadow-lg border p-2`}>
+      <div className={`${FINANCIAL_COLORS.card[theme]} rounded-2xl shadow-lg border p-2`}>
         <div className="flex items-center space-x-1">
           {/* Aba Visão Geral */}
           <button
@@ -938,7 +939,7 @@ export default function PaymentManagement() {
             className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-manrope font-medium transition-all duration-300 ${
               activeTab === 'overview'
                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
-                : `${currentTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
+                : `${theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
             }`}
           >
             <Activity className={`w-5 h-5 transition-transform duration-300 ${activeTab === 'overview' ? 'animate-pulse' : ''}`} />
@@ -951,7 +952,7 @@ export default function PaymentManagement() {
             className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-manrope font-medium transition-all duration-300 ${
               activeTab === 'reports'
                 ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg transform scale-105'
-                : `${currentTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
+                : `${theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
             }`}
           >
             <BarChart3 className={`w-5 h-5 transition-transform duration-300 ${activeTab === 'reports' ? 'animate-bounce' : ''}`} />
@@ -964,7 +965,7 @@ export default function PaymentManagement() {
             className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-manrope font-medium transition-all duration-300 ${
               activeTab === 'fees'
                 ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg transform scale-105'
-                : `${currentTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
+                : `${theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
             }`}
           >
             <Calculator className={`w-5 h-5 transition-transform duration-300 ${activeTab === 'fees' ? 'rotate-12' : ''}`} />
@@ -977,7 +978,7 @@ export default function PaymentManagement() {
             className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-manrope font-medium transition-all duration-300 ${
               activeTab === 'refunds'
                 ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg transform scale-105'
-                : `${currentTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
+                : `${theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
             }`}
           >
             <RotateCcw className={`w-5 h-5 transition-transform duration-300 ${activeTab === 'refunds' ? 'animate-spin' : ''}`} />
@@ -990,7 +991,7 @@ export default function PaymentManagement() {
             className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-manrope font-medium transition-all duration-300 ${
               activeTab === 'audit'
                 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg transform scale-105'
-                : `${currentTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
+                : `${theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`
             }`}
           >
             <FileText className={`w-5 h-5 transition-transform duration-300 ${activeTab === 'audit' ? 'animate-pulse' : ''}`} />
@@ -1004,41 +1005,41 @@ export default function PaymentManagement() {
         <>
           {/* CARDS DE MÉTRICAS */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
+            <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm ${currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Webhooks Recebidos</p>
-                  <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'}`}>{processingStats.totalReceived}</p>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Webhooks Recebidos</p>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>{processingStats.totalReceived}</p>
                 </div>
                 <CreditCard className="w-8 h-8 text-blue-600" />
               </div>
             </div>
             
-            <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
+            <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Pagamentos Processados</p>
-                  <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>{processingStats.totalProcessed}</p>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Pagamentos Processados</p>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>{processingStats.totalProcessed}</p>
                 </div>
                 <Check className="w-8 h-8 text-green-600" />
               </div>
             </div>
             
-            <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200'} rounded-xl p-4 border`}>
+            <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200'} rounded-xl p-4 border`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm ${currentTheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'} font-medium`}>Transações Pendentes</p>
-                  <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>{cashFlowSync.pendingTransactions}</p>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'} font-medium`}>Transações Pendentes</p>
+                  <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>{cashFlowSync.pendingTransactions}</p>
                 </div>
                 <Clock className="w-8 h-8 text-yellow-600" />
               </div>
             </div>
             
-            <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
+            <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm ${currentTheme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Último Processamento</p>
-                  <p className={`text-sm font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Último Processamento</p>
+                  <p className={`text-sm font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>
                     {processingStats.lastProcessing.toLocaleTimeString('pt-BR', { 
                       hour: '2-digit', 
                       minute: '2-digit' 
@@ -1051,21 +1052,21 @@ export default function PaymentManagement() {
           </div>
 
           {/* Status das Integrações */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6 mb-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6 mb-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <Zap className="w-6 h-6 text-blue-600" />
-                <h3 className={`text-xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Status das Integrações</h3>
+                <h3 className={`text-xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Status das Integrações</h3>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowIntegrationDetails(!showIntegrationDetails)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showIntegrationDetails ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
                 <span className={`w-3 h-3 rounded-full ${autoSync ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>
+                <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>
                   {autoSync ? 'Sincronização Automática Ativa' : 'Sincronização Manual'}
                 </span>
               </div>
@@ -1076,17 +1077,17 @@ export default function PaymentManagement() {
                 {/* Stone */}
                 <div className={`border-2 rounded-xl p-4 ${
                   integrationStatus.stone.connected 
-                    ? (currentTheme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
-                    : (currentTheme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
+                    ? (theme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
+                    : (theme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
                 }`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
                       <Mobile className="w-5 h-5 text-blue-600" />
-                      <span className={`font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Stone</span>
+                      <span className={`font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Stone</span>
                     </div>
                     <span className={`w-3 h-3 rounded-full ${integrationStatus.stone.connected ? 'bg-green-500' : 'bg-red-500'}`}></span>
                   </div>
-                  <div className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                     <p>Status: {integrationStatus.stone.connected ? 'Conectado' : 'Desconectado'}</p>
                   </div>
                 </div>
@@ -1094,17 +1095,17 @@ export default function PaymentManagement() {
                 {/* Cielo */}
                 <div className={`border-2 rounded-xl p-4 ${
                   integrationStatus.cielo.connected 
-                    ? (currentTheme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
-                    : (currentTheme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
+                    ? (theme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
+                    : (theme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
                 }`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
                       <Desktop className="w-5 h-5 text-orange-600" />
-                      <span className={`font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cielo</span>
+                      <span className={`font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cielo</span>
                     </div>
                     <span className={`w-3 h-3 rounded-full ${integrationStatus.cielo.connected ? 'bg-green-500' : 'bg-red-500'}`}></span>
                   </div>
-                  <div className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                     <p>Status: {integrationStatus.cielo.connected ? 'Conectado' : 'Desconectado'}</p>
                   </div>
                 </div>
@@ -1112,17 +1113,17 @@ export default function PaymentManagement() {
                 {/* PIX */}
                 <div className={`border-2 rounded-xl p-4 ${
                   integrationStatus.pix.connected 
-                    ? (currentTheme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
-                    : (currentTheme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
+                    ? (theme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
+                    : (theme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
                 }`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
                       <Globe className="w-5 h-5 text-green-600" />
-                      <span className={`font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PIX</span>
+                      <span className={`font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PIX</span>
                     </div>
                     <span className={`w-3 h-3 rounded-full ${integrationStatus.pix.connected ? 'bg-green-500' : 'bg-red-500'}`}></span>
                   </div>
-                  <div className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                     <p>Status: {integrationStatus.pix.connected ? 'Conectado' : 'Desconectado'}</p>
                   </div>
                 </div>
@@ -1130,17 +1131,17 @@ export default function PaymentManagement() {
                 {/* Cloud */}
                 <div className={`border-2 rounded-xl p-4 ${
                   integrationStatus.cloud.connected 
-                    ? (currentTheme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
-                    : (currentTheme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
+                    ? (theme === 'dark' ? 'border-green-600 bg-gray-700' : 'border-green-200 bg-green-50')
+                    : (theme === 'dark' ? 'border-red-600 bg-gray-700' : 'border-red-200 bg-red-50')
                 }`}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
                       <Cloud className="w-5 h-5 text-purple-600" />
-                      <span className={`font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cloud</span>
+                      <span className={`font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cloud</span>
                     </div>
                     <span className={`w-3 h-3 rounded-full ${integrationStatus.cloud.connected ? 'bg-green-500' : 'bg-red-500'}`}></span>
                   </div>
-                  <div className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                  <div className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                     <p>Status: {integrationStatus.cloud.connected ? 'Conectado' : 'Desconectado'}</p>
                   </div>
                 </div>
@@ -1149,11 +1150,11 @@ export default function PaymentManagement() {
           </div>
 
           {/* Logs de Webhooks em Tempo Real */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6 mb-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6 mb-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <Activity className="w-6 h-6 text-green-600" />
-                <h3 className={`text-xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Logs de Webhooks em Tempo Real</h3>
+                <h3 className={`text-xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Logs de Webhooks em Tempo Real</h3>
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -1167,7 +1168,7 @@ export default function PaymentManagement() {
                   {autoProcessing ? 'Parar' : 'Iniciar'} Processamento
                 </button>
                 <span className={`w-3 h-3 rounded-full ${autoProcessing ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span>
-                <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>
+                <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>
                   {autoProcessing ? 'Ativo' : 'Parado'}
                 </span>
               </div>
@@ -1175,7 +1176,7 @@ export default function PaymentManagement() {
             
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {webhookLogs.length === 0 ? (
-                <div className={`text-center py-8 ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                <div className={`text-center py-8 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                   <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p>Aguardando webhooks de pagamento...</p>
                   <p className="text-sm">Os logs aparecerão automaticamente quando os provedores enviarem notificações</p>
@@ -1184,41 +1185,41 @@ export default function PaymentManagement() {
                 webhookLogs.map((log) => (
                   <div key={log.id} className={`flex items-center space-x-3 p-3 rounded-lg border ${
                     log.status === 'success' 
-                      ? (currentTheme === 'dark' ? 'bg-gray-700 border-green-600' : 'bg-green-50 border-green-200')
+                      ? (theme === 'dark' ? 'bg-gray-700 border-green-600' : 'bg-green-50 border-green-200')
                       : log.status === 'pending' 
-                      ? (currentTheme === 'dark' ? 'bg-gray-700 border-yellow-600' : 'bg-yellow-50 border-yellow-200')
-                      : (currentTheme === 'dark' ? 'bg-gray-700 border-red-600' : 'bg-red-50 border-red-200')
+                      ? (theme === 'dark' ? 'bg-gray-700 border-yellow-600' : 'bg-yellow-50 border-yellow-200')
+                      : (theme === 'dark' ? 'bg-gray-700 border-red-600' : 'bg-red-50 border-red-200')
                   }`}>
                     <div className={`w-2 h-2 rounded-full ${
                       log.status === 'success' ? 'bg-green-500' : 
                       log.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
                     }`}></div>
-                    <span className={`text-xs ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'} font-mono`}>
+                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} font-mono`}>
                       {log.timestamp.toLocaleTimeString('pt-BR', { 
                         hour: '2-digit', 
                         minute: '2-digit',
                         second: '2-digit'
                       })}
                     </span>
-                    <span className={`text-xs ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-medium`}>
+                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-medium`}>
                       {log.provider}
                     </span>
                     <span className={`text-sm ${
                       log.status === 'success' 
-                        ? (currentTheme === 'dark' ? 'text-green-300' : 'text-green-800')
+                        ? (theme === 'dark' ? 'text-green-300' : 'text-green-800')
                         : log.status === 'pending' 
-                        ? (currentTheme === 'dark' ? 'text-yellow-300' : 'text-yellow-800')
-                        : (currentTheme === 'dark' ? 'text-red-300' : 'text-red-800')
+                        ? (theme === 'dark' ? 'text-yellow-300' : 'text-yellow-800')
+                        : (theme === 'dark' ? 'text-red-300' : 'text-red-800')
                     }`}>
                       {log.message}
                     </span>
                     {log.orderId && (
-                      <span className={`text-xs ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                         Pedido: {log.orderId}
                       </span>
                     )}
                     {log.amount && (
-                      <span className={`text-xs ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-medium`}>
+                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-medium`}>
                         
                       </span>
                     )}
@@ -1229,16 +1230,16 @@ export default function PaymentManagement() {
           </div>
 
           {/* Integração com Fluxo de Caixa */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6 mt-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6 mt-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
                 <Database className="w-6 h-6 text-green-600" />
-                <h3 className={`text-xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Integração com Fluxo de Caixa</h3>
+                <h3 className={`text-xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Integração com Fluxo de Caixa</h3>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setShowCashFlowIntegration(!showCashFlowIntegration)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showCashFlowIntegration ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -1246,7 +1247,7 @@ export default function PaymentManagement() {
                   cashFlowSync.status === 'synced' ? 'bg-green-500' : 
                   cashFlowSync.status === 'syncing' ? 'bg-yellow-500' : 'bg-red-500'
                 }`}></span>
-                <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>
+                <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} font-manrope`}>
                   {cashFlowSync.status === 'synced' ? 'Sincronizado' : 
                    cashFlowSync.status === 'syncing' ? 'Sincronizando...' : 'Erro de Sincronização'}
                 </span>
@@ -1256,41 +1257,41 @@ export default function PaymentManagement() {
             {showCashFlowIntegration && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Total de Transações</p>
-                        <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'}`}>{paymentTransactions.length}</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Total de Transações</p>
+                        <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>{paymentTransactions.length}</p>
                       </div>
                       <CreditCard className="w-8 h-8 text-blue-600" />
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Sincronizadas</p>
-                        <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>{cashFlowSync.totalSynced}</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Sincronizadas</p>
+                        <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>{cashFlowSync.totalSynced}</p>
                       </div>
                       <Check className="w-8 h-8 text-green-600" />
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200'} rounded-xl p-4 border`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'} font-medium`}>Pendentes</p>
-                        <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>{cashFlowSync.pendingTransactions}</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'} font-medium`}>Pendentes</p>
+                        <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>{cashFlowSync.pendingTransactions}</p>
                       </div>
                       <Clock className="w-8 h-8 text-yellow-600" />
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Última Sincronização</p>
-                        <p className={`text-sm font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Última Sincronização</p>
+                        <p className={`text-sm font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>
                           {cashFlowSync.lastSync.toLocaleTimeString('pt-BR', { 
                             hour: '2-digit', 
                             minute: '2-digit' 
@@ -1303,13 +1304,13 @@ export default function PaymentManagement() {
                 </div>
                 
                 <div className={`flex items-center justify-between p-4 rounded-xl border ${
-                  currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
+                  theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
                 }`}>
                   <div className="flex items-center space-x-3">
                     <Info className="w-5 h-5 text-blue-600" />
                     <div>
-                      <h4 className={`font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Como Funciona a Integração</h4>
-                      <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                      <h4 className={`font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Como Funciona a Integração</h4>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                         Todas as transações de pagamento são automaticamente sincronizadas com o módulo de fluxo de caixa, 
                         garantindo dados precisos e atualizados em tempo real.
                       </p>
@@ -1336,11 +1337,11 @@ export default function PaymentManagement() {
       {activeTab === 'reports' && (
         <div className="space-y-6">
           {/* Cabeçalho dos Relatórios */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-green-50 to-emerald-100 border-green-200'} rounded-2xl p-6 border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-gradient-to-r from-green-50 to-emerald-100 border-green-200'} rounded-2xl p-6 border`}>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Relatórios de Pagamentos</h3>
-                <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-green-700'} font-manrope`}>Análises detalhadas e insights para tomada de decisões estratégicas</p>
+                <h3 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Relatórios de Pagamentos</h3>
+                <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-green-700'} font-manrope`}>Análises detalhadas e insights para tomada de decisões estratégicas</p>
               </div>
               <div className="flex items-center space-x-3">
                 <button 
@@ -1362,13 +1363,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Filtros de Período */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <h4 className={`text-lg font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Filtros de Período</h4>
+                <h4 className={`text-lg font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Filtros de Período</h4>
                 <button
                   onClick={() => setShowReportFilters(!showReportFilters)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showReportFilters ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -1390,15 +1391,15 @@ export default function PaymentManagement() {
             
             {showReportFilters && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
                   <div className="text-center">
-                    <p className={`text-sm ${currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Data Início</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Data Início</p>
                     <input 
                       type="date" 
                       value={reportStartDate}
                       onChange={(e) => setReportStartDate(e.target.value)}
                       className={`mt-2 w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-gray-600 border-gray-500 text-white' 
                           : 'border-blue-300 bg-white text-gray-900'
                       }`}
@@ -1406,15 +1407,15 @@ export default function PaymentManagement() {
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
                   <div className="text-center">
-                    <p className={`text-sm ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Data Fim</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Data Fim</p>
                     <input 
                       type="date" 
                       value={reportEndDate}
                       onChange={(e) => setReportEndDate(e.target.value)}
                       className={`mt-2 w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-gray-600 border-gray-500 text-white' 
                           : 'border-green-300 bg-white text-gray-900'
                       }`}
@@ -1422,14 +1423,14 @@ export default function PaymentManagement() {
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
                   <div className="text-center">
-                    <p className={`text-sm ${currentTheme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Provedor</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Provedor</p>
                     <select 
                       value={reportProvider}
                       onChange={(e) => setReportProvider(e.target.value)}
                       className={`mt-2 w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-gray-600 border-gray-500 text-white' 
                           : 'border-purple-300 bg-white text-gray-900'
                       }`}
@@ -1443,14 +1444,14 @@ export default function PaymentManagement() {
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-4 border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-4 border`}>
                   <div className="text-center">
-                    <p className={`text-sm ${currentTheme === 'dark' ? 'text-orange-400' : 'text-orange-600'} font-medium`}>Status</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'} font-medium`}>Status</p>
                     <select 
                       value={reportStatus}
                       onChange={(e) => setReportStatus(e.target.value)}
                       className={`mt-2 w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-gray-600 border-gray-500 text-white' 
                           : 'border-orange-300 bg-white text-gray-900'
                       }`}
@@ -1467,13 +1468,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Métricas Principais */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h4 className={`text-lg font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Métricas Principais</h4>
+                <h4 className={`text-lg font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Métricas Principais</h4>
                 <button
                   onClick={() => setShowMainMetrics(!showMainMetrics)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showMainMetrics ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -1538,13 +1539,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Gráfico de Volume por Período */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h4 className={`text-lg font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Volume de Pagamentos por Período</h4>
+                <h4 className={`text-lg font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Volume de Pagamentos por Período</h4>
                 <button
                   onClick={() => setShowVolumeChart(!showVolumeChart)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showVolumeChart ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -1554,8 +1555,8 @@ export default function PaymentManagement() {
                   onClick={() => updateReportPeriod('7')}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${
                     reportPeriod === '7' 
-                      ? (currentTheme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
-                      : (currentTheme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                      ? (theme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
+                      : (theme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
                   }`}
                 >
                   7D
@@ -1564,8 +1565,8 @@ export default function PaymentManagement() {
                   onClick={() => updateReportPeriod('30')}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${
                     reportPeriod === '30' 
-                      ? (currentTheme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
-                      : (currentTheme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                      ? (theme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
+                      : (theme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
                   }`}
                 >
                   30D
@@ -1574,8 +1575,8 @@ export default function PaymentManagement() {
                   onClick={() => updateReportPeriod('90')}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${
                     reportPeriod === '90' 
-                      ? (currentTheme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
-                      : (currentTheme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                      ? (theme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
+                      : (theme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
                   }`}
                 >
                   90D
@@ -1584,8 +1585,8 @@ export default function PaymentManagement() {
                   onClick={() => updateReportPeriod('365')}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-200 ${
                     reportPeriod === '365' 
-                      ? (currentTheme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
-                      : (currentTheme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                      ? (theme === 'dark' ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700')
+                      : (theme === 'dark' ? 'bg-gray-600 text-gray-200 hover:bg-gray-500' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
                   }`}
                 >
                   1A
@@ -1595,19 +1596,19 @@ export default function PaymentManagement() {
             
             {showVolumeChart && (
               <div className={`h-80 rounded-xl p-6 flex items-center justify-center ${
-                currentTheme === 'dark' ? 'bg-gray-700' : 'bg-gradient-to-br from-gray-50 to-gray-100'
+                theme === 'dark' ? 'bg-gray-700' : 'bg-gradient-to-br from-gray-50 to-gray-100'
               }`}>
                 <div className="text-center">
                   <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-600'} mb-2`}>Gráfico de Volume</h5>
-                  <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-500'} text-sm`}>Visualização interativa dos volumes de pagamento ao longo do tempo</p>
+                  <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-600'} mb-2`}>Gráfico de Volume</h5>
+                  <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-500'} text-sm`}>Visualização interativa dos volumes de pagamento ao longo do tempo</p>
                   <div className="mt-4 flex items-center justify-center space-x-2">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Cartão de Crédito</span>
+                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Cartão de Crédito</span>
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX</span>
+                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX</span>
                     <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                    <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Débito</span>
+                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Débito</span>
                   </div>
                 </div>
               </div>
@@ -1615,13 +1616,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Análise por Provedor */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h4 className={`text-lg font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Análise por Provedor de Pagamento</h4>
+                <h4 className={`text-lg font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Análise por Provedor de Pagamento</h4>
                 <button
                   onClick={() => setShowProviderAnalysis(!showProviderAnalysis)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showProviderAnalysis ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -1638,71 +1639,71 @@ export default function PaymentManagement() {
             {showProviderAnalysis && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico de Pizza */}
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100'} rounded-xl p-6 border`}>
-                  <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'} mb-4 text-center`}>Distribuição por Provedor</h5>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100'} rounded-xl p-6 border`}>
+                  <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-blue-900'} mb-4 text-center`}>Distribuição por Provedor</h5>
                   <div className="h-64 flex items-center justify-center">
                     <div className="text-center">
                       <div className="w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center">
                         <span className="text-white text-2xl font-bold">42%</span>
                       </div>
-                      <p className={`${currentTheme === 'dark' ? 'text-blue-300' : 'text-blue-700'} font-medium`}>Stone - Maior Volume</p>
+                      <p className={`${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'} font-medium`}>Stone - Maior Volume</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* Estatísticas Detalhadas */}
                 <div className="space-y-4">
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('Stone')}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('Stone')}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Stone</span>
+                      <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Stone</span>
                       <span className="text-green-600 font-bold"></span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div className="bg-blue-600 h-2 rounded-full" style={{width: '42%'}}></div>
                     </div>
-                    <div className={`flex justify-between text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
+                    <div className={`flex justify-between text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
                       <span>42% do total</span>
                       <span>285 transações</span>
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('Cielo')}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('Cielo')}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cielo</span>
+                      <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cielo</span>
                       <span className="text-green-600 font-bold"></span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div className="bg-green-600 h-2 rounded-full" style={{width: '34%'}}></div>
                     </div>
-                    <div className={`flex justify-between text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
+                    <div className={`flex justify-between text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
                       <span>34% do total</span>
                       <span>232 transações</span>
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('PIX')}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('PIX')}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PIX</span>
+                      <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PIX</span>
                       <span className="text-green-600 font-bold"></span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div className="bg-purple-600 h-2 rounded-full" style={{width: '20%'}}></div>
                     </div>
-                    <div className={`flex justify-between text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
+                    <div className={`flex justify-between text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
                       <span>20% do total</span>
                       <span>133 transações</span>
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('Outros')}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`} onClick={() => showProviderDetailedAnalysis('Outros')}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Outros</span>
+                      <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Outros</span>
                       <span className="text-green-600 font-bold"></span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div className="bg-orange-600 h-2 rounded-full" style={{width: '4%'}}></div>
                     </div>
-                    <div className={`flex justify-between text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
+                    <div className={`flex justify-between text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mt-1`}>
                       <span>4% do total</span>
                       <span>30 transações</span>
                     </div>
@@ -1713,53 +1714,53 @@ export default function PaymentManagement() {
           </div>
 
           {/* Análise de Performance */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h4 className={`text-lg font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Performance e Métricas de Qualidade</h4>
+                <h4 className={`text-lg font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Performance e Métricas de Qualidade</h4>
                 <button
                   onClick={() => setShowPerformanceMetrics(!showPerformanceMetrics)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showPerformanceMetrics ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               <div className="flex items-center space-x-2">
-                <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Score Geral:</span>
+                <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Score Geral:</span>
                 <span className="text-2xl font-bold text-green-600">9.2/10</span>
               </div>
             </div>
             
             {showPerformanceMetrics && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
                   <div className="text-center">
                     <div className="w-16 h-16 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Check className="w-8 h-8 text-white" />
                     </div>
-                    <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Taxa de Sucesso</h5>
+                    <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Taxa de Sucesso</h5>
                     <p className="text-3xl font-bold text-green-700">98.7%</p>
                     <p className="text-green-600 text-sm mt-1">Excelente</p>
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-6 border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-6 border`}>
                   <div className="text-center">
                     <div className="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Clock className="w-8 h-8 text-white" />
                     </div>
-                    <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'} mb-2`}>Tempo Médio</h5>
+                    <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-blue-900'} mb-2`}>Tempo Médio</h5>
                     <p className="text-3xl font-bold text-blue-700">2.3s</p>
                     <p className="text-blue-600 text-sm mt-1">Muito Rápido</p>
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
                   <div className="text-center">
                     <div className="w-16 h-16 bg-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Shield className="w-8 h-8 text-white" />
                     </div>
-                    <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'} mb-2`}>Segurança</h5>
+                    <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-purple-900'} mb-2`}>Segurança</h5>
                     <p className="text-3xl font-bold text-purple-700">99.9%</p>
                     <p className="text-purple-600 text-sm mt-1">Máxima</p>
                   </div>
@@ -1769,13 +1770,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Tendências e Previsões */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h4 className={`text-lg font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Tendências e Previsões</h4>
+                <h4 className={`text-lg font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Tendências e Previsões</h4>
                 <button
                   onClick={() => setShowTrendsForecasts(!showTrendsForecasts)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showTrendsForecasts ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -1785,38 +1786,38 @@ export default function PaymentManagement() {
             
             {showTrendsForecasts && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
-                  <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'} mb-4`}>Projeção para Próximo Mês</h5>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
+                  <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-purple-900'} mb-4`}>Projeção para Próximo Mês</h5>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className={`${currentTheme === 'dark' ? 'text-purple-300' : 'text-purple-700'} font-medium`}>Volume Esperado:</span>
-                      <span className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}></span>
+                      <span className={`${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'} font-medium`}>Volume Esperado:</span>
+                      <span className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}></span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className={`${currentTheme === 'dark' ? 'text-purple-300' : 'text-purple-700'} font-medium`}>Crescimento:</span>
+                      <span className={`${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'} font-medium`}>Crescimento:</span>
                       <span className="text-xl font-bold text-green-600">+14.2%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className={`${currentTheme === 'dark' ? 'text-purple-300' : 'text-purple-700'} font-medium`}>Transações:</span>
+                      <span className={`${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'} font-medium`}>Transações:</span>
                       <span className="text-xl font-bold text-purple-900">~780</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-6 border`}>
-                  <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-orange-900'} mb-4`}>Insights Recomendados</h5>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-6 border`}>
+                  <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-orange-900'} mb-4`}>Insights Recomendados</h5>
                   <div className="space-y-3">
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                      <p className={`${currentTheme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>PIX está crescendo 25% ao mês - considere promoções</p>
+                      <p className={`${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>PIX está crescendo 25% ao mês - considere promoções</p>
                     </div>
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                      <p className={`${currentTheme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Stone tem melhor performance - otimize integração</p>
+                      <p className={`${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Stone tem melhor performance - otimize integração</p>
                     </div>
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                      <p className={`${currentTheme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Taxa de erro baixa - sistema está estável</p>
+                      <p className={`${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Taxa de erro baixa - sistema está estável</p>
                     </div>
                   </div>
                 </div>
@@ -1825,13 +1826,13 @@ export default function PaymentManagement() {
           </div>
 
           {/* Relatórios Especializados */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-6`}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-3">
-                <h4 className={`text-lg font-manrope font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Relatórios Especializados</h4>
+                <h4 className={`text-lg font-manrope font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Relatórios Especializados</h4>
                 <button
                   onClick={() => setShowSpecializedReports(!showSpecializedReports)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showSpecializedReports ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -1854,17 +1855,17 @@ export default function PaymentManagement() {
                 {/* Menu Dropdown */}
                 {showGenerateMenu && (
                   <div className={`absolute right-0 mt-2 w-80 rounded-xl shadow-2xl border z-50 ${
-                    currentTheme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
+                    theme === 'dark' ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'
                   }`}>
                     <div className="p-4">
-                      <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>Opções de Geração</h5>
+                      <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>Opções de Geração</h5>
                       
                       {/* Opção 1: Baixar PDF */}
                       <div className="mb-4">
                         <button
                           onClick={downloadAllReportsPDF}
                           className={`w-full flex items-center justify-between p-3 rounded-lg border hover:from-blue-100 hover:to-blue-200 transition-all duration-200 ${
-                            currentTheme === 'dark' 
+                            theme === 'dark' 
                               ? 'bg-gray-700 border-gray-600 hover:bg-gray-600' 
                               : 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200'
                           }`}
@@ -1872,8 +1873,8 @@ export default function PaymentManagement() {
                           <div className="flex items-center space-x-3">
                             <Download className="w-5 h-5 text-blue-600" />
                             <div className="text-left">
-                              <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'}`}>Baixar PDF</p>
-                              <p className={`text-sm ${currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>Download completo dos relatórios</p>
+                              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>Baixar PDF</p>
+                              <p className={`text-sm ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>Download completo dos relatórios</p>
                             </div>
                           </div>
                           <ArrowDown className="w-4 h-4 text-blue-600" />
@@ -1883,15 +1884,15 @@ export default function PaymentManagement() {
                       {/* Opção 2: Enviar por Email */}
                       <div className="mb-4">
                         <div className={`p-3 rounded-lg border ${
-                          currentTheme === 'dark' 
+                          theme === 'dark' 
                             ? 'bg-gray-700 border-gray-600' 
                             : 'bg-gradient-to-r from-green-50 to-green-100 border-green-200'
                         }`}>
                           <div className="flex items-center space-x-3 mb-3">
                             <Mail className="w-5 h-5 text-green-600" />
                             <div className="text-left">
-                              <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>Enviar por Email</p>
-                              <p className={`text-sm ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>Receba relatórios no seu email</p>
+                              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>Enviar por Email</p>
+                              <p className={`text-sm ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>Receba relatórios no seu email</p>
                             </div>
                           </div>
                           
@@ -1902,7 +1903,7 @@ export default function PaymentManagement() {
                               value={emailRecipient}
                               onChange={(e) => setEmailRecipient(e.target.value)}
                               className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-                                currentTheme === 'dark' 
+                                theme === 'dark' 
                                   ? 'bg-gray-600 border-gray-500 text-white' 
                                   : 'border-green-300 bg-white text-gray-900'
                               }`}
@@ -1937,7 +1938,7 @@ export default function PaymentManagement() {
                           }}
                           disabled={isGeneratingReport}
                           className={`w-full flex items-center justify-between p-3 rounded-lg border hover:from-purple-100 hover:to-purple-200 transition-all duration-200 disabled:opacity-50 ${
-                            currentTheme === 'dark' 
+                            theme === 'dark' 
                               ? 'bg-gray-700 border-gray-600 hover:bg-gray-600' 
                               : 'bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200'
                           }`}
@@ -1945,8 +1946,8 @@ export default function PaymentManagement() {
                           <div className="flex items-center space-x-3">
                             <Eye className="w-5 h-5 text-purple-600" />
                             <div className="text-left">
-                              <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}>Visualizar Online</p>
-                              <p className={`text-sm ${currentTheme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`}>Gerar e visualizar no navegador</p>
+                              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>Visualizar Online</p>
+                              <p className={`text-sm ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`}>Gerar e visualizar no navegador</p>
                             </div>
                           </div>
                           <ArrowRight className="w-4 h-4 text-purple-600" />
@@ -1960,50 +1961,50 @@ export default function PaymentManagement() {
             
             {showSpecializedReports && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`}>
                   <div className="flex items-center space-x-3">
                     <FileText className="w-8 h-8 text-blue-600" />
                     <div>
-                      <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'}`}>Relatório Diário</h5>
-                      <p className={`${currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'} text-sm`}>Resumo das 24h</p>
+                      <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}>Relatório Diário</h5>
+                      <p className={`${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} text-sm`}>Resumo das 24h</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`}>
                   <div className="flex items-center space-x-3">
                     <BarChart3 className="w-8 h-8 text-green-600" />
                     <div>
-                      <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>Relatório Semanal</h5>
-                      <p className={`${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'} text-sm`}>Análise de tendências</p>
+                      <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>Relatório Semanal</h5>
+                      <p className={`${theme === 'dark' ? 'text-green-400' : 'text-green-600'} text-sm`}>Análise de tendências</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`}>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border hover:shadow-lg transition-shadow duration-200 cursor-pointer`}>
                   <div className="flex items-center space-x-3">
                     <TrendingUp className="w-8 h-8 text-purple-600" />
                     <div>
-                      <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}>Relatório Mensal</h5>
-                      <p className={`${currentTheme === 'dark' ? 'text-purple-400' : 'text-purple-600'} text-sm`}>Visão estratégica</p>
+                      <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>Relatório Mensal</h5>
+                      <p className={`${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} text-sm`}>Visão estratégica</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-6 border`}>
-                  <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-orange-900'} mb-4`}>Insights Recomendados</h5>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-6 border`}>
+                  <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-orange-900'} mb-4`}>Insights Recomendados</h5>
                   <div className="space-y-3">
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                      <p className={`${currentTheme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>PIX está crescendo 25% ao mês - considere promoções</p>
+                      <p className={`${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>PIX está crescendo 25% ao mês - considere promoções</p>
                     </div>
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                      <p className={`${currentTheme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Stone tem melhor performance - otimize integração</p>
+                      <p className={`${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Stone tem melhor performance - otimize integração</p>
                     </div>
                     <div className="flex items-start space-x-3">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                      <p className={`${currentTheme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Taxa de erro baixa - sistema está estável</p>
+                      <p className={`${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'} text-sm`}>Taxa de erro baixa - sistema está estável</p>
                     </div>
                   </div>
                 </div>
@@ -2016,15 +2017,15 @@ export default function PaymentManagement() {
       {/* Modal de Detalhes dos Provedores */}
       {showProviderDetails && providerDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border`}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Análise Detalhada - {providerDetails.name}
                 </h3>
                 <button
                   onClick={() => setShowProviderDetails(false)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -2033,48 +2034,48 @@ export default function PaymentManagement() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 {/* Métricas Principais */}
                 <div className="space-y-4">
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-4 border`}>
                     <div className="text-center">
-                      <p className={`text-sm ${currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Volume Total</p>
-                      <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'}`}></p>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'} font-medium`}>Volume Total</p>
+                      <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-blue-900'}`}></p>
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-4 border`}>
                     <div className="text-center">
-                      <p className={`text-sm ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Transações</p>
-                      <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>{providerDetails.totalTransactions}</p>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-green-400' : 'text-green-600'} font-medium`}>Transações</p>
+                      <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>{providerDetails.totalTransactions}</p>
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-4 border`}>
                     <div className="text-center">
-                      <p className={`text-sm ${currentTheme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Taxa de Aprovação</p>
-                      <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}>{providerDetails.approvalRate}%</p>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'} font-medium`}>Taxa de Aprovação</p>
+                      <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>{providerDetails.approvalRate}%</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Métricas de Performance */}
                 <div className="space-y-4">
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200'} rounded-xl p-4 border`}>
                     <div className="text-center">
-                      <p className={`text-sm ${currentTheme === 'dark' ? 'text-orange-400' : 'text-orange-600'} font-medium`}>Ticket Médio</p>
-                      <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-orange-900'}`}></p>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'} font-medium`}>Ticket Médio</p>
+                      <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-orange-900'}`}></p>
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200'} rounded-xl p-4 border`}>
                     <div className="text-center">
-                      <p className={`text-sm ${currentTheme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'} font-medium`}>Tempo de Processamento</p>
-                      <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-indigo-900'}`}>{providerDetails.processingTime}s</p>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'} font-medium`}>Tempo de Processamento</p>
+                      <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-indigo-900'}`}>{providerDetails.processingTime}s</p>
                     </div>
                   </div>
                   
-                  <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'} rounded-xl p-4 border`}>
+                  <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'} rounded-xl p-4 border`}>
                     <div className="text-center">
-                      <p className={`text-sm ${currentTheme === 'dark' ? 'text-red-400' : 'text-red-600'} font-medium`}>Taxa de Erro</p>
-                      <p className={`text-2xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-red-900'}`}>{providerDetails.errorRate}%</p>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-600'} font-medium`}>Taxa de Erro</p>
+                      <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>{providerDetails.errorRate}%</p>
                     </div>
                   </div>
                 </div>
@@ -2082,35 +2083,35 @@ export default function PaymentManagement() {
 
               {/* Informações Adicionais */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border`}>
-                  <h4 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Informações do Sistema</h4>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border`}>
+                  <h4 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Informações do Sistema</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Status:</span>
+                      <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Status:</span>
                       <span className={`font-medium ${providerDetails.status === 'connected' ? 'text-green-600' : 'text-red-600'}`}>
                         {providerDetails.status === 'connected' ? 'Conectado' : 'Desconectado'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Última Sincronização:</span>
-                      <span className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                      <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Última Sincronização:</span>
+                      <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                         {providerDetails.lastSync.toLocaleTimeString('pt-BR')}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crescimento Mensal:</span>
+                      <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crescimento Mensal:</span>
                       <span className="font-medium text-green-600">+{providerDetails.monthlyGrowth}%</span>
                     </div>
                   </div>
                 </div>
 
-                <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border`}>
-                  <h4 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Categorias Principais</h4>
+                <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border`}>
+                  <h4 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Categorias Principais</h4>
                   <div className="space-y-2">
                     {providerDetails.topCategories.map((category: string, index: number) => (
                       <div key={index} className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{category}</span>
+                        <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{category}</span>
                       </div>
                     ))}
                   </div>
@@ -2118,19 +2119,19 @@ export default function PaymentManagement() {
               </div>
 
               {/* Transações Recentes */}
-              <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border`}>
-                <h4 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Transações Recentes</h4>
+              <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} rounded-xl p-4 border`}>
+                <h4 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Transações Recentes</h4>
                 <div className="space-y-2">
                   {providerDetails.recentTransactions.map((transaction: any) => (
                     <div key={transaction.id} className={`flex items-center justify-between p-2 rounded-lg ${
-                      currentTheme === 'dark' ? 'bg-gray-600' : 'bg-gray-50'
+                      theme === 'dark' ? 'bg-gray-600' : 'bg-gray-50'
                     }`}>
                       <div className="flex items-center space-x-3">
-                        <span className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>#{transaction.id}</span>
-                        <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{transaction.customer}</span>
+                        <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>#{transaction.id}</span>
+                        <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{transaction.customer}</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}></span>
+                        <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}></span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           transaction.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                         }`}>
@@ -2143,10 +2144,10 @@ export default function PaymentManagement() {
               </div>
 
               {/* Botões de Ação */}
-              <div className={`flex items-center justify-end space-x-3 mt-6 pt-6 border-t ${currentTheme === 'dark' ? 'border-gray-600' : 'border-gray-200'}`}>
+              <div className={`flex items-center justify-end space-x-3 mt-6 pt-6 border-t ${theme === 'dark' ? 'border-gray-600' : 'border-gray-200'}`}>
                 <button
                   onClick={() => setShowProviderDetails(false)}
-                  className={`px-4 py-2 ${currentTheme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'} transition-colors duration-200`}
+                  className={`px-4 py-2 ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'} transition-colors duration-200`}
                 >
                   Fechar
                 </button>
@@ -2168,61 +2169,61 @@ export default function PaymentManagement() {
       {activeTab === 'fees' && (
         <div className="space-y-6">
           {/* Cabeçalho Limpo */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-8`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-8`}>
             <div className="text-center">
-              <h3 className={`text-3xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Gestão de Taxas</h3>
-              <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-lg`}>Configure e gerencie as taxas dos seus provedores de pagamento</p>
+              <h3 className={`text-3xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Gestão de Taxas</h3>
+              <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-lg`}>Configure e gerencie as taxas dos seus provedores de pagamento</p>
             </div>
             
             {/* Cards de Resumo Simples */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className={`text-center p-6 rounded-xl border ${
-                currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'
+                theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'
               }`}>
                 <div className="w-12 h-12 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <Calculator className="w-6 h-6 text-white" />
                 </div>
-                <h4 className={`text-xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'} mb-2`}>Taxa Média</h4>
+                <h4 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-blue-900'} mb-2`}>Taxa Média</h4>
                 <p className="text-3xl font-bold text-blue-600">2.89%</p>
               </div>
               
               <div className={`text-center p-6 rounded-xl border ${
-                currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'
+                theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'
               }`}>
                 <div className="w-12 h-12 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <DollarSign className="w-6 h-6 text-white" />
                 </div>
-                <h4 className={`text-xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Custo Mensal</h4>
+                <h4 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Custo Mensal</h4>
                 <p className="text-3xl font-bold text-green-600"></p>
               </div>
               
               <div className={`text-center p-6 rounded-xl border ${
-                currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'
+                theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'
               }`}>
                 <div className="w-12 h-12 bg-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <CreditCard className="w-6 h-6 text-white" />
                 </div>
-                <h4 className={`text-xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'} mb-2`}>Provedores</h4>
+                <h4 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'} mb-2`}>Provedores</h4>
                 <p className="text-3xl font-bold text-purple-600">4</p>
               </div>
             </div>
           </div>
 
           {/* Provedores com Design Limpo */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
             <div className="flex items-center justify-between p-8 pb-6">
-              <h4 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Provedores de Pagamento</h4>
+              <h4 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Provedores de Pagamento</h4>
               <div className="flex items-center space-x-3">
                 <button 
                   onClick={() => setShowProviderFees(!showProviderFees)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showProviderFees ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
                 <button 
                   onClick={exportFeesConfig}
                   className={`px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 ${
-                    currentTheme === 'dark' 
+                    theme === 'dark' 
                       ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
@@ -2238,7 +2239,7 @@ export default function PaymentManagement() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Stone */}
                   <div className={`border rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 ${
-                    currentTheme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
+                    theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
                   }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -2246,8 +2247,8 @@ export default function PaymentManagement() {
                           <CreditCard className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Stone</h5>
-                          <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Máquina de Cartão</p>
+                          <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Stone</h5>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Máquina de Cartão</p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Ativo</span>
@@ -2255,23 +2256,23 @@ export default function PaymentManagement() {
                     
                     <div className="space-y-3 mb-4">
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito à Vista</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.39%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito à Vista</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.39%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito Parcelado</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.89%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito Parcelado</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.89%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Débito</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>1.99%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Débito</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>1.99%</span>
                       </div>
                     </div>
                     
                     <button 
                       onClick={() => editProviderFees('Stone')}
                       className={`w-full py-2 rounded-lg transition-colors duration-200 font-medium ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-blue-600 text-white hover:bg-blue-700' 
                           : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                       }`}
@@ -2282,7 +2283,7 @@ export default function PaymentManagement() {
 
                   {/* Cielo */}
                   <div className={`border rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 ${
-                    currentTheme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
+                    theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
                   }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -2290,8 +2291,8 @@ export default function PaymentManagement() {
                           <CreditCard className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cielo</h5>
-                          <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Gateway de Pagamento</p>
+                          <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Cielo</h5>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Gateway de Pagamento</p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Ativo</span>
@@ -2299,23 +2300,23 @@ export default function PaymentManagement() {
                     
                     <div className="space-y-3 mb-4">
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito à Vista</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.49%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito à Vista</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.49%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito Parcelado</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.99%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Crédito Parcelado</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.99%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Débito</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.09%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Débito</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>2.09%</span>
                       </div>
                     </div>
                     
                     <button 
                       onClick={() => editProviderFees('Cielo')}
                       className={`w-full py-2 rounded-lg transition-colors duration-200 font-medium ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-green-600 text-white hover:bg-green-700' 
                           : 'bg-green-50 text-green-700 hover:bg-green-100'
                       }`}
@@ -2326,7 +2327,7 @@ export default function PaymentManagement() {
 
                   {/* PIX */}
                   <div className={`border rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 ${
-                    currentTheme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
+                    theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
                   }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -2334,8 +2335,8 @@ export default function PaymentManagement() {
                           <Globe className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PIX</h5>
-                          <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Transferência Instantânea</p>
+                          <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PIX</h5>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Transferência Instantânea</p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Ativo</span>
@@ -2343,23 +2344,23 @@ export default function PaymentManagement() {
                     
                     <div className="space-y-3 mb-4">
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX Estático</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>0.99%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX Estático</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>0.99%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX Dinâmico</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>1.29%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX Dinâmico</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>1.29%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>QR Code</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>0.79%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>QR Code</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>0.79%</span>
                       </div>
                     </div>
                     
                     <button 
                       onClick={() => editProviderFees('PIX')}
                       className={`w-full py-2 rounded-lg transition-colors duration-200 font-medium ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-purple-600 text-white hover:bg-purple-700' 
                           : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
                       }`}
@@ -2370,7 +2371,7 @@ export default function PaymentManagement() {
 
                   {/* PagSeguro */}
                   <div className={`border rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 ${
-                    currentTheme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
+                    theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-200 bg-white'
                   }`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -2378,8 +2379,8 @@ export default function PaymentManagement() {
                           <CreditCard className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PagSeguro</h5>
-                          <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Plataforma Digital</p>
+                          <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>PagSeguro</h5>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Plataforma Digital</p>
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Revisão</span>
@@ -2387,23 +2388,23 @@ export default function PaymentManagement() {
                     
                     <div className="space-y-3 mb-4">
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Cartão de Crédito</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>3.99%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Cartão de Crédito</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>3.99%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Boleto</span>
-                        <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>3.49%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Boleto</span>
+                        <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>3.49%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX</span>
-                        <span className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>1.99%</span>
+                        <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>PIX</span>
+                        <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>1.99%</span>
                       </div>
                     </div>
                     
                     <button 
                       onClick={() => editProviderFees('PagSeguro')}
                       className={`w-full py-2 rounded-lg transition-colors duration-200 font-medium ${
-                        currentTheme === 'dark' 
+                        theme === 'dark' 
                           ? 'bg-orange-600 text-white hover:bg-orange-700' 
                           : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
                       }`}
@@ -2417,15 +2418,15 @@ export default function PaymentManagement() {
           </div>
 
           {/* Calculadora Profissional */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
             <div className="flex items-center justify-between p-8 pb-6">
               <div>
-                <h4 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'} mb-2`}>Calculadora Avançada de Taxas</h4>
-                <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Simule diferentes cenários e compare custos entre provedores</p>
+                <h4 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-2`}>Calculadora Avançada de Taxas</h4>
+                <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Simule diferentes cenários e compare custos entre provedores</p>
               </div>
               <button 
                 onClick={() => setShowFeesCalculator(!showFeesCalculator)}
-                className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
               >
                 {showFeesCalculator ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -2436,15 +2437,15 @@ export default function PaymentManagement() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Painel de Configuração */}
                   <div className="space-y-6">
-                    <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-6 border`}>
-                      <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'} mb-4 flex items-center`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-6 border`}>
+                      <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-blue-900'} mb-4 flex items-center`}>
                         <Calculator className="w-5 h-5 mr-2" />
                         Configuração da Transação
                       </h5>
                       
                       <div className="space-y-4">
                         <div>
-                          <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Valor da Transação</label>
+                          <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Valor da Transação</label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-600 font-semibold">R$</span>
                             <input
@@ -2453,7 +2454,7 @@ export default function PaymentManagement() {
                               value={feesCalculatorData.transactionValue}
                               onChange={(e) => setFeesCalculatorData(prev => ({ ...prev, transactionValue: e.target.value }))}
                               className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                currentTheme === 'dark' 
+                                theme === 'dark' 
                                   ? 'bg-gray-600 border-gray-500 text-white' 
                                   : 'border-blue-300 bg-white text-gray-900'
                               }`}
@@ -2463,12 +2464,12 @@ export default function PaymentManagement() {
                         
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Provedor</label>
+                            <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Provedor</label>
                             <select 
                               value={feesCalculatorData.selectedProvider}
                               onChange={(e) => setFeesCalculatorData(prev => ({ ...prev, selectedProvider: e.target.value }))}
                               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                currentTheme === 'dark' 
+                                theme === 'dark' 
                                   ? 'bg-gray-600 border-gray-500 text-white' 
                                   : 'border-blue-300 bg-white text-gray-900'
                               }`}
@@ -2482,12 +2483,12 @@ export default function PaymentManagement() {
                           </div>
                           
                           <div>
-                            <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Tipo</label>
+                            <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Tipo</label>
                             <select 
                               value={feesCalculatorData.transactionType}
                               onChange={(e) => setFeesCalculatorData(prev => ({ ...prev, transactionType: e.target.value }))}
                               className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                currentTheme === 'dark' 
+                                theme === 'dark' 
                                   ? 'bg-gray-600 border-gray-500 text-white' 
                                   : 'border-blue-300 bg-white text-gray-900'
                               }`}
@@ -2502,12 +2503,12 @@ export default function PaymentManagement() {
                         </div>
                         
                         <div>
-                          <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Parcelas (se aplicável)</label>
+                          <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-blue-900'} mb-2`}>Parcelas (se aplicável)</label>
                           <select 
                             value={feesCalculatorData.installments}
                             onChange={(e) => setFeesCalculatorData(prev => ({ ...prev, installments: e.target.value }))}
                             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                              currentTheme === 'dark' 
+                              theme === 'dark' 
                                 ? 'bg-gray-600 border-gray-500 text-white' 
                                 : 'border-blue-300 bg-white text-gray-900'
                             }`}
@@ -2522,8 +2523,8 @@ export default function PaymentManagement() {
                       </div>
                     </div>
                     
-                    <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
-                      <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'} mb-4 flex items-center`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
+                      <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-green-900'} mb-4 flex items-center`}>
                         <TrendingUp className="w-5 h-5 mr-2" />
                         Cenários de Comparação
                       </h5>
@@ -2532,42 +2533,42 @@ export default function PaymentManagement() {
                         <button 
                           onClick={() => setFeesCalculatorData(prev => ({ ...prev, transactionValue: '1000', selectedProvider: 'Stone', transactionType: 'Crédito à Vista' }))}
                           className={`w-full text-left p-3 rounded-lg border transition-colors duration-200 ${
-                            currentTheme === 'dark' 
+                            theme === 'dark' 
                               ? 'bg-gray-600 border-gray-500 hover:border-gray-400' 
                               : 'bg-white border-green-200 hover:border-green-300'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>Cenário 1: Stone Crédito</span>
-                            <span className={`text-xs ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'}`}></span>
+                            <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>Cenário 1: Stone Crédito</span>
+                            <span className={`text-xs ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}></span>
                           </div>
                         </button>
                         
                         <button 
                           onClick={() => setFeesCalculatorData(prev => ({ ...prev, transactionValue: '1000', selectedProvider: 'Cielo', transactionType: 'Crédito à Vista' }))}
                           className={`w-full text-left p-3 rounded-lg border transition-colors duration-200 ${
-                            currentTheme === 'dark' 
+                            theme === 'dark' 
                               ? 'bg-gray-600 border-gray-500 hover:border-gray-400' 
                               : 'bg-white border-green-200 hover:border-green-300'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>Cenário 2: Cielo Crédito</span>
-                            <span className={`text-xs ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'}`}></span>
+                            <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>Cenário 2: Cielo Crédito</span>
+                            <span className={`text-xs ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}></span>
                           </div>
                         </button>
                         
                         <button 
                           onClick={() => setFeesCalculatorData(prev => ({ ...prev, transactionValue: '1000', selectedProvider: 'PIX', transactionType: 'PIX' }))}
                           className={`w-full text-left p-3 rounded-lg border transition-colors duration-200 ${
-                            currentTheme === 'dark' 
+                            theme === 'dark' 
                               ? 'bg-gray-600 border-gray-500 hover:border-gray-400' 
                               : 'bg-white border-green-200 hover:border-green-300'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>Cenário 3: PIX</span>
-                            <span className={`text-xs ${currentTheme === 'dark' ? 'text-green-400' : 'text-green-600'}`}></span>
+                            <span className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>Cenário 3: PIX</span>
+                            <span className={`text-xs ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}></span>
                           </div>
                         </button>
                       </div>
@@ -2576,38 +2577,38 @@ export default function PaymentManagement() {
                   
                   {/* Painel de Resultados */}
                   <div className="space-y-6">
-                    <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
-                      <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'} mb-4 flex items-center`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
+                      <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-purple-900'} mb-4 flex items-center`}>
                         <BarChart3 className="w-5 h-5 mr-2" />
                         Resultado do Cálculo
                       </h5>
                       
                       {feesCalculatorData.calculatedResult.originalValue > 0 ? (
                         <div className="space-y-4">
-                          <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-purple-200'} rounded-lg p-4 border`}>
+                          <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-purple-200'} rounded-lg p-4 border`}>
                             <div className="flex justify-between items-center mb-2">
-                              <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>Valor Original</span>
-                              <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}></span>
+                              <span className={`text-sm font-medium ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>Valor Original</span>
+                              <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}></span>
                             </div>
                             <div className="w-full bg-purple-200 rounded-full h-2">
                               <div className="bg-purple-500 h-2 rounded-full" style={{ width: '100%' }}></div>
                             </div>
                           </div>
                           
-                          <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-purple-200'} rounded-lg p-4 border`}>
+                          <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-purple-200'} rounded-lg p-4 border`}>
                             <div className="flex justify-between items-center mb-2">
-                              <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>Taxa Aplicada</span>
-                              <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}>{feesCalculatorData.calculatedResult.appliedRate.toFixed(2)}%</span>
+                              <span className={`text-sm font-medium ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>Taxa Aplicada</span>
+                              <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}>{feesCalculatorData.calculatedResult.appliedRate.toFixed(2)}%</span>
                             </div>
                             <div className="w-full bg-purple-200 rounded-full h-2">
                               <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(feesCalculatorData.calculatedResult.appliedRate / 5) * 100}%` }}></div>
                             </div>
                           </div>
                           
-                          <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-purple-200'} rounded-lg p-4 border`}>
+                          <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-purple-200'} rounded-lg p-4 border`}>
                             <div className="flex justify-between items-center mb-2">
-                              <span className={`text-sm font-medium ${currentTheme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>Valor da Taxa</span>
-                              <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'}`}></span>
+                              <span className={`text-sm font-medium ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>Valor da Taxa</span>
+                              <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'}`}></span>
                             </div>
                             <div className="w-full bg-purple-200 rounded-full h-2">
                               <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(feesCalculatorData.calculatedResult.feeAmount / feesCalculatorData.calculatedResult.originalValue) * 100}%` }}></div>
@@ -2623,7 +2624,7 @@ export default function PaymentManagement() {
                           </div>
                         </div>
                       ) : (
-                        <div className={`text-center py-8 ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <div className={`text-center py-8 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                           <Calculator className="w-16 h-16 text-purple-300 mx-auto mb-4" />
                           <p className="text-purple-600 font-medium">Configure os parâmetros acima</p>
                           <p className="text-purple-500 text-sm">e clique em calcular para ver os resultados</p>
@@ -2899,12 +2900,12 @@ export default function PaymentManagement() {
           </div>
 
           {/* Configurações de Estorno */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
             <div className="flex items-center justify-between p-8 pb-6">
-              <h4 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Configurações de Estorno</h4>
+              <h4 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Configurações de Estorno</h4>
               <button 
                 onClick={() => setShowRefundSettings(!showRefundSettings)}
-                className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
               >
                 {showRefundSettings ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -2914,20 +2915,20 @@ export default function PaymentManagement() {
               <div className="px-8 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="space-y-6">
-                    <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-6 border`}>
-                      <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'} mb-4 flex items-center`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'} rounded-xl p-6 border`}>
+                      <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-blue-900'} mb-4 flex items-center`}>
                         <Settings className="w-5 h-5 mr-2" />
                         Políticas de Estorno
                       </h5>
                       
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <span className={`${currentTheme === 'dark' ? 'text-gray-200' : 'text-blue-900'}`}>Prazo para estorno</span>
+                          <span className={`${theme === 'dark' ? 'text-gray-200' : 'text-blue-900'}`}>Prazo para estorno</span>
                           <select 
                             value={refundSettings.policyDays}
                             onChange={(e) => setRefundSettings(prev => ({ ...prev, policyDays: e.target.value }))}
                             className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                              currentTheme === 'dark' 
+                              theme === 'dark' 
                                 ? 'bg-gray-600 border-gray-500 text-white' 
                                 : 'bg-white border-blue-300 text-gray-900'
                             }`}
@@ -2940,13 +2941,13 @@ export default function PaymentManagement() {
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className={`${currentTheme === 'dark' ? 'text-gray-200' : 'text-blue-900'}`}>Valor mínimo</span>
+                          <span className={`${theme === 'dark' ? 'text-gray-200' : 'text-blue-900'}`}>Valor mínimo</span>
                           <input
                             type="number"
                             value={refundSettings.minAmount}
                             onChange={(e) => setRefundSettings(prev => ({ ...prev, minAmount: e.target.value }))}
                             className={`px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-24 ${
-                              currentTheme === 'dark' 
+                              theme === 'dark' 
                                 ? 'bg-gray-600 border-gray-500 text-white' 
                                 : 'bg-white border-blue-300 text-gray-900'
                             }`}
@@ -2955,7 +2956,7 @@ export default function PaymentManagement() {
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className={`${currentTheme === 'dark' ? 'text-gray-200' : 'text-blue-900'}`}>Aprovação automática</span>
+                          <span className={`${theme === 'dark' ? 'text-gray-200' : 'text-blue-900'}`}>Aprovação automática</span>
                           <button 
                             onClick={() => setRefundSettings(prev => ({ ...prev, autoApprove: !prev.autoApprove }))}
                             className={`w-12 h-6 rounded-full transition-colors duration-200 ${refundSettings.autoApprove ? 'bg-blue-600' : 'bg-gray-300'}`}
@@ -2975,37 +2976,37 @@ export default function PaymentManagement() {
                   </div>
                   
                   <div className="space-y-6">
-                    <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
-                      <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'} mb-4 flex items-center`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
+                      <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-green-900'} mb-4 flex items-center`}>
                         <BarChart3 className="w-5 h-5 mr-2" />
                         Estatísticas de Estorno
                       </h5>
                       
                       <div className="space-y-4">
-                        <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                        <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                           <div className="flex justify-between items-center mb-2">
-                            <span className={`${currentTheme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Taxa de Aprovação</span>
-                            <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>78.5%</span>
+                            <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Taxa de Aprovação</span>
+                            <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>78.5%</span>
                           </div>
                           <div className="w-full bg-green-200 rounded-full h-2">
                             <div className="bg-green-500 h-2 rounded-full" style={{ width: '78.5%' }}></div>
                           </div>
                         </div>
                         
-                        <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                        <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                           <div className="flex justify-between items-center mb-2">
-                            <span className={`${currentTheme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Tempo Médio de Resposta</span>
-                            <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>2.3 dias</span>
+                            <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Tempo Médio de Resposta</span>
+                            <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>2.3 dias</span>
                           </div>
                           <div className="w-full bg-green-200 rounded-full h-2">
                             <div className="bg-green-500 h-2 rounded-full" style={{ width: '65%' }}></div>
                           </div>
                         </div>
                         
-                        <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                        <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                           <div className="flex justify-between items-center mb-2">
-                            <span className={`${currentTheme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Satisfação do Cliente</span>
-                            <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>4.2/5.0</span>
+                            <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Satisfação do Cliente</span>
+                            <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>4.2/5.0</span>
                           </div>
                           <div className="w-full bg-green-200 rounded-full h-2">
                             <div className="bg-green-500 h-2 rounded-full" style={{ width: '84%' }}></div>
@@ -3024,64 +3025,64 @@ export default function PaymentManagement() {
       {activeTab === 'audit' && (
         <div className="space-y-6">
           {/* Cabeçalho da Auditoria */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-8`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border p-8`}>
             <div className="text-center">
-              <h3 className={`text-3xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Auditoria de Pagamentos com IA Preditiva</h3>
-              <p className={`${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-lg`}>Detecte fraudes, anomalias e otimize processos com inteligência artificial</p>
+              <h3 className={`text-3xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-3`}>Auditoria de Pagamentos com IA Preditiva</h3>
+              <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-lg`}>Detecte fraudes, anomalias e otimize processos com inteligência artificial</p>
             </div>
             
             {/* Cards de Resumo */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
               <div className={`text-center p-6 rounded-xl border ${
-                currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'
+                theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'
               }`}>
                 <div className="w-12 h-12 bg-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
-                <h4 className={`text-xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'} mb-2`}>Score de Risco</h4>
+                <h4 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-purple-900'} mb-2`}>Score de Risco</h4>
                 <p className="text-3xl font-bold text-purple-600">Baixo</p>
               </div>
               
               <div className={`text-center p-6 rounded-xl border ${
-                currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'
+                theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'
               }`}>
                 <div className="w-12 h-12 bg-red-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
-                <h4 className={`text-xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-red-900'} mb-2`}>Alertas</h4>
+                <h4 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-red-900'} mb-2`}>Alertas</h4>
                 <p className="text-3xl font-bold text-red-600">3</p>
               </div>
               
               <div className={`text-center p-6 rounded-xl border ${
-                currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'
+                theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'
               }`}>
                 <div className="w-12 h-12 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-white" />
                 </div>
-                <h4 className={`text-xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Eficiência</h4>
+                <h4 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'} mb-2`}>Eficiência</h4>
                 <p className="text-3xl font-bold text-green-600">94.2%</p>
               </div>
               
               <div className={`text-center p-6 rounded-xl border ${
-                currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'
+                theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'
               }`}>
                 <div className="w-12 h-12 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <Activity className="w-6 h-6 text-white" />
                 </div>
-                <h4 className={`text-xl font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-blue-900'} mb-2`}>Transações</h4>
+                <h4 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-blue-900'} mb-2`}>Transações</h4>
                 <p className="text-3xl font-bold text-blue-600">1.247</p>
               </div>
             </div>
           </div>
 
           {/* IA Preditiva - Análise de Risco */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
             <div className="flex items-center justify-between p-8 pb-6">
-              <h4 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>IA Preditiva - Análise de Risco</h4>
+              <h4 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>IA Preditiva - Análise de Risco</h4>
               <div className="flex items-center space-x-3">
                 <button 
                   onClick={() => setShowAIRiskAnalysis(!showAIRiskAnalysis)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   {showAIRiskAnalysis ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -3110,20 +3111,20 @@ export default function PaymentManagement() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Painel de Configuração da IA */}
                   <div className="space-y-6">
-                    <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
-                      <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-purple-900'} mb-4 flex items-center`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'} rounded-xl p-6 border`}>
+                      <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-purple-900'} mb-4 flex items-center`}>
                         <Settings className="w-5 h-5 mr-2" />
                         Configurações da IA
                       </h5>
                       
                       <div className="space-y-4">
                         <div>
-                          <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-purple-900'} mb-2`}>Sensibilidade de Detecção</label>
+                          <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-purple-900'} mb-2`}>Sensibilidade de Detecção</label>
                           <select 
                             value={aiSettings.sensitivity}
                             onChange={(e) => setAiSettings(prev => ({ ...prev, sensitivity: e.target.value }))}
                             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                              currentTheme === 'dark' 
+                              theme === 'dark' 
                                 ? 'bg-gray-600 border-gray-500 text-white' 
                                 : 'border-purple-300 bg-white text-gray-900'
                             }`}
@@ -3135,12 +3136,12 @@ export default function PaymentManagement() {
                         </div>
                         
                         <div>
-                          <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-purple-900'} mb-2`}>Período de Análise</label>
+                          <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-purple-900'} mb-2`}>Período de Análise</label>
                           <select 
                             value={aiSettings.analysisPeriod}
                             onChange={(e) => setAiSettings(prev => ({ ...prev, analysisPeriod: e.target.value }))}
                             className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                              currentTheme === 'dark' 
+                              theme === 'dark' 
                                 ? 'bg-gray-600 border-gray-500 text-white' 
                                 : 'border-purple-300 bg-white text-gray-900'
                             }`}
@@ -3153,7 +3154,7 @@ export default function PaymentManagement() {
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className={`${currentTheme === 'dark' ? 'text-gray-200' : 'text-purple-900'}`}>Aprendizado Automático</span>
+                          <span className={`${theme === 'dark' ? 'text-gray-200' : 'text-purple-900'}`}>Aprendizado Automático</span>
                           <button 
                             onClick={() => setAiSettings(prev => ({ ...prev, autoLearning: !prev.autoLearning }))}
                             className={`w-12 h-6 rounded-full transition-colors duration-200 ${aiSettings.autoLearning ? 'bg-purple-600' : 'bg-gray-300'}`}
@@ -3163,7 +3164,7 @@ export default function PaymentManagement() {
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className={`${currentTheme === 'dark' ? 'text-gray-200' : 'text-purple-900'}`}>Alertas em Tempo Real</span>
+                          <span className={`${theme === 'dark' ? 'text-gray-200' : 'text-purple-900'}`}>Alertas em Tempo Real</span>
                           <button 
                             onClick={() => setAiSettings(prev => ({ ...prev, realTimeAlerts: !prev.realTimeAlerts }))}
                             className={`w-12 h-6 rounded-full transition-colors duration-200 ${aiSettings.realTimeAlerts ? 'bg-purple-600' : 'bg-gray-300'}`}
@@ -3184,38 +3185,38 @@ export default function PaymentManagement() {
                   
                   {/* Resultados da IA */}
                   <div className="space-y-6">
-                    <div className={`${currentTheme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
-                      <h5 className={`text-lg font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'} mb-4 flex items-center`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'} rounded-xl p-6 border`}>
+                      <h5 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-green-900'} mb-4 flex items-center`}>
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Análise de Segurança
                       </h5>
                       
                       {aiAnalysisResults.securityScore > 0 ? (
                         <div className="space-y-4">
-                          <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                          <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                             <div className="flex justify-between items-center mb-2">
-                              <span className={`${currentTheme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Score de Segurança</span>
-                              <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>{aiAnalysisResults.securityScore}/100</span>
+                              <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Score de Segurança</span>
+                              <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>{aiAnalysisResults.securityScore}/100</span>
                             </div>
                             <div className="w-full bg-green-200 rounded-full h-2">
                               <div className="bg-green-500 h-2 rounded-full" style={{ width: `${aiAnalysisResults.securityScore}%` }}></div>
                             </div>
                           </div>
                           
-                          <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                          <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                             <div className="flex justify-between items-center mb-2">
-                              <span className={`${currentTheme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Transações Seguras</span>
-                              <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>{aiAnalysisResults.secureTransactions}</span>
+                              <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Transações Seguras</span>
+                              <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>{aiAnalysisResults.secureTransactions}</span>
                             </div>
                             <div className="w-full bg-green-200 rounded-full h-2">
                               <div className="bg-green-500 h-2 rounded-full" style={{ width: `${(aiAnalysisResults.secureTransactions / aiAnalysisResults.totalTransactions) * 100}%` }}></div>
                             </div>
                           </div>
                           
-                          <div className={`${currentTheme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                          <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                             <div className="flex justify-between items-center mb-2">
-                              <span className={`${currentTheme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Fraudes Detectadas</span>
-                              <span className={`text-lg font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-green-900'}`}>{aiAnalysisResults.fraudDetected}</span>
+                              <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Fraudes Detectadas</span>
+                              <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>{aiAnalysisResults.fraudDetected}</span>
                             </div>
                             <div className="w-full bg-green-200 rounded-full h-2">
                               <div className="bg-green-500 h-2 rounded-full" style={{ width: `${(aiAnalysisResults.fraudDetected / aiAnalysisResults.totalTransactions) * 100}%` }}></div>
@@ -3223,10 +3224,10 @@ export default function PaymentManagement() {
                           </div>
                         </div>
                       ) : (
-                        <div className={`text-center py-8 ${currentTheme === 'dark' ? 'text-gray-400' : 'text-green-600'}`}>
+                        <div className={`text-center py-8 ${theme === 'dark' ? 'text-gray-400' : 'text-green-600'}`}>
                           <Brain className="w-16 h-16 text-green-300 mx-auto mb-4" />
-                          <p className={`font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-green-600'}`}>Execute a análise de IA</p>
-                          <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-green-500'}`}>para ver os resultados de segurança</p>
+                          <p className={`font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-green-600'}`}>Execute a análise de IA</p>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-green-500'}`}>para ver os resultados de segurança</p>
                         </div>
                       )}
                     </div>
@@ -3237,12 +3238,12 @@ export default function PaymentManagement() {
           </div>
 
           {/* Alertas e Anomalias */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
             <div className="flex items-center justify-between p-8 pb-6">
-              <h4 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Alertas e Anomalias Detectadas</h4>
+              <h4 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Alertas e Anomalias Detectadas</h4>
               <button 
                 onClick={() => setShowAlerts(!showAlerts)}
-                className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
               >
                 {showAlerts ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -3253,7 +3254,7 @@ export default function PaymentManagement() {
                 <div className="space-y-4">
                   {/* Alerta Crítico */}
                   <div className={`border rounded-xl p-6 ${
-                    currentTheme === 'dark' 
+                    theme === 'dark' 
                       ? 'border-red-600 bg-gray-700' 
                       : 'border-red-200 bg-red-50'
                   }`}>
@@ -3263,28 +3264,28 @@ export default function PaymentManagement() {
                           <AlertTriangle className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-red-900'}`}>Alerta Crítico - Possível Fraude</h5>
-                          <p className={`text-sm ${currentTheme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Transação #TXN789 - </p>
+                          <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>Alerta Crítico - Possível Fraude</h5>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Transação #TXN789 - </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
                         <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Crítico</span>
-                        <span className={`text-sm ${currentTheme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Há 2 horas</span>
+                        <span className={`text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Há 2 horas</span>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Risco</p>
-                        <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-red-900'}`}>Alto (95%)</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Risco</p>
+                        <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>Alto (95%)</p>
                       </div>
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Padrão Detectado</p>
-                        <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-red-900'}`}>Comportamento anômalo</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Padrão Detectado</p>
+                        <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>Comportamento anômalo</p>
                       </div>
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Localização</p>
-                        <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-red-900'}`}>IP suspeito</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>Localização</p>
+                        <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-red-900'}`}>IP suspeito</p>
                       </div>
                     </div>
                     
@@ -3292,7 +3293,7 @@ export default function PaymentManagement() {
                       <button 
                         onClick={() => viewAlertDetails('ALERT001')}
                         className={`px-4 py-2 transition-colors duration-200 font-medium ${
-                          currentTheme === 'dark' 
+                          theme === 'dark' 
                             ? 'text-red-400 hover:text-red-300' 
                             : 'text-red-600 hover:text-red-800'
                         }`}
@@ -3308,7 +3309,7 @@ export default function PaymentManagement() {
                       <button 
                         onClick={() => markAsFalsePositive('ALERT001')}
                         className={`px-4 py-2 rounded-lg transition-colors duration-200 font-medium ${
-                          currentTheme === 'dark' 
+                          theme === 'dark' 
                             ? 'bg-gray-600 text-white hover:bg-gray-500' 
                             : 'bg-gray-600 text-white hover:bg-gray-700'
                         }`}
@@ -3320,7 +3321,7 @@ export default function PaymentManagement() {
 
                   {/* Alerta Médio */}
                   <div className={`border rounded-xl p-6 ${
-                    currentTheme === 'dark' 
+                    theme === 'dark' 
                       ? 'border-yellow-600 bg-gray-700' 
                       : 'border-yellow-200 bg-yellow-50'
                   }`}>
@@ -3330,28 +3331,28 @@ export default function PaymentManagement() {
                           <AlertCircle className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                          <h5 className={`font-semibold ${currentTheme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>Alerta Médio - Volume Anômalo</h5>
-                          <p className={`text-sm ${currentTheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Cliente: Empresa XYZ</p>
+                          <h5 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>Alerta Médio - Volume Anômalo</h5>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Cliente: Empresa XYZ</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
                         <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Médio</span>
-                        <span className={`text-sm ${currentTheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Há 5 horas</span>
+                        <span className={`text-sm ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Há 5 horas</span>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Risco</p>
-                        <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>Médio (65%)</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Risco</p>
+                        <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>Médio (65%)</p>
                       </div>
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Padrão Detectado</p>
-                        <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>Volume acima da média</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Padrão Detectado</p>
+                        <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-yellow-900'}`}>Volume acima da média</p>
                       </div>
                       <div>
-                        <p className={`text-sm ${currentTheme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Valor</p>
-                        <p className={`font-medium ${currentTheme === 'dark' ? 'text-white' : 'text-yellow-900'}`}></p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Valor</p>
+                        <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-yellow-900'}`}></p>
                       </div>
                     </div>
                     
@@ -3359,7 +3360,7 @@ export default function PaymentManagement() {
                       <button 
                         onClick={() => viewAlertDetails('ALERT002')}
                         className={`px-4 py-2 transition-colors duration-200 font-medium ${
-                          currentTheme === 'dark' 
+                          theme === 'dark' 
                             ? 'text-yellow-400 hover:text-yellow-300' 
                             : 'text-yellow-600 hover:text-yellow-800'
                         }`}
@@ -3380,12 +3381,12 @@ export default function PaymentManagement() {
           </div>
 
           {/* Relatórios de Auditoria */}
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-lg border`}>
             <div className="flex items-center justify-between p-8 pb-6">
-              <h4 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Relatórios de Auditoria</h4>
+              <h4 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Relatórios de Auditoria</h4>
               <button 
                 onClick={() => setShowAuditReports(!showAuditReports)}
-                className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
               >
                 {showAuditReports ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -3398,54 +3399,54 @@ export default function PaymentManagement() {
                     onClick={generateComplianceReport}
                     disabled={isGeneratingComplianceReport}
                     className={`p-6 border rounded-xl hover:shadow-lg transition-shadow duration-200 text-center disabled:opacity-50 ${
-                      currentTheme === 'dark' 
+                      theme === 'dark' 
                         ? 'border-gray-600 bg-gray-700 hover:bg-gray-600' 
                         : 'border-gray-200 bg-white hover:bg-gray-50'
                     }`}
                   >
                     <FileText className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                     <h5 className={`font-semibold mb-2 ${
-                      currentTheme === 'dark' ? 'text-white' : 'text-gray-900'
+                      theme === 'dark' ? 'text-white' : 'text-gray-900'
                     }`}>
                       {isGeneratingComplianceReport ? 'Gerando...' : 'Relatório de Compliance'}
                     </h5>
-                    <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Conformidade regulatória</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Conformidade regulatória</p>
                   </button>
                   
                   <button 
                     onClick={generateFraudReport}
                     disabled={isGeneratingFraudReport}
                     className={`p-6 border rounded-xl hover:shadow-lg transition-shadow duration-200 text-center disabled:opacity-50 ${
-                      currentTheme === 'dark' 
+                      theme === 'dark' 
                         ? 'border-gray-600 bg-gray-700 hover:bg-gray-600' 
                         : 'border-gray-200 bg-white hover:bg-gray-50'
                     }`}
                   >
                     <Shield className="w-8 h-8 text-red-600 mx-auto mb-3" />
                     <h5 className={`font-semibold mb-2 ${
-                      currentTheme === 'dark' ? 'text-white' : 'text-gray-900'
+                      theme === 'dark' ? 'text-white' : 'text-gray-900'
                     }`}>
                       {isGeneratingFraudReport ? 'Gerando...' : 'Relatório de Fraude'}
                     </h5>
-                    <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Análise de segurança</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Análise de segurança</p>
                   </button>
                   
                   <button 
                     onClick={generatePerformanceReport}
                     disabled={isGeneratingPerformanceReport}
                     className={`p-6 border rounded-xl hover:shadow-lg transition-shadow duration-200 text-center disabled:opacity-50 ${
-                      currentTheme === 'dark' 
+                      theme === 'dark' 
                         ? 'border-gray-600 bg-gray-700 hover:bg-gray-600' 
                         : 'border-gray-200 bg-white hover:bg-gray-50'
                     }`}
                   >
                     <TrendingUp className="w-8 h-8 text-green-600 mx-auto mb-3" />
                     <h5 className={`font-semibold mb-2 ${
-                      currentTheme === 'dark' ? 'text-white' : 'text-gray-900'
+                      theme === 'dark' ? 'text-white' : 'text-gray-900'
                     }`}>
                       {isGeneratingPerformanceReport ? 'Gerando...' : 'Relatório de Performance'}
                     </h5>
-                    <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Métricas de eficiência</p>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Métricas de eficiência</p>
                   </button>
                 </div>
               </div>
@@ -3457,15 +3458,15 @@ export default function PaymentManagement() {
       {/* Modal para Editar Taxas dos Provedores */}
       {showFeesModal && editingProvider && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`${currentTheme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-2xl max-w-2xl w-full border`}>
+          <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-2xl max-w-2xl w-full border`}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className={`text-2xl font-manrope font-bold ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`text-2xl font-manrope font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                   Editar Taxas - {editingProvider}
                 </h3>
                 <button
                   onClick={() => setShowFeesModal(false)}
-                  className={`${currentTheme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
+                  className={`${theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -3473,14 +3474,14 @@ export default function PaymentManagement() {
 
               <div className="space-y-4">
                 <div>
-                  <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Crédito à Vista (%)</label>
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Crédito à Vista (%)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={editingFees.creditVista}
                     onChange={(e) => setEditingFees(prev => ({ ...prev, creditVista: e.target.value }))}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      currentTheme === 'dark' 
+                      theme === 'dark' 
                         ? 'bg-gray-600 border-gray-500 text-white' 
                         : 'border-gray-300 bg-white text-gray-900'
                     }`}
@@ -3489,14 +3490,14 @@ export default function PaymentManagement() {
                 </div>
 
                 <div>
-                  <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Crédito Parcelado (%)</label>
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Crédito Parcelado (%)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={editingFees.creditParcelado}
                     onChange={(e) => setEditingFees(prev => ({ ...prev, creditParcelado: e.target.value }))}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      currentTheme === 'dark' 
+                      theme === 'dark' 
                         ? 'bg-gray-600 border-gray-500 text-white' 
                         : 'border-gray-300 bg-white text-gray-900'
                     }`}
@@ -3505,14 +3506,14 @@ export default function PaymentManagement() {
                 </div>
 
                 <div>
-                  <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Débito (%)</label>
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Débito (%)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={editingFees.debit}
                     onChange={(e) => setEditingFees(prev => ({ ...prev, debit: e.target.value }))}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      currentTheme === 'dark' 
+                      theme === 'dark' 
                         ? 'bg-gray-600 border-gray-500 text-white' 
                         : 'border-gray-300 bg-white text-gray-900'
                     }`}
@@ -3521,14 +3522,14 @@ export default function PaymentManagement() {
                 </div>
 
                 <div>
-                  <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>PIX (%)</label>
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-2`}>PIX (%)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={editingFees.pix}
                     onChange={(e) => setEditingFees(prev => ({ ...prev, pix: e.target.value }))}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      currentTheme === 'dark' 
+                      theme === 'dark' 
                         ? 'bg-gray-600 border-gray-500 text-white' 
                         : 'border-gray-300 bg-white text-gray-900'
                     }`}
@@ -3558,3 +3559,5 @@ export default function PaymentManagement() {
     </div>
   )
 }
+
+// Modified: 2025-10-11 - Fixed theme type
