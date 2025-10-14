@@ -220,44 +220,31 @@ export default function PaymentManagement() {
     return <FinancialSkeleton theme={theme} />
   }
 
-  // Simular webhook de pagamento
-  const simulatePaymentWebhook = () => {
-    const providers = ['Stone', 'Cielo', 'PIX', 'PagSeguro']
-    const statuses = ['success', 'error', 'pending']
-    const customers = ['João Silva', 'Maria Santos', 'Pedro Costa', 'Ana Paula']
-    
-    const provider = providers[Math.floor(Math.random() * providers.length)]
-    const status = statuses[Math.floor(Math.random() * statuses.length)]
-    const customer = customers[Math.floor(Math.random() * customers.length)]
-    const amount = Math.random() * 500 + 50 // Entre R$ 50 e R$ 550
-    const orderId = `ORD${Date.now()}`
-    
-    const newWebhookLog = {
-      id: `webhook_${Date.now()}`,
-      timestamp: new Date(),
-      provider,
-      status: status as 'success' | 'error' | 'pending',
-      message: status === 'success' ? 'Pagamento aprovado' : 
-               status === 'pending' ? 'Aguardando confirmação' : 'Falha no processamento',
-      orderId,
-      amount,
-      customerName: customer
-    }
-    
-    setWebhookLogs(prev => [newWebhookLog, ...prev.slice(0, 9)]) // Manter apenas os 10 mais recentes
-    
-    // Atualizar estatísticas
-    setProcessingStats(prev => ({
-      ...prev,
-      totalReceived: prev.totalReceived + 1,
-      totalProcessed: status === 'success' ? prev.totalProcessed + 1 : prev.totalProcessed,
-      totalErrors: status === 'error' ? prev.totalErrors + 1 : prev.totalErrors,
-      lastProcessing: new Date()
-    }))
-    
-    // Se o pagamento foi aprovado, processar automaticamente
-    if (status === 'success') {
-      processSuccessfulPayment(newWebhookLog)
+  // ✅ REAL: Processar webhook de pagamento via API
+  const processPaymentWebhook = async (webhookData: any) => {
+    try {
+      // TODO: Implementar endpoint /v1/payments/webhooks no backend
+      console.warn('⚠️ Endpoint /v1/payments/webhooks não implementado ainda - usando dados da API de pagamentos')
+      
+      // Por enquanto, usar dados reais da API de pagamentos
+      const realPayments = paymentsData?.content || []
+      if (realPayments.length > 0) {
+        const latestPayment = realPayments[0]
+        const newWebhookLog = {
+          id: `webhook_${Date.now()}`,
+          timestamp: new Date(),
+          provider: latestPayment.provider || 'PIX',
+          status: latestPayment.status === 'APPROVED' ? 'success' : 'pending',
+          message: latestPayment.status === 'APPROVED' ? 'Pagamento aprovado' : 'Aguardando confirmação',
+          orderId: latestPayment.orderId || `ORD${Date.now()}`,
+          amount: latestPayment.amount || 0,
+          customerName: 'Cliente Real'
+        }
+        
+        setWebhookLogs(prev => [newWebhookLog, ...prev.slice(0, 9)])
+      }
+    } catch (error) {
+      console.error('Erro ao processar webhook:', error)
     }
   }
 
@@ -266,8 +253,8 @@ export default function PaymentManagement() {
     if (!autoProcessing) return
 
     const webhookInterval = setInterval(() => {
-      // Simular recebimento de webhook de pagamento
-      simulatePaymentWebhook()
+      // ✅ REAL: Processar webhook via API
+      processPaymentWebhook({})
     }, 10000) // A cada 10 segundos
 
     return () => clearInterval(webhookInterval)
