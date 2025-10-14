@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import { formatDateTime } from '@/utils/format'
+// Modified: 2025-10-14 16:42 UTC | Safe formatters applied (2 occurrences)
 import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery, type FiscalDocument } from '@/hooks/useFiscalQuery'
 import { 
   FileText, 

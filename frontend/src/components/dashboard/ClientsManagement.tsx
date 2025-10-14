@@ -7,6 +7,7 @@
 
 import React, { useMemo, useState, useCallback } from 'react'
 import { formatCurrency } from '@/utils/format'
+// Modified: 2025-10-14 16:42 UTC | Safe formatters applied (3 occurrences)
 import { useClientsQuery, useCreateClientMutation, useUpdateClientMutation, useDeleteClientMutation, type Client } from '@/hooks/useClientsQuery'
 // import { FixedSizeList as List } from 'react-window'
 import {

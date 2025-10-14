@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/format'
+// Modified: 2025-10-14 16:42 UTC | Safe formatters applied
 import { 
   ShoppingCart, 
   Clock, 

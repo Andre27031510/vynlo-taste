@@ -7,6 +7,7 @@
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useProductStatsQuery, type ProductStats } from '@/hooks/useProductsQuery';
 import { formatCurrency, formatNumber } from '@/utils/format';
+// Modified: 2025-10-14 16:42 UTC | Safe formatters applied
 
 export default function DashboardStats() {
   // Usar hooks que chamam APIs reais

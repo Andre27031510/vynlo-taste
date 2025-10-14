@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { formatCurrency } from '@/utils/format'
+// Modified: 2025-10-14 16:43 UTC | Safe formatters applied (7 occurrences) + syntax errors fixed
 import { 
   BarChart3, 
   TrendingUp, 
@@ -164,7 +165,7 @@ export default function ReportsAnalytics() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Vendas Totais</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {formatCurrency((salesReport as any)?.totalSales? || '0,00')}
+                  {formatCurrency((salesReport as any)?.totalSales || 0)}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400">+12.5% vs período anterior</p>
               </div>
@@ -194,7 +195,7 @@ export default function ReportsAnalytics() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Ticket Médio</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {formatCurrency((salesReport as any)?.averageOrderValue? || '0,00')}
+                  {formatCurrency((salesReport as any)?.averageOrderValue || 0)}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400">+3.7% vs período anterior</p>
               </div>

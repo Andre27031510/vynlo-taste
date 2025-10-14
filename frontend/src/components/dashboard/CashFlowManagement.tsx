@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import { formatCurrency } from '@/utils/format'
+// Modified: 2025-10-14 16:42 UTC | Safe formatters applied (5 occurrences)
 import { useCashFlowQuery, useCashFlowSummaryQuery, useCreateCashFlowMutation } from '@/hooks/useCashFlowQuery'
 import { 
   DollarSign, 
