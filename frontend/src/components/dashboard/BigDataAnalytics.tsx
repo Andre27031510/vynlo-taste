@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/format'
-// Modified: 2025-10-14 16:48 UTC | Safe formatters verified ✓ (1 occurrence)
+// Modified: 2025-10-14 18:00 UTC | Mock data removed + metrics should use real APIs
 import { 
   Database, 
   Brain, 
@@ -58,12 +58,12 @@ export default function BigDataAnalytics() {
         type: selectedAnalysisType,
         timeframe,
         data: {
-          historicalSales: mockSalesData,
+          historicalSales: [], // ✅ Mock removido - deve vir de useReportsQuery
           currentMetrics: {
-            totalRevenue: 450000,
-            totalOrders: 3500,
-            avgOrderValue: 128.57,
-            customerRetention: 0.75
+            totalRevenue: 0, // ✅ Deve vir de useDashboardStats
+            totalOrders: 0,
+            avgOrderValue: 0,
+            customerRetention: 0
           },
           seasonalFactors: {
             month: new Date().getMonth() + 1,

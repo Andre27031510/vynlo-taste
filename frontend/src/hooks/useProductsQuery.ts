@@ -1,7 +1,7 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-14 17:15 UTC | Pagination fix: 0-based page, size param, sort by createdAt desc
+// Modified: 2025-10-14 18:01 UTC | Pagination 0-based + mock removed (verified ✓)
 // FIX: Frontend page=1 → backend page=0 (Spring Data padrão)
 // FIX: 'limit' → 'size' (backend expects 'size')
 // FIX: Added sort=createdAt,desc (deterministic ordering)

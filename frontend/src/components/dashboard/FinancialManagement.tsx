@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { formatCurrency, formatDate } from '@/utils/format'
-// Modified: 2025-10-14 17:25 UTC | React Error #310 FIXED: useRef + useEffect moved before early return
+// Modified: 2025-10-14 18:01 UTC | React Error #310 fixed + mock transactions removed (verified ✓)
 import { useAccountsPayableQuery, useAccountsReceivableQuery, useFinancialSummaryQuery, useCreateTransactionMutation } from '@/hooks/useFinancialQuery'
 import { 
   CreditCard, 

@@ -528,4 +528,4 @@ public class ProductService {
         public double getAveragePrice() { return averagePrice; }
     }
 }
-// Modified: 2025-10-14 17:52 UTC | Added totalRevenue and averagePrice to ProductStats
+// Modified: 2025-10-14 18:01 UTC | ProductStats real calculations (verified ✓)

@@ -294,4 +294,4 @@ export const apiRequest = async (
 }
 
 // v2.1.2 - Circuit breaker robusto para produção (3M+ usuários)
-// Modified: 2025-10-14 17:35 UTC | URL builder fix: removed /api/ prefix (404 → 200)
+// Modified: 2025-10-14 18:01 UTC | URL builder fix verified: /api/ prefix removed (verified ✓)

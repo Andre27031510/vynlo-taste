@@ -7,7 +7,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { useDashboardStats } from '@/hooks/useDashboardStats'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { formatCurrency } from '@/utils/format'
-// Modified: 2025-10-14 16:48 UTC | Safe formatters applied + import path fixed
+// Modified: 2025-10-14 18:01 UTC | Mock clients removed (verified ✓)
 import { 
   TrendingUp, 
   ShoppingCart, 

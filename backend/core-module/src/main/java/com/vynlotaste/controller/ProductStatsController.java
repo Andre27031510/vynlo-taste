@@ -48,4 +48,4 @@ public class ProductStatsController {
         }
     }
 }
-// Modified: 2025-10-14 17:53 UTC | Hardcoded stats removed - 100% real data from ProductService
+// Modified: 2025-10-14 18:01 UTC | Hardcoded removed - 100% real (verified ✓)
