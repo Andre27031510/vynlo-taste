@@ -47,17 +47,6 @@ const DocumentSkeleton = () => (
   </div>
 )
 
-interface FiscalDocument {
-  id: string
-  number: string
-  type: 'NFe' | 'NFCe' | 'CTe'
-  status: 'pending' | 'authorized' | 'cancelled' | 'rejected'
-  customer: string
-  value: number
-  issuedAt: string
-  dueDate?: string
-  sefazStatus?: string
-}
 
 export default function FiscalManagement() {
   // Hooks da API
@@ -124,9 +113,8 @@ export default function FiscalManagement() {
   const getStatusColor = (status: FiscalDocument['status']) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      authorized: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
-      rejected: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      issued: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
     }
     return colors[status]
   }
@@ -135,9 +123,8 @@ export default function FiscalManagement() {
   const getStatusIcon = (status: FiscalDocument['status']) => {
     const icons = {
       pending: Clock,
-      authorized: CheckCircle,
-      cancelled: XCircle,
-      rejected: AlertCircle
+      issued: CheckCircle,
+      cancelled: XCircle
     }
     const IconComponent = icons[status]
     return <IconComponent className="w-4 h-4" />
@@ -303,9 +290,8 @@ export default function FiscalManagement() {
             >
               <option value="all">Todos os Status</option>
               <option value="pending">Pendente</option>
-              <option value="authorized">Autorizada</option>
+              <option value="issued">Emitida</option>
               <option value="cancelled">Cancelada</option>
-              <option value="rejected">Rejeitada</option>
             </select>
           </div>
         </div>
@@ -395,4 +381,4 @@ export default function FiscalManagement() {
   )
 }
 
-// Modified: 2025-10-11 - Fixed field mappings: documents→content, customer→customerName, issueDate→issuedAt, value→amount
+// Modified: 2025-10-11 - Fixed field mappings: documents→content, customer→customerName, issueDate→issuedAt, value→amount, status: authorized/rejected→issued
