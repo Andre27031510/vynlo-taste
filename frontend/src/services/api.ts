@@ -181,11 +181,11 @@ export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string 
   const baseUrl = getServiceUrl(serviceName)
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
   
-  // ✅ FIX: Backend controllers usam @RequestMapping sem /api prefix
-  // ProductController: @RequestMapping("/products") → https://api.vynlotech.com/products
-  // UserController: @RequestMapping("/v1/users") → https://api.vynlotech.com/v1/users
-  // Endpoints já vêm com /v1 ou sem, apenas concatenar
-  return `${baseUrl}/${cleanEndpoint}`
+  // ✅ CRITICAL FIX: ALB routes /api/* to backend, so we MUST add /api prefix
+  // ALB Rule: /api/* → vynlo-backend-http (Spring Boot)
+  // Without /api: OPTIONS /v1/users/stats → 404 (Next.js) ❌
+  // With /api: OPTIONS /api/v1/users/stats → 200 (Spring Boot) ✅
+  return `${baseUrl}/api/${cleanEndpoint}`
 }
 
 // Headers padrão com autenticação (sem Content-Type para evitar preflight em GET)
