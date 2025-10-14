@@ -1,7 +1,7 @@
 'use client'
 // v2.1.2 - Connected to real APIs - Production ready
 // TODO: Dividir em componentes menores (3544 linhas é muito)
-// Deploy: 2025-10-11 14:07 UTC - Removido mock data
+// Modified: 2025-10-14 18:15 UTC | React Error #310 FIXED: 42 hooks moved before early return (Cursor)
 
 import { useState, useEffect } from 'react'
 import { useThemeContext } from '../../contexts/ThemeContext'
@@ -63,23 +63,17 @@ interface FinancialTransaction {
 }
 
 export default function PaymentManagement() {
+  // ✅ TODOS OS HOOKS NO TOPO (Fix React Error #310 - Cursor recommendation)
   const { currentTheme } = useThemeContext()
   const theme: 'light' | 'dark' = currentTheme === 'dark' ? 'dark' : 'light'
+  
   // Queries da API
   const { data: paymentsData, isLoading } = usePaymentsQuery()
   const { data: providersData } = usePaymentProvidersQuery()
   const { data: statsData } = usePaymentStatsQuery()
   const createMutation = useCreatePaymentMutation()
   
-  const payments = paymentsData?.content ?? []
-  const providers = providersData ?? []
-  const stats = statsData ?? { totalPayments: 0, successfulPayments: 0, failedPayments: 0, totalAmount: 0 }
-  
-  if (isLoading) {
-    return <FinancialSkeleton theme={theme} />
-  }
-
-  // Estado para sincronização com fluxo de caixa
+  // Estado para sincronização com fluxo de caixa (MOVIDO ANTES DO EARLY RETURN)
   const [cashFlowSync, setCashFlowSync] = useState({
     lastSync: new Date(),
     status: 'synced',
@@ -87,13 +81,13 @@ export default function PaymentManagement() {
     totalSynced: 0
   })
 
-  // Estados para seções colapsáveis
+  // Estados para seções colapsáveis (MOVIDO ANTES DO EARLY RETURN)
   const [showIntegrationDetails, setShowIntegrationDetails] = useState(false)
   const [showRecentTransactions, setShowRecentTransactions] = useState(false)
   const [showSmartAlerts, setShowSmartAlerts] = useState(false)
   const [showCashFlowIntegration, setShowCashFlowIntegration] = useState(false)
 
-  // Estados para seções colapsáveis da aba de relatórios
+  // Estados para seções colapsáveis da aba de relatórios (MOVIDO ANTES DO EARLY RETURN)
   const [showReportFilters, setShowReportFilters] = useState(true)
   const [showMainMetrics, setShowMainMetrics] = useState(true)
   const [showVolumeChart, setShowVolumeChart] = useState(true)
@@ -102,7 +96,7 @@ export default function PaymentManagement() {
   const [showTrendsForecasts, setShowTrendsForecasts] = useState(true)
   const [showSpecializedReports, setShowSpecializedReports] = useState(true)
 
-  // Estados para funcionalidades dos relatórios
+  // Estados para funcionalidades dos relatórios (MOVIDO ANTES DO EARLY RETURN)
   const [reportPeriod, setReportPeriod] = useState('30')
   const [reportStartDate, setReportStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
   const [reportEndDate, setReportEndDate] = useState(new Date().toISOString().split('T')[0])
@@ -111,24 +105,24 @@ export default function PaymentManagement() {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   const [reportData, setReportData] = useState<any>(null)
 
-  // Estados para detalhes dos provedores
+  // Estados para detalhes dos provedores (MOVIDO ANTES DO EARLY RETURN)
   const [showProviderDetails, setShowProviderDetails] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState('')
   const [providerDetails, setProviderDetails] = useState<any>(null)
 
-  // Estados para menu de geração de relatórios
+  // Estados para menu de geração de relatórios (MOVIDO ANTES DO EARLY RETURN)
   const [showGenerateMenu, setShowGenerateMenu] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailRecipient, setEmailRecipient] = useState('')
 
-  // Estados para seções colapsáveis da aba de taxas
+  // Estados para seções colapsáveis da aba de taxas (MOVIDO ANTES DO EARLY RETURN)
   const [showFeesSummary, setShowFeesSummary] = useState(true)
   const [showProviderFees, setShowProviderFees] = useState(true)
   const [showFeesCalculator, setShowFeesCalculator] = useState(true)
   const [showFeesHistory, setShowFeesHistory] = useState(true)
   const [showFeesReports, setShowFeesReports] = useState(true)
 
-  // Estados para funcionalidades da aba de taxas
+  // Estados para funcionalidades da aba de taxas (MOVIDO ANTES DO EARLY RETURN)
   const [feesCalculatorData, setFeesCalculatorData] = useState({
     transactionValue: '',
     selectedProvider: '',
@@ -152,7 +146,7 @@ export default function PaymentManagement() {
     pix: ''
   })
 
-  // Estados para fluxo automático de pagamentos
+  // Estados para fluxo automático de pagamentos (MOVIDO ANTES DO EARLY RETURN)
   const [webhookLogs, setWebhookLogs] = useState<Array<{
     id: string
     timestamp: Date
@@ -171,7 +165,7 @@ export default function PaymentManagement() {
     lastProcessing: new Date()
   })
 
-  // Estados para integração com máquinas de cartão
+  // Estados para integração com máquinas de cartão (MOVIDO ANTES DO EARLY RETURN)
   const [integrationStatus, setIntegrationStatus] = useState({
     stone: { connected: false, lastSync: null, status: 'disconnected' },
     cielo: { connected: false, lastSync: null, status: 'disconnected' },
@@ -186,7 +180,7 @@ export default function PaymentManagement() {
   const [syncInterval, setSyncInterval] = useState(30)
   const [activeTab, setActiveTab] = useState('overview')
 
-  // Estados para gestão de estornos
+  // Estados para gestão de estornos (MOVIDO ANTES DO EARLY RETURN)
   const [showRefundRequests, setShowRefundRequests] = useState(false)
   const [showRefundSettings, setShowRefundSettings] = useState(false)
   const [refundSettings, setRefundSettings] = useState({
@@ -196,7 +190,7 @@ export default function PaymentManagement() {
   })
   const [refundRequests, setRefundRequests] = useState([])
 
-  // Estados para auditoria com IA preditiva
+  // Estados para auditoria com IA preditiva (MOVIDO ANTES DO EARLY RETURN)
   const [showAIRiskAnalysis, setShowAIRiskAnalysis] = useState(false)
   const [aiSettings, setAiSettings] = useState({
     sensitivity: 'medium',
@@ -216,6 +210,15 @@ export default function PaymentManagement() {
   const [isGeneratingComplianceReport, setIsGeneratingComplianceReport] = useState(false)
   const [isGeneratingFraudReport, setIsGeneratingFraudReport] = useState(false)
   const [isGeneratingPerformanceReport, setIsGeneratingPerformanceReport] = useState(false)
+  
+  const payments = paymentsData?.content ?? []
+  const providers = providersData ?? []
+  const stats = statsData ?? { totalPayments: 0, successfulPayments: 0, failedPayments: 0, totalAmount: 0 }
+  
+  // ✅ Early return APÓS todos os hooks (Fix React Error #310)
+  if (isLoading) {
+    return <FinancialSkeleton theme={theme} />
+  }
 
   // Simular webhook de pagamento
   const simulatePaymentWebhook = () => {
