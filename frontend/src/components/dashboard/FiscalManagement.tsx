@@ -339,7 +339,7 @@ export default function FiscalManagement() {
 
               <div className="flex justify-between items-center">
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  <strong>SEFAZ:</strong> {doc.sefazStatus || 'Não consultado'}
+                  <strong>Série:</strong> {doc.series || 'N/A'}
                 </div>
                 
                 <div className="flex space-x-2">
@@ -381,4 +381,4 @@ export default function FiscalManagement() {
   )
 }
 
-// Modified: 2025-10-11 - Fixed field mappings: documents→content, customer→customerName, issueDate→issuedAt, value→amount, status: authorized/rejected→issued
+// Modified: 2025-10-11 - Fixed 7 field mappings: documents→content, customer→customerName, issueDate→issuedAt, value→amount, status: authorized/rejected→issued, sefazStatus→series, added type import
