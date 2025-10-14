@@ -2951,17 +2951,17 @@ export default function PaymentManagement() {
                       </h5>
                       
                       <div className="space-y-4">
-                        <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                        <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                           <div className="flex justify-between items-center mb-2">
                             <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Taxa de Aprovação</span>
                             <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>78.5%</span>
                           </div>
-                          <div className="w-full bg-green-200 rounded-full h-2">
+                          <div className={`w-full ${theme === 'dark' ? 'bg-gray-600' : 'bg-green-200'} rounded-full h-2`}>
                             <div className="bg-green-500 h-2 rounded-full" style={{ width: '78.5%' }}></div>
                           </div>
                         </div>
                         
-                        <div className={`${theme === 'dark' ? 'bg-gray-600 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
+                        <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-500' : 'bg-white border-green-200'} rounded-lg p-4 border`}>
                           <div className="flex justify-between items-center mb-2">
                             <span className={`${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>Tempo Médio de Resposta</span>
                             <span className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-green-900'}`}>2.3 dias</span>
