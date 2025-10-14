@@ -51,59 +51,8 @@ export interface UpdateProductData extends CreateProductData {
   status?: 'active' | 'inactive'
 }
 
-// Mock data para fallback
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Hambúrguer Gourmet',
-    category: 'Lanches',
-    price: 28.90,
-    cost: 12.50,
-    stock: 45,
-    minStock: 10,
-    status: 'active',
-    description: 'Hambúrguer artesanal com queijo, alface e tomate',
-    sales: 156,
-    revenue: 4508.40,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    name: 'Pizza Margherita',
-    category: 'Pizzas',
-    price: 42.00,
-    cost: 18.00,
-    stock: 23,
-    minStock: 15,
-    status: 'active',
-    description: 'Pizza tradicional com molho, mussarela e manjericão',
-    sales: 89,
-    revenue: 3738.00,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '3',
-    name: 'Refrigerante Cola',
-    category: 'Bebidas',
-    price: 8.50,
-    cost: 3.20,
-    stock: 67,
-    minStock: 20,
-    status: 'active',
-    description: 'Refrigerante cola 350ml',
-    sales: 234,
-    revenue: 1989.00,
-    createdAt: new Date().toISOString()
-  }
-]
-
-const mockStats: ProductStats = {
-  totalProducts: 3,
-  activeProducts: 3,
-  lowStockProducts: 1,
-  totalRevenue: 10235.40,
-  averagePrice: 26.47
-}
+// ✅ MOCK DATA REMOVIDO - 100% API REAL (Modified: 2025-10-14 17:40 UTC)
+// Sistema em produção para 3M+ usuários - sem fallbacks mock
 
 const fetchProducts = async (filters?: {
   category?: string
