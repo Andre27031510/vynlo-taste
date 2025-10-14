@@ -1,6 +1,7 @@
 'use client'
 // v2.1.2 - Endpoints reais para estornos - Production ready
 // Modified: 2025-10-14 19:00 UTC | Real refunds API connected
+// Modified: 2025-10-14 19:15 UTC | TypeScript compilation fix applied
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'

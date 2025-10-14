@@ -12,6 +12,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+// Created: 2025-10-14 19:00 UTC | Real refunds entity for production system
+
 @Entity
 @Table(name = "payment_refunds", indexes = {
     @Index(name = "idx_refund_status", columnList = "status"),

@@ -2,6 +2,7 @@
 // v2.1.2 - Connected to real APIs - Production ready
 // TODO: Dividir em componentes menores (3544 linhas é muito)
 // Modified: 2025-10-14 18:15 UTC | React Error #310 FIXED: 42 hooks moved before early return (Cursor)
+// Modified: 2025-10-14 19:15 UTC | Dark mode contrast fix + audit simulation removed
 
 import { useState, useEffect } from 'react'
 import { useThemeContext } from '../../contexts/ThemeContext'

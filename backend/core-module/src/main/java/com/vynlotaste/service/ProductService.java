@@ -480,6 +480,7 @@ public class ProductService {
             // ✅ Calcular receita total e preço médio (Modified: 2025-10-14 17:53 UTC)
             // TEMPORÁRIO: Como não temos campo 'sales', calcular apenas preço médio
             double totalRevenue = 0.0; // TODO: Implementar quando tivermos dados de vendas reais
+            // Modified: 2025-10-14 19:15 UTC | Build error fix - getSales() method removed
             
             double averagePrice = activeProducts > 0 
                 ? productRepository.findAll().stream()

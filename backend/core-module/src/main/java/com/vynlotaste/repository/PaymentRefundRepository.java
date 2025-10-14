@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+// Created: 2025-10-14 19:00 UTC | Real refunds repository with BigDecimal support
+
 @Repository
 public interface PaymentRefundRepository extends JpaRepository<PaymentRefund, Long> {
 
