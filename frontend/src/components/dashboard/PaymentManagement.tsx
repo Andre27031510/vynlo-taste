@@ -75,9 +75,8 @@ export default function PaymentManagement() {
   const providers = providersData ?? []
   const stats = statsData ?? { totalPayments: 0, successfulPayments: 0, failedPayments: 0, totalAmount: 0 }
   
-  if (isLoading) {
-    return <FinancialSkeleton theme={theme} />
-  }
+  // PRODUCTION-SAFE: Não retornar antes de todos os hooks para evitar React error #310
+  // A renderização de loading deve ser controlada no retorno final, mantendo ordem dos hooks
 
   // Estado para sincronização com fluxo de caixa
   const [cashFlowSync, setCashFlowSync] = useState({

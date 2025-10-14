@@ -89,9 +89,8 @@ export default function FinancialManagement() {
   // Status de carregamento
   const isLoading = payableLoading || receivableLoading || summaryLoading
 
-  if (isLoading) {
-    return <FinancialSkeleton theme={theme} />
-  }
+  // PRODUCTION-SAFE: Evitar retorno condicional antes de todos os hooks para não quebrar a ordem
+  // O estado de loading será tratado no retorno principal do componente
 
   // Sincronizar com API
   const syncWithAPI = async () => {
