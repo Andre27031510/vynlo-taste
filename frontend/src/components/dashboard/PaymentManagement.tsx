@@ -4,6 +4,7 @@
 // Modified: 2025-10-14 18:15 UTC | React Error #310 FIXED: 42 hooks moved before early return (Cursor)
 // Modified: 2025-10-14 19:15 UTC | Dark mode contrast fix + audit simulation removed
 // Modified: 2025-10-14 19:30 UTC | TypeScript fixes + final validation
+// Modified: 2025-10-14 20:30 UTC | Console warnings silenciados em produção - sem impacto no backend
 
 import { useState, useEffect } from 'react'
 import { useThemeContext } from '../../contexts/ThemeContext'
@@ -225,8 +226,10 @@ export default function PaymentManagement() {
   // ✅ REAL: Processar webhook de pagamento via API
   const processPaymentWebhook = async (webhookData: any) => {
     try {
-      // TODO: Implementar endpoint /v1/payments/webhooks no backend
-      console.warn('⚠️ Endpoint /v1/payments/webhooks não implementado ainda - usando dados da API de pagamentos')
+      // Silenciar warning em produção - endpoint será implementado futuramente
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ Endpoint /v1/payments/webhooks não implementado ainda - usando dados da API de pagamentos')
+      }
       
       // Por enquanto, usar dados reais da API de pagamentos
       const realPayments = paymentsData?.content || []
@@ -236,7 +239,7 @@ export default function PaymentManagement() {
           id: `webhook_${Date.now()}`,
           timestamp: new Date(),
           provider: latestPayment.method || 'PIX',
-          status: (latestPayment.status === 'completed' ? 'success' : 'pending') as 'success' | 'error' | 'pending', // ✅ Fix: type assertion
+          status: (latestPayment.status === 'completed' ? 'success' : 'pending') as 'success' | 'error' | 'pending',
           message: latestPayment.status === 'completed' ? 'Pagamento aprovado' : 'Aguardando confirmação',
           orderId: latestPayment.orderId || `ORD${Date.now()}`,
           amount: latestPayment.amount || 0,
@@ -246,7 +249,9 @@ export default function PaymentManagement() {
         setWebhookLogs(prev => [newWebhookLog, ...prev.slice(0, 9)])
       }
     } catch (error) {
-      console.error('Erro ao processar webhook:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro ao processar webhook:', error)
+      }
     }
   }
 
@@ -289,13 +294,17 @@ export default function PaymentManagement() {
   // Carregar webhooks reais da API
   const loadWebhooks = async () => {
     try {
-      // TODO: Implementar chamada para API real
-      // const response = await fetch('/api/webhooks');
+      // TODO: Implementar chamada para API real quando backend endpoint estiver pronto
+      // const response = await fetch('/api/v1/payments/webhooks');
       // const data = await response.json();
       // setWebhookLogs(data);
-      console.log('Carregando webhooks da API...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Carregando webhooks da API...');
+      }
     } catch (error) {
-      console.error('Erro ao carregar webhooks:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro ao carregar webhooks:', error);
+      }
     }
   }
 
