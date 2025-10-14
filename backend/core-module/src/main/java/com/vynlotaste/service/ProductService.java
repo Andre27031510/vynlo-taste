@@ -478,10 +478,8 @@ public class ProductService {
             long lowStockProducts = productRepository.countByStockQuantityLessThan(10);
             
             // ✅ Calcular receita total e preço médio (Modified: 2025-10-14 17:53 UTC)
-            double totalRevenue = productRepository.findAll().stream()
-                .filter(p -> p.getPrice() != null)
-                .mapToDouble(p -> p.getPrice().doubleValue() * (p.getSales() != null ? p.getSales() : 0))
-                .sum();
+            // TEMPORÁRIO: Como não temos campo 'sales', calcular apenas preço médio
+            double totalRevenue = 0.0; // TODO: Implementar quando tivermos dados de vendas reais
             
             double averagePrice = activeProducts > 0 
                 ? productRepository.findAll().stream()
