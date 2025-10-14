@@ -112,8 +112,13 @@ const fetchProducts = async (filters?: {
   const params = new URLSearchParams()
   if (filters?.category && filters.category !== '') params.append('category', filters.category)
   if (filters?.search) params.append('search', filters.search)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.limit) params.append('limit', filters.limit.toString())
+  // Enforce 0-based pagination and deterministic ordering for backend (production-safe)
+  const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+  const size = (filters?.limit ?? 10)
+  // Always send page/size/sort for consistent results across environments
+  params.append('page', pageZero.toString())
+  params.append('size', size.toString())
+  params.append('sort', 'createdAt,desc')
 
   const response = await apiRequest('core-service', `products?${params.toString()}`)
   
@@ -150,7 +155,7 @@ const fetchProducts = async (filters?: {
   return {
     products,
     total: data.totalElements || data.total || products.length,
-    totalPages: data.totalPages || Math.ceil(products.length / (filters?.limit || 10))
+    totalPages: data.totalPages || Math.ceil(products.length / ((filters?.limit ?? 10)))
   }
 }
 
