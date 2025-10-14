@@ -3,6 +3,7 @@
 // Deploy: 2025-10-11 14:05 UTC - Types alinhados (inflow/outflow)
 
 import { useState } from 'react'
+import { formatCurrency } from '@/utils/format'
 import { useCashFlowQuery, useCashFlowSummaryQuery, useCreateCashFlowMutation } from '@/hooks/useCashFlowQuery'
 import { 
   DollarSign, 
@@ -107,7 +108,7 @@ export default function CashFlowManagement() {
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Entradas</p>
               <p className={`text-lg sm:text-2xl font-bold ${FINANCIAL_COLORS.text.primary.light} dark:${FINANCIAL_COLORS.text.primary.dark}`}>
-                R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {formatCurrency(totalIncome)}
               </p>
             </div>
           </div>
@@ -121,7 +122,7 @@ export default function CashFlowManagement() {
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Saídas</p>
               <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
-                R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {formatCurrency(totalExpense)}
               </p>
             </div>
           </div>
@@ -141,7 +142,7 @@ export default function CashFlowManagement() {
               <p className={`text-lg sm:text-2xl font-bold ${
                 balance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-600 dark:text-red-400'
               }`}>
-                R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {formatCurrency(balance)}
               </p>
             </div>
           </div>
@@ -155,7 +156,7 @@ export default function CashFlowManagement() {
             <div className="flex-1 min-w-0">
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">Projeção</p>
               <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
-                R$ {summary.projectedBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {formatCurrency(summary.projectedBalance)}
               </p>
             </div>
           </div>
@@ -247,7 +248,7 @@ export default function CashFlowManagement() {
                     ? 'text-green-600 dark:text-green-400' 
                     : 'text-red-600 dark:text-red-400'
                 }`}>
-                  {entry.type === 'inflow' ? '+' : '-'}R$ {entry.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {entry.type === 'inflow' ? '+' : '-'}{formatCurrency(entry.amount)}
                 </p>
                 
                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

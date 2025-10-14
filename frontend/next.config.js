@@ -38,6 +38,8 @@ const nextConfig = {
   // FORÇAR LIMPEZA DE CACHE
   distDir: '.next',
   cleanDistDir: true,
+  // Source maps para produção (facilita debug de erros minificados como React #310)
+  productionBrowserSourceMaps: true,
   images: {
     domains: ['localhost', 'api.vynlotech.com', 'cdn.vynlotech.com'],
   },

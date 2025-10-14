@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { formatCurrency } from '@/utils/format'
 import { 
   BarChart3, 
   TrendingUp, 
@@ -163,7 +164,7 @@ export default function ReportsAnalytics() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Vendas Totais</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  R$ {(salesReport as any)?.totalSales?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+                  {formatCurrency((salesReport as any)?.totalSales? || '0,00')}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400">+12.5% vs período anterior</p>
               </div>
@@ -193,7 +194,7 @@ export default function ReportsAnalytics() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Ticket Médio</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  R$ {(salesReport as any)?.averageOrderValue?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+                  {formatCurrency((salesReport as any)?.averageOrderValue? || '0,00')}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400">+3.7% vs período anterior</p>
               </div>
@@ -244,7 +245,7 @@ export default function ReportsAnalytics() {
                       ></div>
                     </div>
                     <div className="w-20 text-sm text-gray-900 dark:text-white font-medium">
-                      R$ {hourData.sales.toLocaleString('pt-BR')}
+                        {formatCurrency(hourData.sales)}
                     </div>
                   </div>
                 ))}
@@ -287,7 +288,7 @@ export default function ReportsAnalytics() {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-gray-900 dark:text-white">
-                        R$ {product.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        {formatCurrency(product.revenue)}
                       </p>
                     </div>
                   </div>
@@ -377,7 +378,7 @@ export default function ReportsAnalytics() {
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Previsão de Vendas</p>
               <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                R$ {((analytics as any)?.predictedSales || 0).toLocaleString('pt-BR')}
+                      {formatCurrency((analytics as any)?.predictedSales || 0)}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Estimativa para os próximos 30 dias

@@ -6,6 +6,7 @@
 // Deploy: 2025-10-11
 
 import React, { useMemo, useState, useCallback } from 'react'
+import { formatCurrency } from '@/utils/format'
 import { useClientsQuery, useCreateClientMutation, useUpdateClientMutation, useDeleteClientMutation, type Client } from '@/hooks/useClientsQuery'
 // import { FixedSizeList as List } from 'react-window'
 import {
@@ -175,7 +176,7 @@ export default function ClientsManagement() {
           {/* Total Gasto */}
           <div>
             <span className="font-manrope font-bold text-green-600 dark:text-green-400">
-              R$ {client.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              {formatCurrency(client.total)}
             </span>
           </div>
           
@@ -414,7 +415,7 @@ export default function ClientsManagement() {
             <div>
               <p className="text-sm font-manrope font-medium text-gray-600 dark:text-gray-300">Receita Total</p>
               <p className="text-3xl font-manrope font-bold text-emerald-600 dark:text-emerald-400">
-                R$ {clientMetrics.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {formatCurrency(clientMetrics.totalRevenue)}
               </p>
             </div>
             <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center">
@@ -673,7 +674,7 @@ export default function ClientsManagement() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-manrope font-bold text-green-600 dark:text-green-400">
-                    R$ {selectedClient.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {formatCurrency(selectedClient.total)}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">Total Gasto</div>
                 </div>

@@ -4,6 +4,7 @@
 // TODO: Corrigir 19 erros TypeScript (Amazon Q)
 
 import { useState, useEffect, useRef } from 'react'
+import { formatCurrency, formatDate } from '@/utils/format'
 import { useAccountsPayableQuery, useAccountsReceivableQuery, useFinancialSummaryQuery, useCreateTransactionMutation } from '@/hooks/useFinancialQuery'
 import { 
   CreditCard, 
@@ -499,7 +500,7 @@ export default function FinancialManagement() {
                     <span className="text-sm text-green-600 font-manrope">Receitas</span>
                   </div>
                   <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[theme]}`}>
-                    R$ {(totalReceivableAmount + txIncomeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {formatCurrency((totalReceivableAmount + txIncomeTotal))}
                   </div>
                   <p className={`${FINANCIAL_COLORS.text.secondary[theme]} text-sm`}>Recebimentos previstos e realizados</p>
                 </div>
@@ -512,7 +513,7 @@ export default function FinancialManagement() {
                     <span className="text-sm text-red-600 font-manrope">Despesas</span>
                   </div>
                   <div className={`text-2xl font-bold font-manrope ${FINANCIAL_COLORS.text.primary[theme]}`}>
-                    R$ {(totalPayableAmount + txExpenseTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {formatCurrency((totalPayableAmount + txExpenseTotal))}
                   </div>
                   <p className={`${FINANCIAL_COLORS.text.secondary[theme]} text-sm`}>Pagamentos previstos e realizados</p>
                 </div>
@@ -525,7 +526,7 @@ export default function FinancialManagement() {
                     <span className="text-sm text-blue-600 font-manrope">Saldo</span>
                   </div>
                   <div className={`text-2xl font-bold font-manrope ${netCash + txBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    R$ {(netCash + txBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {formatCurrency((netCash + txBalance))}
                   </div>
                   <p className={`${FINANCIAL_COLORS.text.secondary[theme]} text-sm`}>Receitas - Despesas</p>
                 </div>
@@ -565,7 +566,7 @@ export default function FinancialManagement() {
                         <div className={`w-3 h-3 rounded-full ${c.color}`} />
                         <span className={`${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'} font-manrope`}>{c.category}</span>
                       </div>
-                      <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>R$ {c.amount.toLocaleString('pt-BR')}</span>
+                      <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(c.amount)}</span>
                     </div>
                   ))}
                 </div>
@@ -594,8 +595,8 @@ export default function FinancialManagement() {
                           </div>
                       </div>
                       <div className="text-right">
-                          <div className={`font-bold ${item.kind === 'RECEBER' ? 'text-green-600' : 'text-red-600'}`}>R$ {item.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-                          <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{new Date(item.dueDate).toLocaleDateString('pt-BR')}</div>
+                          <div className={`font-bold ${item.kind === 'RECEBER' ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(item.amount)}</div>
+                          <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{formatDate(item.dueDate)}</div>
                       </div>
                     </div>
                   ))}
@@ -653,15 +654,15 @@ export default function FinancialManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Receitas</div>
-                  <div className="text-2xl font-bold text-green-600">R$ {txIncomeTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-green-600">{formatCurrency(txIncomeTotal)}</div>
                 </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Despesas</div>
-                  <div className="text-2xl font-bold text-red-600">R$ {txExpenseTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-red-600">{formatCurrency(txExpenseTotal)}</div>
                 </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Saldo</div>
-                  <div className={`text-2xl font-bold ${txBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {txBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className={`text-2xl font-bold ${txBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(txBalance)}</div>
                 </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-100'} rounded-xl p-5`}>
                   <div className="text-sm font-manrope text-gray-500 mb-1">Transações</div>
@@ -765,8 +766,8 @@ export default function FinancialManagement() {
                             </div>
                           </div>
                           <div className="text-right">
-                        <div className={`font-bold ${t.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>{t.type === 'INCOME' ? '+' : '-'}R$ {t.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-                        <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{new Date(t.date).toLocaleDateString('pt-BR')}</div>
+                        <div className={`font-bold ${t.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>{t.type === 'INCOME' ? '+' : '-'}{formatCurrency(t.amount)}</div>
+                        <div className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} text-sm`}>{formatDate(t.date)}</div>
                         </div>
                       </div>
                     ))}
@@ -882,15 +883,15 @@ export default function FinancialManagement() {
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Total Pendente</div>
-                  <div className="text-2xl font-bold text-yellow-600">R$ {totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-yellow-600">{formatCurrency(totalPending)}</div>
                             </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Total Vencido</div>
-                  <div className="text-2xl font-bold text-red-600">R$ {totalOverdue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-red-600">{formatCurrency(totalOverdue)}</div>
                             </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Total Pago</div>
-                  <div className="text-2xl font-bold text-green-600">R$ {totalPaid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-green-600">{formatCurrency(totalPaid)}</div>
                           </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Contas Críticas</div>
@@ -922,8 +923,8 @@ export default function FinancialManagement() {
                             <div className="text-sm text-gray-500">{account.category}</div>
                           </td>
                           <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">{account.description}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right font-bold">R$ {account.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                          <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center text-sm">{new Date(account.dueDate).toLocaleDateString('pt-BR')}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right font-bold">{formatCurrency(account.amount)}</td>
+                          <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-center text-sm">{formatDate(account.dueDate)}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(account.status)}`}>
                               {getStatusIcon(account.status)}
@@ -1020,9 +1021,9 @@ export default function FinancialManagement() {
                         
                         // Métricas principais
                         const metrics = [
-                          ['Receita Total', `R$ ${(totalReceivableAmount + txIncomeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
-                          ['Despesa Total', `R$ ${(totalPayableAmount + txExpenseTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
-                          ['Lucro Líquido', `R$ ${(txBalance + netCash).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+                          ['Receita Total', `R$ ${(totalReceivableAmount + txIncomeTotal)}`],
+                          ['Despesa Total', `R$ ${(totalPayableAmount + txExpenseTotal)}`],
+                          ['Lucro Líquido', `R$ ${(txBalance + netCash)}`],
                           ['Margem de Lucro', `${txIncomeTotal > 0 ? Math.round(((txBalance + netCash) / Math.max(1, txIncomeTotal)) * 100) : 0}%`]
                         ]
                         
@@ -1070,9 +1071,9 @@ export default function FinancialManagement() {
                         doc.setTextColor(107, 114, 128)
                         
                         const accountAnalysis = [
-                          ['Total Pendente', `R$ ${totalPending.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
-                          ['Total Vencido', `R$ ${totalOverdue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
-                          ['Total Pago', `R$ ${totalPaid.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`],
+                          ['Total Pendente', `R$ ${totalPending}`],
+                          ['Total Vencido', `R$ ${totalOverdue}`],
+                          ['Total Pago', `R$ ${totalPaid}`],
                           ['Contas Críticas', `${criticalAccounts.length}`]
                         ]
                         
@@ -1128,9 +1129,9 @@ export default function FinancialManagement() {
                       // Simular exportação Excel
                       const csvContent = "data:text/csv;charset=utf-8," + 
                         "Métrica,Valor\n" +
-                        `Receita Total,R$ ${(totalReceivableAmount + txIncomeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-                        `Despesa Total,R$ ${(totalPayableAmount + txExpenseTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-                        `Lucro Líquido,R$ ${(txBalance + netCash).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
+                        `Receita Total,R$ ${(totalReceivableAmount + txIncomeTotal)}\n` +
+                        `Despesa Total,R$ ${(totalPayableAmount + txExpenseTotal)}\n` +
+                        `Lucro Líquido,R$ ${(txBalance + netCash)}\n` +
                         `Margem de Lucro,${txIncomeTotal > 0 ? Math.round(((txBalance + netCash) / Math.max(1, txIncomeTotal)) * 100) : 0}%\n` +
                         `ROI,18%\n` +
                         `Ponto de Equilíbrio,R$ 42.000,00\n` +
@@ -1155,15 +1156,15 @@ export default function FinancialManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Receita Total</div>
-                  <div className="text-2xl font-bold text-green-600">R$ {(totalReceivableAmount + txIncomeTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-green-600">{formatCurrency((totalReceivableAmount + txIncomeTotal))}</div>
             </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Despesa Total</div>
-                  <div className="text-2xl font-bold text-red-600">R$ {(totalPayableAmount + txExpenseTotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className="text-2xl font-bold text-red-600">{formatCurrency((totalPayableAmount + txExpenseTotal))}</div>
           </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Lucro Líquido</div>
-                  <div className={`text-2xl font-bold ${txBalance + netCash >= 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {(txBalance + netCash).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                  <div className={`text-2xl font-bold ${txBalance + netCash >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency((txBalance + netCash))}</div>
                 </div>
                 <div className={`${theme === 'dark' ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-lg border`}>
                   <div className="text-sm text-gray-500 mb-1">Margem de Lucro</div>
@@ -1230,11 +1231,11 @@ export default function FinancialManagement() {
                 </div>
                 <div>
                 <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Valor</label>
-                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>R$ {selectedAccount.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{formatCurrency(selectedAccount.amount)}</p>
                   </div>
               <div>
                 <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Vencimento</label>
-                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{new Date(selectedAccount.dueDate).toLocaleDateString('pt-BR')}</p>
+                <p className={`${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{formatDate(selectedAccount.dueDate)}</p>
                 </div>
                 <div>
                 <label className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>Status</label>
@@ -1397,7 +1398,7 @@ export default function FinancialManagement() {
               </div>
             <div className="mb-6">
               <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                Tem certeza que deseja excluir a conta de <strong>{selectedAccount.supplier}</strong> no valor de <strong>R$ {selectedAccount.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>?
+                Tem certeza que deseja excluir a conta de <strong>{selectedAccount.supplier}</strong> no valor de <strong>{formatCurrency(selectedAccount.amount)}</strong>?
               </p>
               <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} text-sm mt-2`}>
                   Esta ação não pode ser desfeita.

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import { useDashboardStats } from '@/hooks/useDashboardStats'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { formatCurrency } from '../../utils/format'
 import { 
   TrendingUp, 
   ShoppingCart, 

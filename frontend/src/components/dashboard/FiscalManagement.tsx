@@ -3,6 +3,7 @@
 // Updated: 2025-10-11 14:08 UTC - Import duplicado removido
 
 import { useState } from 'react'
+import { formatDateTime } from '@/utils/format'
 import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery, type FiscalDocument } from '@/hooks/useFiscalQuery'
 import { 
   FileText, 
@@ -258,7 +259,7 @@ export default function FiscalManagement() {
             
             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Sincronização realizada em {new Date(syncResults.timestamp).toLocaleString('pt-BR')}
+                Sincronização realizada em {formatDateTime(syncResults.timestamp)}
               </p>
             </div>
           </div>
@@ -328,7 +329,7 @@ export default function FiscalManagement() {
                 
                 <div className="text-right">
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    R$ {doc.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {formatCurrency(doc.amount)}
                   </p>
                   <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(doc.status)}`}>
                     {getStatusIcon(doc.status)}

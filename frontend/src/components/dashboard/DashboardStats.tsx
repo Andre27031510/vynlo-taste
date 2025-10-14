@@ -6,6 +6,7 @@
 
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useProductStatsQuery, type ProductStats } from '@/hooks/useProductsQuery';
+import { formatCurrency, formatNumber } from '@/utils/format';
 
 export default function DashboardStats() {
   // Usar hooks que chamam APIs reais
@@ -17,13 +18,6 @@ export default function DashboardStats() {
   // Type guard para garantir tipo correto
   const productsStats = productsData as ProductStats | undefined;
   const activeProducts = productsStats?.activeProducts ?? 0;
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
 
   if (loading) {
     return (
@@ -44,7 +38,7 @@ export default function DashboardStats() {
         <div className="flex items-center">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Pedidos</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{dashboardStats.totalOrders.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(dashboardStats.totalOrders)}</p>
           </div>
           <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
             <svg className="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

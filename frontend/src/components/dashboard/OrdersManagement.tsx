@@ -3,6 +3,7 @@
 // Deploy: 2025-10-11
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
+import { formatCurrency, formatDateTime } from '@/utils/format'
 import { 
   ShoppingCart, 
   Clock, 
@@ -67,12 +68,12 @@ const OrderCard = memo(({ order, onStatusUpdate, getStatusColor, getStatusIcon, 
   isUpdating: boolean
 }) => {
   const formattedDate = useMemo(() => 
-    new Date(order.createdAt).toLocaleString('pt-BR'), 
+    formatDateTime(order.createdAt), 
     [order.createdAt]
   )
   
   const formattedTotal = useMemo(() => 
-    order.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 }), 
+    formatCurrency(order.total), 
     [order.total]
   )
   
