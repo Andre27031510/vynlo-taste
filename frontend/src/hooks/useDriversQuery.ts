@@ -1,7 +1,8 @@
 'use client'
 // Otimizado para produção - cache 5min, mutation sem reload
 // v2.1.2 - Added useCreateDriverMutation for better UX
-// Modified: 2025-10-11-v14 | Drivers query optimized - Fixed React Query v5 API (gcTime)
+// Modified: 2025-10-11-v14 | Drivers query optimized
+// Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay - Fixed React Query v5 API (gcTime)
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
@@ -123,11 +124,21 @@ export const useCreateDriverMutation = () => {
       return await response.json()
     },
     onSuccess: (newDriver) => {
-      // ✅ Invalidar queries para atualizar lista automaticamente (SEM reload!)
+      // ✅ INVALIDAÇÃO AGRESSIVA - limpar TODO cache relacionado
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
       queryClient.invalidateQueries({ queryKey: ['drivers-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
       
-      console.log('✅ Motoboy cadastrado com sucesso:', newDriver)
+      // ✅ RESETAR queries para forçar reload completo
+      queryClient.resetQueries({ queryKey: ['drivers'] })
+      
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['drivers'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['drivers-stats'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
+      
+      console.log('✅ Motoboy cadastrado com sucesso - cache resetado:', newDriver)
     },
     onError: (error) => {
       console.error('❌ Erro ao cadastrar motoboy:', error)

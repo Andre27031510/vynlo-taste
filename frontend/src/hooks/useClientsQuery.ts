@@ -1,6 +1,7 @@
 'use client'
 // v2.1.2 - Clientes 100% conectados com API real (v1/users endpoint)
 // Modified: 2025-10-11-v2 | Clients API fully connected 13:49 UTC - Removed password field (backend não aceita)
+// Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay
 // CRITICAL: Clients fully functional with PostgreSQL
 // FIX: HTTP 500 corrigido - payload alinhado com UserRequestDto
 
@@ -142,8 +143,21 @@ export const useCreateClientMutation = () => {
       return await response.json()
     },
     onSuccess: () => {
+      // ✅ INVALIDAÇÃO AGRESSIVA - limpar TODO cache relacionado
       queryClient.invalidateQueries({ queryKey: ['clients'] })
-      console.log('✅ Cliente criado com sucesso')
+      queryClient.invalidateQueries({ queryKey: ['clients-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      
+      // ✅ RESETAR queries para forçar reload completo
+      queryClient.resetQueries({ queryKey: ['clients'] })
+      
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['clients'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
+      
+      console.log('✅ Cliente criado com sucesso - cache resetado')
     },
     onError: (error) => {
       console.error('❌ Erro ao criar cliente:', error)
@@ -188,8 +202,18 @@ export const useUpdateClientMutation = () => {
       return await response.json()
     },
     onSuccess: () => {
+      // ✅ INVALIDAÇÃO AGRESSIVA
       queryClient.invalidateQueries({ queryKey: ['clients'] })
-      console.log('✅ Cliente atualizado com sucesso')
+      queryClient.invalidateQueries({ queryKey: ['clients-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.resetQueries({ queryKey: ['clients'] })
+      
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['clients'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
+      
+      console.log('✅ Cliente atualizado com sucesso - cache resetado')
     },
     onError: (error) => {
       console.error('❌ Erro ao atualizar cliente:', error)
@@ -213,8 +237,18 @@ export const useDeleteClientMutation = () => {
       }
     },
     onSuccess: () => {
+      // ✅ INVALIDAÇÃO AGRESSIVA
       queryClient.invalidateQueries({ queryKey: ['clients'] })
-      console.log('✅ Cliente deletado com sucesso')
+      queryClient.invalidateQueries({ queryKey: ['clients-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.resetQueries({ queryKey: ['clients'] })
+      
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['clients'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
+      
+      console.log('✅ Cliente deletado com sucesso - cache resetado')
     },
     onError: (error) => {
       console.error('❌ Erro ao deletar cliente:', error)

@@ -2,6 +2,7 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
 // Modified: 2025-10-14 18:01 UTC | Pagination 0-based + mock removed (verified ✓)
+// Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay
 // FIX: Frontend page=1 → backend page=0 (Spring Data padrão)
 // FIX: 'limit' → 'size' (backend expects 'size')
 // FIX: Added sort=createdAt,desc (deterministic ordering)
@@ -221,16 +222,24 @@ export const useCreateProduct = () => {
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      // ✅ Invalidar TODAS as queries de produtos (com exact: false para pegar variações com filtros)
-      queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
-      queryClient.invalidateQueries({ queryKey: ['product-stats'], exact: false })
+      // ✅ INVALIDAÇÃO AGRESSIVA - limpar TODO cache relacionado
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['product-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
       
-      // ✅ FORÇAR refetch imediato de TODAS as variações (incluindo filtros)
-      queryClient.refetchQueries({ queryKey: ['products'], type: 'active', exact: false })
-      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active', exact: false })
+      // ✅ RESETAR queries para forçar reload completo do zero
+      queryClient.resetQueries({ queryKey: ['products'] })
+      queryClient.resetQueries({ queryKey: ['product-stats'] })
+      
+      // ✅ FORÇAR refetch imediato
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['products'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
       
       toast.success('Produto criado com sucesso!')
-      console.log('✅ Produto criado - queries invalidadas (exact: false) e refetch forçado')
+      console.log('✅ Produto criado - cache resetado e refetch agressivo')
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Erro ao criar produto')
@@ -244,11 +253,18 @@ export const useUpdateProduct = () => {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: () => {
-      // ✅ Invalidar e forçar refetch (exact: false para pegar todas variações)
-      queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
-      queryClient.invalidateQueries({ queryKey: ['product-stats'], exact: false })
-      queryClient.refetchQueries({ queryKey: ['products'], type: 'active', exact: false })
-      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active', exact: false })
+      // ✅ INVALIDAÇÃO AGRESSIVA - igual ao create
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['product-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.resetQueries({ queryKey: ['products'] })
+      queryClient.resetQueries({ queryKey: ['product-stats'] })
+      
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['products'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
       
       toast.success('Produto atualizado com sucesso!')
     },
@@ -264,11 +280,18 @@ export const useDeleteProduct = () => {
   return useMutation({
     mutationFn: deleteProduct,
     onSuccess: () => {
-      // ✅ Invalidar e forçar refetch (exact: false para pegar todas variações)
-      queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
-      queryClient.invalidateQueries({ queryKey: ['product-stats'], exact: false })
-      queryClient.refetchQueries({ queryKey: ['products'], type: 'active', exact: false })
-      queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'active', exact: false })
+      // ✅ INVALIDAÇÃO AGRESSIVA - igual ao create
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['product-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.resetQueries({ queryKey: ['products'] })
+      queryClient.resetQueries({ queryKey: ['product-stats'] })
+      
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['products'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['product-stats'], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
       
       toast.success('Produto excluído com sucesso!')
     },

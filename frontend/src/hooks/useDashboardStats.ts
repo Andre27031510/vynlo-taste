@@ -2,6 +2,7 @@
 // v2.1.2 - Enterprise-grade caching for 3M+ users
 // Fixed: Removed auto-refresh for better scalability
 // Modified: 2025-10-14 18:20 UTC | Health path fixed: /api/actuator/health + no Authorization (verified ✓) - Production optimization
+// Modified: 2025-10-14 20:35 UTC | Stats mapping corrigido: totalUsers → totalClients (backend retorna totalUsers)
 import { useState, useEffect } from 'react'
 import { apiRequest } from '@/services/api'
 
@@ -77,18 +78,18 @@ export const useDashboardStats = () => {
         
       const usersStats = usersResult.status === 'fulfilled' 
         ? usersResult.value 
-        : { total: 0 }
+        : { totalUsers: 0, activeUsers: 0 }
         
       const driversStats = driversResult.status === 'fulfilled' 
         ? driversResult.value 
-        : { active: 0 }
+        : { active: 0, total: 0 }
 
       setStats({
         totalOrders: ordersStats.total || 0,
         pendingOrders: ordersStats.pending || 0,
         totalRevenue: ordersStats.revenue || 0,
-        activeDrivers: driversStats.active || 0,
-        totalClients: usersStats.total || 0,
+        activeDrivers: driversStats.active || driversStats.total || 0,
+        totalClients: usersStats.totalUsers || usersStats.activeUsers || 0,
         systemHealth: {
           orders: healthData?.status === 'UP' ? 'up' : 'down',
           payments: healthData?.status === 'UP' ? 'up' : 'down',

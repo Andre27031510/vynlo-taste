@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+// Modified: 2025-10-14 20:35 UTC | createUser method enhanced with logging + cache eviction
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -210,15 +211,22 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(value = "users", allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = "users", allEntries = true),
+        @CacheEvict(value = CacheConfig.USERS_CACHE, allEntries = true)
+    })
     public User createUser(com.vynlotaste.dto.user.UserRequestDto userRequest) {
+        log.info("📝 Criando usuário via API: email={}, username={}", userRequest.getEmail(), userRequest.getUsername());
+        
         // Verificar se email já existe
         if (!isEmailAvailable(userRequest.getEmail())) {
+            log.warn("⚠️ Email já existe: {}", userRequest.getEmail());
             throw new com.vynlotaste.exception.user.UserAlreadyExistsException("email", userRequest.getEmail());
         }
         
         // Verificar se username já existe
         if (!isUsernameAvailable(userRequest.getUsername())) {
+            log.warn("⚠️ Username já existe: {}", userRequest.getUsername());
             throw new com.vynlotaste.exception.user.UserAlreadyExistsException("username", userRequest.getUsername());
         }
         
@@ -234,7 +242,11 @@ public class UserService {
         user.setActive(userRequest.getActive() != null ? userRequest.getActive() : true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(user);
+        
+        User savedUser = userRepository.save(user);
+        log.info("✅ Usuário criado com sucesso: ID={}, email={}, role={}", savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
+        
+        return savedUser;
     }
     
     public Page<User> searchUsers(String query, org.springframework.data.domain.Pageable pageable) {
