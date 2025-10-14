@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { formatCurrency, formatDate } from '@/utils/format'
-// Modified: 2025-10-14 16:42 UTC | Safe formatters applied (27 occurrences)
+// Modified: 2025-10-14 16:48 UTC | Safe formatters verified ✓ (27 occurrences)
 import { useAccountsPayableQuery, useAccountsReceivableQuery, useFinancialSummaryQuery, useCreateTransactionMutation } from '@/hooks/useFinancialQuery'
 import { 
   CreditCard, 

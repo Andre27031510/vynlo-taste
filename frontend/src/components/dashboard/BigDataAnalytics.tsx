@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/format'
-// Modified: 2025-10-14 16:42 UTC | Safe formatters applied (1 occurrence)
+// Modified: 2025-10-14 16:48 UTC | Safe formatters verified ✓ (1 occurrence)
 import { 
   Database, 
   Brain, 

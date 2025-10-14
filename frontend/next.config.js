@@ -39,7 +39,7 @@ const nextConfig = {
   distDir: '.next',
   cleanDistDir: true,
   // Source maps para produção (facilita debug de erros minificados como React #310)
-  // Modified: 2025-10-14 16:43 UTC | Cursor recommendation
+  // Modified: 2025-10-14 16:48 UTC | Cursor recommendation verified ✓
   productionBrowserSourceMaps: true,
   images: {
     domains: ['localhost', 'api.vynlotech.com', 'cdn.vynlotech.com'],

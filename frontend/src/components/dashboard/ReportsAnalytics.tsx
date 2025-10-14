@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { formatCurrency } from '@/utils/format'
-// Modified: 2025-10-14 16:43 UTC | Safe formatters applied (7 occurrences) + syntax errors fixed
+// Modified: 2025-10-14 16:48 UTC | Safe formatters verified ✓ (7 occurrences) + syntax fixed
 import { 
   BarChart3, 
   TrendingUp, 

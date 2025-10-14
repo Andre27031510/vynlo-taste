@@ -3,8 +3,8 @@
 // Updated: 2025-10-11 14:08 UTC - Import duplicado removido
 
 import { useState } from 'react'
-import { formatDateTime } from '@/utils/format'
-// Modified: 2025-10-14 16:42 UTC | Safe formatters applied (2 occurrences)
+import { formatCurrency, formatDateTime } from '@/utils/format'
+// Modified: 2025-10-14 16:47 UTC | Safe formatters applied (3 occurrences: 2 formatDateTime + 1 formatCurrency)
 import { useFiscalDocumentsQuery, useCreateNFeMutation, useSEFAZStatusQuery, type FiscalDocument } from '@/hooks/useFiscalQuery'
 import { 
   FileText, 
