@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { formatCurrency, formatDate } from '@/utils/format'
-// Modified: 2025-10-14 16:48 UTC | Safe formatters verified ✓ (27 occurrences)
+// Modified: 2025-10-14 17:25 UTC | React Error #310 FIXED: useRef + useEffect moved before early return
 import { useAccountsPayableQuery, useAccountsReceivableQuery, useFinancialSummaryQuery, useCreateTransactionMutation } from '@/hooks/useFinancialQuery'
 import { 
   CreditCard, 
@@ -91,6 +91,24 @@ export default function FinancialManagement() {
   // Status de carregamento
   const isLoading = payableLoading || receivableLoading || summaryLoading
 
+  // ✅ Referência para dropdown (MOVIDO ANTES DO EARLY RETURN - Fix React Error #310)
+  const notificationsRef = useRef<HTMLDivElement>(null)
+
+  // ✅ Fechar dropdown quando clicar fora (MOVIDO ANTES DO EARLY RETURN)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setShowNotifications(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // ✅ Early return APÓS todos os hooks
   if (isLoading) {
     return <FinancialSkeleton theme={theme} />
   }
@@ -315,22 +333,8 @@ export default function FinancialManagement() {
     }
   ]
 
-  // Referência para o dropdown de notificações
-  const notificationsRef = useRef<HTMLDivElement>(null)
-
-  // Fechar dropdown quando clicar fora
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setShowNotifications(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
+  // ✅ DUPLICAÇÃO REMOVIDA: notificationsRef e useEffect já declarados no topo (linha 95)
+  // (Fix React Error #310 - quantidade de hooks deve ser constante)
 
   // Transações filtradas e métricas
   const filteredTransactions = recentTransactions.filter((tx) => {
