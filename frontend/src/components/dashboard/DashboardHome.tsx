@@ -233,7 +233,7 @@ function DashboardHomeContent() {
                 {statsLoading ? (
                   <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-8 w-20 rounded"></div>
                 ) : (
-                  `R$ ${stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                  formatCurrency(stats?.totalRevenue)
                 )}
               </p>
             </div>

@@ -3,6 +3,7 @@
 // Deploy: 2025-10-11
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
+import { formatCurrency } from '@/utils/format'
 import { 
   Truck, 
   MapPin, 
@@ -76,7 +77,7 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
   const statusInfo = useMemo(() => getStatusInfo(delivery.status), [getStatusInfo, delivery.status])
   
   const formattedTotal = useMemo(() => 
-    delivery.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 }), 
+    formatCurrency(delivery.total), 
     [delivery.total]
   )
   
