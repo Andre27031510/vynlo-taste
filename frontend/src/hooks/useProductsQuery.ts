@@ -1,8 +1,10 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11-v4 | Product query key mismatch fixed (exact: false) 13:51 UTC - Removed ALL mock data, 100% real APIs
-// FIX: HTTP 500 corrigido - payload mapeado para ProductRequestDto
+// Modified: 2025-10-14 17:15 UTC | Pagination fix: 0-based page, size param, sort by createdAt desc
+// FIX: Frontend page=1 → backend page=0 (Spring Data padrão)
+// FIX: 'limit' → 'size' (backend expects 'size')
+// FIX: Added sort=createdAt,desc (deterministic ordering)
 // CRITICAL: Products and inventory must be fully functional
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -112,8 +114,13 @@ const fetchProducts = async (filters?: {
   const params = new URLSearchParams()
   if (filters?.category && filters.category !== '') params.append('category', filters.category)
   if (filters?.search) params.append('search', filters.search)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.limit) params.append('limit', filters.limit.toString())
+  
+  // Enforce 0-based pagination and deterministic ordering for backend (production-safe)
+  const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+  const size = (filters?.limit ?? 10)
+  params.append('page', pageZero.toString())
+  params.append('size', size.toString())
+  params.append('sort', 'createdAt,desc')
 
   const response = await apiRequest('core-service', `products?${params.toString()}`)
   
@@ -150,7 +157,7 @@ const fetchProducts = async (filters?: {
   return {
     products,
     total: data.totalElements || data.total || products.length,
-    totalPages: data.totalPages || Math.ceil(products.length / (filters?.limit || 10))
+    totalPages: data.totalPages || Math.ceil(products.length / ((filters?.limit ?? 10)))
   }
 }
 
