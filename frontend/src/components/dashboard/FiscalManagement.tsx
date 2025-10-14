@@ -342,7 +342,7 @@ export default function FiscalManagement() {
                 
                 <div className="text-right">
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    R$ {doc.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R$ {doc.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                   <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(doc.status)}`}>
                     {getStatusIcon(doc.status)}
@@ -395,4 +395,4 @@ export default function FiscalManagement() {
   )
 }
 
-// Modified: 2025-10-11 - Fixed documents field, customer → customerName, issueDate → issuedAt
+// Modified: 2025-10-11 - Fixed field mappings: documents→content, customer→customerName, issueDate→issuedAt, value→amount
