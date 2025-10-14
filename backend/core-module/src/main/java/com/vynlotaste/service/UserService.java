@@ -251,6 +251,14 @@ public class UserService {
         }
     }
 
+    public long count() {
+        return userRepository.count();
+    }
+
+    public long countByActive(boolean active) {
+        return userRepository.countByActive(active);
+    }
+
     public long countActiveUsersLast24Hours() {
         LocalDateTime since = LocalDateTime.now().minusHours(24);
         return userRepository.countByActiveAndLastActivityAtAfter(true, since);

@@ -116,6 +116,31 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/stats")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<java.util.Map<String, Object>> getUserStats() {
+        try {
+            long totalUsers = userService.count();
+            long activeUsers = userService.countByActive(true);
+            long inactiveUsers = totalUsers - activeUsers;
+            
+            java.util.Map<String, Object> stats = new java.util.HashMap<>();
+            stats.put("totalUsers", totalUsers);
+            stats.put("activeUsers", activeUsers);
+            stats.put("inactiveUsers", inactiveUsers);
+            
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            log.error("❌ Erro ao buscar stats de usuários: {}", e.getMessage(), e);
+            // Retornar stats zerados em caso de erro
+            java.util.Map<String, Object> emptyStats = new java.util.HashMap<>();
+            emptyStats.put("totalUsers", 0);
+            emptyStats.put("activeUsers", 0);
+            emptyStats.put("inactiveUsers", 0);
+            return ResponseEntity.ok(emptyStats);
+        }
+    }
+
     @PostMapping("/sync-firebase")
     public ResponseEntity<FirebaseUserSyncResponse> syncFirebaseUser(
             @Valid @RequestBody FirebaseUserSyncRequest request) {

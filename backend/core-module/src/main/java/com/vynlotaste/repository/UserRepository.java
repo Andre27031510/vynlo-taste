@@ -38,6 +38,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("SELECT COUNT(u) FROM User u WHERE u.active = true")
     long countActiveUsers();
     
+    long countByActive(boolean active);
+    
     long countByActiveAndLastActivityAtAfter(boolean active, LocalDateTime since);
     
     long countByCreatedAtAfter(LocalDateTime since);
