@@ -218,10 +218,10 @@ export default function ClientsManagement() {
               </button>
             </div>
           </div>
+        </div>
       </div>
-    </div>
-  )
-}, [filteredClients])
+    )
+  }, [filteredClients])
 
   // Funções otimizadas com useCallback para evitar re-renders
   const handleCreateClient = useCallback((e: React.FormEvent) => {
@@ -239,8 +239,8 @@ export default function ClientsManagement() {
       },
       {
         onSuccess: () => {
-          setShowModal(false)
-          resetForm()
+    setShowModal(false)
+    resetForm()
         },
         onError: (error) => {
           alert(`Erro ao criar cliente: ${error.message}`)
@@ -270,17 +270,17 @@ export default function ClientsManagement() {
     updateClientMutation.mutate(
       {
         id: selectedClient.id,
-        name: clientForm.name,
-        email: clientForm.email,
+              name: clientForm.name,
+              email: clientForm.email,
         phone: clientForm.phone || '',
         address: clientForm.address || '',
         status: clientForm.status as 'active' | 'inactive'
       },
       {
         onSuccess: () => {
-          setShowEditModal(false)
-          setSelectedClient(null)
-          resetForm()
+    setShowEditModal(false)
+    setSelectedClient(null)
+    resetForm()
         },
         onError: (error) => {
           alert(`Erro ao atualizar cliente: ${error.message}`)
@@ -301,8 +301,8 @@ export default function ClientsManagement() {
       selectedClient.id,
       {
         onSuccess: () => {
-          setShowDeleteModal(false)
-          setSelectedClient(null)
+    setShowDeleteModal(false)
+    setSelectedClient(null)
         },
         onError: (error) => {
           alert(`Erro ao deletar cliente: ${error.message}`)

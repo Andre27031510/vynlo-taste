@@ -17,13 +17,20 @@ const fetchHealthStatus = async (): Promise<HealthStatus> => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
     const url = `${baseUrl}/api/actuator/health`
     
+    // ✅ Timeout curto para health (3s) - Cursor recommendation
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 segundos
+    
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Accept': 'application/json' // Apenas Accept, sem custom headers
       },
-      cache: 'no-cache'
+      cache: 'no-cache',
+      signal: controller.signal
     })
+    
+    clearTimeout(timeoutId)
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
@@ -35,7 +42,10 @@ const fetchHealthStatus = async (): Promise<HealthStatus> => {
       timestamp: new Date().toISOString()
     }
   } catch (error) {
-    console.warn('Health check failed, using fallback:', error)
+    // Silencioso em produção (não polui console com timeouts de health)
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Health check failed:', error instanceof Error ? error.message : 'timeout')
+    }
     return {
       status: 'DOWN',
       timestamp: new Date().toISOString()
@@ -56,5 +66,4 @@ export const useHealthCheck = () => {
   })
 }
 
-// Deploy: 2025-10-11 13:48 UTC | Health check optimized
-// Modified: 2025-10-11-v1
+// Modified: 2025-10-14 18:10 UTC | Cursor recommendations: 3s timeout + silent errors (verified ✓)

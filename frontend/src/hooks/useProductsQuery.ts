@@ -60,9 +60,9 @@ const fetchProducts = async (filters?: {
   page?: number
   limit?: number
 }): Promise<{ products: Product[], total: number, totalPages: number }> => {
-  const params = new URLSearchParams()
-  if (filters?.category && filters.category !== '') params.append('category', filters.category)
-  if (filters?.search) params.append('search', filters.search)
+    const params = new URLSearchParams()
+    if (filters?.category && filters.category !== '') params.append('category', filters.category)
+    if (filters?.search) params.append('search', filters.search)
   
   // Enforce 0-based pagination and deterministic ordering for backend (production-safe)
   const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
@@ -71,7 +71,7 @@ const fetchProducts = async (filters?: {
   params.append('size', size.toString())
   params.append('sort', 'createdAt,desc')
 
-  const response = await apiRequest('core-service', `products?${params.toString()}`)
+    const response = await apiRequest('core-service', `products?${params.toString()}`)
   
   if (!response.ok) {
     console.error('❌ Erro ao buscar produtos:', response.status)
@@ -102,8 +102,8 @@ const fetchProducts = async (filters?: {
     createdAt: p.createdAt || new Date().toISOString(),
     updatedAt: p.updatedAt
   }))
-  
-  return {
+    
+    return {
     products,
     total: data.totalElements || data.total || products.length,
     totalPages: data.totalPages || Math.ceil(products.length / ((filters?.limit ?? 10)))
@@ -111,7 +111,7 @@ const fetchProducts = async (filters?: {
 }
 
 const fetchProductStats = async (): Promise<ProductStats> => {
-  const response = await apiRequest('core-service', 'products/stats')
+    const response = await apiRequest('core-service', 'products/stats')
   
   if (!response.ok) {
     console.error('❌ Erro ao buscar stats de produtos:', response.status)
@@ -139,8 +139,8 @@ const createProduct = async (productData: CreateProductData): Promise<Product> =
     available: true
   }
   
-  const response = await apiRequest('core-service', 'products', {
-    method: 'POST',
+    const response = await apiRequest('core-service', 'products', {
+      method: 'POST',
     body: JSON.stringify(backendPayload)
   })
   
@@ -163,8 +163,8 @@ const updateProduct = async (productData: UpdateProductData): Promise<Product> =
     available: productData.status === 'active'
   }
   
-  const response = await apiRequest('core-service', `products/${productData.id}`, {
-    method: 'PUT',
+    const response = await apiRequest('core-service', `products/${productData.id}`, {
+      method: 'PUT',
     body: JSON.stringify(backendPayload)
   })
   
@@ -178,8 +178,8 @@ const updateProduct = async (productData: UpdateProductData): Promise<Product> =
 
 const deleteProduct = async (productId: string): Promise<void> => {
   const response = await apiRequest('core-service', `products/${productId}`, {
-    method: 'DELETE'
-  })
+      method: 'DELETE'
+    })
   
   if (!response.ok) {
     const errorText = await response.text().catch(() => response.statusText)

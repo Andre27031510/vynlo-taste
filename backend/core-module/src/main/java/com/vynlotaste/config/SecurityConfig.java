@@ -22,6 +22,7 @@ import java.util.Arrays;
  * Implementa autenticação JWT + Firebase, autorização baseada em roles,
  * proteção contra ataques comuns e headers de segurança
  * Updated: 2025-01-04 - Fixed actuator health endpoint access
+ * Modified: 2025-10-14 18:12 UTC - Cursor: explicit /api/actuator/** permitAll for ALB
  * CRITICAL FIX: Allow public access to actuator endpoints
  */
 @Configuration
@@ -68,12 +69,14 @@ public class SecurityConfig {
                 // Permitir OPTIONS requests para CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 
-                // Health endpoints para ALB
+                // Health endpoints para ALB (Cursor recommendation: explicit /api/actuator)
                 .requestMatchers("/health").permitAll()
-                // Endpoints públicos - ACTUATOR PRIMEIRO
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/health/**").permitAll()
+                // ✅ Garantir /api/actuator/** também (para ALB com context-path)
+                .requestMatchers("/api/actuator/**").permitAll()
+                .requestMatchers("/api/actuator/health").permitAll()
                 .requestMatchers("/v1/auth/**").permitAll()
                 .requestMatchers("/v1/public/**").permitAll()
                 .requestMatchers("/v1/test/**").permitAll()
