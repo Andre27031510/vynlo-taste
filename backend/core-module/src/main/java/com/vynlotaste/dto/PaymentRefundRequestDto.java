@@ -6,6 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 // Created: 2025-10-14 19:00 UTC | Real refunds request DTO
+// Modified: 2025-10-14 19:30 UTC | Final validation and comment added
 
 @Data
 public class PaymentRefundRequestDto {

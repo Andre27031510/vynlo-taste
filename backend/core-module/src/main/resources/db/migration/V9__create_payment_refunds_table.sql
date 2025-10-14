@@ -1,6 +1,7 @@
 -- Migration para tabela de estornos de pagamento
 -- Criada em: 2025-10-14
 -- Modified: 2025-10-14 19:15 UTC | Real refunds table for production system
+-- Modified: 2025-10-14 19:30 UTC | Final validation and comment added
 
 CREATE TABLE payment_refunds (
     id BIGSERIAL PRIMARY KEY,
