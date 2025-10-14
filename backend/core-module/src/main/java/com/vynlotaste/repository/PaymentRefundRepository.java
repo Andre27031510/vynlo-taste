@@ -27,6 +27,6 @@ public interface PaymentRefundRepository extends JpaRepository<PaymentRefund, Lo
     @Query("SELECT COUNT(r) FROM PaymentRefund r WHERE r.createdAt >= :since")
     long countByCreatedAtAfter(@Param("since") LocalDateTime since);
 
-    @Query("SELECT SUM(r.amount) FROM PaymentRefund r WHERE r.status = 'PROCESSED' AND r.createdAt >= :since")
+    @Query("SELECT COALESCE(SUM(r.amount), 0.0) FROM PaymentRefund r WHERE r.status = 'PROCESSED' AND r.createdAt >= :since")
     BigDecimal sumProcessedAmountSince(@Param("since") LocalDateTime since);
 }

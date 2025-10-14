@@ -30,17 +30,17 @@ spring:
       shutdown-timeout: 100ms
 
   flyway:
-    enabled: false
+    enabled: true
     baseline-on-migrate: true
-    validate-on-migrate: false
-    connect-retries: 3
-    connect-retries-interval: 2s
-    out-of-order: true
-    ignore-missing-migrations: true
+    validate-on-migrate: true
+    connect-retries: 5
+    connect-retries-interval: 3s
+    out-of-order: false
+    ignore-missing-migrations: false
     
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
