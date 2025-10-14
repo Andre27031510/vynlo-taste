@@ -1,7 +1,7 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Enterprise-grade caching for 3M+ users
 // Fixed: Removed auto-refresh for better scalability
-// Modified: 2025-10-11-v16 | Dashboard stats optimized - Production optimization
+// Modified: 2025-10-14 18:20 UTC | Health path fixed: /api/actuator/health + no Authorization (verified ✓) - Production optimization
 import { useState, useEffect } from 'react'
 import { apiRequest } from '@/services/api'
 
@@ -46,10 +46,20 @@ export const useDashboardStats = () => {
       // Fetch health status com timeout
       let healthData = { status: 'DOWN' }
       try {
-        const healthResponse = await apiRequest('core-service', 'actuator/health')
+        // ✅ CRITICAL FIX: Backend usa context-path /api → endpoint correto é /api/actuator/health
+        // ✅ Usar fetch direto (sem apiRequest) para evitar Authorization e preflight CORS
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+        const healthResponse = await fetch(`${baseUrl}/api/actuator/health`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(3000) // 3s timeout
+        })
         healthData = await healthResponse.json()
       } catch (error) {
-        console.warn('Health check failed:', error)
+        // Silencioso em produção
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Health check failed:', error)
+        }
         healthData = { status: 'DOWN' }
       }
 

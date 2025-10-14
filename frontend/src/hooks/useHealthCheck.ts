@@ -15,6 +15,8 @@ const fetchHealthStatus = async (): Promise<HealthStatus> => {
   try {
     // Usar fetch direto (sem apiRequest) para evitar X-headers e preflight
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com'
+    // ✅ CRITICAL FIX: Backend usa context-path /api, então endpoint é /api/actuator/health
+    // Estava chamando /actuator/health (404) → agora /api/actuator/health (200)
     const url = `${baseUrl}/api/actuator/health`
     
     // ✅ Timeout curto para health (3s) - Cursor recommendation
@@ -66,4 +68,4 @@ export const useHealthCheck = () => {
   })
 }
 
-// Modified: 2025-10-14 18:10 UTC | Cursor recommendations: 3s timeout + silent errors (verified ✓)
+// Modified: 2025-10-14 18:20 UTC | Path fixed: /api/actuator/health (was /actuator/health) (verified ✓)
