@@ -180,7 +180,12 @@ export const fetchWithCircuitBreaker = async (
 export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string => {
   const baseUrl = getServiceUrl(serviceName)
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
-  return `${baseUrl}/api/${cleanEndpoint}`
+  
+  // ✅ FIX: Backend controllers usam @RequestMapping sem /api prefix
+  // ProductController: @RequestMapping("/products") → https://api.vynlotech.com/products
+  // UserController: @RequestMapping("/v1/users") → https://api.vynlotech.com/v1/users
+  // Endpoints já vêm com /v1 ou sem, apenas concatenar
+  return `${baseUrl}/${cleanEndpoint}`
 }
 
 // Headers padrão com autenticação (sem Content-Type para evitar preflight em GET)
@@ -289,4 +294,4 @@ export const apiRequest = async (
 }
 
 // v2.1.2 - Circuit breaker robusto para produção (3M+ usuários)
-// Modified: 2025-10-11 | Circuit breaker improved
+// Modified: 2025-10-14 17:35 UTC | URL builder fix: removed /api/ prefix (404 → 200)
