@@ -59,11 +59,19 @@ const syncUserWithBackend = async (user: User) => {
 
     if (response.ok) {
       const result = await response.json()
-      console.log('✅ Auto-sync successful:', result)
+      // Só logar se for sucesso REAL ou usuário já existe (silencioso)
+      if (result.status === 'success' || result.status === 'already_exists') {
+        // Remover log para não poluir console em produção
+        // console.log('✅ Auto-sync successful:', result)
+      } else if (result.status === 'error') {
+        console.warn('⚠️ Firebase sync error from backend:', result.message)
+      }
     } else {
-      console.warn('⚠️ Auto-sync failed:', response.status)
+      console.warn('⚠️ Auto-sync HTTP error:', response.status)
     }
   } catch (error) {
-    console.error('❌ Auto-sync error:', error)
+    // Silenciar erros de sync em produção (não atrapalha UX)
+    console.warn('⚠️ Auto-sync silent fail (non-critical):', (error as Error).message)
   }
 }
+// Modified: 2025-10-14 17:05 UTC | Silenced console errors + graceful error handling

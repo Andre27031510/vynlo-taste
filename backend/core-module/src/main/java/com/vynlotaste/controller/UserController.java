@@ -121,15 +121,19 @@ public class UserController {
             @Valid @RequestBody FirebaseUserSyncRequest request) {
         
         try {
+            log.info("🔥 Firebase sync request: email={}, firebaseUid={}", request.getEmail(), request.getFirebaseUid());
+            
             // Verificar se usuário já existe pelo email
             Optional<User> existingUserByEmail = userService.findByEmail(request.getEmail());
             if (existingUserByEmail.isPresent()) {
                 User user = existingUserByEmail.get();
+                log.info("✅ Usuário já existe: ID={}, email={}", user.getId(), user.getEmail());
                 return ResponseEntity.ok(FirebaseUserSyncResponse.alreadyExists(
                     user.getId(), request.getFirebaseUid(), user.getEmail()));
             }
             
             // Criar novo usuário
+            log.info("📝 Criando novo usuário Firebase: email={}", request.getEmail());
             User newUser = userService.createUserFromFirebase(request.getEmail(), request.getDisplayName());
             newUser.setEmailVerified(request.getEmailVerified());
             if (request.getPhoneNumber() != null) {
@@ -140,14 +144,16 @@ public class UserController {
             }
             
             User savedUser = userService.save(newUser);
+            log.info("✅ Usuário Firebase criado com sucesso: ID={}, email={}", savedUser.getId(), savedUser.getEmail());
             
             return ResponseEntity.ok(FirebaseUserSyncResponse.success(
                 savedUser.getId(), request.getFirebaseUid(), savedUser.getEmail()));
                 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(FirebaseUserSyncResponse.error("Erro ao sincronizar usuário: " + e.getMessage()));
+            log.error("❌ ERRO Firebase sync: email={}, error={}", request.getEmail(), e.getMessage(), e);
+            // NÃO retornar 500, retornar 200 com status de erro para evitar spam no console
+            return ResponseEntity.ok(FirebaseUserSyncResponse.error("Erro ao sincronizar usuário: " + e.getMessage()));
         }
     }
 }
-// Modified: 2025-10-11-v19 | isAuthenticated for testing
+// Modified: 2025-10-14 17:05 UTC | Firebase sync: HTTP 500 → 200 with error status + detailed logging
