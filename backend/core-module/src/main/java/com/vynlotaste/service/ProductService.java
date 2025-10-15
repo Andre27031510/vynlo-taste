@@ -487,8 +487,9 @@ public class ProductService {
         long startTime = System.currentTimeMillis();
         
         try {
-            long totalProducts = productRepository.count();
+            // ✅ FIX: Usar countByAvailableTrue que agora considera soft delete
             long activeProducts = productRepository.countByAvailableTrue();
+            long totalProducts = activeProducts + productRepository.countByAvailableFalseAndDeletedFalse();
             long lowStockProducts = productRepository.countByStockQuantityLessThan(10);
             
             // ✅ Calcular receita total e preço médio (Modified: 2025-10-14 17:53 UTC)
@@ -511,6 +512,7 @@ public class ProductService {
                 totalProducts, activeProducts, lowStockProducts, totalRevenue, averagePrice, duration);
             
             return stats;
+            // Modified: 2025-10-14 21:25 UTC | CRITICAL FIX: ProductStats now consistent with Product list (soft delete)
             
         } catch (Exception e) {
             log.error("Erro ao calcular estatísticas de produtos", e);

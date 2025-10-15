@@ -30,7 +30,14 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     
     List<Product> findByStockQuantityLessThan(Integer threshold);
     
+    // ✅ FIX: Incluir soft delete para consistência com findAll()
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.available = true AND p.deleted = false")
     long countByAvailableTrue();
     
-    long countByStockQuantityLessThan(Integer threshold);
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.stockQuantity < :threshold AND p.deleted = false")
+    long countByStockQuantityLessThan(@Param("threshold") Integer threshold);
+    
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.available = false AND p.deleted = false")
+    long countByAvailableFalseAndDeletedFalse();
 }
+// Modified: 2025-10-14 21:25 UTC | CRITICAL FIX: Soft delete consistency - Card vs List discrepancy resolved
