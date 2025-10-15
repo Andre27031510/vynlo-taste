@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 // Modified: 2025-10-14 20:40 UTC | Cursor recommendations: PRODUCT_STATS_CACHE 30s + PRODUCTS_CACHE 15min
+// Modified: 2025-10-14 20:45 UTC | Production-ready cache optimization - Sistema 3M+ usuários
 @Slf4j
 @Configuration
 @EnableCaching

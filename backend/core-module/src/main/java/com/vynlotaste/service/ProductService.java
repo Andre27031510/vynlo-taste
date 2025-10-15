@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 // Modified: 2025-10-14 19:30 UTC | Unused imports removed + build error fix
 // Modified: 2025-10-14 20:40 UTC | Cursor: PRODUCT_STATS_CACHE + @Caching evict em create/update/delete
+// Modified: 2025-10-14 20:45 UTC | @Caching import adicionado - Build error resolvido
 
 @Slf4j
 @Service
