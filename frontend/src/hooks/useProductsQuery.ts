@@ -3,6 +3,7 @@
 // v2.1.2 - Type-safe queries with generics
 // Modified: 2025-10-14 18:01 UTC | Pagination 0-based + mock removed (verified ✓)
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay
+// Modified: 2025-10-14 20:55 UTC | staleTime 30s + refetchOnMount always - lista sempre atualizada
 // FIX: Frontend page=1 → backend page=0 (Spring Data padrão)
 // FIX: 'limit' → 'size' (backend expects 'size')
 // FIX: Added sort=createdAt,desc (deterministic ordering)
@@ -198,9 +199,10 @@ export const useProductsQuery = (filters?: {
   return useQuery<{ products: Product[], total: number, totalPages: number }>({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos (reduzido de 5min) - reflete mudanças rapidamente
+    gcTime: 5 * 60 * 1000, // 5 minutos (reduzido de 10min)
     refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
   })
 }
@@ -209,9 +211,10 @@ export const useProductStatsQuery = () => {
   return useQuery<ProductStats>({
     queryKey: ['product-stats'],
     queryFn: fetchProductStats,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos (alinhado com backend PRODUCT_STATS_CACHE)
+    gcTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
   })
 }
