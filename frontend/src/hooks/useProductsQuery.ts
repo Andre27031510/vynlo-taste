@@ -220,8 +220,7 @@ export const useProductsQuery = (filters?: {
     retry: 3, // ✅ Mais retries para resilência
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000), // Backoff exponencial
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores durante refetch
-    // ✅ FIX: Manter dados mesmo se auth mudar
-    keepPreviousData: true,
+    // ✅ FIX: placeholderData já mantém dados anteriores (React Query v5)
   })
 }
 
@@ -240,11 +239,11 @@ export const useProductStatsQuery = () => {
     retry: 3, // ✅ Mais retries para resilência
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000),
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
-    // ✅ FIX: Manter dados mesmo se auth mudar
-    keepPreviousData: true,
+    // ✅ FIX: placeholderData já mantém dados anteriores (React Query v5)
   })
 }
 // Modified: 2025-10-14 21:35 UTC | CRITICAL FIX: keepPreviousData + gcTime 10min - produtos persistentes
+// Modified: 2025-10-14 21:40 UTC | TypeScript fix: keepPreviousData removed (React Query v5) - Build error resolved
 
 export const useCreateProduct = () => {
   const queryClient = useQueryClient()

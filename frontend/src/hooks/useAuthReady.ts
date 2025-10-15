@@ -71,4 +71,5 @@ export const useAuthReady = (): boolean => {
   return isReady
 }
 // Modified: 2025-10-14 21:35 UTC | CRITICAL FIX: Auth race condition - produtos não somem mais após tempo
+// Modified: 2025-10-14 21:40 UTC | Auth stability fix - hasInitialized flag prevents state changes
 
