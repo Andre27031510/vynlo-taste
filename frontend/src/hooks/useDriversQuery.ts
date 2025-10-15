@@ -4,9 +4,11 @@
 // Modified: 2025-10-11-v14 | Drivers query optimized
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay - Fixed React Query v5 API (gcTime)
 // Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - motoboys sempre atualizados
+// Modified: 2025-10-14 21:10 UTC | Auth guard (enabled) + placeholderData - Cursor recommendation
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
+import { useAuthReady } from './useAuthReady'
 
 export interface Driver {
   id: string
@@ -79,9 +81,12 @@ export const useDriversQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
+  const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  
   return useQuery<{ drivers: Driver[], total: number, totalPages: number }>({
     queryKey: ['drivers', filters],
     queryFn: () => fetchDrivers(filters),
+    enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar janela
@@ -89,6 +94,7 @@ export const useDriversQuery = (filters?: {
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (economia de recursos)
     retry: 2, // ✅ Retry limitado (evita tempestade de requests)
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Backoff exponencial
+    placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
   })
 }
 

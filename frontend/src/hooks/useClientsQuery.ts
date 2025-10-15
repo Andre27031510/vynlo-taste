@@ -3,11 +3,13 @@
 // Modified: 2025-10-11-v2 | Clients API fully connected 13:49 UTC - Removed password field (backend não aceita)
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay
 // Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - clientes sempre atualizados
+// Modified: 2025-10-14 21:10 UTC | Auth guard (enabled) + placeholderData - Cursor recommendation
 // CRITICAL: Clients fully functional with PostgreSQL
 // FIX: HTTP 500 corrigido - payload alinhado com UserRequestDto
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
+import { useAuthReady } from './useAuthReady'
 
 export interface Client {
   id: string
@@ -94,14 +96,20 @@ export const useClientsQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
+  const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  
   return useQuery<{ clients: Client[], total: number, totalPages: number }>({
     queryKey: ['clients', filters],
     queryFn: () => fetchClients(filters),
+    enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true,
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // Sem auto-refresh
+    retry: 2,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000),
+    placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
   })
 }
 

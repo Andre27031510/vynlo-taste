@@ -4,6 +4,7 @@
 // Modified: 2025-10-14 18:01 UTC | Pagination 0-based + mock removed (verified ✓)
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay
 // Modified: 2025-10-14 20:55 UTC | staleTime 30s + refetchOnMount always - lista sempre atualizada
+// Modified: 2025-10-14 21:10 UTC | Auth guard (enabled) + 401 retry + placeholderData - Cursor recommendation
 // FIX: Frontend page=1 → backend page=0 (Spring Data padrão)
 // FIX: 'limit' → 'size' (backend expects 'size')
 // FIX: Added sort=createdAt,desc (deterministic ordering)
@@ -12,6 +13,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
+import { useAuthReady } from './useAuthReady'
 
 export interface Product {
   id: string
@@ -76,8 +78,14 @@ const fetchProducts = async (filters?: {
     const response = await apiRequest('core-service', `products?${params.toString()}`)
   
   if (!response.ok) {
+    // ✅ Tratamento inteligente de erros (Cursor recommendation)
+    if (response.status === 401) {
+      // 401 = Token não pronto ainda - lançar erro para retry
+      throw new Error('Aguardando autenticação...')
+    }
+    
     console.error('❌ Erro ao buscar produtos:', response.status)
-    // Retornar lista vazia em vez de mock data
+    // Outros erros: retornar vazio
     return {
       products: [],
       total: 0,
@@ -196,26 +204,38 @@ export const useProductsQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
+  const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  
   return useQuery<{ products: Product[], total: number, totalPages: number }>({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
+    enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos (reduzido de 5min) - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos (reduzido de 10min)
     refetchOnWindowFocus: true, // Atualiza ao focar
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
+    retry: 2, // ✅ Retry em caso de 401 transitório
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000), // Backoff exponencial
+    placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores durante refetch
   })
 }
 
 export const useProductStatsQuery = () => {
+  const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  
   return useQuery<ProductStats>({
     queryKey: ['product-stats'],
     queryFn: fetchProductStats,
+    enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos (alinhado com backend PRODUCT_STATS_CACHE)
     gcTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
+    retry: 2,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000),
+    placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
   })
 }
 
