@@ -1,6 +1,7 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
 // Modified: 2025-10-11-v13 | Orders query optimized - Fixed React Query v5 API (gcTime)
+// Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - pedidos sempre atualizados
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
@@ -71,12 +72,13 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
   return useQuery<{ orders: Order[], total: number, totalPages: number }>({
     queryKey: ['orders', filters],
     queryFn: () => fetchOrders(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
+    gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar janela
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 1, // Tentar apenas 1 vez antes de usar fallback
-    retryDelay: 1000
+    retry: 2, // Retry em caso de falha
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
   })
 }
 
@@ -84,12 +86,13 @@ export const useOrdersStatsQuery = () => {
   return useQuery<OrdersStats>({
     queryKey: ['orders', 'stats'],
     queryFn: fetchOrdersStats,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos - alinhado com outros stats
+    gcTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 1,
-    retryDelay: 1000
+    retry: 2,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
   })
 }
 

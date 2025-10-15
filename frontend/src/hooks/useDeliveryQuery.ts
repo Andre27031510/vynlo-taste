@@ -1,7 +1,8 @@
 'use client'
 // Otimizado para produção - cache 5min, sem auto-refresh
 // v2.1.2 - Type-safe queries with generics
-// Modified: 2025-10-11-v15 | Delivery query optimized - Fixed React Query v5 API (gcTime)
+// Modified: 2025-10-11-v15 | Delivery query optimized
+// Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - deliveries sempre atualizadas - Fixed React Query v5 API (gcTime)
 
 import { useQuery } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
@@ -83,12 +84,13 @@ export const useDeliveriesQuery = (filters?: {
   return useQuery<{ deliveries: Delivery[], total: number, totalPages: number }>({
     queryKey: ['deliveries', filters],
     queryFn: () => fetchDeliveries(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime em vez de cacheTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
+    gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 2, // ✅ Retry limitado (evita tempestade de requests)
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Backoff exponencial
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Backoff exponencial
   })
 }
 
@@ -97,9 +99,10 @@ export const useDeliveryStatsQuery = () => {
   return useQuery<DeliveryStats>({
     queryKey: ['delivery-stats'],
     queryFn: fetchDeliveryStats,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos - alinhado com outros stats
+    gcTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
   })
 }

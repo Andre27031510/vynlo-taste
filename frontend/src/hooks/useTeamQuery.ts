@@ -1,6 +1,7 @@
 'use client'
 // v2.1.2 - Team members 100% conectados com API real (v1/users endpoint)
 // Modified: 2025-10-11-v3 | Team management API connected 13:50 UTC - Removido password (backend não aceita)
+// Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - equipe sempre atualizada
 // CRITICAL: Team management fully functional with PostgreSQL
 // Deploy: 2025-10-11
 
@@ -90,9 +91,10 @@ export const useTeamQuery = (filters?: {
   return useQuery<{ members: TeamMember[], total: number, totalPages: number }>({
     queryKey: ['team', filters],
     queryFn: () => fetchTeamMembers(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5)
+    staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
+    gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true,
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // Sem auto-refresh
   })
 }

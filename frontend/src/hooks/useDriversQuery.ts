@@ -3,6 +3,7 @@
 // v2.1.2 - Added useCreateDriverMutation for better UX
 // Modified: 2025-10-11-v14 | Drivers query optimized
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay - Fixed React Query v5 API (gcTime)
+// Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - motoboys sempre atualizados
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
@@ -81,12 +82,13 @@ export const useDriversQuery = (filters?: {
   return useQuery<{ drivers: Driver[], total: number, totalPages: number }>({
     queryKey: ['drivers', filters],
     queryFn: () => fetchDrivers(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos (reduz carga no backend)
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
+    gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar janela
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (economia de recursos)
     retry: 2, // ✅ Retry limitado (evita tempestade de requests)
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Backoff exponencial
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Backoff exponencial
   })
 }
 
@@ -95,10 +97,13 @@ export const useDriversStatsQuery = () => {
   return useQuery<DriversStats>({
     queryKey: ['drivers-stats'],
     queryFn: fetchDriversStats,
-    staleTime: 5 * 60 * 1000, // 5 minutos (reduz carga)
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5: gcTime)
+    staleTime: 30 * 1000, // ✅ 30 segundos - alinhado com stats de produtos
+    gcTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh
+    retry: 2,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
   })
 }
 

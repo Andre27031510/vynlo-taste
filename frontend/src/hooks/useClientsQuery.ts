@@ -2,6 +2,7 @@
 // v2.1.2 - Clientes 100% conectados com API real (v1/users endpoint)
 // Modified: 2025-10-11-v2 | Clients API fully connected 13:49 UTC - Removed password field (backend não aceita)
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay
+// Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - clientes sempre atualizados
 // CRITICAL: Clients fully functional with PostgreSQL
 // FIX: HTTP 500 corrigido - payload alinhado com UserRequestDto
 
@@ -96,9 +97,10 @@ export const useClientsQuery = (filters?: {
   return useQuery<{ clients: Client[], total: number, totalPages: number }>({
     queryKey: ['clients', filters],
     queryFn: () => fetchClients(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos (React Query v5)
+    staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
+    gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true,
+    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // Sem auto-refresh
   })
 }
