@@ -21,6 +21,12 @@ export const useAuthReady = (): boolean => {
         const { getAuthInstance } = await import('@/config/firebase')
         const auth = getAuthInstance()
         
+        // ✅ Verificar se auth existe antes de usar
+        if (!auth) {
+          if (mounted) setIsReady(true) // Modo degradado
+          return
+        }
+        
         // Aguardar onAuthStateChanged processar
         const unsubscribe = auth.onAuthStateChanged((user) => {
           if (mounted) {

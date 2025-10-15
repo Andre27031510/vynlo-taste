@@ -5,6 +5,7 @@
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay
 // Modified: 2025-10-14 20:55 UTC | staleTime 30s + refetchOnMount always - lista sempre atualizada
 // Modified: 2025-10-14 21:10 UTC | Auth guard (enabled) + 401 retry + placeholderData - Cursor recommendation
+// Modified: 2025-10-14 21:15 UTC | Build error fix: null check para auth - Sistema production-ready
 // FIX: Frontend page=1 → backend page=0 (Spring Data padrão)
 // FIX: 'limit' → 'size' (backend expects 'size')
 // FIX: Added sort=createdAt,desc (deterministic ordering)

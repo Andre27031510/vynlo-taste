@@ -5,6 +5,7 @@
 // Modified: 2025-10-14 20:35 UTC | Cache invalidation AGRESSIVA: resetQueries + refetch com delay - Fixed React Query v5 API (gcTime)
 // Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - motoboys sempre atualizados
 // Modified: 2025-10-14 21:10 UTC | Auth guard (enabled) + placeholderData - Cursor recommendation
+// Modified: 2025-10-14 21:15 UTC | Production-ready auth guard - Motoboys sempre visíveis
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
