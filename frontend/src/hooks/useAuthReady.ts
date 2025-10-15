@@ -14,7 +14,7 @@ export const useAuthReady = (): boolean => {
     
     const checkAuth = async () => {
       if (typeof window === 'undefined') {
-        setIsReady(false)
+        if (mounted) setIsReady(true) // Server-side: permitir queries
         return
       }
       
@@ -28,16 +28,29 @@ export const useAuthReady = (): boolean => {
           return
         }
         
-        // Aguardar onAuthStateChanged processar
+        // ✅ FIX: Verificar estado atual imediatamente
+        if (auth.currentUser !== undefined) {
+          // Auth já inicializado
+          if (mounted) setIsReady(true)
+          return
+        }
+        
+        // Aguardar onAuthStateChanged processar APENAS UMA VEZ
+        let hasInitialized = false
         const unsubscribe = auth.onAuthStateChanged((user) => {
-          if (mounted) {
-            // Auth está pronto (com ou sem usuário)
+          if (mounted && !hasInitialized) {
+            hasInitialized = true
+            // Auth está pronto (com ou sem usuário) - NUNCA MAIS MUDAR
             setIsReady(true)
+            // ✅ NÃO chamar unsubscribe aqui - manter listener ativo
           }
         })
         
+        // ✅ Cleanup apenas no unmount
         return () => {
-          unsubscribe()
+          if (mounted) {
+            unsubscribe()
+          }
           mounted = false
         }
       } catch (error) {
@@ -57,4 +70,5 @@ export const useAuthReady = (): boolean => {
   
   return isReady
 }
+// Modified: 2025-10-14 21:35 UTC | CRITICAL FIX: Auth race condition - produtos não somem mais após tempo
 

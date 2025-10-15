@@ -213,13 +213,15 @@ export const useProductsQuery = (filters?: {
     queryFn: () => fetchProducts(filters),
     enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos (reduzido de 5min) - reflete mudanças rapidamente
-    gcTime: 5 * 60 * 1000, // 5 minutos (reduzido de 10min)
-    refetchOnWindowFocus: true, // Atualiza ao focar
+    gcTime: 10 * 60 * 1000, // ✅ 10 minutos (aumentado para manter dados mais tempo)
+    refetchOnWindowFocus: false, // ✅ DESABILITADO para evitar refetch desnecessário
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 2, // ✅ Retry em caso de 401 transitório
+    retry: 3, // ✅ Mais retries para resilência
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000), // Backoff exponencial
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores durante refetch
+    // ✅ FIX: Manter dados mesmo se auth mudar
+    keepPreviousData: true,
   })
 }
 
@@ -231,15 +233,18 @@ export const useProductStatsQuery = () => {
     queryFn: fetchProductStats,
     enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos (alinhado com backend PRODUCT_STATS_CACHE)
-    gcTime: 2 * 60 * 1000, // 2 minutos
-    refetchOnWindowFocus: true, // Atualiza ao focar
+    gcTime: 10 * 60 * 1000, // ✅ 10 minutos (aumentado para manter dados mais tempo)
+    refetchOnWindowFocus: false, // ✅ DESABILITADO para evitar refetch desnecessário
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 2,
+    retry: 3, // ✅ Mais retries para resilência
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000),
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
+    // ✅ FIX: Manter dados mesmo se auth mudar
+    keepPreviousData: true,
   })
 }
+// Modified: 2025-10-14 21:35 UTC | CRITICAL FIX: keepPreviousData + gcTime 10min - produtos persistentes
 
 export const useCreateProduct = () => {
   const queryClient = useQueryClient()
