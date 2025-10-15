@@ -1,5 +1,6 @@
 'use client'
 // v2.1.2 - Production ready for 3M+ users
+// Modified: 2025-10-14 20:50 UTC | Cursor: Paginação 0-based + sort=createdAt,desc
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
@@ -50,10 +51,16 @@ const fetchPayments = async (filters?: {
   size?: number
 }): Promise<{ content: Payment[], totalElements: number, totalPages: number }> => {
   const params = new URLSearchParams()
+  
+  // ✅ Paginação 0-based + sort (Cursor recommendation)
+  const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+  const size = filters?.size ?? 10
+  params.append('page', pageZero.toString())
+  params.append('size', size.toString())
+  params.append('sort', 'createdAt,desc') // Novos pagamentos no topo
+  
   if (filters?.status) params.append('status', filters.status)
   if (filters?.method) params.append('method', filters.method)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.size) params.append('size', filters.size.toString())
 
   const response = await apiRequest('core-service', `v1/payments?${params.toString()}`)
   

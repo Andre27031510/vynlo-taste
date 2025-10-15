@@ -42,12 +42,18 @@ const fetchCashFlowEntries = async (filters?: {
   size?: number
 }): Promise<{ content: CashFlowEntry[], totalElements: number, totalPages: number }> => {
   const params = new URLSearchParams()
+  
+  // ✅ Paginação 0-based + sort (Cursor recommendation)
+  const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+  const size = filters?.size ?? 10
+  params.append('page', pageZero.toString())
+  params.append('size', size.toString())
+  params.append('sort', 'createdAt,desc') // Novas entradas no topo
+  
   if (filters?.type) params.append('type', filters.type)
   if (filters?.category) params.append('category', filters.category)
   if (filters?.startDate) params.append('startDate', filters.startDate)
   if (filters?.endDate) params.append('endDate', filters.endDate)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.size) params.append('size', filters.size.toString())
 
   const response = await apiRequest('core-service', `v1/cashflow/entries?${params.toString()}`)
   
@@ -145,3 +151,4 @@ export const useCreateCashFlowMutation = () => {
 }
 
 // Modified: 2025-10-11-v5 | Status field added for cash flow
+// Modified: 2025-10-14 20:50 UTC | Cursor: Paginação 0-based + sort=createdAt,desc

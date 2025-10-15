@@ -44,9 +44,15 @@ const fetchAccountsPayable = async (filters?: {
   size?: number
 }): Promise<{ content: AccountPayable[], totalElements: number, totalPages: number }> => {
   const params = new URLSearchParams()
+  
+  // ✅ Paginação 0-based + sort (Cursor recommendation)
+  const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+  const size = filters?.size ?? 10
+  params.append('page', pageZero.toString())
+  params.append('size', size.toString())
+  params.append('sort', 'createdAt,desc') // Novas contas no topo
+  
   if (filters?.status) params.append('status', filters.status)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.size) params.append('size', filters.size.toString())
 
   const response = await apiRequest('core-service', `v1/financial/accounts/payable?${params.toString()}`)
   
@@ -67,9 +73,15 @@ const fetchAccountsReceivable = async (filters?: {
   size?: number
 }): Promise<{ content: AccountReceivable[], totalElements: number, totalPages: number }> => {
   const params = new URLSearchParams()
+  
+  // ✅ Paginação 0-based + sort (Cursor recommendation)
+  const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+  const size = filters?.size ?? 10
+  params.append('page', pageZero.toString())
+  params.append('size', size.toString())
+  params.append('sort', 'createdAt,desc') // Novas contas no topo
+  
   if (filters?.status) params.append('status', filters.status)
-  if (filters?.page) params.append('page', filters.page.toString())
-  if (filters?.size) params.append('size', filters.size.toString())
 
   const response = await apiRequest('core-service', `v1/financial/accounts/receivable?${params.toString()}`)
   
@@ -168,3 +180,4 @@ export const useCreateTransactionMutation = () => {
 }
 
 // Modified: 2025-10-11-v6 | Category field for financial transactions
+// Modified: 2025-10-14 20:50 UTC | Cursor: Paginação 0-based + sort=createdAt,desc
