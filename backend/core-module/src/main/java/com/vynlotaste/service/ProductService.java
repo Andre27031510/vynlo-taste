@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 // Modified: 2025-10-14 19:30 UTC | Unused imports removed + build error fix
+// Modified: 2025-10-14 20:40 UTC | Cursor: PRODUCT_STATS_CACHE + @Caching evict em create/update/delete
 
 @Slf4j
 @Service
@@ -57,7 +58,11 @@ public class ProductService {
         }
     }
 
-    @CacheEvict(value = {CacheConfig.PRODUCTS_CACHE, CacheConfig.PRODUCT_CATEGORIES_CACHE}, allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true),
+        @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
+        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true) // ✅ Limpar stats
+    })
     public Product createProduct(ProductRequestDto productRequest) {
         long startTime = System.currentTimeMillis();
         
@@ -187,7 +192,11 @@ public class ProductService {
     }
 
     @CachePut(value = CacheConfig.PRODUCTS_CACHE, key = "'id:' + #result.id")
-    @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
+        @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true), // ✅ Limpar lista de produtos
+        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true) // ✅ Limpar stats
+    })
     public Product updateProduct(Long id, ProductRequestDto productRequest) {
         long startTime = System.currentTimeMillis();
         
@@ -242,7 +251,11 @@ public class ProductService {
         }
     }
 
-    @CacheEvict(value = {CacheConfig.PRODUCTS_CACHE, CacheConfig.PRODUCT_CATEGORIES_CACHE}, allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true),
+        @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
+        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true) // ✅ Limpar stats
+    })
     public void deleteProduct(Long id) {
         Product product = findById(id);
         productRepository.delete(product);
@@ -467,7 +480,7 @@ public class ProductService {
 
     // Método para obter estatísticas de produtos (para dashboard)
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'stats'", unless = "#result == null")
+    @Cacheable(value = CacheConfig.PRODUCT_STATS_CACHE, key = "'stats'", unless = "#result == null")
     public ProductStats getProductStats() {
         long startTime = System.currentTimeMillis();
         

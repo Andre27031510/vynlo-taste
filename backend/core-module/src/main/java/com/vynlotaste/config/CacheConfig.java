@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+// Modified: 2025-10-14 20:40 UTC | Cursor recommendations: PRODUCT_STATS_CACHE 30s + PRODUCTS_CACHE 15min
 @Slf4j
 @Configuration
 @EnableCaching
@@ -34,6 +35,7 @@ public class CacheConfig implements CachingConfigurer {
 
     public static final String USERS_CACHE = "users";
     public static final String PRODUCTS_CACHE = "products";
+    public static final String PRODUCT_STATS_CACHE = "product-stats"; // ✅ Cache específico para stats de produtos (30s TTL)
     public static final String ORDERS_CACHE = "orders";
     public static final String SYSTEM_CONFIG_CACHE = "system-config";
     public static final String PRODUCT_CATEGORIES_CACHE = "product-categories";
@@ -60,8 +62,11 @@ public class CacheConfig implements CachingConfigurer {
         // Cache de usuários - TTL 15 minutos
         cacheConfigurations.put(USERS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(15)));
         
-        // Cache de produtos - TTL 1 hora
-        cacheConfigurations.put(PRODUCTS_CACHE, defaultConfig.entryTtl(Duration.ofHours(1)));
+        // Cache de produtos - TTL 15 minutos (reduzido de 1h para contexto administrativo)
+        cacheConfigurations.put(PRODUCTS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(15)));
+        
+        // Cache de stats de produtos - TTL 30 segundos (reflete cadastros rapidamente)
+        cacheConfigurations.put(PRODUCT_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
         
         // Cache de pedidos recentes - TTL 5 minutos
         cacheConfigurations.put(ORDERS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
@@ -89,7 +94,7 @@ public class CacheConfig implements CachingConfigurer {
     public CacheManager fallbackCacheManager() {
         log.warn("Redis indisponível - usando cache em memória como fallback");
         return new org.springframework.cache.concurrent.ConcurrentMapCacheManager(
-            USERS_CACHE, PRODUCTS_CACHE, ORDERS_CACHE, SYSTEM_CONFIG_CACHE, PRODUCT_CATEGORIES_CACHE,
+            USERS_CACHE, PRODUCTS_CACHE, PRODUCT_STATS_CACHE, ORDERS_CACHE, SYSTEM_CONFIG_CACHE, PRODUCT_CATEGORIES_CACHE,
             USER_STATS_CACHE, DRIVER_STATS_CACHE, ORDER_STATS_CACHE
         );
     }
