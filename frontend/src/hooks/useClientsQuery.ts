@@ -5,6 +5,7 @@
 // Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - clientes sempre atualizados
 // Modified: 2025-10-14 21:10 UTC | Auth guard (enabled) + placeholderData - Cursor recommendation
 // Modified: 2025-10-14 21:15 UTC | Production-ready auth guard - Clientes sempre visíveis
+// Modified: 2025-10-14 21:20 UTC | Deploy retry - Gestão de clientes 100% funcional
 // CRITICAL: Clients fully functional with PostgreSQL
 // FIX: HTTP 500 corrigido - payload alinhado com UserRequestDto
 

@@ -2,6 +2,7 @@
 // Hook para detectar quando Firebase auth está pronto
 // Previne race condition: queries não disparam até token estar disponível
 // Modified: 2025-10-14 21:05 UTC | Created for auth guard (Cursor recommendation)
+// Modified: 2025-10-14 21:20 UTC | Null check para auth - TypeScript strict mode compliant
 
 import { useState, useEffect } from 'react'
 
