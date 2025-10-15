@@ -28,7 +28,7 @@ public class DriverController {
     public ResponseEntity<?> getDrivers(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
         try {
             Driver.DriverStatus driverStatus = status != null && !status.equals("all") 
@@ -43,6 +43,7 @@ public class DriverController {
                 "page", page,
                 "totalPages", driversPage.getTotalPages()
             ));
+            // Modified: 2025-10-14 21:30 UTC | CRITICAL FIX: Paginação 0-based - Driver list agora funciona
         } catch (Exception e) {
             log.error("Error fetching drivers", e);
             return ResponseEntity.ok(Map.of(

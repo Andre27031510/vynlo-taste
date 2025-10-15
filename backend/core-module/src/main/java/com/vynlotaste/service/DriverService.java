@@ -122,7 +122,7 @@ public class DriverService {
 
     public Page<Driver> getDrivers(Driver.DriverStatus status, String search, int page, int limit) {
         try {
-            Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "name"));
+            Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name"));
             
             if (search != null && !search.trim().isEmpty()) {
                 return driverRepository.searchDrivers(search, pageable);
@@ -137,6 +137,7 @@ public class DriverService {
             log.error("Error fetching drivers", e);
             return Page.empty();
         }
+        // Modified: 2025-10-14 21:30 UTC | CRITICAL FIX: PageRequest.of(page, limit) - 0-based pagination
     }
 
     public Driver getDriverById(Long id) {
