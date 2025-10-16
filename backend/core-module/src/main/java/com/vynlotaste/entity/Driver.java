@@ -50,10 +50,10 @@ public class Driver {
     @Column(name = "status", nullable = false)
     private DriverStatus status = DriverStatus.OFFLINE;
 
-    @Column(name = "rating", precision = 3, scale = 2, nullable = true)
+    @Column(name = "rating")
     private Double rating = 0.0;
 
-    @Column(name = "total_deliveries", nullable = true)
+    @Column(name = "total_deliveries")
     private Integer totalDeliveries = 0;
 
     @Column(name = "last_active")
