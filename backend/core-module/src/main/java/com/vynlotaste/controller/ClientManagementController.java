@@ -15,6 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Client Management Controller - Super Admin
+ * Commit 4481aaf: Criado para gestão multi-tenant
+ * - Criar clientes com vynloProduct (TASTE, EKKLESIA, BOT, etc)
+ * - Listar, suspender, ativar clientes
+ * - Gerenciar permissões granulares
+ * Apenas SUPER_ADMIN pode acessar
+ */
 @RestController
 @RequestMapping("/v1/super-admin")
 @PreAuthorize("hasRole('SUPER_ADMIN')")

@@ -90,6 +90,7 @@ public class SecurityConfig {
                 .requestMatchers("/v1/products/stats").authenticated()
                 
                 // Endpoints Super Admin - apenas SUPER_ADMIN (Vynlo Tech)
+                // Commit 4481aaf: Permite gestão multi-tenant (criar clientes, etc)
                 .requestMatchers("/v1/super-admin/**").hasRole("SUPER_ADMIN")
                 
                 // Endpoints administrativos - apenas ADMIN

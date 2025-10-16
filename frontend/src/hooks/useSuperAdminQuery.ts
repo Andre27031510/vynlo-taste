@@ -1,6 +1,8 @@
 'use client'
 // Super Admin Query Hook - Production-ready for Vynlo Platform
-// Conecta Super Admin às APIs reais do backend
+// Commit 4481aaf: Criado para conectar Super Admin às APIs reais
+// Hooks: useClientsQuery, useCreateClientMutation, useSuspend/ActivateClientMutation
+// 100% Type-safe com interfaces VynloClient e CreateClientData
 // Created: 2025-10-16
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'

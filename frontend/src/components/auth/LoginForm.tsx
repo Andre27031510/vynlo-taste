@@ -142,7 +142,9 @@ const LoginForm = memo(function LoginForm() {
 
   useEffect(() => {
     if (user) {
-      // Fazer redirecionamento quando usuário estiver autenticado
+      // Commit 4481aaf: Redirecionamento inteligente multi-tenant
+      // Super Admin → /super-admin
+      // Cliente por produto → /dashboard-{produto}
       user.getIdTokenResult().then(async (idTokenResult) => {
         const claims = idTokenResult.claims;
         

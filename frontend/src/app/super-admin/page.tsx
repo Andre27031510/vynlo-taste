@@ -2,6 +2,9 @@
 /**
  * Super Admin Dashboard - Vynlo Platform
  * 
+ * Commit 4481aaf: Recriado do zero (antiga tinha 2.913 linhas mock)
+ * Nova: ~730 linhas funcionais + APIs reais + Menu lateral
+ * 
  * Sistema de gestão multi-tenant para a plataforma Vynlo
  * Permite criar e gerenciar clientes dos produtos:
  * - Vynlo Taste (Delivery)
@@ -12,6 +15,7 @@
  * Identidade Visual: Azul (#0066FF) + Preto (#000000) - Gradiente
  * Layout: Menu lateral fixo + conteúdo responsivo
  * APIs: 100% conectado ao backend (zero mocks)
+ * Fix 878274f: Schema Yup corrigido (campos opcionais)
  * 
  * @version 2.1.1
  * @author Vynlo Tech
