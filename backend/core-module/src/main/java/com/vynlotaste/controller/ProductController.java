@@ -53,25 +53,20 @@ public class ProductController {
     public ResponseEntity<PagedResponseDto<ProductResponseDto>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Product> productPage = productService.findAll(pageable);
-            
-            PagedResponseDto<ProductResponseDto> response = PagedResponseDto.of(
-                productPage.getContent().stream()
-                    .map(productMapper::toResponseDto)
-                    .toList(),
-                page, size, productPage.getTotalElements()
-            );
-            
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Fallback seguro - retornar lista vazia se houver erro
-            return ResponseEntity.ok(PagedResponseDto.of(
-                List.of(),
-                page, size, 0L
-            ));
-        }
+        // ✅ CRITICAL FIX: NUNCA retornar lista vazia - sempre lançar erro
+        // Se falhar, frontend usa cache/fallback
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage = productService.findAll(pageable);
+        
+        PagedResponseDto<ProductResponseDto> response = PagedResponseDto.of(
+            productPage.getContent().stream()
+                .map(productMapper::toResponseDto)
+                .toList(),
+            page, size, productPage.getTotalElements()
+        );
+        
+        log.debug("Products fetched: page={}, size={}, total={}", page, size, productPage.getTotalElements());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
