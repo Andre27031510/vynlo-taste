@@ -134,9 +134,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, 
-               key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()",
-               condition = "#pageable.pageSize <= 100")
+    // ❌ CACHE DESABILITADO: Page<Product> não serializa corretamente no Redis
+    // Causa ClassCastException: LinkedHashMap cannot be cast to Page
+    // Para 3M+ usuários, query otimizada com índices é suficiente (~50ms)
     public Page<Product> findAll(Pageable pageable) {
         // Validação de parâmetros de paginação
         if (pageable.getPageSize() > 100) {
@@ -320,7 +320,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'available-page:' + #pageable.pageNumber + ':' + #pageable.pageSize")
+    // ❌ CACHE DESABILITADO: Page<Product> não serializa corretamente no Redis
     public Page<Product> getAvailableProducts(Pageable pageable) {
         log.debug("Buscando produtos disponíveis paginados: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         return productRepository.findByAvailableTrue(pageable);
@@ -439,9 +439,7 @@ public class ProductService {
 
     // Método otimizado para busca com filtros avançados
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, 
-               key = "'search-advanced:' + (#category != null ? #category : 'null') + ':' + (#minPrice != null ? #minPrice : 'null') + ':' + (#maxPrice != null ? #maxPrice : 'null') + ':' + (#available != null ? #available : 'null') + ':' + #pageable.pageNumber + ':' + #pageable.pageSize",
-               condition = "#pageable.pageSize <= 50")
+    // ❌ CACHE DESABILITADO: Page<Product> não serializa corretamente no Redis
     public Page<Product> searchProductsAdvanced(String category, BigDecimal minPrice, BigDecimal maxPrice, 
                                               Boolean available, Pageable pageable) {
         // Validações
