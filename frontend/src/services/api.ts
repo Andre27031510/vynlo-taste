@@ -42,14 +42,14 @@ export const API_CONFIG = {
 }
 
 // Circuit Breaker Pattern robusto para produção (3M+ usuários)
-// ✅ Baseado em diagnóstico Cursor - só conta erros recuperáveis
+// ✅ Amazon Q Recommendation: threshold 10, cooldown 15s, halfOpen 3 tentativas
 class CircuitBreaker {
   private failures = 0
   private lastFailTime = 0
   private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED'
-  private readonly threshold = API_CONFIG.CIRCUIT_BREAKER_THRESHOLD
-  private readonly cooldown = 30000 // 30 segundos cooldown
-  private readonly halfOpenAttempts = 1 // Uma única tentativa em half-open
+  private readonly threshold = 10 // Amazon Q: Mais tolerante para produção
+  private readonly cooldown = 15000 // Amazon Q: 15s (mais rápido)
+  private readonly halfOpenAttempts = 3 // Amazon Q: Mais tentativas
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
     if (this.state === 'OPEN') {

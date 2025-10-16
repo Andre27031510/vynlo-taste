@@ -15,6 +15,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
+import { 
+  getProductsFallback, 
+  getStatsFallback, 
+  useProductsFallback, 
+  useStatsFallback 
+} from './useProductFallback'
 
 export interface Product {
   id: string
@@ -192,45 +198,78 @@ export const useProductsQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
-  // ✅ GET /products é público no backend
-  // Token enviado automaticamente se disponível via getAuthHeaders()
+  // ✅ Amazon Q Recommendation: Cache resiliente + Retry conservador + Fallback
+  // Para 3M+ usuários: staleTime 2min, retry máximo 2 tentativas, localStorage fallback
   
-  return useQuery<{ products: Product[], total: number, totalPages: number }>({
+  const query = useQuery<{ products: Product[], total: number, totalPages: number }>({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
     enabled: true, // ✅ SEMPRE HABILITADO - backend permite GET público
-    staleTime: 1 * 60 * 1000, // ✅ 1 minuto - produtos podem mudar (estoque/preço)
-    gcTime: 5 * 60 * 1000, // ✅ 5 minutos - tempo seguro para delivery
+    staleTime: 2 * 60 * 1000, // ✅ 2 minutos (Amazon Q: mais conservador para produção)
+    gcTime: 10 * 60 * 1000, // ✅ 10 minutos (Amazon Q: manter dados mais tempo)
     refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
     refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 5, // ✅ SEMPRE tentar 5 vezes antes de falhar
-    retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000), // 1s, 2s, 3s, 4s, 5s
-    placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores durante refetch
-    // ✅ CRITICAL: Nunca mostrar vazio - manter dados anteriores em caso de erro
-    notifyOnChangeProps: ['data', 'error'], // Não notificar mudanças de loading
+    retry: (failureCount, error) => {
+      const errorMsg = error?.message || ''
+      // Amazon Q: Máximo 2 tentativas para 401 (evita loop infinito)
+      if (errorMsg.includes('401') && failureCount < 2) {
+        return true
+      }
+      // Amazon Q: Apenas 1 retry para outros erros
+      return failureCount < 1
+    },
+    retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000),
+    placeholderData: (previousData) => {
+      // Amazon Q: Usar localStorage fallback se não houver dados anteriores
+      if (previousData) return previousData
+      const fallback = getProductsFallback()
+      return fallback || undefined
+    },
+    notifyOnChangeProps: ['data', 'error'],
   })
+  
+  // Amazon Q: Auto-save em localStorage quando dados mudam
+  useProductsFallback(query.data)
+  
+  return query
 }
 
 export const useProductStatsQuery = () => {
-  // ✅ Stats agora são PÚBLICOS no backend - sem race conditions
-  // Dados agregados (totais) mudam pouco, cache mais longo é seguro
+  // ✅ Amazon Q Recommendation: Stats públicos + Cache otimizado + Fallback
   
-  return useQuery<ProductStats>({
+  const query = useQuery<ProductStats>({
     queryKey: ['product-stats'],
     queryFn: fetchProductStats,
     enabled: true, // ✅ SEMPRE HABILITADO - backend permite acesso público
     staleTime: 2 * 60 * 1000, // ✅ 2 minutos - stats mudam pouco
-    gcTime: 5 * 60 * 1000, // ✅ 5 minutos - seguro para delivery
+    gcTime: 10 * 60 * 1000, // ✅ 10 minutos (Amazon Q: production-safe)
     refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
     refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 5, // ✅ SEMPRE tentar 5 vezes antes de falhar
-    retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000), // 1s, 2s, 3s, 4s, 5s
-    placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
-    // ✅ CRITICAL: Nunca mostrar vazio - manter dados anteriores em caso de erro
+    retry: (failureCount, error) => {
+      const errorMsg = error?.message || ''
+      // Amazon Q: Máximo 2 tentativas para 401
+      if (errorMsg.includes('401') && failureCount < 2) {
+        return true
+      }
+      // Amazon Q: Apenas 1 retry para outros erros
+      return failureCount < 1
+    },
+    retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000),
+    placeholderData: (previousData) => {
+      // Amazon Q: Usar localStorage fallback se não houver dados anteriores
+      if (previousData) return previousData
+      const fallback = getStatsFallback()
+      return fallback || undefined
+    },
     notifyOnChangeProps: ['data', 'error'],
   })
+  
+  // Amazon Q: Auto-save em localStorage quando dados mudam
+  useStatsFallback(query.data)
+  
+  return query
 }
 // Modified: 2025-10-14 21:35 UTC | CRITICAL FIX: keepPreviousData + gcTime 10min - produtos persistentes
 // Modified: 2025-10-14 21:40 UTC | TypeScript fix: keepPreviousData removed (React Query v5) - Build error resolved
