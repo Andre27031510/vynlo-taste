@@ -25,7 +25,7 @@ export const usePublicEndpoints = () => {
 
       // Test products endpoint
       try {
-        await apiRequest('core-service', 'products?page=0&size=1')
+        await apiRequest('core-service', 'v1/products?page=0&size=1')
         setStatus(prev => ({ ...prev, products: 'ok' }))
       } catch (error) {
         setStatus(prev => ({ ...prev, products: 'error' }))
