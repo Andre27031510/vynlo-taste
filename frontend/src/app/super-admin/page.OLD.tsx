@@ -1,4 +1,11 @@
 'use client'
+/**
+ * ARQUIVO DE BACKUP - NÃO USAR
+ * Commit a8f2f38: Página antiga do Super Admin (2.913 linhas mock)
+ * Substituída por nova implementação profissional (~730 linhas APIs reais)
+ * Mantido apenas como referência histórica
+ * TODO: Deletar após validação completa da nova página
+ */
 
 import { useState, useEffect, useMemo, useCallback, memo, Suspense, lazy } from 'react'
 import { 
