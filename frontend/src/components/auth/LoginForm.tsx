@@ -186,14 +186,14 @@ const LoginForm = memo(function LoginForm() {
         // PRIORIDADE 3: Outros usuários (ADMIN, MANAGER, etc)
         else {
           redirectPath = '/dashboard';
-          userRole = claims.role?.toLowerCase() || 'user';
+          userRole = (claims.role as string)?.toLowerCase() || 'user';
         }
         
         // Track successful authentication and redirect
         await trackEvent('user_authenticated', {
           user_role: userRole,
           redirect_path: redirectPath,
-          vynlo_product: claims.vynloProduct || 'taste',
+          vynlo_product: (claims.vynloProduct as string) || 'taste',
           timestamp: Date.now()
         });
         
