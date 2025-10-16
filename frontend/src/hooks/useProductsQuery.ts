@@ -15,7 +15,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
-import { useAuthReady } from './useAuthReady'
 
 export interface Product {
   id: string
@@ -206,40 +205,57 @@ export const useProductsQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
-  const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  // ✅ REMOVIDO useAuthReady - GET /products é público no backend
+  // Token será enviado automaticamente se disponível via getAuthHeaders()
   
   return useQuery<{ products: Product[], total: number, totalPages: number }>({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
-    enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
+    enabled: true, // ✅ SEMPRE HABILITADO - backend permite GET público
     staleTime: 30 * 1000, // ✅ 30 segundos (reduzido de 5min) - reflete mudanças rapidamente
     gcTime: 10 * 60 * 1000, // ✅ 10 minutos (aumentado para manter dados mais tempo)
     refetchOnWindowFocus: false, // ✅ DESABILITADO para evitar refetch desnecessário
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 3, // ✅ Mais retries para resilência
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000), // Backoff exponencial
+    retry: (failureCount, error) => {
+      // ✅ Retry inteligente: apenas em erros de rede, não em 4xx
+      const errorMsg = error?.message || ''
+      if (errorMsg.includes('401') && failureCount < 5) {
+        // 401 = Token pode não estar pronto, tentar novamente
+        return true
+      }
+      if (errorMsg.includes('5') || errorMsg.includes('NetworkError')) {
+        // Erro de servidor/rede - tentar novamente
+        return failureCount < 3
+      }
+      return false
+    },
+    retryDelay: attemptIndex => Math.min(500 * 2 ** attemptIndex, 5000), // Backoff exponencial
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores durante refetch
-    // ✅ FIX: placeholderData já mantém dados anteriores (React Query v5)
   })
 }
 
 export const useProductStatsQuery = () => {
-  const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  // ✅ REMOVIDO useAuthReady - stats requer autenticação mas retry automático resolve
   
   return useQuery<ProductStats>({
     queryKey: ['product-stats'],
     queryFn: fetchProductStats,
-    enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
+    enabled: true, // ✅ SEMPRE HABILITADO - retry automático se token não estiver pronto
     staleTime: 30 * 1000, // ✅ 30 segundos (alinhado com backend PRODUCT_STATS_CACHE)
     gcTime: 10 * 60 * 1000, // ✅ 10 minutos (aumentado para manter dados mais tempo)
     refetchOnWindowFocus: false, // ✅ DESABILITADO para evitar refetch desnecessário
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: 3, // ✅ Mais retries para resilência
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 8000),
+    retry: (failureCount, error) => {
+      const errorMsg = error?.message || ''
+      if (errorMsg.includes('401') && failureCount < 5) {
+        return true // Retry em 401 (token pode não estar pronto)
+      }
+      return failureCount < 3
+    },
+    retryDelay: attemptIndex => Math.min(500 * 2 ** attemptIndex, 5000),
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
-    // ✅ FIX: placeholderData já mantém dados anteriores (React Query v5)
   })
 }
 // Modified: 2025-10-14 21:35 UTC | CRITICAL FIX: keepPreviousData + gcTime 10min - produtos persistentes

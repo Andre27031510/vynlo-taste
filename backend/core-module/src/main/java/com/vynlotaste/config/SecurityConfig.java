@@ -92,7 +92,12 @@ public class SecurityConfig {
                 // Endpoints administrativos - apenas ADMIN
                 .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                 
-                // Funcionalidades do sistema - qualquer usuário autenticado
+                // Endpoints públicos de leitura (para catálogo, SEO, etc)
+                .requestMatchers(HttpMethod.GET, "/v1/products").permitAll()
+                .requestMatchers(HttpMethod.GET, "/v1/products/*").permitAll()
+                .requestMatchers(HttpMethod.GET, "/v1/products/search").permitAll()
+                
+                // Funcionalidades do sistema - qualquer usuário autenticado (sem verificação de role)
                 .requestMatchers("/v1/users/**").authenticated()
                 .requestMatchers("/v1/financial/**").authenticated()
                 .requestMatchers("/v1/reports/**").authenticated()
@@ -100,6 +105,9 @@ public class SecurityConfig {
                 .requestMatchers("/v1/products/**").authenticated()
                 .requestMatchers("/v1/customers/**").authenticated()
                 .requestMatchers("/v1/drivers/**").authenticated()
+                .requestMatchers("/v1/payments/**").authenticated()
+                .requestMatchers("/v1/cashflow/**").authenticated()
+                .requestMatchers("/v1/fiscal/**").authenticated()
                 
                 // Qualquer outra requisição requer autenticação
                 .anyRequest().authenticated()
