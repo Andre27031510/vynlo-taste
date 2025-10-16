@@ -49,21 +49,10 @@ public class EmailConfig {
 
         } catch (Exception e) {
             log.error("Erro ao configurar JavaMailSender com AWS Secrets Manager: {}", e.getMessage());
-            // Fallback para configuração local em caso de erro
-            JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-            mailSender.setHost("smtp.gmail.com");
-            mailSender.setPort(587);
-            mailSender.setUsername("noreply@vynlotech.com");
-            mailSender.setPassword("VynloTaste2024!");
-            
-            Properties props = mailSender.getJavaMailProperties();
-            props.put("mail.transport.protocol", "smtp");
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.starttls.required", "true");
-            
-            log.info("JavaMailSender configurado com fallback - Host: smtp.gmail.com, Port: 587");
-            return mailSender;
+            log.error("PRODUÇÃO: Email service não disponível - verifique secret 'vynlo-taste-email-config' no AWS Secrets Manager");
+            // REMOVIDO: Fallback inseguro com senha hardcoded
+            // Produção DEVE usar AWS Secrets Manager
+            throw new RuntimeException("Email configuration required - use AWS Secrets Manager in production", e);
         }
     }
 }

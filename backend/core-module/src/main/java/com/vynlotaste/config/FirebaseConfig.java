@@ -119,21 +119,12 @@ public class FirebaseConfig {
                 return FirebaseApp.initializeApp(options);
             }
             
-            // Prioridade 4: Arquivo JSON do classpath (fallback)
-            try {
-                InputStream serviceAccount = new ClassPathResource("firebase-service-account.json").getInputStream();
-                
-                FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-                
-                log.info("Firebase initialized with classpath JSON file");
-                return FirebaseApp.initializeApp(options);
-                
-            } catch (Exception e) {
-                log.error("Failed to initialize Firebase: {}", e.getMessage());
-                throw new RuntimeException("Firebase configuration required", e);
-            }
+            // REMOVIDO: Arquivo JSON do classpath (RISCO DE SEGURANÇA)
+            // Produção DEVE usar AWS Secrets Manager
+            log.error("Failed to initialize Firebase: Nenhuma configuração válida encontrada");
+            log.error("PRODUÇÃO: Configure AWS Secrets Manager com secret: {}", firebaseSecretName);
+            log.error("DESENVOLVIMENTO: Configure variáveis de ambiente ou GOOGLE_APPLICATION_CREDENTIALS");
+            throw new RuntimeException("Firebase configuration required - use AWS Secrets Manager in production");
         }
         return FirebaseApp.getInstance();
     }

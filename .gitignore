@@ -73,8 +73,18 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Firebase credentials (keep example file)
-# backend/src/main/resources/firebase-service-account.json
+# Secrets e Credenciais (NUNCA COMMITAR)
+**/firebase-service-account*.json
+**/firebase-adminsdk*.json
+**/*-credentials.json
+**/*-serviceaccount.json
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+**/secrets/
+backup-*.sql
 
 # Docker
 .dockerignore

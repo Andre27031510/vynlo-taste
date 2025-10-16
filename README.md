@@ -7,35 +7,42 @@ O **Vynlo Taste** é um sistema empresarial completo para gestão de delivery e 
 ## 🏗️ Arquitetura do Sistema
 
 ### **Frontend (Next.js 15 + React 18)**
-- **Framework**: Next.js 15.2.4 com App Router
+- **Framework**: Next.js 15.5.4 com App Router
 - **UI**: React 18.3.1 + TypeScript 5.6.3
 - **Styling**: Tailwind CSS 3.4.3 + Framer Motion 11
 - **Autenticação**: Firebase Auth
-- **Estado**: Context API + Hooks personalizados
+- **Estado**: TanStack Query v5 + Context API
+- **Validação**: React Hook Form + Yup
 
-### **Backend (Spring Boot 3.2 + Java 17)**
+### **Backend (Spring Boot 3.2 + Java 21)**
 - **Framework**: Spring Boot 3.2.0
-- **Java**: JDK 17 LTS
+- **Java**: JDK 21 LTS (Eclipse Temurin)
 - **Banco**: PostgreSQL 15 + Redis 7
-- **Segurança**: Spring Security 6 + JWT + Firebase Admin
+- **Segurança**: Spring Security 6 + JWT + Firebase Admin SDK
 - **Cache**: Redis + Spring Cache
-- **Métricas**: Micrometer + Prometheus
-- **Monitoramento**: Spring Actuator
+- **Métricas**: Micrometer + Prometheus + Grafana
+- **Monitoramento**: Spring Actuator + Health Checks
+- **Secrets**: AWS Secrets Manager (KMS encryption)
+- **Migrations**: Flyway
 
 ### **Infraestrutura**
-- **Containerização**: Docker + Docker Compose
-- **Cloud**: AWS (EC2, RDS, ElastiCache, S3)
-- **CI/CD**: Pipeline automatizado
-- **Monitoramento**: CloudWatch + X-Ray
+- **Containerização**: Docker + Docker Compose (multi-stage builds)
+- **Cloud**: AWS (EC2, ALB, Secrets Manager)
+- **CI/CD**: GitHub Actions (zero downtime deploys)
+- **Registry**: GitHub Container Registry (ghcr.io)
+- **Monitoramento**: Prometheus + Grafana + CloudWatch
+- **Observabilidade**: Health checks + Circuit breaker
+- **Backup**: Automático antes de cada deploy
 
 ## 🚀 Início Rápido
 
 ### **Pré-requisitos**
 - Node.js 18+
-- Java 17
+- Java 21 (Eclipse Temurin)
 - Docker Desktop
 - PostgreSQL 15
 - Redis 7
+- AWS CLI configurado (para produção)
 
 ### **1. Clone o Repositório**
 ```bash
@@ -149,11 +156,15 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ## 🔒 Segurança
 
-- **Autenticação**: Firebase Auth + JWT
+- **Autenticação**: Firebase Auth + JWT (validação server-side)
 - **Autorização**: RBAC (Role-Based Access Control)
-- **Criptografia**: SSL/TLS + Criptografia de dados
-- **Rate Limiting**: Proteção contra ataques
-- **Auditoria**: Logs de todas as operações
+- **Secrets Management**: AWS Secrets Manager (KMS encryption)
+- **Criptografia**: SSL/TLS + Encryption at rest
+- **Rate Limiting**: Bucket4j (proteção contra ataques)
+- **Circuit Breaker**: Resilience4j (failover automático)
+- **Auditoria**: Logs completos + CloudTrail
+- **Headers de Segurança**: HSTS, CSP, X-XSS-Protection
+- **Zero Downtime Deploys**: Backup automático + validação de health
 
 ## 🧪 Testes
 
