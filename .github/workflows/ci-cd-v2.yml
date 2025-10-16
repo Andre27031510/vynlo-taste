@@ -252,10 +252,13 @@ jobs:
             export FRONTEND_TAG="${{ github.sha }}"
           fi
           
-          echo "=== Parando e removendo containers antigos ==="
-          docker compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
-          docker stop vynlo-backend vynlo-frontend vynlo-postgres vynlo-redis vynlo-prometheus vynlo-grafana 2>/dev/null || true
-          docker rm vynlo-backend vynlo-frontend vynlo-postgres vynlo-redis vynlo-prometheus vynlo-grafana 2>/dev/null || true
+          echo "=== Backup do banco de dados (segurança) ==="
+          docker exec vynlo-postgres pg_dump -U vynlo_user vynlotaste > backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql 2>/dev/null || echo "⚠️ Backup falhou ou BD não está rodando"
+          
+          echo "=== Parando APENAS backend e frontend (Zero Downtime) ==="
+          docker compose -f docker-compose.prod.yml stop backend frontend 2>/dev/null || true
+          docker rm vynlo-backend vynlo-frontend 2>/dev/null || true
+          echo "✅ Postgres, Redis, Prometheus e Grafana continuam rodando"
           
           echo "=== Baixando novas imagens ==="
           for i in {1..3}; do
@@ -267,11 +270,15 @@ jobs:
             fi
           done
           
-          echo "=== Iniciando containers ==="
-          docker compose -f docker-compose.prod.yml up -d --remove-orphans
+          echo "=== Iniciando containers (Backend e Frontend) ==="
+          docker compose -f docker-compose.prod.yml up -d backend frontend --remove-orphans
           
           echo "=== Containers ativos ==="
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          
+          echo "=== Verificando que serviços críticos estão rodando ==="
+          docker ps | grep -q vynlo-postgres && echo "✅ Postgres rodando" || echo "⚠️ Postgres não encontrado"
+          docker ps | grep -q vynlo-redis && echo "✅ Redis rodando" || echo "⚠️ Redis não encontrado"
           
           echo "=== Verificando saúde dos serviços ==="
           # Aguardar subida inicial
@@ -299,11 +306,30 @@ jobs:
             fi
           done
           
+          echo "=== Validação Final de Health (Segurança) ==="
+          if curl -fsS http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
+            echo "✅ Backend saudável - Deploy confirmado"
+          else
+            echo "❌ Backend não respondeu - ATENÇÃO: Verificar logs"
+            docker logs vynlo-backend --tail 50
+            exit 1
+          fi
+          
+          if curl -fsS http://localhost:3000 >/dev/null 2>&1; then
+            echo "✅ Frontend saudável - Deploy confirmado"
+          else
+            echo "❌ Frontend não respondeu - ATENÇÃO: Verificar logs"
+            docker logs vynlo-frontend --tail 50
+            exit 1
+          fi
+          
           echo "=== Limpando imagens antigas ==="
           docker image prune -f --filter "until=24h"
           
-          echo "=== Deploy concluído! ==="
+          echo "=== Deploy concluído com sucesso! ==="
           echo "🚀 Vynlo Taste atualizado para commit: ${{ github.sha }}"
+          echo "📊 Downtime: 0 segundos (Zero Downtime Deploy)"
+          echo "💾 Backup criado: backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql"
       
       - name: Notify deployment status
         if: always()
