@@ -79,19 +79,11 @@ const fetchProducts = async (filters?: {
     const response = await apiRequest('core-service', `products?${params.toString()}`)
   
   if (!response.ok) {
-    // ✅ Tratamento inteligente de erros (Cursor recommendation)
-    if (response.status === 401) {
-      // 401 = Token não pronto ainda - lançar erro para retry
-      throw new Error('Aguardando autenticação...')
-    }
-    
-    console.error('❌ Erro ao buscar produtos:', response.status)
-    // Outros erros: retornar vazio
-    return {
-      products: [],
-      total: 0,
-      totalPages: 0
-    }
+    // ✅ CRITICAL FIX: SEMPRE throw error para permitir retry
+    // NUNCA retornar array vazio - causa perda de dados
+    const errorMsg = `Erro ao buscar produtos: ${response.status} ${response.statusText}`
+    console.error('❌', errorMsg)
+    throw new Error(errorMsg)
   }
   
   const data = await response.json()
@@ -125,15 +117,10 @@ const fetchProductStats = async (): Promise<ProductStats> => {
     const response = await apiRequest('core-service', 'products/stats')
   
   if (!response.ok) {
-    console.error('❌ Erro ao buscar stats de produtos:', response.status)
-    // Retornar stats zerados em vez de mock
-    return {
-      totalProducts: 0,
-      activeProducts: 0,
-      lowStockProducts: 0,
-      totalRevenue: 0,
-      averagePrice: 0
-    }
+    // ✅ CRITICAL FIX: Throw error para retry, não retornar zerado
+    const errorMsg = `Erro ao buscar stats: ${response.status} ${response.statusText}`
+    console.error('❌', errorMsg)
+    throw new Error(errorMsg)
   }
   
   return await response.json()
@@ -217,21 +204,11 @@ export const useProductsQuery = (filters?: {
     refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
     refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: (failureCount, error) => {
-      // ✅ Retry inteligente: apenas em erros de rede, não em 4xx
-      const errorMsg = error?.message || ''
-      if (errorMsg.includes('401') && failureCount < 5) {
-        // 401 = Token pode não estar pronto, tentar novamente
-        return true
-      }
-      if (errorMsg.includes('5') || errorMsg.includes('NetworkError')) {
-        // Erro de servidor/rede - tentar novamente
-        return failureCount < 3
-      }
-      return false
-    },
-    retryDelay: attemptIndex => Math.min(500 * 2 ** attemptIndex, 5000), // Backoff exponencial
+    retry: 5, // ✅ SEMPRE tentar 5 vezes antes de falhar
+    retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000), // 1s, 2s, 3s, 4s, 5s
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores durante refetch
+    // ✅ CRITICAL: Nunca mostrar vazio - manter dados anteriores em caso de erro
+    notifyOnChangeProps: ['data', 'error'], // Não notificar mudanças de loading
   })
 }
 
@@ -248,15 +225,11 @@ export const useProductStatsQuery = () => {
     refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
     refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
-    retry: (failureCount, error) => {
-      const errorMsg = error?.message || ''
-      if (errorMsg.includes('401') && failureCount < 5) {
-        return true // Retry em 401 (token pode não estar pronto)
-      }
-      return failureCount < 3
-    },
-    retryDelay: attemptIndex => Math.min(500 * 2 ** attemptIndex, 5000),
+    retry: 5, // ✅ SEMPRE tentar 5 vezes antes de falhar
+    retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000), // 1s, 2s, 3s, 4s, 5s
     placeholderData: (previousData) => previousData, // ✅ Mantém dados anteriores
+    // ✅ CRITICAL: Nunca mostrar vazio - manter dados anteriores em caso de erro
+    notifyOnChangeProps: ['data', 'error'],
   })
 }
 // Modified: 2025-10-14 21:35 UTC | CRITICAL FIX: keepPreviousData + gcTime 10min - produtos persistentes
