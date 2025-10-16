@@ -109,9 +109,10 @@ export default function SuperAdminPage() {
     formState: { errors },
     reset
   } = useForm<CreateClientData>({
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as any, // Yup schema compatibility
     defaultValues: {
-      vynloProduct: 'TASTE'
+      vynloProduct: 'TASTE',
+      clientType: 'RESTAURANT'
     }
   })
 

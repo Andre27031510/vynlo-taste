@@ -159,7 +159,7 @@ const LoginForm = memo(function LoginForm() {
         }
         // PRIORIDADE 2: Cliente Admin - Redirecionar por produto Vynlo
         else if (claims.level === 'CLIENT_ADMIN' || claims.role === 'ADMIN') {
-          const vynloProduct = claims.vynloProduct?.toUpperCase() || 'TASTE';
+          const vynloProduct = (claims.vynloProduct as string)?.toUpperCase() || 'TASTE';
           
           switch (vynloProduct) {
             case 'TASTE':
