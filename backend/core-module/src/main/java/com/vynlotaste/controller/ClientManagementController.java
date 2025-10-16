@@ -1,6 +1,5 @@
 package com.vynlotaste.controller;
 
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,7 +7,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.ExportedUserRecord;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/super-admin")
@@ -18,40 +23,69 @@ public class ClientManagementController {
     @PostMapping("/create-client")
     public ResponseEntity<Map<String, Object>> createClient(@RequestBody Map<String, Object> clientData) {
         try {
+            // Validações de entrada
+            String companyName = (String) clientData.get("companyName");
+            String adminEmail = (String) clientData.get("adminEmail");
+            String adminPassword = (String) clientData.get("adminPassword");
+            String vynloProduct = (String) clientData.get("vynloProduct");
+            
+            if (companyName == null || companyName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Nome da empresa é obrigatório");
+            }
+            if (adminEmail == null || !adminEmail.contains("@")) {
+                throw new IllegalArgumentException("Email inválido");
+            }
+            if (adminPassword == null || adminPassword.length() < 8) {
+                throw new IllegalArgumentException("Senha deve ter no mínimo 8 caracteres");
+            }
+            if (vynloProduct == null) {
+                vynloProduct = "TASTE"; // Default
+            }
+            
             // Criar admin do cliente
             UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail((String) clientData.get("adminEmail"))
-                .setPassword((String) clientData.get("adminPassword"))
-                .setDisplayName("Admin - " + clientData.get("companyName"))
+                .setEmail(adminEmail)
+                .setPassword(adminPassword)
+                .setDisplayName("Admin - " + companyName)
                 .setEmailVerified(true);
 
             UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
-            // Definir permissões específicas do cliente
+            // Definir permissões específicas do cliente (Firebase Custom Claims)
             Map<String, Object> claims = new HashMap<>();
-            claims.put("role", "admin");
-            claims.put("permissions", clientData.get("permissions"));
-            claims.put("companyName", clientData.get("companyName"));
-            claims.put("clientType", "RESTAURANT");
+            claims.put("role", "ADMIN");
+            claims.put("companyName", companyName);
+            claims.put("vynloProduct", vynloProduct.toUpperCase()); // TASTE, EKKLESIA, BOT, etc
+            claims.put("clientType", clientData.getOrDefault("clientType", "RESTAURANT"));
             claims.put("isSuperAdmin", false);
             claims.put("level", "CLIENT_ADMIN");
+            claims.put("permissions", clientData.getOrDefault("permissions", List.of("all")));
             claims.put("createdAt", System.currentTimeMillis());
             claims.put("createdBy", "SUPER_ADMIN");
+            claims.put("status", "ACTIVE");
 
             FirebaseAuth.getInstance().setCustomUserClaims(userRecord.getUid(), claims);
 
+            // Response detalhado
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("clientId", userRecord.getUid());
-            response.put("adminEmail", clientData.get("adminEmail"));
-            response.put("companyName", clientData.get("companyName"));
+            response.put("companyName", companyName);
+            response.put("adminEmail", adminEmail);
+            response.put("vynloProduct", vynloProduct);
+            response.put("createdAt", new Date());
 
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
             error.put("message", "Erro ao criar cliente: " + e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+            return ResponseEntity.status(500).body(error);
         }
     }
 
@@ -67,11 +101,15 @@ public class ClientManagementController {
                 if (claims != null && "CLIENT_ADMIN".equals(claims.get("level"))) {
                     Map<String, Object> clientInfo = new HashMap<>();
                     clientInfo.put("id", user.getUid());
-                    clientInfo.put("adminEmail", user.getEmail());
                     clientInfo.put("companyName", claims.get("companyName"));
+                    clientInfo.put("adminEmail", user.getEmail());
+                    clientInfo.put("vynloProduct", claims.getOrDefault("vynloProduct", "TASTE"));
+                    clientInfo.put("clientType", claims.getOrDefault("clientType", "RESTAURANT"));
                     clientInfo.put("permissions", claims.get("permissions"));
-                    clientInfo.put("createdAt", claims.get("createdAt"));
                     clientInfo.put("status", user.isDisabled() ? "SUSPENDED" : "ACTIVE");
+                    clientInfo.put("createdAt", claims.get("createdAt"));
+                    clientInfo.put("lastLogin", user.getUserMetadata().getLastSignInTimestamp());
+                    clientInfo.put("emailVerified", user.isEmailVerified());
                     clients.add(clientInfo);
                 }
             }

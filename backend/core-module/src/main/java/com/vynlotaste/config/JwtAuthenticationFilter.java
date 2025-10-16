@@ -101,18 +101,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private UserRole extractUserRole(FirebaseToken token) {
-        // Extrair role dos custom claims do Firebase
-        Object roleObj = token.getClaims().get("role");
+        // PRIORIDADE 1: Verificar se é Super Admin (Vynlo Tech)
+        Object isSuperAdmin = token.getClaims().get("isSuperAdmin");
+        if (Boolean.TRUE.equals(isSuperAdmin)) {
+            logger.info("Super Admin detectado: uid={}", token.getUid());
+            return UserRole.SUPER_ADMIN;
+        }
         
+        // PRIORIDADE 2: Extrair role dos custom claims do Firebase
+        Object roleObj = token.getClaims().get("role");
         if (roleObj != null) {
             try {
-                return UserRole.valueOf(roleObj.toString().toUpperCase());
+                String roleStr = roleObj.toString().toUpperCase();
+                // Mapear "SUPER_ADMIN" string para enum
+                if ("SUPER_ADMIN".equals(roleStr)) {
+                    return UserRole.SUPER_ADMIN;
+                }
+                return UserRole.valueOf(roleStr);
             } catch (IllegalArgumentException e) {
                 logger.warn("Role inválido no token: {}", roleObj);
             }
         }
         
-        // Role padrão se não especificado
+        // PRIORIDADE 3: Role padrão se não especificado
         return UserRole.CUSTOMER;
     }
 

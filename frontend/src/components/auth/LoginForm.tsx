@@ -145,13 +145,53 @@ const LoginForm = memo(function LoginForm() {
       // Fazer redirecionamento quando usuário estiver autenticado
       user.getIdTokenResult().then(async (idTokenResult) => {
         const claims = idTokenResult.claims;
-        const userRole = claims.isSuperAdmin ? 'super_admin' : 'user';
-        const redirectPath = claims.isSuperAdmin ? '/super-admin' : '/dashboard';
+        
+        // Redirecionamento inteligente por tipo de usuário
+        let redirectPath = '/dashboard'; // Default
+        let userRole = 'user';
+        
+        // PRIORIDADE 1: Super Admin (Vynlo Tech)
+        if (claims.isSuperAdmin === true) {
+          redirectPath = '/super-admin';
+          userRole = 'super_admin';
+        }
+        // PRIORIDADE 2: Cliente Admin - Redirecionar por produto Vynlo
+        else if (claims.level === 'CLIENT_ADMIN' || claims.role === 'ADMIN') {
+          const vynloProduct = claims.vynloProduct?.toUpperCase() || 'TASTE';
+          
+          switch (vynloProduct) {
+            case 'TASTE':
+              redirectPath = '/dashboard';
+              break;
+            case 'EKKLESIA':
+              redirectPath = '/dashboard'; // TODO: Criar /dashboard-ekklesia
+              break;
+            case 'BOT':
+              redirectPath = '/dashboard'; // TODO: Criar /dashboard-bot
+              break;
+            case 'SAUDE':
+              redirectPath = '/dashboard'; // TODO: Criar /dashboard-saude
+              break;
+            case 'EDUCACAO':
+              redirectPath = '/dashboard'; // TODO: Criar /dashboard-educacao
+              break;
+            default:
+              redirectPath = '/dashboard'; // Fallback para Taste
+          }
+          
+          userRole = 'client_admin';
+        }
+        // PRIORIDADE 3: Outros usuários (ADMIN, MANAGER, etc)
+        else {
+          redirectPath = '/dashboard';
+          userRole = claims.role?.toLowerCase() || 'user';
+        }
         
         // Track successful authentication and redirect
         await trackEvent('user_authenticated', {
           user_role: userRole,
           redirect_path: redirectPath,
+          vynlo_product: claims.vynloProduct || 'taste',
           timestamp: Date.now()
         });
         
