@@ -81,7 +81,8 @@ const clientSchema = yup.object().shape({
     .matches(/[0-9]/, 'Deve conter pelo menos um número'),
   vynloProduct: yup.string()
     .required('Selecione um produto Vynlo'),
-  clientType: yup.string()
+  clientType: yup.string().optional(),
+  permissions: yup.array().of(yup.string()).optional()
 })
 
 export default function SuperAdminPage() {
