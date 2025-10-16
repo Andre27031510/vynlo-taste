@@ -10,6 +10,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/**
+ * Entidade Driver - Motoboys/Entregadores
+ * Commit feb97aa: Removido columnDefinition que causava conflito com Flyway
+ * Migration V10 gerencia estrutura do banco (precision, scale, defaults)
+ * Fix c3ba285: Removido precision/scale de Double (só funciona com BigDecimal)
+ */
 @Entity
 @Table(name = "drivers")
 @Data

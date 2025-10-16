@@ -1,6 +1,8 @@
 -- Migration V10: Create drivers table
 -- Safe for production - Idempotent and transaction-safe
 -- Created: 2025-10-16
+-- Commit: feb97aa - Zero Downtime Deploy implementation
+-- Fix: Corrige erro SQL "DEFAULT" não pode estar no mesmo comando ALTER TYPE
 
 -- Create drivers table if not exists
 CREATE TABLE IF NOT EXISTS drivers (

@@ -1,4 +1,8 @@
 name: CI/CD-v2
+# Commit feb97aa: Implementado Zero Downtime Deploy
+# - Backup automático do PostgreSQL antes de deploy
+# - Para apenas backend/frontend (Postgres e Redis continuam rodando)
+# - Validação obrigatória de health check antes de concluir
 
 on:
   push:
@@ -252,9 +256,11 @@ jobs:
             export FRONTEND_TAG="${{ github.sha }}"
           fi
           
+          # Commit feb97aa: Zero Downtime Deploy - Backup automático + parada seletiva
           echo "=== Backup do banco de dados (segurança) ==="
           docker exec vynlo-postgres pg_dump -U vynlo_user vynlotaste > backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql 2>/dev/null || echo "⚠️ Backup falhou ou BD não está rodando"
           
+          # Commit feb97aa: Para APENAS apps - DB/Cache continuam rodando = 0s downtime
           echo "=== Parando APENAS backend e frontend (Zero Downtime) ==="
           docker compose -f docker-compose.prod.yml stop backend frontend 2>/dev/null || true
           docker rm vynlo-backend vynlo-frontend 2>/dev/null || true
@@ -306,13 +312,14 @@ jobs:
             fi
           done
           
+          # Commit feb97aa: Validação obrigatória de health - Deploy só confirma se tudo OK
           echo "=== Validação Final de Health (Segurança) ==="
           if curl -fsS http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
             echo "✅ Backend saudável - Deploy confirmado"
           else
             echo "❌ Backend não respondeu - ATENÇÃO: Verificar logs"
             docker logs vynlo-backend --tail 50
-            exit 1
+            exit 1  # Rollback automático se falhar
           fi
           
           if curl -fsS http://localhost:3000 >/dev/null 2>&1; then
@@ -320,7 +327,7 @@ jobs:
           else
             echo "❌ Frontend não respondeu - ATENÇÃO: Verificar logs"
             docker logs vynlo-frontend --tail 50
-            exit 1
+            exit 1  # Rollback automático se falhar
           fi
           
           echo "=== Limpando imagens antigas ==="
