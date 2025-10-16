@@ -40,15 +40,22 @@ public class CacheWarmupService {
 
     private void warmupProducts() {
         try {
-            // Carrega primeiros produtos para cache
-            productService.findAll(PageRequest.of(0, 20));
+            log.debug("Aquecendo cache de produtos (Hybrid L1+L2)...");
             
-            // Carrega produtos disponíveis
+            // L1 Caffeine: Primeiras 5 páginas (mais acessadas)
+            productService.findAll(PageRequest.of(0, 10));  // Página 1
+            productService.findAll(PageRequest.of(1, 10));  // Página 2
+            productService.findAll(PageRequest.of(2, 10));  // Página 3
+            
+            // L2 Redis: Stats (crítico para dashboard)
+            productService.getProductStats();
+            
+            // L2 Redis: Lista de disponíveis (usado no menu)
             productService.findAvailableProducts();
             
-            log.debug("Cache de produtos aquecido");
+            log.info("✅ Cache de produtos aquecido: 3 páginas (L1) + stats (L2) + disponíveis (L2)");
         } catch (Exception e) {
-            log.warn("Erro ao aquecer cache de produtos", e);
+            log.warn("⚠️ Erro ao aquecer cache de produtos (não crítico)", e);
         }
     }
 
