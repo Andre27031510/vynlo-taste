@@ -82,7 +82,7 @@ const fetchProducts = async (filters?: {
   params.append('size', size.toString())
   params.append('sort', 'createdAt,desc')
 
-    const response = await apiRequest('core-service', `products?${params.toString()}`)
+    const response = await apiRequest('core-service', `v1/products?${params.toString()}`)
   
   if (!response.ok) {
     // ✅ CRITICAL FIX: SEMPRE throw error para permitir retry
@@ -120,7 +120,7 @@ const fetchProducts = async (filters?: {
 }
 
 const fetchProductStats = async (): Promise<ProductStats> => {
-    const response = await apiRequest('core-service', 'products/stats')
+    const response = await apiRequest('core-service', 'v1/products/stats')
   
   if (!response.ok) {
     // ✅ CRITICAL FIX: Throw error para retry, não retornar zerado
@@ -143,7 +143,7 @@ const createProduct = async (productData: CreateProductData): Promise<Product> =
     available: true
   }
   
-    const response = await apiRequest('core-service', 'products', {
+    const response = await apiRequest('core-service', 'v1/products', {
       method: 'POST',
     body: JSON.stringify(backendPayload)
   })
@@ -167,7 +167,7 @@ const updateProduct = async (productData: UpdateProductData): Promise<Product> =
     available: productData.status === 'active'
   }
   
-    const response = await apiRequest('core-service', `products/${productData.id}`, {
+    const response = await apiRequest('core-service', `v1/products/${productData.id}`, {
       method: 'PUT',
     body: JSON.stringify(backendPayload)
   })
@@ -181,7 +181,7 @@ const updateProduct = async (productData: UpdateProductData): Promise<Product> =
 }
 
 const deleteProduct = async (productId: string): Promise<void> => {
-  const response = await apiRequest('core-service', `products/${productId}`, {
+  const response = await apiRequest('core-service', `v1/products/${productId}`, {
       method: 'DELETE'
     })
   
