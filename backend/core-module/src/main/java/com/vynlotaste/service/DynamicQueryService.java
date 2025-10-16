@@ -36,7 +36,9 @@ public class DynamicQueryService {
     private final OrderRepository orderRepository;
 
     // User queries
-    @Cacheable(value = "userQueries", key = "#role + '_' + #active + '_' + #emailVerified")
+    // ✅ HYBRID CACHE: Caffeine L1 (Page<User> não serializa no Redis)
+    @Cacheable(value = "caffeine-user-queries", key = "#role + '_' + #active + '_' + #emailVerified",
+               cacheManager = "hybridCacheManager")
     public Page<User> findUsers(UserRole role, Boolean active, Boolean emailVerified,
                                LocalDateTime createdAfter, LocalDateTime createdBefore,
                                String emailContains, String nameContains, String phone,
@@ -71,7 +73,9 @@ public class DynamicQueryService {
     }
 
     // Product queries
-    @Cacheable(value = "productQueries", key = "#category + '_' + #available + '_' + #minPrice + '_' + #maxPrice")
+    // ✅ HYBRID CACHE: Caffeine L1 (Page<Product> não serializa no Redis)
+    @Cacheable(value = "caffeine-product-queries", key = "#category + '_' + #available + '_' + #minPrice + '_' + #maxPrice",
+               cacheManager = "hybridCacheManager")
     public Page<Product> findProducts(String category, Boolean available, 
                                      BigDecimal minPrice, BigDecimal maxPrice,
                                      String nameContains, String descriptionContains,
@@ -126,7 +130,9 @@ public class DynamicQueryService {
     }
 
     // Order queries
-    @Cacheable(value = "orderQueries", key = "#status + '_' + #type + '_' + #customerId + '_' + #createdAfter")
+    // ✅ HYBRID CACHE: Caffeine L1 (Page<Order> não serializa no Redis)
+    @Cacheable(value = "caffeine-order-queries", key = "#status + '_' + #type + '_' + #customerId + '_' + #createdAfter",
+               cacheManager = "hybridCacheManager")
     public Page<Order> findOrders(Order.OrderStatus status, Order.OrderType type,
                                  Long customerId, String customerEmail,
                                  LocalDateTime createdAfter, LocalDateTime createdBefore,

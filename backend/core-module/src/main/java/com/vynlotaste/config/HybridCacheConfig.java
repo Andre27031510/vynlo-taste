@@ -46,9 +46,15 @@ import java.util.concurrent.TimeUnit;
 public class HybridCacheConfig {
     
     // Nomes dos caches Caffeine (L1 - Local)
+    // Products
     public static final String CAFFEINE_PRODUCTS_PAGE = "caffeine-products-page";
     public static final String CAFFEINE_PRODUCTS_SEARCH_PAGE = "caffeine-products-search-page";
     public static final String CAFFEINE_PRODUCTS_AVAILABLE_PAGE = "caffeine-products-available-page";
+    
+    // Dynamic Queries (SearchController)
+    public static final String CAFFEINE_USER_QUERIES = "caffeine-user-queries";
+    public static final String CAFFEINE_PRODUCT_QUERIES = "caffeine-product-queries";
+    public static final String CAFFEINE_ORDER_QUERIES = "caffeine-order-queries";
     
     /**
      * L1 Cache - Caffeine (In-Memory Local)
@@ -69,16 +75,19 @@ public class HybridCacheConfig {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
             CAFFEINE_PRODUCTS_PAGE,
             CAFFEINE_PRODUCTS_SEARCH_PAGE,
-            CAFFEINE_PRODUCTS_AVAILABLE_PAGE
+            CAFFEINE_PRODUCTS_AVAILABLE_PAGE,
+            CAFFEINE_USER_QUERIES,
+            CAFFEINE_PRODUCT_QUERIES,
+            CAFFEINE_ORDER_QUERIES
         );
         
         cacheManager.setCaffeine(Caffeine.newBuilder()
-            .maximumSize(100)  // 100 páginas × ~200KB = 20 MB
+            .maximumSize(200)  // 200 páginas total (products + queries) × ~200KB = 40 MB
             .expireAfterWrite(2, TimeUnit.MINUTES)  // 2 min TTL
             .recordStats()  // Habilitar métricas (Actuator)
         );
         
-        log.info("✅ Caffeine Cache configurado: 100 entries, TTL 2min, ~20MB RAM");
+        log.info("✅ Caffeine Cache configurado: 200 entries (6 caches), TTL 2min, ~40MB RAM");
         return cacheManager;
     }
     
@@ -168,6 +177,7 @@ public class HybridCacheConfig {
         
         log.info("✅ Hybrid Cache Manager configurado:");
         log.info("   L1 (Caffeine): products-page, search-page, available-page");
+        log.info("   L1 (Caffeine): user-queries, product-queries, order-queries");
         log.info("   L2 (Redis): products, product-stats, orders, users");
         log.info("   Fallback: L1 → L2 → Database");
         
