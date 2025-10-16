@@ -15,7 +15,7 @@ import java.util.Map;
  * Deploy: 2025-10-11 13:59 UTC
  */
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/v1/products")  // ✅ CRITICAL FIX: Adicionar /v1 para match com frontend
 @RequiredArgsConstructor
 public class ProductStatsController {
 

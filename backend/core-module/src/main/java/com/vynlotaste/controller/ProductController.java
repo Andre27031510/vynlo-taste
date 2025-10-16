@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/v1/products")  // ✅ CRITICAL FIX: Adicionar /v1 para match com frontend
 @RequiredArgsConstructor
 public class ProductController {
 
