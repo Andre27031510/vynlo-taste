@@ -205,17 +205,17 @@ export const useProductsQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
-  // ✅ REMOVIDO useAuthReady - GET /products é público no backend
-  // Token será enviado automaticamente se disponível via getAuthHeaders()
+  // ✅ GET /products é público no backend
+  // Token enviado automaticamente se disponível via getAuthHeaders()
   
   return useQuery<{ products: Product[], total: number, totalPages: number }>({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
     enabled: true, // ✅ SEMPRE HABILITADO - backend permite GET público
-    staleTime: 30 * 1000, // ✅ 30 segundos (reduzido de 5min) - reflete mudanças rapidamente
-    gcTime: 10 * 60 * 1000, // ✅ 10 minutos (aumentado para manter dados mais tempo)
-    refetchOnWindowFocus: false, // ✅ DESABILITADO para evitar refetch desnecessário
-    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
+    staleTime: 1 * 60 * 1000, // ✅ 1 minuto - produtos podem mudar (estoque/preço)
+    gcTime: 5 * 60 * 1000, // ✅ 5 minutos - tempo seguro para delivery
+    refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
+    refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: (failureCount, error) => {
       // ✅ Retry inteligente: apenas em erros de rede, não em 4xx
@@ -236,16 +236,17 @@ export const useProductsQuery = (filters?: {
 }
 
 export const useProductStatsQuery = () => {
-  // ✅ REMOVIDO useAuthReady - stats requer autenticação mas retry automático resolve
+  // ✅ Stats agora são PÚBLICOS no backend - sem race conditions
+  // Dados agregados (totais) mudam pouco, cache mais longo é seguro
   
   return useQuery<ProductStats>({
     queryKey: ['product-stats'],
     queryFn: fetchProductStats,
-    enabled: true, // ✅ SEMPRE HABILITADO - retry automático se token não estiver pronto
-    staleTime: 30 * 1000, // ✅ 30 segundos (alinhado com backend PRODUCT_STATS_CACHE)
-    gcTime: 10 * 60 * 1000, // ✅ 10 minutos (aumentado para manter dados mais tempo)
-    refetchOnWindowFocus: false, // ✅ DESABILITADO para evitar refetch desnecessário
-    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
+    enabled: true, // ✅ SEMPRE HABILITADO - backend permite acesso público
+    staleTime: 2 * 60 * 1000, // ✅ 2 minutos - stats mudam pouco
+    gcTime: 5 * 60 * 1000, // ✅ 5 minutos - seguro para delivery
+    refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
+    refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: (failureCount, error) => {
       const errorMsg = error?.message || ''

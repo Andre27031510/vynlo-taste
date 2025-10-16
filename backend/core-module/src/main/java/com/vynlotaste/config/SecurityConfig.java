@@ -83,11 +83,12 @@ public class SecurityConfig {
                 .requestMatchers("/v1/users/sync-firebase").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 
-                // Stats endpoints - acessíveis para usuários logados
-                .requestMatchers("/v1/orders/stats").authenticated()
-                .requestMatchers("/v1/users/stats").authenticated()
-                .requestMatchers("/v1/drivers/stats").authenticated()
-                .requestMatchers("/v1/products/stats").authenticated()
+                // Stats endpoints - PÚBLICOS (dados agregados, não sensíveis)
+                // Melhora performance e evita race conditions com auth
+                .requestMatchers("/v1/orders/stats").permitAll()
+                .requestMatchers("/v1/users/stats").permitAll()
+                .requestMatchers("/v1/drivers/stats").permitAll()
+                .requestMatchers("/v1/products/stats").permitAll()
                 
                 // Endpoints Super Admin - apenas SUPER_ADMIN (Vynlo Tech)
                 // Commit 4481aaf: Permite gestão multi-tenant (criar clientes, etc)
