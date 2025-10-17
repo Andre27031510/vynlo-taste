@@ -37,7 +37,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signOut } from 'firebase/auth'
-import { auth } from '@/config/firebase'
+import { getAuthInstance } from '@/config/firebase'
 import { 
   Users, 
   Building2, 
@@ -267,13 +267,14 @@ export default function SuperAdminPage() {
     if (confirm('Tem certeza que deseja sair?')) {
       try {
         // Validação TypeScript: auth pode ser null
-        if (!auth) {
+        const authInstance = getAuthInstance()
+        if (!authInstance) {
           console.error('Firebase não inicializado')
           router.push('/login')
           return
         }
         
-        await signOut(auth)
+        await signOut(authInstance)
         router.push('/login')
       } catch (error) {
         console.error('Erro ao fazer logout:', error)
@@ -296,11 +297,12 @@ export default function SuperAdminPage() {
     
     try {
       // Validação TypeScript: auth pode ser null
-      if (!auth) {
+      const authInstance = getAuthInstance()
+      if (!authInstance) {
         throw new Error('Firebase não inicializado')
       }
       
-      const user = auth.currentUser
+      const user = authInstance.currentUser
       if (!user) {
         throw new Error('Usuário não autenticado')
       }
@@ -311,7 +313,7 @@ export default function SuperAdminPage() {
       alert('✅ Senha alterada com sucesso! Faça login novamente.')
       setShowChangePasswordModal(false)
       
-      await signOut(auth)
+      await signOut(authInstance)
       router.push('/login')
       
     } catch (error: any) {

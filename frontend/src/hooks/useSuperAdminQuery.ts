@@ -1,9 +1,43 @@
 'use client'
-// Super Admin Query Hook - Production-ready for Vynlo Platform
-// Commit 4481aaf: Criado para conectar Super Admin às APIs reais
-// Hooks: useClientsQuery, useCreateClientMutation, useSuspend/ActivateClientMutation
-// 100% Type-safe com interfaces VynloClient e CreateClientData
-// Created: 2025-10-16
+/**
+ * ============================================================================
+ * Super Admin Query Hook - Production-ready for Vynlo Platform
+ * ============================================================================
+ * 
+ * Histórico de Commits:
+ * - Commit 4481aaf: Criado para conectar Super Admin às APIs reais
+ * - Commit 2788a34: Adicionado campo "role" para seleção dinâmica
+ * - Commit 5d75d82: Adicionado campo "cnpj" + edição de usuários
+ * - Commit 6e4a162: Comentários expandidos (ESTE COMMIT)
+ * 
+ * 7 HOOKS EXPORTADOS:
+ * 1. useClientsQuery() - Lista todos clientes
+ * 2. useCreateClientMutation() - Criar novo cliente
+ * 3. useUpdateClientMutation() - Editar cliente existente
+ * 4. useSuspendClientMutation() - Suspender cliente
+ * 5. useActivateClientMutation() - Ativar cliente
+ * 6. useUpdatePermissionsMutation() - Atualizar permissões
+ * 7. useAvailablePermissionsQuery() - Buscar permissões disponíveis
+ * 
+ * 7 ENDPOINTS BACKEND MAPEADOS:
+ * GET /v1/super-admin/clients - Lista clientes
+ * POST /v1/super-admin/create-client - Criar cliente
+ * PUT /v1/super-admin/clients/{uid} - Editar cliente
+ * PUT /v1/super-admin/client/{id}/suspend - Suspender
+ * PUT /v1/super-admin/client/{id}/activate - Ativar
+ * PUT /v1/super-admin/client/{id}/permissions - Atualizar permissões
+ * GET /v1/super-admin/client-permissions/available - Permissões
+ * 
+ * 100% Type-safe com interfaces VynloClient, CreateClientData, UpdateClientData
+ * Cache inteligente com TanStack Query (staleTime, gcTime, invalidation)
+ * Toast notifications para feedback visual (react-hot-toast)
+ * 
+ * @version 2.1.0
+ * @author Vynlo Tech
+ * @created 2025-10-16
+ * @modified 2025-10-17
+ * ============================================================================
+ */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
@@ -49,7 +83,13 @@ export interface UpdateClientData {
   permissions?: string[]      // Permissões (pode atualizar)
 }
 
-// Buscar todos os clientes
+/**
+ * FUNÇÃO: fetchClients()
+ * ENDPOINT: GET /v1/super-admin/clients
+ * RETORNO: Array de VynloClient[] com todos os clientes
+ * SEGURANÇA: Protegido por @PreAuthorize("hasRole('SUPER_ADMIN')") no backend
+ * ERRO 403: Lança exceção se usuário não é Super Admin
+ */
 const fetchClients = async (): Promise<VynloClient[]> => {
   const response = await apiRequest('core-service', 'v1/super-admin/clients')
   
@@ -64,7 +104,14 @@ const fetchClients = async (): Promise<VynloClient[]> => {
   return await response.json()
 }
 
-// Criar novo cliente
+/**
+ * FUNÇÃO: createClient()
+ * ENDPOINT: POST /v1/super-admin/create-client
+ * BODY: { companyName, adminEmail, adminPassword, vynloProduct, role, cnpj, clientType }
+ * RETORNO: Objeto com sucesso + dados do cliente criado
+ * BACKEND: Cria usuário no Firebase + seta custom claims
+ * VALIDAÇÕES: Email único, senha mín 8 chars, role válido
+ */
 const createClient = async (clientData: CreateClientData): Promise<any> => {
   const response = await apiRequest('core-service', 'v1/super-admin/create-client', {
     method: 'POST',
@@ -99,7 +146,13 @@ const updateClient = async (uid: string, clientData: UpdateClientData): Promise<
   return await response.json()
 }
 
-// Suspender cliente
+/**
+ * FUNÇÃO: suspendClient()
+ * ENDPOINT: PUT /v1/super-admin/client/{id}/suspend
+ * BODY: Nenhum (apenas clientId na URL)
+ * BACKEND: Desabilita usuário no Firebase (disabled=true)
+ * EFEITO: Usuário não consegue mais fazer login
+ */
 const suspendClient = async (clientId: string): Promise<void> => {
   const response = await apiRequest('core-service', `v1/super-admin/client/${clientId}/suspend`, {
     method: 'PUT'
@@ -110,7 +163,13 @@ const suspendClient = async (clientId: string): Promise<void> => {
   }
 }
 
-// Ativar cliente
+/**
+ * FUNÇÃO: activateClient()
+ * ENDPOINT: PUT /v1/super-admin/client/{id}/activate
+ * BODY: Nenhum (apenas clientId na URL)
+ * BACKEND: Reabilita usuário no Firebase (disabled=false)
+ * EFEITO: Usuário volta a conseguir fazer login
+ */
 const activateClient = async (clientId: string): Promise<void> => {
   const response = await apiRequest('core-service', `v1/super-admin/client/${clientId}/activate`, {
     method: 'PUT'
@@ -121,7 +180,13 @@ const activateClient = async (clientId: string): Promise<void> => {
   }
 }
 
-// Atualizar permissões
+/**
+ * FUNÇÃO: updatePermissions()
+ * ENDPOINT: PUT /v1/super-admin/client/{id}/permissions
+ * BODY: Array de strings com permissões (ex: ['READ_USERS', 'WRITE_ORDERS'])
+ * BACKEND: Atualiza custom claims do Firebase
+ * EFEITO: Permissões refletem no JWT do usuário
+ */
 const updatePermissions = async (data: { clientId: string, permissions: string[] }): Promise<void> => {
   const response = await apiRequest('core-service', `v1/super-admin/client/${data.clientId}/permissions`, {
     method: 'PUT',
@@ -133,7 +198,13 @@ const updatePermissions = async (data: { clientId: string, permissions: string[]
   }
 }
 
-// Buscar permissões disponíveis
+/**
+ * FUNÇÃO: fetchAvailablePermissions()
+ * ENDPOINT: GET /v1/super-admin/client-permissions/available
+ * RETORNO: Objeto com permissões disponíveis por produto
+ * EXEMPLO: { "TASTE": ["MANAGE_MENU", "VIEW_ORDERS"], "EKKLESIA": [...] }
+ * CACHE: 1 hora (permissões mudam raramente)
+ */
 const fetchAvailablePermissions = async (): Promise<Record<string, string[]>> => {
   const response = await apiRequest('core-service', 'v1/super-admin/client-permissions/available')
   
@@ -146,6 +217,14 @@ const fetchAvailablePermissions = async (): Promise<Record<string, string[]>> =>
 
 // ===== HOOKS =====
 
+/**
+ * HOOK: useClientsQuery()
+ * RETORNA: { data, isLoading, error, refetch }
+ * CACHE: 30s stale, 10min garbage collection
+ * REFETCH: Automático ao voltar para janela
+ * RETRY: Até 3x, exceto 403 (acesso negado)
+ * USO: const { data: clients } = useClientsQuery()
+ */
 export const useClientsQuery = () => {
   return useQuery<VynloClient[]>({
     queryKey: ['super-admin-clients'],
@@ -163,6 +242,14 @@ export const useClientsQuery = () => {
   })
 }
 
+/**
+ * HOOK: useCreateClientMutation()
+ * RETORNA: { mutate, isLoading, error }
+ * INVALIDAÇÃO: Refetch lista de clientes após sucesso
+ * TOAST: Sucesso (nome empresa) | Erro (mensagem backend)
+ * USO: const { mutate } = useCreateClientMutation()
+ *      mutate({ companyName, adminEmail, ... })
+ */
 export const useCreateClientMutation = () => {
   const queryClient = useQueryClient()
   
@@ -178,6 +265,14 @@ export const useCreateClientMutation = () => {
   })
 }
 
+/**
+ * HOOK: useSuspendClientMutation()
+ * RETORNA: { mutate, isLoading }
+ * EFEITO: Desabilita cliente no Firebase (disabled=true)
+ * INVALIDAÇÃO: Refetch lista após sucesso
+ * USO: const { mutate } = useSuspendClientMutation()
+ *      mutate(clientId)
+ */
 export const useSuspendClientMutation = () => {
   const queryClient = useQueryClient()
   
@@ -211,6 +306,14 @@ export const useUpdateClientMutation = () => {
   })
 }
 
+/**
+ * HOOK: useActivateClientMutation()
+ * RETORNA: { mutate, isLoading }
+ * EFEITO: Reabilita cliente no Firebase (disabled=false)
+ * INVALIDAÇÃO: Refetch lista após sucesso
+ * USO: const { mutate } = useActivateClientMutation()
+ *      mutate(clientId)
+ */
 export const useActivateClientMutation = () => {
   const queryClient = useQueryClient()
   
@@ -226,6 +329,14 @@ export const useActivateClientMutation = () => {
   })
 }
 
+/**
+ * HOOK: useUpdatePermissionsMutation()
+ * RETORNA: { mutate, isLoading }
+ * EFEITO: Atualiza custom claims do Firebase
+ * INVALIDAÇÃO: Refetch lista após sucesso
+ * USO: const { mutate } = useUpdatePermissionsMutation()
+ *      mutate({ clientId, permissions: ['READ', 'WRITE'] })
+ */
 export const useUpdatePermissionsMutation = () => {
   const queryClient = useQueryClient()
   
@@ -241,6 +352,13 @@ export const useUpdatePermissionsMutation = () => {
   })
 }
 
+/**
+ * HOOK: useAvailablePermissionsQuery()
+ * RETORNA: { data, isLoading }
+ * CACHE: 1 hora (permissões mudam raramente)
+ * ESTRUTURA: { "TASTE": ["MANAGE_MENU"], "EKKLESIA": [...] }
+ * USO: const { data: permissions } = useAvailablePermissionsQuery()
+ */
 export const useAvailablePermissionsQuery = () => {
   return useQuery<Record<string, string[]>>({
     queryKey: ['super-admin-permissions'],
