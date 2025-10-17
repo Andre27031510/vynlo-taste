@@ -50,11 +50,13 @@ import * as yup from 'yup'
 import {
   useClientsQuery,
   useCreateClientMutation,
+  useUpdateClientMutation,
   useSuspendClientMutation,
   useActivateClientMutation,
   useAvailablePermissionsQuery,
   type VynloClient,
-  type CreateClientData
+  type CreateClientData,
+  type UpdateClientData
 } from '@/hooks/useSuperAdminQuery'
 
 // Produtos Vynlo disponíveis
@@ -91,7 +93,7 @@ const USER_ROLES = [
   { id: 'CUSTOMER', name: 'Cliente', description: 'Usuário final (app mobile)' }
 ] as const
 
-// Schema de validação
+// Schema de validação para CRIAR cliente
 const clientSchema = yup.object().shape({
   companyName: yup.string()
     .required('Nome da empresa é obrigatório')
@@ -110,6 +112,27 @@ const clientSchema = yup.object().shape({
   role: yup.string()
     .required('Selecione um nível de acesso')
     .oneOf(['ADMIN', 'MANAGER', 'STAFF', 'CUSTOMER'], 'Role inválida'),
+  cnpj: yup.string()
+    .optional()
+    .matches(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ inválido (formato: 00.000.000/0000-00)'),
+  clientType: yup.string().optional(),
+  permissions: yup.array().of(yup.string()).optional()
+})
+
+// Schema de validação para EDITAR cliente (sem email e senha)
+const editClientSchema = yup.object().shape({
+  companyName: yup.string()
+    .required('Nome da empresa é obrigatório')
+    .min(3, 'Nome deve ter pelo menos 3 caracteres')
+    .max(100, 'Nome deve ter no máximo 100 caracteres'),
+  vynloProduct: yup.string()
+    .required('Selecione um produto Vynlo'),
+  role: yup.string()
+    .required('Selecione um nível de acesso')
+    .oneOf(['ADMIN', 'MANAGER', 'STAFF', 'CUSTOMER'], 'Role inválida'),
+  cnpj: yup.string()
+    .optional()
+    .matches(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ inválido (formato: 00.000.000/0000-00)'),
   clientType: yup.string().optional(),
   permissions: yup.array().of(yup.string()).optional()
 })
@@ -117,17 +140,20 @@ const clientSchema = yup.object().shape({
 export default function SuperAdminPage() {
   const [activeSection, setActiveSection] = useState<'dashboard' | 'clients' | 'settings'>('dashboard')
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [selectedClient, setSelectedClient] = useState<VynloClient | null>(null)
+  const [editingClient, setEditingClient] = useState<VynloClient | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
 
   // Queries
   const { data: clients = [], isLoading, error } = useClientsQuery()
   const { data: availablePermissions } = useAvailablePermissionsQuery()
   const createClientMutation = useCreateClientMutation()
+  const updateClientMutation = useUpdateClientMutation()
   const suspendClientMutation = useSuspendClientMutation()
   const activateClientMutation = useActivateClientMutation()
 
-  // Form
+  // Form para CRIAR
   const {
     register,
     handleSubmit,
@@ -141,6 +167,25 @@ export default function SuperAdminPage() {
       adminPassword: '',
       vynloProduct: 'TASTE',
       role: 'ADMIN',  // Padrão: Admin
+      cnpj: '',
+      clientType: 'RESTAURANT'
+    }
+  })
+
+  // Form para EDITAR
+  const {
+    register: registerEdit,
+    handleSubmit: handleSubmitEdit,
+    formState: { errors: errorsEdit },
+    reset: resetEdit,
+    setValue: setValueEdit
+  } = useForm<UpdateClientData>({
+    resolver: yupResolver(editClientSchema) as any,
+    defaultValues: {
+      companyName: '',
+      vynloProduct: 'TASTE',
+      role: 'ADMIN',
+      cnpj: '',
       clientType: 'RESTAURANT'
     }
   })
@@ -150,6 +195,24 @@ export default function SuperAdminPage() {
     await createClientMutation.mutateAsync(data)
     setShowCreateModal(false)
     reset()
+  }
+
+  const onUpdateClient = async (data: UpdateClientData) => {
+    if (!editingClient) return
+    await updateClientMutation.mutateAsync({ uid: editingClient.id, data })
+    setShowEditModal(false)
+    setEditingClient(null)
+    resetEdit()
+  }
+
+  const handleEditClient = (client: VynloClient) => {
+    setEditingClient(client)
+    setValueEdit('companyName', client.companyName)
+    setValueEdit('vynloProduct', client.vynloProduct)
+    setValueEdit('role', 'ADMIN') // Default
+    setValueEdit('cnpj', '')
+    setValueEdit('clientType', client.clientType || 'RESTAURANT')
+    setShowEditModal(true)
   }
 
   const handleSuspendClient = async (clientId: string) => {
@@ -396,6 +459,7 @@ export default function SuperAdminPage() {
                             key={client.id}
                             client={client}
                             onView={() => setSelectedClient(client)}
+                            onEdit={() => handleEditClient(client)}
                             onSuspend={() => handleSuspendClient(client.id)}
                             onActivate={() => handleActivateClient(client.id)}
                           />
@@ -520,6 +584,26 @@ export default function SuperAdminPage() {
               )}
             </div>
 
+            {/* CNPJ (Opcional) */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                CNPJ (Opcional)
+              </label>
+              <input
+                {...register('cnpj')}
+                type="text"
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                placeholder="00.000.000/0000-00"
+                maxLength={18}
+              />
+              {errors.cnpj && (
+                <p className="text-red-400 text-sm mt-1">{errors.cnpj.message}</p>
+              )}
+              <p className="text-xs text-gray-400 mt-1">
+                Formato: 00.000.000/0000-00
+              </p>
+            </div>
+
             {/* Nível de Acesso / Role */}
             {/* Commit 2788a34: Campo NOVO para escolher role ao criar usuário */}
             {/* ANTES: Todos eram criados como ADMIN (backend hardcoded) */}
@@ -571,6 +655,146 @@ export default function SuperAdminPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
+                className="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* ========== MODAL EDITAR CLIENTE ========== */}
+      {showEditModal && editingClient && (
+        <Modal onClose={() => {
+          setShowEditModal(false)
+          setEditingClient(null)
+          resetEdit()
+        }}>
+          <form onSubmit={handleSubmitEdit(onUpdateClient)} className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-white">Editar Cliente</h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEditModal(false)
+                  setEditingClient(null)
+                  resetEdit()
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Nome da Empresa */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Nome da Empresa *
+              </label>
+              <input
+                {...registerEdit('companyName')}
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                placeholder="Ex: Restaurante Sabor Mineiro"
+              />
+              {errorsEdit.companyName && (
+                <p className="text-red-400 text-sm mt-1">{errorsEdit.companyName.message}</p>
+              )}
+            </div>
+
+            {/* Produto Vynlo */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Produto Vynlo *
+              </label>
+              <select
+                {...registerEdit('vynloProduct')}
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              >
+                {VYNLO_PRODUCTS.map(product => (
+                  <option key={product.id} value={product.id}>
+                    {product.icon} {product.name} - {product.description}
+                  </option>
+                ))}
+              </select>
+              {errorsEdit.vynloProduct && (
+                <p className="text-red-400 text-sm mt-1">{errorsEdit.vynloProduct.message}</p>
+              )}
+            </div>
+
+            {/* CNPJ */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                CNPJ (Opcional)
+              </label>
+              <input
+                {...registerEdit('cnpj')}
+                type="text"
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                placeholder="00.000.000/0000-00"
+                maxLength={18}
+              />
+              {errorsEdit.cnpj && (
+                <p className="text-red-400 text-sm mt-1">{errorsEdit.cnpj.message}</p>
+              )}
+            </div>
+
+            {/* Nível de Acesso */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Nível de Acesso *
+              </label>
+              <select
+                {...registerEdit('role')}
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              >
+                {USER_ROLES.map(role => (
+                  <option key={role.id} value={role.id}>
+                    {role.name} - {role.description}
+                  </option>
+                ))}
+              </select>
+              {errorsEdit.role && (
+                <p className="text-red-400 text-sm mt-1">{errorsEdit.role.message}</p>
+              )}
+            </div>
+
+            {/* Aviso sobre email */}
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-yellow-200">
+                  <strong>Nota:</strong> Email e senha não podem ser alterados após a criação. Se necessário, crie um novo usuário.
+                </div>
+              </div>
+            </div>
+
+            {/* Botões */}
+            <div className="flex items-center space-x-4 pt-4">
+              <button
+                type="submit"
+                disabled={updateClientMutation.isPending}
+                className="flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updateClientMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Salvando...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-semibold">Salvar Alterações</span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEditModal(false)
+                  setEditingClient(null)
+                  resetEdit()
+                }}
                 className="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
               >
                 Cancelar
@@ -698,7 +922,7 @@ function QuickActionButton({ icon: Icon, label, onClick }: any) {
   )
 }
 
-function ClientCard({ client, onView, onSuspend, onActivate }: any) {
+function ClientCard({ client, onView, onEdit, onSuspend, onActivate }: any) {
   const product = VYNLO_PRODUCTS.find(p => p.id === client.vynloProduct)
   
   return (
@@ -740,6 +964,13 @@ function ClientCard({ client, onView, onSuspend, onActivate }: any) {
             title="Ver detalhes"
           >
             <Eye className="w-5 h-5 text-blue-400" />
+          </button>
+          <button
+            onClick={onEdit}
+            className="p-2 bg-purple-600/20 hover:bg-purple-600/40 rounded-lg transition-colors"
+            title="Editar cliente"
+          >
+            <Settings className="w-5 h-5 text-purple-400" />
           </button>
           {client.status === 'ACTIVE' ? (
             <button

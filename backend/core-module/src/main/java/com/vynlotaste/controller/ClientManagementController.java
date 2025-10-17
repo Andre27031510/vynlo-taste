@@ -64,6 +64,7 @@ public class ClientManagementController {
             
             // ✅ OPÇÃO B: Role DINÂMICO (pode ser ADMIN, MANAGER, STAFF, CUSTOMER)
             // Commit 2788a34: Implementado campo "role" dinâmico no formulário Super Admin
+            // Commit atual: Adicionado campo "cnpj" (CNPJ da empresa)
             // 
             // ANTES: Role era HARDCODED como "ADMIN" (todos usuários eram admins)
             // DEPOIS: Super Admin ESCOLHE o nível de acesso ao criar usuário
@@ -89,6 +90,7 @@ public class ClientManagementController {
             claims.put("companyName", companyName);
             claims.put("vynloProduct", vynloProduct.toUpperCase()); // TASTE, EKKLESIA, BOT, etc
             claims.put("clientType", clientData.getOrDefault("clientType", "RESTAURANT"));
+            claims.put("cnpj", clientData.getOrDefault("cnpj", ""));  // ✅ CNPJ da empresa (opcional)
             claims.put("isSuperAdmin", false);  // Super Admin NÃO pode criar outros Super Admins
             claims.put("level", "CLIENT_" + userRole);  // CLIENT_ADMIN, CLIENT_MANAGER, CLIENT_STAFF, CLIENT_CUSTOMER
             claims.put("permissions", clientData.getOrDefault("permissions", List.of("all")));
@@ -117,6 +119,105 @@ public class ClientManagementController {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
             error.put("message", "Erro ao criar cliente: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * PUT /v1/super-admin/clients/{uid}
+     * Atualizar dados de um cliente existente
+     * 
+     * Permite atualizar:
+     * - companyName (Nome da empresa)
+     * - vynloProduct (Produto Vynlo)
+     * - role (Nível de acesso)
+     * - cnpj (CNPJ da empresa)
+     * - clientType (Tipo de cliente)
+     * 
+     * NÃO permite atualizar:
+     * - email (fixo após criação)
+     * - password (precisa reset de senha via Firebase)
+     */
+    @PutMapping("/clients/{uid}")
+    public ResponseEntity<Map<String, Object>> updateClient(
+            @PathVariable String uid,
+            @RequestBody Map<String, Object> clientData) {
+        try {
+            // Buscar usuário no Firebase
+            UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
+            
+            // Extrair custom claims atuais
+            Map<String, Object> currentClaims = userRecord.getCustomClaims();
+            if (currentClaims == null) {
+                currentClaims = new HashMap<>();
+            }
+            
+            // Atualizar apenas os campos enviados (merge com claims existentes)
+            Map<String, Object> updatedClaims = new HashMap<>(currentClaims);
+            
+            // Atualizar companyName se enviado
+            if (clientData.containsKey("companyName")) {
+                String companyName = (String) clientData.get("companyName");
+                if (companyName != null && !companyName.trim().isEmpty()) {
+                    updatedClaims.put("companyName", companyName);
+                    
+                    // Atualizar displayName também
+                    UserRecord.UpdateRequest updateRequest = new UserRecord.UpdateRequest(uid)
+                        .setDisplayName("Admin - " + companyName);
+                    FirebaseAuth.getInstance().updateUser(updateRequest);
+                }
+            }
+            
+            // Atualizar vynloProduct se enviado
+            if (clientData.containsKey("vynloProduct")) {
+                String vynloProduct = (String) clientData.get("vynloProduct");
+                if (vynloProduct != null) {
+                    updatedClaims.put("vynloProduct", vynloProduct.toUpperCase());
+                }
+            }
+            
+            // Atualizar role se enviado
+            if (clientData.containsKey("role")) {
+                String role = (String) clientData.get("role");
+                if (role != null && Arrays.asList("ADMIN", "MANAGER", "STAFF", "CUSTOMER").contains(role)) {
+                    updatedClaims.put("role", role);
+                    updatedClaims.put("level", "CLIENT_" + role);
+                }
+            }
+            
+            // Atualizar CNPJ se enviado
+            if (clientData.containsKey("cnpj")) {
+                String cnpj = (String) clientData.get("cnpj");
+                updatedClaims.put("cnpj", cnpj != null ? cnpj : "");
+            }
+            
+            // Atualizar clientType se enviado
+            if (clientData.containsKey("clientType")) {
+                String clientType = (String) clientData.get("clientType");
+                if (clientType != null) {
+                    updatedClaims.put("clientType", clientType);
+                }
+            }
+            
+            // Timestamp de atualização
+            updatedClaims.put("updatedAt", System.currentTimeMillis());
+            
+            // Aplicar custom claims atualizados
+            FirebaseAuth.getInstance().setCustomUserClaims(uid, updatedClaims);
+            
+            // Response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Cliente atualizado com sucesso");
+            response.put("uid", uid);
+            response.put("updatedFields", clientData.keySet());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erro ao atualizar cliente: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
         }
     }

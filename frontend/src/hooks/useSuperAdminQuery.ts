@@ -31,6 +31,17 @@ export interface CreateClientData {
   adminPassword: string
   vynloProduct: string
   role: string  // ✅ ADMIN, MANAGER, STAFF, CUSTOMER (escolha dinâmica)
+  cnpj?: string  // ✅ CNPJ da empresa (opcional)
+  clientType?: string
+  permissions?: string[]
+}
+
+// Interface para editar cliente (sem senha - não pode mudar)
+export interface UpdateClientData {
+  companyName: string
+  vynloProduct: string
+  role: string
+  cnpj?: string
   clientType?: string
   permissions?: string[]
 }
@@ -155,6 +166,21 @@ export const useSuspendClientMutation = () => {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Erro ao suspender cliente')
+    }
+  })
+}
+
+export const useUpdateClientMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ uid, data }: { uid: string, data: UpdateClientData }) => updateClient(uid, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['super-admin-clients'] })
+      toast.success('Cliente atualizado com sucesso!')
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Erro ao atualizar cliente')
     }
   })
 }
