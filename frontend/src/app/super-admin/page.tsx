@@ -4,6 +4,9 @@
  * 
  * Commit 4481aaf: Recriado do zero (antiga tinha 2.913 linhas mock)
  * Nova: ~730 linhas funcionais + APIs reais + Menu lateral
+ * Commit 5d75d82: Edição de usuários + Campo CNPJ
+ * Commit e4fad88: Botão Logout + Trocar Senha
+ * Commit 54a775b: Fix TypeScript auth null checks (ESTE)
  * 
  * Sistema de gestão multi-tenant para a plataforma Vynlo
  * Permite criar e gerenciar clientes dos produtos:
@@ -12,10 +15,20 @@
  * - Vynlo Bot (IA)
  * - Vynlo Saúde, Educação, Petshops, Barbearias, Serviços
  * 
+ * FUNCIONALIDADES COMPLETAS:
+ * ✅ Criar clientes (nome, email, senha, produto, role, CNPJ)
+ * ✅ Editar clientes (nome, produto, role, CNPJ)
+ * ✅ Suspender/Ativar clientes
+ * ✅ Ver detalhes de clientes
+ * ✅ Logout funcional (botão menu lateral)
+ * ✅ Trocar senha funcional (botão menu lateral)
+ * ✅ 100% APIs reais (zero mock data)
+ * 
  * Identidade Visual: Azul (#0066FF) + Preto (#000000) - Gradiente
  * Layout: Menu lateral fixo + conteúdo responsivo
  * APIs: 100% conectado ao backend (zero mocks)
  * Fix 878274f: Schema Yup corrigido (campos opcionais)
+ * Fix 54a775b: TypeScript auth null checks (signOut, updatePassword)
  * 
  * @version 2.1.1
  * @author Vynlo Tech
@@ -282,8 +295,15 @@ export default function SuperAdminPage() {
     setChangingPassword(true)
     
     try {
+      // Validação TypeScript: auth pode ser null
+      if (!auth) {
+        throw new Error('Firebase não inicializado')
+      }
+      
       const user = auth.currentUser
-      if (!user) throw new Error('Usuário não autenticado')
+      if (!user) {
+        throw new Error('Usuário não autenticado')
+      }
 
       const { updatePassword } = await import('firebase/auth')
       await updatePassword(user, newPassword)

@@ -23,27 +23,30 @@ export interface VynloClient {
 }
 
 // Commit 2788a34: Adicionado campo "role" para seleção dinâmica
+// Commit 5d75d82: Adicionado campo "cnpj" (CNPJ da empresa)
 // ANTES: Role não existia na interface (backend hardcoded como ADMIN)
 // DEPOIS: Super Admin escolhe role ao criar usuário
 export interface CreateClientData {
-  companyName: string
-  adminEmail: string
-  adminPassword: string
-  vynloProduct: string
-  role: string  // ✅ ADMIN, MANAGER, STAFF, CUSTOMER (escolha dinâmica)
-  cnpj?: string  // ✅ CNPJ da empresa (opcional)
-  clientType?: string
-  permissions?: string[]
+  companyName: string         // Nome da empresa (obrigatório)
+  adminEmail: string          // Email do admin (obrigatório, único)
+  adminPassword: string       // Senha inicial (obrigatório, mín 8 chars)
+  vynloProduct: string        // TASTE, EKKLESIA, BOT, etc (obrigatório)
+  role: string                // ADMIN, MANAGER, STAFF, CUSTOMER (obrigatório)
+  cnpj?: string               // CNPJ da empresa (opcional, formato validado)
+  clientType?: string         // RESTAURANT, CHURCH, etc (opcional)
+  permissions?: string[]      // Permissões granulares (opcional)
 }
 
-// Interface para editar cliente (sem senha - não pode mudar)
+// Commit 5d75d82: Interface para editar cliente (sem email e senha)
+// Email e senha NÃO podem ser editados após criação (segurança Firebase)
+// Apenas dados de perfil e permissões podem ser atualizados
 export interface UpdateClientData {
-  companyName: string
-  vynloProduct: string
-  role: string
-  cnpj?: string
-  clientType?: string
-  permissions?: string[]
+  companyName: string         // Nome da empresa (pode mudar)
+  vynloProduct: string        // Produto Vynlo (pode migrar)
+  role: string                // Nível de acesso (pode promover/rebaixar)
+  cnpj?: string               // CNPJ (pode atualizar)
+  clientType?: string         // Tipo de cliente (pode mudar)
+  permissions?: string[]      // Permissões (pode atualizar)
 }
 
 // Buscar todos os clientes
