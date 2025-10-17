@@ -76,6 +76,21 @@ const createClient = async (clientData: CreateClientData): Promise<any> => {
   return await response.json()
 }
 
+// Atualizar cliente existente
+const updateClient = async (uid: string, clientData: UpdateClientData): Promise<VynloClient> => {
+  const response = await apiRequest('core-service', `v1/super-admin/clients/${uid}`, {
+    method: 'PUT',
+    body: JSON.stringify(clientData)
+  })
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.message || 'Erro ao atualizar cliente')
+  }
+  
+  return await response.json()
+}
+
 // Suspender cliente
 const suspendClient = async (clientId: string): Promise<void> => {
   const response = await apiRequest('core-service', `v1/super-admin/client/${clientId}/suspend`, {
