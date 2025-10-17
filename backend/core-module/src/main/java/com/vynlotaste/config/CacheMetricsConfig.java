@@ -14,26 +14,119 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Configuração de Métricas para Cache Híbrido (Caffeine L1 + Redis L2)
  * 
- * Expõe métricas via Spring Boot Actuator:
- * - /actuator/metrics/caffeine.cache.hit.ratio
- * - /actuator/metrics/caffeine.cache.size
- * - /actuator/metrics/caffeine.cache.eviction.count
- * - /actuator/metrics/caffeine.cache.miss.count
+ * OBJETIVO:
+ * Expor métricas detalhadas do cache Caffeine L1 via Spring Boot Actuator
+ * para monitoramento em tempo real via Prometheus/Grafana.
  * 
- * Integração Prometheus:
- * - Scrape: /actuator/prometheus
- * - Dashboard: Grafana (visualizar hit rate, evictions, size)
+ * MÉTRICAS EXPOSTAS (6 total):
+ * 1. caffeine.cache.hit.ratio (0.0-1.0) - Taxa de acerto do cache
+ *    - Ideal: > 0.90 (90% hit rate)
+ *    - Aceitável: 0.80-0.90 (80-90%)
+ *    - Crítico: < 0.70 (70%) → Cache subutilizado
  * 
- * Performance:
- * - Overhead: < 0.1ms (apenas leitura de stats)
- * - Thread-safe: Sim (Caffeine stats)
+ * 2. caffeine.cache.miss.count - Total de cache misses
+ *    - Monitorar tendência (aumento = problema)
  * 
- * Alertas recomendados:
- * - Hit rate < 80% → Cache subutilizado (aumentar size/TTL)
- * - Evictions > 50/min → Cache pequeno (aumentar maximumSize)
- * - Size = maximumSize → Cache cheio (considerar aumentar)
+ * 3. caffeine.cache.eviction.count - Total de evictions (cache cheio)
+ *    - Ideal: < 5/min
+ *    - Aceitável: 5-20/min
+ *    - Crítico: > 50/min → Cache pequeno
  * 
- * Created: 2025-10-17
+ * 4. caffeine.cache.size - Número de entries atuais
+ *    - Ideal: 50-150 (de 200 max)
+ *    - Crítico: 190-200 → Cache quase cheio
+ * 
+ * 5. caffeine.cache.load.success.count - Loads bem-sucedidos do DB
+ * 6. caffeine.cache.load.failure.count - Loads falhados (erros)
+ *    - Deve ser 0 (qualquer valor > 0 = problema DB)
+ * 
+ * ENDPOINTS ACTUATOR:
+ * - GET /actuator/metrics/caffeine.cache.hit.ratio
+ * - GET /actuator/metrics/caffeine.cache.size
+ * - GET /actuator/metrics/caffeine.cache.eviction.count
+ * - GET /actuator/metrics (listar todas métricas)
+ * 
+ * INTEGRAÇÃO PROMETHEUS:
+ * - Endpoint scrape: /actuator/prometheus
+ * - Job: spring-actuator
+ * - Interval: 15s (padrão prometheus.yml)
+ * - Formato: Prometheus text-based
+ * 
+ * GRAFANA DASHBOARD:
+ * - Panel 1: Hit Ratio (time series, linha)
+ *   Query: caffeine_cache_hit_ratio{cache="caffeine-products-page"}
+ *   Alert: < 0.80
+ * 
+ * - Panel 2: Evictions Rate (time series)
+ *   Query: rate(caffeine_cache_eviction_count[5m])
+ *   Alert: > 10/min
+ * 
+ * - Panel 3: Cache Size (gauge)
+ *   Query: caffeine_cache_size
+ *   Alert: > 180 (90% de 200)
+ * 
+ * CACHES MONITORADOS (6):
+ * - caffeine-products-page (ProductService.findAll)
+ * - caffeine-products-search-page (ProductService.searchAdvanced)
+ * - caffeine-products-available-page (ProductService.getAvailable)
+ * - caffeine-user-queries (DynamicQueryService.findUsers)
+ * - caffeine-product-queries (DynamicQueryService.findProducts)
+ * - caffeine-order-queries (DynamicQueryService.findOrders)
+ * 
+ * PERFORMANCE:
+ * - Overhead runtime: < 0.1ms (apenas leitura stats)
+ * - Thread-safe: Sim (Caffeine.stats() é thread-safe)
+ * - Sem impacto no throughput
+ * - Métricas atualizadas em tempo real
+ * 
+ * ALERTAS RECOMENDADOS:
+ * 1. Hit rate < 80% → Investigar padrão de acesso
+ *    Possíveis causas:
+ *    - maximumSize muito pequeno
+ *    - TTL muito curto
+ *    - Padrão de acesso mudou
+ * 
+ * 2. Evictions > 50/min → Cache cheio demais
+ *    Ações:
+ *    - Aumentar maximumSize de 200 → 500
+ *    - Ou reduzir TTL (libera espaço mais rápido)
+ * 
+ * 3. Size = 200 (maximumSize) → Cache saturado
+ *    Ação: Aumentar maximumSize urgentemente
+ * 
+ * 4. Load failures > 0 → Problema com banco de dados
+ *    Ação: Verificar conexão PostgreSQL
+ * 
+ * TAGS PROMETHEUS:
+ * - cache: Nome do cache (ex: caffeine-products-page)
+ * - type: "L1" (diferencia de Redis L2)
+ * 
+ * SEGURANÇA:
+ * - Métricas não expõem dados sensíveis (apenas contadores)
+ * - Endpoint /actuator/metrics protegido por ActuatorSecurityConfig
+ * - Prometheus scrape usa rede interna Docker
+ * 
+ * EXEMPLO DE USO:
+ * ```bash
+ * # Ver hit ratio de um cache específico
+ * curl http://localhost:8080/api/actuator/metrics/caffeine.cache.hit.ratio?tag=cache:caffeine-products-page
+ * 
+ * # Resposta:
+ * {
+ *   "name": "caffeine.cache.hit.ratio",
+ *   "measurements": [{"statistic": "VALUE", "value": 0.95}],
+ *   "availableTags": [...]
+ * }
+ * ```
+ * 
+ * DEPENDÊNCIAS:
+ * - Micrometer Core (já existente em pom.xml)
+ * - Micrometer Prometheus (já existente)
+ * - Spring Boot Actuator (já existente)
+ * - Caffeine Cache (adicionado em commit anterior)
+ * 
+ * Created: 2025-10-17 12:00 UTC
+ * Modified: 2025-10-17 12:25 UTC - Comentários expandidos e detalhados
  * @author Vynlo Tech
  */
 @Slf4j
@@ -63,7 +156,7 @@ public class CacheMetricsConfig {
         
         return (MeterRegistry registry) -> {
             try {
-                if (caffeineCacheManager == null) {
+                            if (caffeineCacheManager == null) {
                     log.warn("CaffeineCacheManager não disponível, métricas não registradas");
                     return;
                 }
