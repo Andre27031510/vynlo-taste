@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { queryAmazonQ } from '@/services/amazonQService'
+import { apiRequest } from '@/services/api'
 
 // Tipos para relatórios
 export interface SalesReport {
@@ -33,26 +34,28 @@ export interface AnalyticsData {
 }
 
 // API functions
+// ✅ FIX: Usar apiRequest() com Authorization header + /v1/ path
 const fetchSalesReport = async (period: string = '7d'): Promise<SalesReport> => {
-  const response = await fetch(`/api/reports/sales?period=${period}`)
+  const response = await apiRequest('core-service', `v1/reports/sales?period=${period}`)
   if (!response.ok) {
     throw new Error('Erro ao carregar relatório de vendas')
   }
   return response.json()
 }
 
+// ✅ FIX: Usar apiRequest() com Authorization header + /v1/ path
 const fetchAnalyticsData = async (): Promise<AnalyticsData> => {
-  const response = await fetch('/api/reports/analytics')
+  const response = await apiRequest('core-service', 'v1/reports/analytics')
   if (!response.ok) {
     throw new Error('Erro ao carregar dados analíticos')
   }
   return response.json()
 }
 
+// ✅ FIX: Usar apiRequest() com Authorization header + /v1/ path
 const runPredictiveAnalysis = async (): Promise<AnalyticsData> => {
-  const response = await fetch('/api/reports/predictive', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
+  const response = await apiRequest('core-service', 'v1/reports/predictive', {
+    method: 'POST'
   })
   if (!response.ok) {
     throw new Error('Erro ao executar análise preditiva')
