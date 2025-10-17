@@ -147,19 +147,23 @@ public class CacheMetricsConfig {
      * Tag: cache=<nome_cache> (ex: caffeine-products-page)
      */
     /**
-     * Injeta CaffeineCacheManager diretamente (mais simples e seguro)
-     * Spring auto-wire pelo nome do bean: "caffeineCacheManager"
+     * Injeta CaffeineCacheManager usando @Qualifier pelo nome do bean
+     * Bean name: "caffeineCacheManager" definido em HybridCacheConfig
      */
     @Bean
-    public MeterBinder caffeineCacheMetrics(CaffeineCacheManager caffeineCacheManager) {
+    public MeterBinder caffeineCacheMetrics(
+            @org.springframework.beans.factory.annotation.Qualifier("caffeineCacheManager") 
+            CacheManager caffeineCacheManagerBean) {
         log.info("Configurando métricas Caffeine para Actuator/Prometheus");
         
         return (MeterRegistry registry) -> {
             try {
-                            if (caffeineCacheManager == null) {
-                    log.warn("CaffeineCacheManager não disponível, métricas não registradas");
+                if (!(caffeineCacheManagerBean instanceof CaffeineCacheManager)) {
+                    log.warn("Bean não é CaffeineCacheManager, métricas não registradas");
                     return;
                 }
+                
+                CaffeineCacheManager caffeineCacheManager = (CaffeineCacheManager) caffeineCacheManagerBean;
                 
                 // Registrar métricas para cada cache Caffeine
                 caffeineCacheManager.getCacheNames().forEach(cacheName -> {
