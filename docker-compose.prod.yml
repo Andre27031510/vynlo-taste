@@ -19,6 +19,17 @@ services:
     container_name: vynlo-redis
     ports:
       - "6379:6379"
+    # FASE 1: Proteção OOM Redis + Performance
+    command: >
+      redis-server 
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+      --tcp-backlog 511
+      --timeout 300
+      --tcp-keepalive 60
+      --maxclients 10000
     restart: unless-stopped
     networks:
       - vynlo-network
