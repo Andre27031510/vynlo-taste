@@ -61,12 +61,22 @@ public class ClientManagementController {
 
             // Definir permissões específicas do cliente (Firebase Custom Claims)
             Map<String, Object> claims = new HashMap<>();
-            claims.put("role", "ADMIN");
+            
+            // ✅ OPÇÃO B: Role DINÂMICO (pode ser ADMIN, MANAGER, STAFF, CUSTOMER)
+            // Permite Super Admin escolher nível de acesso ao criar usuário
+            String userRole = (String) clientData.getOrDefault("role", "ADMIN");
+            
+            // Validar role (segurança)
+            if (!Arrays.asList("ADMIN", "MANAGER", "STAFF", "CUSTOMER").contains(userRole)) {
+                userRole = "ADMIN"; // Fallback seguro
+            }
+            
+            claims.put("role", userRole);  // ✅ DINÂMICO (não mais hardcoded)
             claims.put("companyName", companyName);
             claims.put("vynloProduct", vynloProduct.toUpperCase()); // TASTE, EKKLESIA, BOT, etc
             claims.put("clientType", clientData.getOrDefault("clientType", "RESTAURANT"));
-            claims.put("isSuperAdmin", false);
-            claims.put("level", "CLIENT_ADMIN");
+            claims.put("isSuperAdmin", false);  // Super Admin NÃO pode criar outros Super Admins
+            claims.put("level", "CLIENT_" + userRole);  // CLIENT_ADMIN, CLIENT_MANAGER, etc
             claims.put("permissions", clientData.getOrDefault("permissions", List.of("all")));
             claims.put("createdAt", System.currentTimeMillis());
             claims.put("createdBy", "SUPER_ADMIN");

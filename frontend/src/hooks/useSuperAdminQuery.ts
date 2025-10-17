@@ -27,6 +27,7 @@ export interface CreateClientData {
   adminEmail: string
   adminPassword: string
   vynloProduct: string
+  role: string  // ✅ ADMIN, MANAGER, STAFF, CUSTOMER
   clientType?: string
   permissions?: string[]
 }

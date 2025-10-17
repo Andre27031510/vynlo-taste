@@ -69,6 +69,14 @@ const VYNLO_PRODUCTS = [
   { id: 'SERVICOS', name: 'Vynlo Serviços', icon: '🔧', description: 'Serviços Gerais' }
 ] as const
 
+// Roles disponíveis (exceto SUPER_ADMIN - esse é exclusivo Vynlo Tech)
+const USER_ROLES = [
+  { id: 'ADMIN', name: 'Admin', description: 'Acesso total ao sistema do cliente' },
+  { id: 'MANAGER', name: 'Gerente', description: 'Gestão operacional' },
+  { id: 'STAFF', name: 'Staff', description: 'Equipe operacional' },
+  { id: 'CUSTOMER', name: 'Cliente', description: 'Usuário final (app mobile)' }
+] as const
+
 // Schema de validação
 const clientSchema = yup.object().shape({
   companyName: yup.string()
@@ -85,6 +93,9 @@ const clientSchema = yup.object().shape({
     .matches(/[0-9]/, 'Deve conter pelo menos um número'),
   vynloProduct: yup.string()
     .required('Selecione um produto Vynlo'),
+  role: yup.string()
+    .required('Selecione um nível de acesso')
+    .oneOf(['ADMIN', 'MANAGER', 'STAFF', 'CUSTOMER'], 'Role inválida'),
   clientType: yup.string().optional(),
   permissions: yup.array().of(yup.string()).optional()
 })
@@ -111,7 +122,11 @@ export default function SuperAdminPage() {
   } = useForm<CreateClientData>({
     resolver: yupResolver(clientSchema) as any, // Yup schema compatibility
     defaultValues: {
+      companyName: '',
+      adminEmail: '',
+      adminPassword: '',
       vynloProduct: 'TASTE',
+      role: 'ADMIN',  // Padrão: Admin
       clientType: 'RESTAURANT'
     }
   })
@@ -489,6 +504,29 @@ export default function SuperAdminPage() {
               {errors.vynloProduct && (
                 <p className="text-red-400 text-sm mt-1">{errors.vynloProduct.message}</p>
               )}
+            </div>
+
+            {/* Nível de Acesso / Role */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Nível de Acesso *
+              </label>
+              <select
+                {...register('role')}
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              >
+                {USER_ROLES.map(role => (
+                  <option key={role.id} value={role.id}>
+                    {role.name} - {role.description}
+                  </option>
+                ))}
+              </select>
+              {errors.role && (
+                <p className="text-red-400 text-sm mt-1">{errors.role.message}</p>
+              )}
+              <p className="text-xs text-gray-400 mt-2">
+                <strong>Admin:</strong> Todas permissões | <strong>Manager:</strong> Gestão | <strong>Staff:</strong> Operacional | <strong>Customer:</strong> App mobile
+              </p>
             </div>
 
             {/* Botões */}
