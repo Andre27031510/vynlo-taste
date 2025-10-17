@@ -5,6 +5,7 @@
 // Modified: 2025-10-14 19:15 UTC | Dark mode contrast fix + audit simulation removed
 // Modified: 2025-10-14 19:30 UTC | TypeScript fixes + final validation
 // Modified: 2025-10-14 20:30 UTC | Console warnings silenciados em produção - sem impacto no backend
+// Modified: 2025-10-17 11:55 UTC | Fix React Error #310: Removido setInterval com paymentsData sem dependência
 
 import { useState, useEffect } from 'react'
 import { useThemeContext } from '../../contexts/ThemeContext'
@@ -255,17 +256,10 @@ export default function PaymentManagement() {
     }
   }
 
-  // Simular recebimento de webhooks de pagamento
-  useEffect(() => {
-    if (!autoProcessing) return
-
-    const webhookInterval = setInterval(() => {
-      // ✅ REAL: Processar webhook via API
-      processPaymentWebhook({})
-    }, 10000) // A cada 10 segundos
-
-    return () => clearInterval(webhookInterval)
-  }, [autoProcessing])
+  // ❌ REMOVIDO: Polling de webhooks (causava React Error #310)
+  // TanStack Query já gerencia refetch automático via staleTime/gcTime
+  // Webhooks devem ser processados via endpoint real: POST /v1/payments/webhooks
+  // Fix: 2025-10-17 | Removido setInterval problemático que usava paymentsData sem dependência
 
   // Fechar menu de geração quando clicar fora ou pressionar ESC
   useEffect(() => {

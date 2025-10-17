@@ -53,35 +53,25 @@ public class CacheMetricsConfig {
      * 
      * Tag: cache=<nome_cache> (ex: caffeine-products-page)
      */
+    /**
+     * Injeta CaffeineCacheManager diretamente (mais simples e seguro)
+     * Spring auto-wire pelo nome do bean: "caffeineCacheManager"
+     */
     @Bean
-    public MeterBinder caffeineCacheMetrics(CacheManager hybridCacheManager) {
+    public MeterBinder caffeineCacheMetrics(CaffeineCacheManager caffeineCacheManager) {
         log.info("Configurando métricas Caffeine para Actuator/Prometheus");
         
         return (MeterRegistry registry) -> {
             try {
-                // Extrair Caffeine CacheManager do CompositeCacheManager
-                if (!(hybridCacheManager instanceof CompositeCacheManager)) {
-                    log.warn("CacheManager não é CompositeCacheManager, métricas Caffeine não disponíveis");
-                    return;
-                }
-                
-                CompositeCacheManager composite = (CompositeCacheManager) hybridCacheManager;
-                CacheManager caffeineCacheManager = composite.getCacheManagers().stream()
-                    .filter(cm -> cm instanceof CaffeineCacheManager)
-                    .findFirst()
-                    .orElse(null);
-                
                 if (caffeineCacheManager == null) {
-                    log.warn("CaffeineCacheManager não encontrado, métricas não disponíveis");
+                    log.warn("CaffeineCacheManager não disponível, métricas não registradas");
                     return;
                 }
-                
-                CaffeineCacheManager caffeine = (CaffeineCacheManager) caffeineCacheManager;
                 
                 // Registrar métricas para cada cache Caffeine
-                caffeine.getCacheNames().forEach(cacheName -> {
+                caffeineCacheManager.getCacheNames().forEach(cacheName -> {
                     try {
-                        org.springframework.cache.Cache springCache = caffeine.getCache(cacheName);
+                        org.springframework.cache.Cache springCache = caffeineCacheManager.getCache(cacheName);
                         if (springCache == null) {
                             log.warn("Cache '{}' não encontrado", cacheName);
                             return;
