@@ -22,12 +22,15 @@ export interface VynloClient {
   emailVerified: boolean
 }
 
+// Commit 2788a34: Adicionado campo "role" para seleção dinâmica
+// ANTES: Role não existia na interface (backend hardcoded como ADMIN)
+// DEPOIS: Super Admin escolhe role ao criar usuário
 export interface CreateClientData {
   companyName: string
   adminEmail: string
   adminPassword: string
   vynloProduct: string
-  role: string  // ✅ ADMIN, MANAGER, STAFF, CUSTOMER
+  role: string  // ✅ ADMIN, MANAGER, STAFF, CUSTOMER (escolha dinâmica)
   clientType?: string
   permissions?: string[]
 }

@@ -63,20 +63,34 @@ public class ClientManagementController {
             Map<String, Object> claims = new HashMap<>();
             
             // ✅ OPÇÃO B: Role DINÂMICO (pode ser ADMIN, MANAGER, STAFF, CUSTOMER)
-            // Permite Super Admin escolher nível de acesso ao criar usuário
+            // Commit 2788a34: Implementado campo "role" dinâmico no formulário Super Admin
+            // 
+            // ANTES: Role era HARDCODED como "ADMIN" (todos usuários eram admins)
+            // DEPOIS: Super Admin ESCOLHE o nível de acesso ao criar usuário
+            // 
+            // Roles disponíveis:
+            // - ADMIN: Acesso total ao sistema do cliente (gerenciar tudo)
+            // - MANAGER: Gestão operacional (pedidos, produtos, relatórios)
+            // - STAFF: Equipe operacional (apenas executar tarefas)
+            // - CUSTOMER: Usuário final (app mobile, fazer pedidos)
+            // 
+            // Frontend: super-admin/page.tsx tem dropdown com essas opções
+            // Validação: Yup schema valida que role seja uma das 4 opções
+            // Segurança: Backend valida novamente antes de criar
             String userRole = (String) clientData.getOrDefault("role", "ADMIN");
             
-            // Validar role (segurança)
+            // Validar role (segurança adicional backend)
+            // Se frontend enviar role inválido, usar ADMIN como fallback seguro
             if (!Arrays.asList("ADMIN", "MANAGER", "STAFF", "CUSTOMER").contains(userRole)) {
                 userRole = "ADMIN"; // Fallback seguro
             }
             
-            claims.put("role", userRole);  // ✅ DINÂMICO (não mais hardcoded)
+            claims.put("role", userRole);  // ✅ DINÂMICO (não mais hardcoded como "ADMIN")
             claims.put("companyName", companyName);
             claims.put("vynloProduct", vynloProduct.toUpperCase()); // TASTE, EKKLESIA, BOT, etc
             claims.put("clientType", clientData.getOrDefault("clientType", "RESTAURANT"));
             claims.put("isSuperAdmin", false);  // Super Admin NÃO pode criar outros Super Admins
-            claims.put("level", "CLIENT_" + userRole);  // CLIENT_ADMIN, CLIENT_MANAGER, etc
+            claims.put("level", "CLIENT_" + userRole);  // CLIENT_ADMIN, CLIENT_MANAGER, CLIENT_STAFF, CLIENT_CUSTOMER
             claims.put("permissions", clientData.getOrDefault("permissions", List.of("all")));
             claims.put("createdAt", System.currentTimeMillis());
             claims.put("createdBy", "SUPER_ADMIN");

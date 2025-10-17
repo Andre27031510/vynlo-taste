@@ -70,6 +70,20 @@ const VYNLO_PRODUCTS = [
 ] as const
 
 // Roles disponíveis (exceto SUPER_ADMIN - esse é exclusivo Vynlo Tech)
+// Commit 2788a34: Implementado seleção de role ao criar usuário
+// 
+// ANTES: Todos usuários criados eram ADMIN (hardcoded no backend)
+// DEPOIS: Super Admin ESCOLHE o nível de acesso
+// 
+// Hierarquia de permissões:
+// 1. SUPER_ADMIN (Vynlo Tech) - Não pode ser criado por clientes
+//    ↓ cria
+// 2. ADMIN (Cliente) - Acesso total ao sistema do cliente
+//    ↓ pode criar
+// 3. MANAGER - Gestão operacional (pedidos, produtos, relatórios)
+//    ↓ pode criar
+// 4. STAFF - Equipe operacional (apenas executar tarefas)
+// 5. CUSTOMER - Usuário final (app mobile, fazer pedidos)
 const USER_ROLES = [
   { id: 'ADMIN', name: 'Admin', description: 'Acesso total ao sistema do cliente' },
   { id: 'MANAGER', name: 'Gerente', description: 'Gestão operacional' },
@@ -507,6 +521,9 @@ export default function SuperAdminPage() {
             </div>
 
             {/* Nível de Acesso / Role */}
+            {/* Commit 2788a34: Campo NOVO para escolher role ao criar usuário */}
+            {/* ANTES: Todos eram criados como ADMIN (backend hardcoded) */}
+            {/* DEPOIS: Super Admin escolhe: ADMIN, MANAGER, STAFF, ou CUSTOMER */}
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Nível de Acesso *
@@ -525,7 +542,10 @@ export default function SuperAdminPage() {
                 <p className="text-red-400 text-sm mt-1">{errors.role.message}</p>
               )}
               <p className="text-xs text-gray-400 mt-2">
-                <strong>Admin:</strong> Todas permissões | <strong>Manager:</strong> Gestão | <strong>Staff:</strong> Operacional | <strong>Customer:</strong> App mobile
+                <strong>Admin:</strong> Todas permissões (gerenciar sistema) | 
+                <strong>Manager:</strong> Gestão operacional (pedidos, produtos) | 
+                <strong>Staff:</strong> Operacional (executar tarefas) | 
+                <strong>Customer:</strong> App mobile (fazer pedidos)
               </p>
             </div>
 
