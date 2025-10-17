@@ -21,7 +21,10 @@
  * @author Vynlo Tech
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { signOut } from 'firebase/auth'
+import { auth } from '@/config/firebase'
 import { 
   Users, 
   Building2, 
@@ -42,7 +45,9 @@ import {
   Calendar,
   Activity,
   AlertCircle,
-  Loader2
+  Loader2,
+  LogOut,
+  Key
 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -138,12 +143,17 @@ const editClientSchema = yup.object().shape({
 })
 
 export default function SuperAdminPage() {
+  const router = useRouter()
   const [activeSection, setActiveSection] = useState<'dashboard' | 'clients' | 'settings'>('dashboard')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false)
   const [selectedClient, setSelectedClient] = useState<VynloClient | null>(null)
   const [editingClient, setEditingClient] = useState<VynloClient | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [changingPassword, setChangingPassword] = useState(false)
 
   // Queries
   const { data: clients = [], isLoading, error } = useClientsQuery()
@@ -225,6 +235,51 @@ export default function SuperAdminPage() {
     await activateClientMutation.mutateAsync(clientId)
   }
 
+  const handleLogout = async () => {
+    if (confirm('Tem certeza que deseja sair?')) {
+      try {
+        await signOut(auth)
+        router.push('/login')
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error)
+      }
+    }
+  }
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      alert('As senhas não coincidem!')
+      return
+    }
+    
+    if (newPassword.length < 8) {
+      alert('A senha deve ter no mínimo 8 caracteres!')
+      return
+    }
+
+    setChangingPassword(true)
+    
+    try {
+      const user = auth.currentUser
+      if (!user) throw new Error('Usuário não autenticado')
+
+      const { updatePassword } = await import('firebase/auth')
+      await updatePassword(user, newPassword)
+      
+      alert('✅ Senha alterada com sucesso! Faça login novamente.')
+      setShowChangePasswordModal(false)
+      
+      await signOut(auth)
+      router.push('/login')
+      
+    } catch (error: any) {
+      console.error('Erro ao alterar senha:', error)
+      alert('❌ Erro ao alterar senha: ' + (error.message || 'Tente novamente'))
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
   // Filtrar clientes
   const filteredClients = clients.filter(client =>
     client.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -283,9 +338,23 @@ export default function SuperAdminPage() {
             />
           </nav>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-blue-500/20">
-            <div className="text-xs text-gray-400 text-center">
+          {/* Footer com ações do usuário */}
+          <div className="p-4 border-t border-blue-500/20 space-y-2">
+            <button
+              onClick={() => setShowChangePasswordModal(true)}
+              className="w-full flex items-center space-x-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all"
+            >
+              <Key className="w-5 h-5" />
+              <span className="font-medium">Trocar Senha</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="font-medium">Sair</span>
+            </button>
+            <div className="text-xs text-gray-400 text-center mt-4 pt-4 border-t border-blue-500/10">
               <p>Vynlo Platform v2.1.1</p>
               <p className="text-blue-400 mt-1">Enterprise Edition</p>
             </div>
@@ -866,6 +935,113 @@ export default function SuperAdminPage() {
                   <span>Ativar</span>
                 </button>
               )}
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ========== MODAL TROCAR SENHA ========== */}
+      {showChangePasswordModal && (
+        <Modal onClose={() => {
+          setShowChangePasswordModal(false)
+          setNewPassword('')
+          setConfirmPassword('')
+        }}>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Key className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Trocar Senha</h3>
+                  <p className="text-sm text-gray-400">Atualize sua senha de acesso</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowChangePasswordModal(false)
+                  setNewPassword('')
+                  setConfirmPassword('')
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Nova Senha */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Nova Senha *
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                placeholder="Mínimo 8 caracteres"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Deve conter pelo menos 8 caracteres
+              </p>
+            </div>
+
+            {/* Confirmar Senha */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Confirmar Nova Senha *
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-slate-800 text-white px-4 py-3 rounded-lg border border-blue-500/30 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                placeholder="Digite a senha novamente"
+              />
+            </div>
+
+            {/* Avisos */}
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-yellow-200">
+                  <strong>Atenção:</strong> Após trocar a senha, você será desconectado e precisará fazer login novamente com a nova senha.
+                </div>
+              </div>
+            </div>
+
+            {/* Botões */}
+            <div className="flex items-center space-x-4 pt-4">
+              <button
+                type="button"
+                onClick={handleChangePassword}
+                disabled={changingPassword || !newPassword || !confirmPassword}
+                className="flex-1 flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {changingPassword ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Alterando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Key className="w-5 h-5" />
+                    <span className="font-semibold">Alterar Senha</span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowChangePasswordModal(false)
+                  setNewPassword('')
+                  setConfirmPassword('')
+                }}
+                className="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </Modal>
