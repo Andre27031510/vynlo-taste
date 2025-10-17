@@ -90,6 +90,9 @@ public class SecurityConfig {
                 .requestMatchers("/v1/drivers/stats").permitAll()
                 .requestMatchers("/v1/products/stats").permitAll()
                 
+                // Setup inicial - TEMPORÁRIO (remover após configurar admin)
+                .requestMatchers("/v1/setup/**").permitAll()
+                
                 // Endpoints Super Admin - apenas SUPER_ADMIN (Vynlo Tech)
                 // Commit 4481aaf: Permite gestão multi-tenant (criar clientes, etc)
                 .requestMatchers("/v1/super-admin/**").hasRole("SUPER_ADMIN")
