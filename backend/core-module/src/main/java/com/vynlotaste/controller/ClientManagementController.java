@@ -127,16 +127,49 @@ public class ClientManagementController {
      * PUT /v1/super-admin/clients/{uid}
      * Atualizar dados de um cliente existente
      * 
-     * Permite atualizar:
-     * - companyName (Nome da empresa)
-     * - vynloProduct (Produto Vynlo)
-     * - role (Nível de acesso)
-     * - cnpj (CNPJ da empresa)
-     * - clientType (Tipo de cliente)
+     * Commit 5d75d82: Implementado endpoint de edição de clientes
      * 
-     * NÃO permite atualizar:
-     * - email (fixo após criação)
-     * - password (precisa reset de senha via Firebase)
+     * PERMITE ATUALIZAR:
+     * - companyName (Nome da empresa) → Atualiza também displayName no Firebase
+     * - vynloProduct (Produto Vynlo) → Permite migrar cliente entre produtos
+     * - role (Nível de acesso) → Promover/rebaixar: ADMIN, MANAGER, STAFF, CUSTOMER
+     * - cnpj (CNPJ da empresa) → Compliance fiscal, validado no frontend
+     * - clientType (Tipo de cliente) → RESTAURANT, CHURCH, etc
+     * 
+     * NÃO PERMITE ATUALIZAR (Segurança):
+     * - email (fixo após criação) → Identificador único, não pode mudar
+     * - password (precisa reset via Firebase Auth) → Segurança, não expor senha
+     * 
+     * ESTRATÉGIA DE MERGE:
+     * - Carrega custom claims atuais do Firebase
+     * - Faz merge com novos dados (mantém claims não enviados)
+     * - Exemplo: Se não enviar "permissions", mantém o atual
+     * 
+     * VALIDAÇÕES:
+     * - Role deve ser: ADMIN, MANAGER, STAFF, CUSTOMER (validação backend)
+     * - Fallback seguro: Se role inválido, não atualiza
+     * - CNPJ: Validado no frontend (regex), backend aceita qualquer string
+     * 
+     * FIREBASE CUSTOM CLAIMS ATUALIZADOS:
+     * - companyName: string
+     * - vynloProduct: string (uppercase)
+     * - role: string (validado)
+     * - level: "CLIENT_" + role (ex: CLIENT_ADMIN)
+     * - cnpj: string (opcional)
+     * - clientType: string
+     * - updatedAt: timestamp (auto-adicionado)
+     * 
+     * RESPOSTA:
+     * {
+     *   "success": true,
+     *   "message": "Cliente atualizado com sucesso",
+     *   "uid": "ABC123...",
+     *   "updatedFields": ["companyName", "role", "cnpj"]
+     * }
+     * 
+     * USO:
+     * PUT /v1/super-admin/clients/ABC123
+     * Body: { "companyName": "Novo Nome", "role": "MANAGER", "cnpj": "12.345.678/0001-90" }
      */
     @PutMapping("/clients/{uid}")
     public ResponseEntity<Map<String, Object>> updateClient(
