@@ -207,6 +207,13 @@ export default function SuperAdminPage() {
     reset()
   }
 
+  // Commit 5d75d82: Implementado edição de usuários
+  // FUNCIONALIDADE: Editar dados de cliente após criação
+  // - Modal de edição completo
+  // - Backend: PUT /v1/super-admin/clients/{uid}
+  // - Atualiza: companyName, vynloProduct, role, cnpj
+  // - NÃO atualiza: email, password (segurança)
+  // - Firebase custom claims merge (mantém outros claims)
   const onUpdateClient = async (data: UpdateClientData) => {
     if (!editingClient) return
     await updateClientMutation.mutateAsync({ uid: editingClient.id, data })
@@ -215,12 +222,14 @@ export default function SuperAdminPage() {
     resetEdit()
   }
 
+  // Commit 5d75d82: Handler para abrir modal de edição
+  // Preenche formulário com dados atuais do cliente
   const handleEditClient = (client: VynloClient) => {
     setEditingClient(client)
     setValueEdit('companyName', client.companyName)
     setValueEdit('vynloProduct', client.vynloProduct)
-    setValueEdit('role', 'ADMIN') // Default
-    setValueEdit('cnpj', '')
+    setValueEdit('role', 'ADMIN') // Default (backend pode retornar role futuramente)
+    setValueEdit('cnpj', '')  // Default (backend pode retornar cnpj futuramente)
     setValueEdit('clientType', client.clientType || 'RESTAURANT')
     setShowEditModal(true)
   }
@@ -235,9 +244,22 @@ export default function SuperAdminPage() {
     await activateClientMutation.mutateAsync(clientId)
   }
 
+  // Commit e4fad88: Implementado logout funcional
+  // FUNCIONALIDADE: Botão "Sair" no menu lateral
+  // - Confirmação antes de sair (UX)
+  // - Firebase signOut() (limpa sessão)
+  // - Redireciona para /login
+  // - Validação TypeScript (auth pode ser null)
   const handleLogout = async () => {
     if (confirm('Tem certeza que deseja sair?')) {
       try {
+        // Validação TypeScript: auth pode ser null
+        if (!auth) {
+          console.error('Firebase não inicializado')
+          router.push('/login')
+          return
+        }
+        
         await signOut(auth)
         router.push('/login')
       } catch (error) {
@@ -339,6 +361,9 @@ export default function SuperAdminPage() {
           </nav>
 
           {/* Footer com ações do usuário */}
+          {/* Commit e4fad88: Botões Trocar Senha + Logout adicionados */}
+          {/* ANTES: Footer só tinha versão do sistema */}
+          {/* DEPOIS: Ações de usuário + versão */}
           <div className="p-4 border-t border-blue-500/20 space-y-2">
             <button
               onClick={() => setShowChangePasswordModal(true)}
@@ -654,6 +679,11 @@ export default function SuperAdminPage() {
             </div>
 
             {/* CNPJ (Opcional) */}
+            {/* Commit 5d75d82: Campo CNPJ adicionado */}
+            {/* - Formato: 00.000.000/0000-00 */}
+            {/* - Validação regex Yup */}
+            {/* - Armazenado em Firebase custom claims */}
+            {/* - Compliance fiscal */}
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
                 CNPJ (Opcional)
@@ -734,6 +764,12 @@ export default function SuperAdminPage() {
       )}
 
       {/* ========== MODAL EDITAR CLIENTE ========== */}
+      {/* Commit 5d75d82: Modal de edição de clientes */}
+      {/* FUNCIONALIDADE: Editar dados após criação */}
+      {/* - Campos: companyName, vynloProduct, role, cnpj */}
+      {/* - Email e senha NÃO podem ser editados (segurança) */}
+      {/* - Backend: PUT /v1/super-admin/clients/{uid} */}
+      {/* - Firebase custom claims são atualizados */}
       {showEditModal && editingClient && (
         <Modal onClose={() => {
           setShowEditModal(false)
@@ -941,6 +977,12 @@ export default function SuperAdminPage() {
       )}
 
       {/* ========== MODAL TROCAR SENHA ========== */}
+      {/* Commit e4fad88: Modal para Super Admin trocar própria senha */}
+      {/* FUNCIONALIDADE: Permite trocar senha sem sair do sistema */}
+      {/* - Validações: 8+ caracteres, senhas coincidem */}
+      {/* - Firebase updatePassword() API */}
+      {/* - Logout automático após sucesso (segurança) */}
+      {/* TODO FUTURO: Auto-abrir no primeiro acesso (mustChangePassword claim) */}
       {showChangePasswordModal && (
         <Modal onClose={() => {
           setShowChangePasswordModal(false)
@@ -1098,6 +1140,11 @@ function QuickActionButton({ icon: Icon, label, onClick }: any) {
   )
 }
 
+// Commit 5d75d82: Componente ClientCard com botão Editar
+// ANTES: Apenas Ver detalhes + Suspender/Ativar
+// DEPOIS: + Botão Editar (ícone Settings roxo)
+// - onClick={onEdit} → Abre modal de edição
+// - Permite editar: nome, produto, role, CNPJ
 function ClientCard({ client, onView, onEdit, onSuspend, onActivate }: any) {
   const product = VYNLO_PRODUCTS.find(p => p.id === client.vynloProduct)
   
@@ -1134,6 +1181,7 @@ function ClientCard({ client, onView, onEdit, onSuspend, onActivate }: any) {
         </div>
 
         <div className="flex items-center space-x-2 ml-4">
+          {/* Botão Ver Detalhes */}
           <button
             onClick={onView}
             className="p-2 bg-blue-600/20 hover:bg-blue-600/40 rounded-lg transition-colors"
@@ -1141,6 +1189,7 @@ function ClientCard({ client, onView, onEdit, onSuspend, onActivate }: any) {
           >
             <Eye className="w-5 h-5 text-blue-400" />
           </button>
+          {/* Commit 5d75d82: Botão Editar NOVO */}
           <button
             onClick={onEdit}
             className="p-2 bg-purple-600/20 hover:bg-purple-600/40 rounded-lg transition-colors"

@@ -76,7 +76,12 @@ const createClient = async (clientData: CreateClientData): Promise<any> => {
   return await response.json()
 }
 
-// Atualizar cliente existente
+// Commit 5d75d82: Implementado função updateClient
+// FUNCIONALIDADE: Atualizar dados de cliente existente via API
+// - Endpoint: PUT /v1/super-admin/clients/{uid}
+// - Body: { companyName, vynloProduct, role, cnpj, clientType }
+// - Backend atualiza Firebase custom claims
+// - Não permite atualizar email e password (segurança)
 const updateClient = async (uid: string, clientData: UpdateClientData): Promise<VynloClient> => {
   const response = await apiRequest('core-service', `v1/super-admin/clients/${uid}`, {
     method: 'PUT',
@@ -185,6 +190,9 @@ export const useSuspendClientMutation = () => {
   })
 }
 
+// Commit 5d75d82: Hook para atualizar cliente
+// Invalida cache após sucesso (refetch automático)
+// Toast de sucesso/erro
 export const useUpdateClientMutation = () => {
   const queryClient = useQueryClient()
   
