@@ -70,6 +70,14 @@ public class Order {
     @Column(nullable = false)
     private Boolean deleted = false;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) dono deste pedido
+     * NULL = Super Admin (acesso global)
+     * NOT NULL = Cliente específico (pedidos isolados)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @Version
     private Long version;
 
@@ -152,4 +160,7 @@ public class Order {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 }

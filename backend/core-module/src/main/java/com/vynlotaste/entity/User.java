@@ -76,6 +76,14 @@ public class User {
     @Column(length = 1000)
     private String preferences;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) ao qual o usuário pertence
+     * NULL = Super Admin (Vynlo Tech, acesso global)
+     * NOT NULL = Cliente específico (usuários isolados por restaurante)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -169,6 +177,9 @@ public class User {
 
     public String getPreferences() { return preferences; }
     public void setPreferences(String preferences) { this.preferences = preferences; }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -91,6 +91,14 @@ public class Product {
     @Column(nullable = false)
     private Boolean deleted = false;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) dono deste produto
+     * NULL = Super Admin (produtos globais)
+     * NOT NULL = Cliente específico (produtos isolados)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @Version
     private Long version;
 
@@ -189,4 +197,7 @@ public class Product {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 }

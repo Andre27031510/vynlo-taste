@@ -65,6 +65,14 @@ public class Driver {
     @Column(name = "last_active")
     private LocalDateTime lastActive;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) ao qual o entregador pertence
+     * NULL = Super Admin (entregadores globais)
+     * NOT NULL = Cliente específico (entregadores isolados por restaurante)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

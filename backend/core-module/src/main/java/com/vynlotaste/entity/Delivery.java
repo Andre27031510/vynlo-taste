@@ -59,6 +59,14 @@ public class Delivery {
     @Column(name = "notes", length = 1000)
     private String notes;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) dono desta entrega
+     * NULL = Super Admin (acesso global)
+     * NOT NULL = Cliente específico (entregas isoladas)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

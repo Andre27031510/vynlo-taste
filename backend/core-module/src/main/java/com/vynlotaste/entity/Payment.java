@@ -58,6 +58,14 @@ public class Payment {
     @Column(columnDefinition = "TEXT")
     private String metadata;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) dono deste pagamento
+     * NULL = Super Admin (acesso global)
+     * NOT NULL = Cliente específico (pagamentos isolados)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -137,4 +145,7 @@ public class Payment {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 }

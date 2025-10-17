@@ -62,6 +62,14 @@ public class CashFlow {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) dono deste fluxo de caixa
+     * NULL = Super Admin (acesso global)
+     * NOT NULL = Cliente específico (fluxo de caixa isolado)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -137,4 +145,7 @@ public class CashFlow {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 }

@@ -3,10 +3,14 @@ package com.vynlotaste.controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.ExportedUserRecord;
+import com.vynlotaste.entity.Tenant;
+import com.vynlotaste.repository.TenantRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +25,12 @@ import java.util.Map;
  * - Criar clientes com vynloProduct (TASTE, EKKLESIA, BOT, etc)
  * - Listar, suspender, ativar clientes
  * - Gerenciar permissões granulares
+ * 
+ * MULTI-TENANCY (Commit c79b622+):
+ * - Ao criar cliente: cria registro na tabela "tenants" (isolamento de dados)
+ * - FirebaseUid → tenants.firebase_uid (chave para buscar tenant_id)
+ * - TenantId é extraído automaticamente pelo JwtAuthenticationFilter
+ * 
  * Apenas SUPER_ADMIN pode acessar
  */
 @RestController
@@ -28,7 +38,11 @@ import java.util.Map;
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class ClientManagementController {
 
+    @Autowired
+    private TenantRepository tenantRepository;
+
     @PostMapping("/create-client")
+    @Transactional  // ✅ Garantir atomicidade: Firebase + Banco juntos
     public ResponseEntity<Map<String, Object>> createClient(@RequestBody Map<String, Object> clientData) {
         try {
             // Validações de entrada
@@ -36,6 +50,7 @@ public class ClientManagementController {
             String adminEmail = (String) clientData.get("adminEmail");
             String adminPassword = (String) clientData.get("adminPassword");
             String vynloProduct = (String) clientData.get("vynloProduct");
+            String cnpj = (String) clientData.get("cnpj");
             
             if (companyName == null || companyName.trim().isEmpty()) {
                 throw new IllegalArgumentException("Nome da empresa é obrigatório");
@@ -48,6 +63,15 @@ public class ClientManagementController {
             }
             if (vynloProduct == null) {
                 vynloProduct = "TASTE"; // Default
+            }
+            
+            // ============================================================================
+            // MULTI-TENANCY: Validar se CNPJ já existe (evitar duplicação)
+            // ============================================================================
+            if (cnpj != null && !cnpj.trim().isEmpty()) {
+                if (tenantRepository.existsByCnpj(cnpj)) {
+                    throw new IllegalArgumentException("CNPJ já cadastrado no sistema");
+                }
             }
             
             // Criar admin do cliente
@@ -100,13 +124,33 @@ public class ClientManagementController {
 
             FirebaseAuth.getInstance().setCustomUserClaims(userRecord.getUid(), claims);
 
+            // ============================================================================
+            // MULTI-TENANCY: Criar registro na tabela "tenants" (isolamento de dados)
+            // ============================================================================
+            Tenant tenant = new Tenant();
+            tenant.setFirebaseUid(userRecord.getUid());
+            tenant.setCompanyName(companyName);
+            tenant.setCnpj(cnpj != null && !cnpj.trim().isEmpty() ? cnpj : null);
+            tenant.setVynloProduct(vynloProduct.toUpperCase());
+            tenant.setClientType((String) clientData.getOrDefault("clientType", "RESTAURANT"));
+            tenant.setStatus("ACTIVE");
+            
+            Tenant savedTenant = tenantRepository.save(tenant);
+            
+            // Log de sucesso
+            System.out.println("✅ Tenant criado: id=" + savedTenant.getId() + 
+                              ", firebaseUid=" + userRecord.getUid() + 
+                              ", companyName=" + companyName);
+
             // Response detalhado
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("clientId", userRecord.getUid());
+            response.put("tenantId", savedTenant.getId());  // ✅ Retornar tenant_id
             response.put("companyName", companyName);
             response.put("adminEmail", adminEmail);
             response.put("vynloProduct", vynloProduct);
+            response.put("cnpj", cnpj);
             response.put("createdAt", new Date());
 
             return ResponseEntity.ok(response);

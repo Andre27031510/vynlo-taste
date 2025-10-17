@@ -73,6 +73,15 @@ public class AuditLog {
     @Column(columnDefinition = "TEXT")
     private String details;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) ao qual pertence esta auditoria
+     * NULL = Super Admin (auditoria global/sistema)
+     * NOT NULL = Cliente específico (auditoria isolada por restaurante)
+     * IMPORTANTE: Logs de Super Admin não têm tenant_id (acesso cross-tenant)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
@@ -197,4 +206,7 @@ public class AuditLog {
 
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 }

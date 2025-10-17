@@ -1,6 +1,7 @@
 package com.vynlotaste.service;
 
 import com.vynlotaste.config.CacheConfig;
+import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.dto.product.ProductRequestDto;
 import com.vynlotaste.entity.Product;
 import com.vynlotaste.repository.ProductRepository;
@@ -80,6 +81,14 @@ public class ProductService {
             product.setAvailable(productRequest.getAvailable() != null ? productRequest.getAvailable() : true);
             product.setPreparationTime(productRequest.getPreparationTime());
             product.setStockQuantity(productRequest.getStockQuantity() != null ? productRequest.getStockQuantity() : 0);
+            
+            // ============================================================================
+            // MULTI-TENANCY: Setar tenant_id automaticamente do contexto
+            // ============================================================================
+            Long tenantId = TenantContext.getCurrentTenantId();
+            product.setTenantId(tenantId);  // null para Super Admin, ID para clientes
+            log.debug("🔒 Produto será criado com tenant_id={} ({})", 
+                     tenantId, tenantId == null ? "Super Admin" : "Cliente");
             
             Product savedProduct = productRepository.save(product);
             
@@ -175,18 +184,32 @@ public class ProductService {
         long startTime = System.currentTimeMillis();
         
         try {
-            Optional<Product> product = productRepository.findById(id);
+            Optional<Product> productOpt = productRepository.findById(id);
             
-            if (product.isEmpty()) {
+            if (productOpt.isEmpty()) {
                 log.warn(PRODUCT_NOT_FOUND, id);
                 throw new ProductNotFoundException("Produto não encontrado com ID: " + id);
             }
             
+            Product product = productOpt.get();
+            
+            // ============================================================================
+            // MULTI-TENANCY: Validação de acesso ao produto
+            // ============================================================================
+            if (!TenantContext.isSuperAdmin()) {
+                Long tenantId = TenantContext.getCurrentTenantId();
+                if (tenantId == null || !tenantId.equals(product.getTenantId())) {
+                    log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar produto (tenant_id={}, id={})", 
+                            tenantId, product.getTenantId(), id);
+                    throw new ProductNotFoundException("Produto não encontrado com ID: " + id);
+                }
+            }
+            
             long duration = System.currentTimeMillis() - startTime;
             log.debug("Produto encontrado - ID: {}, Nome: {}, Tempo: {}ms", 
-                id, product.get().getName(), duration);
+                id, product.getName(), duration);
             
-            return product.get();
+            return product;
             
         } catch (ProductNotFoundException e) {
             throw e;
@@ -270,7 +293,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List<Product> serializa OK, compartilhado
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, 
-               key = "'search:' + #name.toLowerCase().trim()",
+               key = "'search:' + #name.toLowerCase().trim() + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
                condition = "#name != null && #name.length() >= 2",
                cacheManager = "redisCacheManagerL2")
     public List<Product> searchByName(String name) {
@@ -290,7 +313,26 @@ public class ProductService {
         String searchTerm = name.trim();
         
         try {
-            List<Product> products = productRepository.findByNameContainingIgnoreCase(searchTerm);
+            // ============================================================================
+            // MULTI-TENANCY: Filtrar por tenant_id
+            // ============================================================================
+            List<Product> products;
+            
+            if (TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: buscando em TODOS os produtos");
+                products = productRepository.findByNameContainingIgnoreCase(searchTerm);
+            } else {
+                Long tenantId = TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando lista vazia");
+                    return List.of();
+                }
+                log.debug("👤 Cliente (tenant_id={}): buscando apenas produtos do tenant", tenantId);
+                // Nota: Precisa criar query com tenant_id no repository
+                products = productRepository.findByNameContainingIgnoreCase(searchTerm).stream()
+                    .filter(p -> tenantId.equals(p.getTenantId()))
+                    .toList();
+            }
             
             long duration = System.currentTimeMillis() - startTime;
             log.debug("Busca por nome concluída - Termo: '{}', Resultados: {}, Tempo: {}ms", 
@@ -306,11 +348,34 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List<Product> disponíveis (compartilhado)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'available'", 
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'available:' + (#root.target.getCurrentTenantId() ?: 'super')", 
                cacheManager = "redisCacheManagerL2")
     public List<Product> findAvailableProducts() {
         log.debug("Buscando produtos disponíveis");
-        return productRepository.findByAvailableTrue();
+        
+        // ============================================================================
+        // MULTI-TENANCY: Filtrar por tenant_id
+        // ============================================================================
+        if (TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os produtos disponíveis");
+            return productRepository.findByAvailableTrue();
+        }
+        
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        
+        log.debug("👤 Cliente (tenant_id={}): retornando apenas produtos do tenant", tenantId);
+        return productRepository.findByAvailableTrueAndTenantId(tenantId);
+    }
+    
+    /**
+     * Helper method para SpEL cache key
+     */
+    public Long getCurrentTenantId() {
+        return TenantContext.getCurrentTenantId();
     }
 
     @Transactional(readOnly = true)
@@ -323,11 +388,27 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List por categoria (compartilhado)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'category:' + #category",
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'category:' + #category + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getProductsByCategory(String category) {
         log.debug("Buscando produtos por categoria: {}", category);
-        return productRepository.findByCategory(category);
+        
+        // ============================================================================
+        // MULTI-TENANCY: Filtrar por tenant_id
+        // ============================================================================
+        if (TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os produtos da categoria {}", category);
+            return productRepository.findByCategory(category);
+        }
+        
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        
+        log.debug("👤 Cliente (tenant_id={}): retornando produtos da categoria {} do tenant", tenantId, category);
+        return productRepository.findByCategoryAndTenantId(category, tenantId);
     }
 
     @Transactional(readOnly = true)
@@ -335,7 +416,23 @@ public class ProductService {
     @Cacheable(value = "caffeine-products-available-page", cacheManager = "hybridCacheManager")
     public Page<Product> getAvailableProducts(Pageable pageable) {
         log.debug("Buscando produtos disponíveis paginados: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
-        return productRepository.findByAvailableTrue(pageable);
+        
+        // ============================================================================
+        // MULTI-TENANCY: Filtrar por tenant_id
+        // ============================================================================
+        if (TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os produtos disponíveis (paginado)");
+            return productRepository.findByAvailableTrue(pageable);
+        }
+        
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando página vazia");
+            return Page.empty(pageable);
+        }
+        
+        log.debug("👤 Cliente (tenant_id={}): retornando apenas produtos do tenant (paginado)", tenantId);
+        return productRepository.findByAvailableTrueAndTenantId(tenantId, pageable);
     }
 
     @Transactional(readOnly = true)

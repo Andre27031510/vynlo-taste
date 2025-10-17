@@ -65,6 +65,14 @@ public class FiscalDocument {
     @Column(name = "xml_content", columnDefinition = "TEXT")
     private String xmlContent;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) dono desta nota fiscal
+     * NULL = Super Admin (acesso global)
+     * NOT NULL = Cliente específico (notas fiscais isoladas)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -150,4 +158,7 @@ public class FiscalDocument {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public Long getTenantId() { return tenantId; }
+    public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
 }

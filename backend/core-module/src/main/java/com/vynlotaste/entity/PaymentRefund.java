@@ -60,6 +60,14 @@ public class PaymentRefund {
     @Column(name = "processed_by")
     private String processedBy;
 
+    /**
+     * Multi-Tenancy: ID do tenant (restaurante/empresa) dono deste reembolso
+     * NULL = Super Admin (acesso global)
+     * NOT NULL = Cliente específico (reembolsos isolados)
+     */
+    @Column(name = "tenant_id")
+    private Long tenantId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
