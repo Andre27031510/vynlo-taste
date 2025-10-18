@@ -163,7 +163,8 @@ public class UserService {
             .orElseThrow(() -> new com.vynlotaste.exception.user.UserNotFoundException(id));
     }
 
-    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'active-users:' + (#root.target.getCurrentTenantId() ?: 'super')")
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'active-users:' + (#root.target.getCurrentTenantId() ?: 'super')",
+               unless = "#result == null || #result.isEmpty()")
     public List<User> findActiveUsers() {
         // MULTI-TENANCY: Filtrar por tenant_id
         if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {

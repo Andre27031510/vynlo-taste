@@ -141,7 +141,8 @@ public class OrderService {
         return orderRepository.findByCustomerId(userId);
     }
 
-    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'status:' + #status.name() + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
+    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'status:' + #status.name() + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
+               unless = "#result == null || #result.isEmpty()")
     public List<Order> getOrdersByStatus(@NotNull Order.OrderStatus status) {
         log.debug("Fetching orders by status: {}", status);
         
@@ -267,7 +268,8 @@ public class OrderService {
         }
     }
 
-    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'recent:' + (#root.target.getCurrentTenantId() ?: 'super')")
+    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'recent:' + (#root.target.getCurrentTenantId() ?: 'super')",
+               unless = "#result == null || #result.isEmpty()")
     public List<Order> findRecentOrders() {
         LocalDateTime since = LocalDateTime.now().minusHours(24);
         log.debug("Fetching recent orders since: {}", since);

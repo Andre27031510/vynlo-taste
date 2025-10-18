@@ -38,6 +38,7 @@ public class DynamicQueryService {
     // User queries
     // ✅ HYBRID CACHE: Caffeine L1 (Page<User> não serializa no Redis) - ISOLADO POR TENANT
     @Cacheable(value = "caffeine-user-queries", key = "#role + '_' + #active + '_' + #emailVerified + '_' + (#root.target.getCurrentTenantId() ?: 'super')",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<User> findUsers(UserRole role, Boolean active, Boolean emailVerified,
                                LocalDateTime createdAfter, LocalDateTime createdBefore,
@@ -75,6 +76,7 @@ public class DynamicQueryService {
     // Product queries
     // ✅ HYBRID CACHE: Caffeine L1 (Page<Product> não serializa no Redis) - ISOLADO POR TENANT
     @Cacheable(value = "caffeine-product-queries", key = "#category + '_' + #available + '_' + #minPrice + '_' + #maxPrice + '_' + (#root.target.getCurrentTenantId() ?: 'super')",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Product> findProducts(String category, Boolean available, 
                                      BigDecimal minPrice, BigDecimal maxPrice,
@@ -132,6 +134,7 @@ public class DynamicQueryService {
     // Order queries
     // ✅ HYBRID CACHE: Caffeine L1 (Page<Order> não serializa no Redis) - ISOLADO POR TENANT
     @Cacheable(value = "caffeine-order-queries", key = "#status + '_' + #type + '_' + #customerId + '_' + #createdAfter + '_' + (#root.target.getCurrentTenantId() ?: 'super')",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Order> findOrders(Order.OrderStatus status, Order.OrderType type,
                                  Long customerId, String customerEmail,
