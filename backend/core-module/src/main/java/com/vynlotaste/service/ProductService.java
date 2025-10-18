@@ -244,7 +244,10 @@ public class ProductService {
     @Caching(evict = {
         @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
         @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true), // ✅ Limpar lista de produtos
-        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true) // ✅ Limpar stats
+        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true), // ✅ Limpar stats
+        @CacheEvict(value = "caffeine-products-page", allEntries = true), // ✅ Limpar cache Caffeine
+        @CacheEvict(value = "caffeine-products-available-page", allEntries = true), // ✅ Limpar cache Caffeine
+        @CacheEvict(value = "caffeine-products-search-page", allEntries = true) // ✅ Limpar cache Caffeine
     })
     public Product updateProduct(Long id, ProductRequestDto productRequest) {
         long startTime = System.currentTimeMillis();
@@ -303,7 +306,10 @@ public class ProductService {
     @Caching(evict = {
         @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true),
         @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
-        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true) // ✅ Limpar stats
+        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true), // ✅ Limpar stats
+        @CacheEvict(value = "caffeine-products-page", allEntries = true), // ✅ Limpar cache Caffeine
+        @CacheEvict(value = "caffeine-products-available-page", allEntries = true), // ✅ Limpar cache Caffeine
+        @CacheEvict(value = "caffeine-products-search-page", allEntries = true) // ✅ Limpar cache Caffeine
     })
     public void deleteProduct(Long id) {
         Product product = findById(id);

@@ -172,11 +172,31 @@ public class DriverService {
     @Cacheable(value = "driverStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#result == null")
     public Map<String, Object> getDriverStats() {
         try {
-            long total = driverRepository.count();
-            long available = driverRepository.countByStatus(Driver.DriverStatus.AVAILABLE);
-            long busy = driverRepository.countByStatus(Driver.DriverStatus.BUSY);
-            long offline = driverRepository.countByStatus(Driver.DriverStatus.OFFLINE);
-            Double averageRating = driverRepository.getAverageRating();
+            // MULTI-TENANCY: Filtrar por tenant_id
+            long total, available, busy, offline;
+            Double averageRating;
+            
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: stats GLOBAIS de drivers");
+                total = driverRepository.count();
+                available = driverRepository.countByStatus(Driver.DriverStatus.AVAILABLE);
+                busy = driverRepository.countByStatus(Driver.DriverStatus.BUSY);
+                offline = driverRepository.countByStatus(Driver.DriverStatus.OFFLINE);
+                averageRating = driverRepository.getAverageRating();
+            } else {
+                Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando stats zerados");
+                    return Map.of("totalDrivers", 0, "available", 0, "busy", 0, "offline", 0, "averageRating", 0.0);
+                }
+                
+                log.debug("👤 Cliente (tenant_id={}): stats de drivers do tenant", tenantId);
+                total = driverRepository.countByTenantId(tenantId);
+                available = driverRepository.countByStatusAndTenantId(Driver.DriverStatus.AVAILABLE, tenantId);
+                busy = driverRepository.countByStatusAndTenantId(Driver.DriverStatus.BUSY, tenantId);
+                offline = driverRepository.countByStatusAndTenantId(Driver.DriverStatus.OFFLINE, tenantId);
+                averageRating = driverRepository.getAverageRatingByTenantId(tenantId);
+            }
             
             return Map.of(
                 "totalDrivers", total,

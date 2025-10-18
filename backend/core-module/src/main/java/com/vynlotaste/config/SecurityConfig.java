@@ -83,12 +83,13 @@ public class SecurityConfig {
                 .requestMatchers("/v1/users/sync-firebase").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 
-                // Stats endpoints - PÚBLICOS (dados agregados, não sensíveis)
-                // Melhora performance e evita race conditions com auth
-                .requestMatchers("/v1/orders/stats").permitAll()
-                .requestMatchers("/v1/users/stats").permitAll()
-                .requestMatchers("/v1/drivers/stats").permitAll()
-                .requestMatchers("/v1/products/stats").permitAll()
+                // Stats endpoints - PROTEGIDOS (MULTI-TENANCY: dados sensíveis por tenant)
+                // CRÍTICO: Stats DEVEM ser autenticados para filtrar por tenant_id
+                // Removido permitAll() - agora requer autenticação
+                // .requestMatchers("/v1/orders/stats").permitAll()  // ❌ REMOVIDO
+                // .requestMatchers("/v1/users/stats").permitAll()   // ❌ REMOVIDO
+                // .requestMatchers("/v1/drivers/stats").permitAll() // ❌ REMOVIDO
+                // .requestMatchers("/v1/products/stats").permitAll() // ❌ REMOVIDO
                 
                 // Setup inicial - TEMPORÁRIO (remover após configurar admin)
                 .requestMatchers("/v1/setup/**").permitAll()

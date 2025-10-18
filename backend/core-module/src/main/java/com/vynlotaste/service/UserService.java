@@ -306,11 +306,45 @@ public class UserService {
     }
 
     public long count() {
-        return userRepository.count();
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: contando TODOS os usuários");
+            return userRepository.count();
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return 0;
+        }
+        
+        log.debug("👤 Cliente (tenant_id={}): contando usuários do tenant", tenantId);
+        return userRepository.countByTenantId(tenantId);
     }
 
     public long countByActive(boolean active) {
-        return userRepository.countByActive(active);
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: contando TODOS os usuários ativos");
+            return userRepository.countByActive(active);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return 0;
+        }
+        
+        log.debug("👤 Cliente (tenant_id={}): contando usuários ativos do tenant", tenantId);
+        // Usar apenas active=true pois temos método específico para isso
+        if (active) {
+            return userRepository.countByActiveTrueAndTenantId(tenantId);
+        } else {
+            // Contar total - ativos = inativos
+            long total = userRepository.countByTenantId(tenantId);
+            long activos = userRepository.countByActiveTrueAndTenantId(tenantId);
+            return total - activos;
+        }
     }
 
     public long countActiveUsersLast24Hours() {
