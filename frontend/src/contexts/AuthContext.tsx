@@ -12,6 +12,7 @@ import {
   setPersistence,
   browserLocalPersistence
 } from 'firebase/auth';
+import { useQueryClient } from '@tanstack/react-query';
 import { getAuthInstance } from '@/config/firebase';
 import { trackLogin, trackLogout, trackError, trackEvent } from '@/config/firebase';
 import { API_CONFIG } from '@/config/api';
@@ -38,6 +39,9 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // ✅ CORRETO: useQueryClient chamado no top level do componente
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Inicializar Firebase apenas quando o AuthProvider for montado
@@ -150,12 +154,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!auth) throw new Error('Firebase não inicializado');
     try {
       const currentUser = user;
+      const currentUserUid = currentUser?.uid;
+      
+      // ✅ MULTI-TENANT FIX: Limpar cache do React Query ANTES do logout
+      try {
+        // 1. Limpar TODO o cache do React Query
+        queryClient.clear();
+        console.log('✅ React Query cache limpo no logout');
+        
+        // 2. Limpar localStorage do tenant atual
+        if (currentUserUid) {
+          clearTenantStorageOnLogout(currentUserUid);
+        }
+      } catch (error) {
+        console.warn('Aviso: Erro ao limpar cache no logout:', error);
+        // Não bloqueia o logout se houver erro
+      }
+      
+      // ✅ MULTI-TENANT FIX: Chamar endpoint de logout no backend
+      // Backend envia header Clear-Site-Data para limpar caches do navegador
+      try {
+        const { apiRequest } = await import('@/services/api');
+        const token = await currentUser?.getIdToken();
+        
+        if (token) {
+          await apiRequest('core-service', 'v1/auth/logout', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          console.log('✅ Backend logout executado (Clear-Site-Data enviado)');
+        }
+      } catch (error) {
+        console.warn('Aviso: Erro ao chamar backend logout:', error);
+        // Não bloqueia o logout se houver erro
+      }
+      
+      // Fazer logout do Firebase
       await signOut(auth);
       await trackLogout();
       await trackEvent('auth_logout_success', {
         user_id: currentUser?.uid || 'unknown',
         timestamp: Date.now()
       });
+      
+      console.log('✅ Logout completo: Firebase + Backend + Cache limpo');
     } catch (error: any) {
       await trackError(`Logout failed: ${error?.code || 'unknown'}`, 'AuthContext');
       await trackEvent('auth_logout_failed', {
@@ -164,6 +208,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       console.error('Erro no logout:', error);
       throw error;
+    }
+  };
+  
+  // ✅ MULTI-TENANT: Helper para limpar localStorage do tenant no logout
+  const clearTenantStorageOnLogout = (tenantKey: string) => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const keysToRemove: string[] = [];
+      
+      // Encontrar todas as chaves relacionadas ao tenant
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('vynlo-') && key.includes(`:${tenantKey}`)) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // Remover todas as chaves
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        console.log(`🗑️ Removido no logout: ${key}`);
+      });
+      
+      if (keysToRemove.length > 0) {
+        console.log(`✅ ${keysToRemove.length} entradas de localStorage limpas no logout`);
+      }
+    } catch (error) {
+      console.warn('Erro ao limpar localStorage no logout:', error);
     }
   };
 

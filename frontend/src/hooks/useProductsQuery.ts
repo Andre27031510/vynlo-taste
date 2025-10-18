@@ -200,9 +200,12 @@ export const useProductsQuery = (filters?: {
 }) => {
   // ✅ Amazon Q Recommendation: Cache resiliente + Retry conservador + Fallback
   // Para 3M+ usuários: staleTime 2min, retry máximo 2 tentativas, localStorage fallback
+  // ✅ MULTI-TENANT: QueryKey inclui tenantKey para isolamento total entre usuários
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
   
   const query = useQuery<{ products: Product[], total: number, totalPages: number }>({
-    queryKey: ['products', filters],
+    queryKey: ['products', tenantKey, filters], // ✅ CRÍTICO: tenantKey no queryKey
     queryFn: () => fetchProducts(filters),
     enabled: true, // ✅ SEMPRE HABILITADO - backend permite GET público
     staleTime: 2 * 60 * 1000, // ✅ 2 minutos (Amazon Q: mais conservador para produção)
@@ -222,8 +225,9 @@ export const useProductsQuery = (filters?: {
     retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000),
     placeholderData: (previousData) => {
       // Amazon Q: Usar localStorage fallback se não houver dados anteriores
+      // ✅ MULTI-TENANT: Fallback agora usa tenantKey para buscar dados corretos
       if (previousData) return previousData
-      const fallback = getProductsFallback()
+      const fallback = getProductsFallback(tenantKey)
       return fallback || undefined
     },
     notifyOnChangeProps: ['data', 'error'],
@@ -237,9 +241,12 @@ export const useProductsQuery = (filters?: {
 
 export const useProductStatsQuery = () => {
   // ✅ Amazon Q Recommendation: Stats públicos + Cache otimizado + Fallback
+  // ✅ MULTI-TENANT: QueryKey inclui tenantKey para isolamento total entre usuários
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
   
   const query = useQuery<ProductStats>({
-    queryKey: ['product-stats'],
+    queryKey: ['product-stats', tenantKey], // ✅ CRÍTICO: tenantKey no queryKey
     queryFn: fetchProductStats,
     enabled: true, // ✅ SEMPRE HABILITADO - backend permite acesso público
     staleTime: 2 * 60 * 1000, // ✅ 2 minutos - stats mudam pouco
@@ -259,8 +266,9 @@ export const useProductStatsQuery = () => {
     retryDelay: attemptIndex => Math.min(1000 * (attemptIndex + 1), 5000),
     placeholderData: (previousData) => {
       // Amazon Q: Usar localStorage fallback se não houver dados anteriores
+      // ✅ MULTI-TENANT: Fallback agora usa tenantKey para buscar dados corretos
       if (previousData) return previousData
-      const fallback = getStatsFallback()
+      const fallback = getStatsFallback(tenantKey)
       return fallback || undefined
     },
     notifyOnChangeProps: ['data', 'error'],
