@@ -50,6 +50,11 @@ public class PaymentRefundService {
         refund.setNotes(request.getNotes());
         refund.setStatus(PaymentRefund.RefundStatus.PENDING);
         
+        // MULTI-TENANCY: Setar tenant_id automaticamente
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        refund.setTenantId(tenantId);
+        log.debug("🔒 PaymentRefund será criado com tenant_id={}", tenantId);
+        
         PaymentRefund savedRefund = paymentRefundRepository.save(refund);
         log.info("✅ Solicitação de estorno criada: ID={}", savedRefund.getId());
         

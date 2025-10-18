@@ -59,6 +59,11 @@ public class FinancialService {
             transaction.setStatus("PENDING");
             transaction.setUser(dto.getUser());
             
+            // MULTI-TENANCY: Setar tenant_id automaticamente
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            transaction.setTenantId(tenantId);
+            log.debug("🔒 Financial será criado com tenant_id={}", tenantId);
+            
             Financial savedTransaction = financialRepository.save(transaction);
             
             log.info("✅ Transação criada: ID={}, tipo={}, valor={}", 

@@ -58,6 +58,11 @@ public class UserService {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         
+        // MULTI-TENANCY: Setar tenant_id automaticamente
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        user.setTenantId(tenantId);
+        log.debug("🔒 User Firebase será criado com tenant_id={}", tenantId);
+        
         User savedUser = userRepository.save(user);
         log.info("Usuário Firebase criado com sucesso: id={}, email={}, username={}", 
                 savedUser.getId(), savedUser.getEmail(), savedUser.getUsername());
@@ -116,6 +121,11 @@ public class UserService {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         
+        // MULTI-TENANCY: Setar tenant_id automaticamente
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        user.setTenantId(tenantId);
+        log.debug("🔒 User registrado será criado com tenant_id={}", tenantId);
+        
         User savedUser = userRepository.save(user);
         log.info("Usuário registrado com sucesso: id={}, email={}", savedUser.getId(), savedUser.getEmail());
         
@@ -159,7 +169,27 @@ public class UserService {
     }
 
     public Page<User> findAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os usuários");
+            return userRepository.findAll(pageable);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando página vazia");
+            return Page.empty(pageable);
+        }
+        log.debug("👤 Cliente (tenant_id={}): retornando usuários do tenant", tenantId);
+        
+        // Filtrar usando Specification ou query manual
+        // TODO: Adicionar método findAllByTenantId no UserRepository
+        Page<User> allUsers = userRepository.findAll(pageable);
+        java.util.List<User> filteredUsers = allUsers.getContent().stream()
+            .filter(user -> user.getTenantId() != null && user.getTenantId().equals(tenantId))
+            .toList();
+        
+        return new org.springframework.data.domain.PageImpl<>(filteredUsers, pageable, filteredUsers.size());
     }
 
     @Transactional
@@ -242,7 +272,12 @@ public class UserService {
         user.setActive(userRequest.getActive() != null ? userRequest.getActive() : true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        
+
+        // MULTI-TENANCY: Setar tenant_id automaticamente
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        user.setTenantId(tenantId);
+        log.debug("🔒 User criado com tenant_id={}", tenantId);
+
         User savedUser = userRepository.save(user);
         log.info("✅ Usuário criado com sucesso: ID={}, email={}, role={}", savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
         

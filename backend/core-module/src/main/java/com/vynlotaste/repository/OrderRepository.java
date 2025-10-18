@@ -13,8 +13,16 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * OrderRepository - Multi-Tenancy Support
+ * IMPORTANTE: Adicionar métodos com filtro de tenant_id
+ */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
+    
+    // ============================================================================
+    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ============================================================================
     
     @EntityGraph(attributePaths = {"customer", "status", "type"})
     List<Order> findByCustomerId(Long customerId);
@@ -45,4 +53,33 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.createdAt >= :since")
     java.math.BigDecimal sumTotalAmountByCreatedAtAfter(@Param("since") LocalDateTime since);
+    
+    // ============================================================================
+    // MULTI-TENANCY: Queries com filtro de tenant_id
+    // ============================================================================
+    
+    @Query("SELECT o FROM Order o WHERE o.tenantId = :tenantId")
+    @EntityGraph(attributePaths = {"customer", "status", "type"})
+    Page<Order> findAllByTenantId(@Param("tenantId") Long tenantId, Pageable pageable);
+    
+    @Query("SELECT o FROM Order o WHERE o.tenantId = :tenantId AND o.status = :status")
+    @EntityGraph(attributePaths = {"customer", "type"})
+    List<Order> findByStatusAndTenantId(@Param("status") Order.OrderStatus status, @Param("tenantId") Long tenantId);
+    
+    @Query("SELECT o FROM Order o WHERE o.tenantId = :tenantId AND o.createdAt >= :since ORDER BY o.createdAt DESC")
+    @EntityGraph(attributePaths = {"customer", "status", "type"})
+    List<Order> findByTenantIdAndCreatedAtAfter(@Param("tenantId") Long tenantId, @Param("since") LocalDateTime since);
+    
+    @Query("SELECT o FROM Order o WHERE o.tenantId = :tenantId AND o.createdAt BETWEEN :start AND :end")
+    @EntityGraph(attributePaths = {"customer", "status", "type"})
+    List<Order> findByTenantIdAndCreatedAtBetween(@Param("tenantId") Long tenantId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.tenantId = :tenantId AND o.status = :status AND o.createdAt >= :since")
+    long countByTenantIdAndStatusAndCreatedAtAfter(@Param("tenantId") Long tenantId, @Param("status") Order.OrderStatus status, @Param("since") LocalDateTime since);
+    
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.tenantId = :tenantId AND o.status = :status")
+    long countByTenantIdAndStatus(@Param("tenantId") Long tenantId, @Param("status") Order.OrderStatus status);
+    
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.tenantId = :tenantId AND o.createdAt >= :since")
+    java.math.BigDecimal sumTotalAmountByTenantIdAndCreatedAtAfter(@Param("tenantId") Long tenantId, @Param("since") LocalDateTime since);
 }

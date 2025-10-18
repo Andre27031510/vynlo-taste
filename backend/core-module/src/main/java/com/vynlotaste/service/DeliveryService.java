@@ -47,6 +47,11 @@ public class DeliveryService {
             delivery.setSource(source);
             delivery.setStatus(Delivery.DeliveryStatus.PREPARING);
             
+            // MULTI-TENANCY: Setar tenant_id automaticamente
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            delivery.setTenantId(tenantId);
+            log.debug("🔒 Delivery será criado com tenant_id={}", tenantId);
+            
             Delivery saved = deliveryRepository.save(delivery);
             log.info("Delivery created: {} for order: {}", saved.getId(), orderId);
             return saved;

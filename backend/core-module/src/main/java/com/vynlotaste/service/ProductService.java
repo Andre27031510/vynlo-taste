@@ -156,7 +156,23 @@ public class ProductService {
         long startTime = System.currentTimeMillis();
         
         try {
-            Page<Product> products = productRepository.findAll(pageable);
+            // ============================================================================
+            // MULTI-TENANCY: Filtrar por tenant_id
+            // ============================================================================
+            Page<Product> products;
+            
+            if (TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODOS os produtos paginados");
+                products = productRepository.findAll(pageable);
+            } else {
+                Long tenantId = TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando página vazia");
+                    return Page.empty(pageable);
+                }
+                log.debug("👤 Cliente (tenant_id={}): retornando apenas produtos do tenant", tenantId);
+                products = productRepository.findAllByTenantId(tenantId, pageable);
+            }
             
             long duration = System.currentTimeMillis() - startTime;
             log.debug("Produtos paginados recuperados - Página: {}, Tamanho: {}, Total: {}, Tempo: {}ms", 
@@ -328,10 +344,8 @@ public class ProductService {
                     return List.of();
                 }
                 log.debug("👤 Cliente (tenant_id={}): buscando apenas produtos do tenant", tenantId);
-                // Nota: Precisa criar query com tenant_id no repository
-                products = productRepository.findByNameContainingIgnoreCase(searchTerm).stream()
-                    .filter(p -> tenantId.equals(p.getTenantId()))
-                    .toList();
+                // ✅ OTIMIZADO: Query direta com filtro de tenant (em vez de stream)
+                products = productRepository.findByNameContainingIgnoreCaseAndTenantId(searchTerm, tenantId);
             }
             
             long duration = System.currentTimeMillis() - startTime;
@@ -509,12 +523,33 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    // ✅ REDIS L2: List por faixa de preço (compartilhado)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'price-range:' + #minPrice + ':' + #maxPrice",
+    // ✅ REDIS L2: List por faixa de preço (por tenant)
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'price-range:' + #minPrice + ':' + #maxPrice + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getProductsByPriceRange(java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
         log.debug("Buscando produtos por faixa de preço: {} - {}", minPrice, maxPrice);
-        return productRepository.findByPriceBetween(minPrice, maxPrice);
+        
+        // ============================================================================
+        // MULTI-TENANCY: Filtrar por tenant_id
+        // ============================================================================
+        if (TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os produtos na faixa de preço");
+            return productRepository.findByPriceBetween(minPrice, maxPrice);
+        }
+        
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        
+        log.debug("👤 Cliente (tenant_id={}): buscando produtos do tenant na faixa de preço", tenantId);
+        // Filtrar manualmente pois não temos query específica (otimizar depois se necessário)
+        return productRepository.findByTenantId(tenantId).stream()
+            .filter(p -> p.getPrice() != null && 
+                   p.getPrice().compareTo(minPrice) >= 0 && 
+                   p.getPrice().compareTo(maxPrice) <= 0)
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -529,14 +564,30 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    // ✅ REDIS L2: List low stock (compartilhado, atualiza com invalidação)
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'low-stock'",
+    // ✅ REDIS L2: List low stock (por tenant)
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'low-stock:' + (#root.target.getCurrentTenantId() ?: 'super')",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getLowStockProducts() {
         long startTime = System.currentTimeMillis();
         
         try {
-            List<Product> products = productRepository.findByStockQuantityLessThan(10);
+            // ============================================================================
+            // MULTI-TENANCY: Filtrar por tenant_id
+            // ============================================================================
+            List<Product> products;
+            
+            if (TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODOS os produtos com estoque baixo");
+                products = productRepository.findByStockQuantityLessThan(10);
+            } else {
+                Long tenantId = TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando lista vazia");
+                    return List.of();
+                }
+                log.debug("👤 Cliente (tenant_id={}): retornando produtos com estoque baixo do tenant", tenantId);
+                products = productRepository.findByStockQuantityLessThanAndTenantId(10, tenantId);
+            }
             
             long duration = System.currentTimeMillis() - startTime;
             log.debug("Produtos com estoque baixo recuperados - Quantidade: {}, Tempo: {}ms", 
@@ -576,9 +627,23 @@ public class ProductService {
         long startTime = System.currentTimeMillis();
         
         try {
-            // Implementação da busca avançada seria feita no repository
-            // Por enquanto, usando findAll como fallback
-            Page<Product> products = productRepository.findAll(pageable);
+            // ============================================================================
+            // MULTI-TENANCY: Filtrar por tenant_id
+            // ============================================================================
+            Page<Product> products;
+            
+            if (TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: busca avançada em TODOS os produtos");
+                products = productRepository.findAll(pageable);
+            } else {
+                Long tenantId = TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando página vazia");
+                    return Page.empty(pageable);
+                }
+                log.debug("👤 Cliente (tenant_id={}): busca avançada apenas no tenant", tenantId);
+                products = productRepository.findAllByTenantId(tenantId, pageable);
+            }
             
             long duration = System.currentTimeMillis() - startTime;
             log.debug("Busca avançada concluída - Categoria: {}, Preço: {}-{}, Disponível: {}, Resultados: {}, Tempo: {}ms", 
@@ -595,29 +660,62 @@ public class ProductService {
     // Método para obter estatísticas de produtos (para dashboard)
     @Transactional(readOnly = true)
     // ✅ REDIS L2: Stats compartilhados + persistem entre restarts
-    @Cacheable(value = CacheConfig.PRODUCT_STATS_CACHE, key = "'stats'", unless = "#result == null",
+    @Cacheable(value = CacheConfig.PRODUCT_STATS_CACHE, key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#result == null",
                cacheManager = "redisCacheManagerL2")
     public ProductStats getProductStats() {
         long startTime = System.currentTimeMillis();
         
         try {
-            // ✅ FIX: Usar countByAvailableTrue que agora considera soft delete
-            long activeProducts = productRepository.countByAvailableTrue();
-            long totalProducts = activeProducts + productRepository.countByAvailableFalseAndDeletedFalse();
-            long lowStockProducts = productRepository.countByStockQuantityLessThan(10);
+            // ============================================================================
+            // MULTI-TENANCY: Calcular stats filtradas por tenant
+            // ============================================================================
+            long activeProducts;
+            long totalProducts;
+            long lowStockProducts;
+            double averagePrice;
+            
+            if (TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: calculando stats GLOBAIS");
+                // ✅ FIX: Usar countByAvailableTrue que agora considera soft delete
+                activeProducts = productRepository.countByAvailableTrue();
+                totalProducts = activeProducts + productRepository.countByAvailableFalseAndDeletedFalse();
+                lowStockProducts = productRepository.countByStockQuantityLessThan(10);
+                
+                averagePrice = activeProducts > 0 
+                    ? productRepository.findAll().stream()
+                        .filter(p -> p.getAvailable() && p.getPrice() != null)
+                        .mapToDouble(p -> p.getPrice().doubleValue())
+                        .average()
+                        .orElse(0.0)
+                    : 0.0;
+            } else {
+                Long tenantId = TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando stats zeradas");
+                    return new ProductStats(0, 0, 0, 0.0, 0.0);
+                }
+                
+                log.debug("👤 Cliente (tenant_id={}): calculando stats do tenant", tenantId);
+                
+                // Stats do tenant específico
+                activeProducts = productRepository.countByAvailableTrueAndTenantId(tenantId);
+                List<Product> allTenantProducts = productRepository.findByTenantId(tenantId);
+                totalProducts = allTenantProducts.size();
+                lowStockProducts = productRepository.findByStockQuantityLessThanAndTenantId(10, tenantId).size();
+                
+                averagePrice = activeProducts > 0
+                    ? allTenantProducts.stream()
+                        .filter(p -> p.getAvailable() && p.getPrice() != null)
+                        .mapToDouble(p -> p.getPrice().doubleValue())
+                        .average()
+                        .orElse(0.0)
+                    : 0.0;
+            }
             
             // ✅ Calcular receita total e preço médio (Modified: 2025-10-14 17:53 UTC)
             // TEMPORÁRIO: Como não temos campo 'sales', calcular apenas preço médio
             double totalRevenue = 0.0; // TODO: Implementar quando tivermos dados de vendas reais
             // Modified: 2025-10-14 19:15 UTC | Build error fix - getSales() method removed
-            
-            double averagePrice = activeProducts > 0 
-                ? productRepository.findAll().stream()
-                    .filter(p -> p.getAvailable() && p.getPrice() != null)
-                    .mapToDouble(p -> p.getPrice().doubleValue())
-                    .average()
-                    .orElse(0.0)
-                : 0.0;
             
             ProductStats stats = new ProductStats(totalProducts, activeProducts, lowStockProducts, totalRevenue, averagePrice);
             
@@ -627,6 +725,7 @@ public class ProductService {
             
             return stats;
             // Modified: 2025-10-14 21:25 UTC | CRITICAL FIX: ProductStats now consistent with Product list (soft delete)
+            // Modified: 2025-10-17 | MULTI-TENANCY: Stats filtradas por tenant_id
             
         } catch (Exception e) {
             log.error("Erro ao calcular estatísticas de produtos", e);

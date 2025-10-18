@@ -62,6 +62,11 @@ public class FiscalDocumentService {
             document.setSefazStatus("PENDING");
             document.setXmlContent(dto.getXmlContent());
             
+            // MULTI-TENANCY: Setar tenant_id automaticamente
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            document.setTenantId(tenantId);
+            log.debug("🔒 FiscalDocument será criado com tenant_id={}", tenantId);
+            
             FiscalDocument savedDocument = fiscalDocumentRepository.save(document);
             
             log.info("✅ Documento fiscal criado: ID={}, tipo={}, número={}", 
@@ -99,6 +104,11 @@ public class FiscalDocumentService {
             // Simular geração de XML
             String xmlContent = generateNFeXML(dto);
             nfe.setXmlContent(xmlContent);
+            
+            // MULTI-TENANCY: Setar tenant_id automaticamente
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            nfe.setTenantId(tenantId);
+            log.debug("🔒 FiscalDocument NFe será criado com tenant_id={}", tenantId);
             
             FiscalDocument savedNFe = fiscalDocumentRepository.save(nfe);
             

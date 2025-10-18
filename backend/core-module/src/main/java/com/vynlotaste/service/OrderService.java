@@ -144,7 +144,20 @@ public class OrderService {
     @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'status:' + #status.name()")
     public List<Order> getOrdersByStatus(@NotNull Order.OrderStatus status) {
         log.debug("Fetching orders by status: {}", status);
-        return orderRepository.findByStatus(status);
+        
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os pedidos com status {}", status);
+            return orderRepository.findByStatus(status);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        log.debug("👤 Cliente (tenant_id={}): retornando pedidos do tenant com status {}", tenantId, status);
+        return orderRepository.findByStatusAndTenantId(status, tenantId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -254,22 +267,62 @@ public class OrderService {
         }
     }
 
-    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'recent'")
+    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'recent:' + (#root.target.getCurrentTenantId() ?: 'super')")
     public List<Order> findRecentOrders() {
         LocalDateTime since = LocalDateTime.now().minusHours(24);
         log.debug("Fetching recent orders since: {}", since);
-        return orderRepository.findByCreatedAtAfterOrderByCreatedAtDesc(since);
+        
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os pedidos recentes");
+            return orderRepository.findByCreatedAtAfterOrderByCreatedAtDesc(since);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        log.debug("👤 Cliente (tenant_id={}): retornando pedidos recentes do tenant", tenantId);
+        return orderRepository.findByTenantIdAndCreatedAtAfter(tenantId, since);
     }
 
     public Page<Order> findAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os pedidos paginados");
+            return orderRepository.findAll(pageable);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando página vazia");
+            return Page.empty(pageable);
+        }
+        log.debug("👤 Cliente (tenant_id={}): retornando pedidos do tenant paginados", tenantId);
+        return orderRepository.findAllByTenantId(tenantId, pageable);
     }
 
     public List<Order> getAllOrders(int page, int limit, String status, String search) {
         try {
             // Usar paginação correta para evitar OutOfMemory com 3M+ usuários
             Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
-            Page<Order> orderPage = orderRepository.findAll(pageable);
+            
+            // MULTI-TENANCY: Filtrar por tenant_id
+            Page<Order> orderPage;
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODOS os pedidos");
+                orderPage = orderRepository.findAll(pageable);
+            } else {
+                Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando lista vazia");
+                    return List.of();
+                }
+                log.debug("👤 Cliente (tenant_id={}): retornando pedidos do tenant", tenantId);
+                orderPage = orderRepository.findAllByTenantId(tenantId, pageable);
+            }
+            
             return orderPage.getContent();
         } catch (Exception e) {
             log.error("Error fetching orders", e);
@@ -278,7 +331,19 @@ public class OrderService {
     }
 
     public List<Order> findByDateRange(LocalDateTime start, LocalDateTime end) {
-        return orderRepository.findByCreatedAtBetween(start, end);
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: buscando TODOS os pedidos no período");
+            return orderRepository.findByCreatedAtBetween(start, end);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        log.debug("👤 Cliente (tenant_id={}): buscando pedidos do tenant no período", tenantId);
+        return orderRepository.findByTenantIdAndCreatedAtBetween(tenantId, start, end);
     }
 
     private void validateOrderRequest(OrderRequestDto orderRequest) {
@@ -300,6 +365,15 @@ public class OrderService {
         order.setDeliveryAddress(orderRequest.getDeliveryAddress());
         order.setNotes(orderRequest.getNotes());
         order.setCustomer(customer);
+        
+        // ============================================================================
+        // MULTI-TENANCY: Setar tenant_id automaticamente do contexto
+        // ============================================================================
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        order.setTenantId(tenantId);  // null para Super Admin, ID para clientes
+        log.debug("🔒 Order será criado com tenant_id={} ({})",
+                 tenantId, tenantId == null ? "Super Admin" : "Cliente");
+        
         return order;
     }
 
@@ -321,6 +395,11 @@ public class OrderService {
                 itemRequest.getUnitPrice() : product.getPrice());
             orderItem.setItemNotes(itemRequest.getItemNotes());
             orderItem.setCustomizations(itemRequest.getCustomizations());
+            
+            // MULTI-TENANCY: OrderItem também precisa de tenant_id
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            orderItem.setTenantId(tenantId);
+            log.trace("🔒 OrderItem será criado com tenant_id={}", tenantId);
             
             order.addItem(orderItem);
         }

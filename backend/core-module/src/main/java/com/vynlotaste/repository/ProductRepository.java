@@ -64,6 +64,19 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT p FROM Product p WHERE p.tenantId = :tenantId AND p.stockQuantity < :threshold AND p.deleted = false")
     List<Product> findByStockQuantityLessThanAndTenantId(@Param("threshold") Integer threshold, @Param("tenantId") Long tenantId);
     
+    /**
+     * Buscar TODOS os produtos de um tenant PAGINADOS (com soft delete)
+     * USO: ProductService.findAll(Pageable) para clientes normais
+     */
+    @Query("SELECT p FROM Product p WHERE p.tenantId = :tenantId AND p.deleted = false")
+    Page<Product> findAllByTenantId(@Param("tenantId") Long tenantId, Pageable pageable);
+    
+    /**
+     * Buscar produtos por nome de um tenant (para search)
+     */
+    @Query("SELECT p FROM Product p WHERE p.tenantId = :tenantId AND LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')) AND p.deleted = false")
+    List<Product> findByNameContainingIgnoreCaseAndTenantId(@Param("name") String name, @Param("tenantId") Long tenantId);
+    
     // ============================================================================
     // QUERIES GLOBAIS (APENAS SUPER ADMIN)
     // Mantidas para compatibilidade, mas devem ser usadas apenas por Super Admins

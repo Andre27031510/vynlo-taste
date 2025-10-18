@@ -45,7 +45,27 @@ public class PaymentService {
             log.info("Buscando todos os pagamentos - página: {}, tamanho: {}", 
                 pageable.getPageNumber(), pageable.getPageSize());
             
-            Page<Payment> payments = paymentRepository.findAll(pageable);
+            // MULTI-TENANCY: Filtrar por tenant_id
+            Page<Payment> payments;
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODOS os pagamentos");
+                payments = paymentRepository.findAll(pageable);
+            } else {
+                Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando página vazia");
+                    return Page.empty(pageable);
+                }
+                log.debug("👤 Cliente (tenant_id={}): retornando pagamentos do tenant", tenantId);
+                
+                // Filtrar manualmente - TODO: criar query específica no repository
+                Page<Payment> allPayments = paymentRepository.findAll(pageable);
+                java.util.List<Payment> filteredPayments = allPayments.getContent().stream()
+                    .filter(payment -> payment.getTenantId() != null && payment.getTenantId().equals(tenantId))
+                    .toList();
+                
+                payments = new org.springframework.data.domain.PageImpl<>(filteredPayments, pageable, filteredPayments.size());
+            }
             
             log.info("Pagamentos encontrados: {} de {}", 
                 payments.getNumberOfElements(), payments.getTotalElements());
@@ -72,6 +92,11 @@ public class PaymentService {
             payment.setStatus("PENDING");
             payment.setTransactionId(generateTransactionId());
             payment.setMetadata(dto.getMetadata());
+            
+            // MULTI-TENANCY: Setar tenant_id automaticamente
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            payment.setTenantId(tenantId);
+            log.debug("🔒 Payment será criado com tenant_id={}", tenantId);
             
             Payment savedPayment = paymentRepository.save(payment);
             

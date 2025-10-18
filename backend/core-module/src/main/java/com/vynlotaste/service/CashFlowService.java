@@ -60,6 +60,11 @@ public class CashFlowService {
             entry.setStatus("CONFIRMED"); // CashFlow é confirmado por padrão
             entry.setUser(dto.getUser());
             
+            // MULTI-TENANCY: Setar tenant_id automaticamente
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            entry.setTenantId(tenantId);
+            log.debug("🔒 CashFlow será criado com tenant_id={}", tenantId);
+            
             CashFlow savedEntry = cashFlowRepository.save(entry);
             
             log.info("✅ Entrada de fluxo de caixa criada: ID={}, tipo={}, valor={}", 

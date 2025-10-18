@@ -45,6 +45,11 @@ public class DriverService {
             driver.setPlate(plate);
             driver.setStatus(Driver.DriverStatus.OFFLINE);
             driver.setRating(0.0);
+            
+            // MULTI-TENANCY: Setar tenant_id automaticamente
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            driver.setTenantId(tenantId);
+            log.debug("🔒 Driver será criado com tenant_id={}", tenantId);
             driver.setTotalDeliveries(0);
             
             Driver saved = driverRepository.save(driver);
