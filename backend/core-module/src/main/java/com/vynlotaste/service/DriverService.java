@@ -129,20 +129,39 @@ public class DriverService {
         try {
             Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name"));
             
+            // MULTI-TENANCY: Filtrar por tenant_id
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODOS os drivers");
+                if (search != null && !search.trim().isEmpty()) {
+                    return driverRepository.searchDrivers(search, pageable);
+                }
+                if (status != null) {
+                    return driverRepository.findByStatus(status, pageable);
+                }
+                return driverRepository.findAll(pageable);
+            }
+            
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - retornando página vazia");
+                return Page.empty();
+            }
+            
+            log.debug("👤 Cliente (tenant_id={}): retornando drivers do tenant", tenantId);
             if (search != null && !search.trim().isEmpty()) {
-                return driverRepository.searchDrivers(search, pageable);
+                return driverRepository.searchDriversByTenantId(search, tenantId, pageable);
             }
-            
             if (status != null) {
-                return driverRepository.findByStatus(status, pageable);
+                return driverRepository.findByStatusAndTenantId(status, tenantId, pageable);
             }
+            return driverRepository.findAllByTenantId(tenantId, pageable);
             
-            return driverRepository.findAll(pageable);
         } catch (Exception e) {
             log.error("Error fetching drivers", e);
             return Page.empty();
         }
         // Modified: 2025-10-14 21:30 UTC | CRITICAL FIX: PageRequest.of(page, limit) - 0-based pagination
+        // Modified: 2025-10-18 | MULTI-TENANCY: Filtro por tenant_id adicionado
     }
 
     public Driver getDriverById(Long id) {

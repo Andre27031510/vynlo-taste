@@ -2,6 +2,8 @@ package com.vynlotaste.repository;
 
 import com.vynlotaste.entity.User;
 import com.vynlotaste.entity.UserRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -13,8 +15,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * UserRepository - Multi-Tenancy Support
+ * IMPORTANTE: Queries globais + queries filtradas por tenant_id
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+    
+    // ============================================================================
+    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ============================================================================
     
     @EntityGraph(attributePaths = {"role"})
     Optional<User> findByEmail(String email);
@@ -43,4 +53,26 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     long countByActiveAndLastActivityAtAfter(boolean active, LocalDateTime since);
     
     long countByCreatedAtAfter(LocalDateTime since);
+    
+    // ============================================================================
+    // MULTI-TENANCY: Queries com filtro de tenant_id
+    // ============================================================================
+    
+    @Query("SELECT u FROM User u WHERE u.tenantId = :tenantId")
+    @EntityGraph(attributePaths = {"role"})
+    Page<User> findAllByTenantId(@Param("tenantId") Long tenantId, Pageable pageable);
+    
+    @Query("SELECT u FROM User u WHERE u.tenantId = :tenantId AND u.active = true")
+    @EntityGraph(attributePaths = {"role"})
+    List<User> findByActiveTrueAndTenantId(@Param("tenantId") Long tenantId);
+    
+    @Query("SELECT u FROM User u WHERE u.tenantId = :tenantId AND u.role = :role")
+    @EntityGraph(attributePaths = {"role"})
+    List<User> findByRoleAndTenantId(@Param("role") UserRole role, @Param("tenantId") Long tenantId);
+    
+    @Query("SELECT COUNT(u) FROM User u WHERE u.tenantId = :tenantId AND u.active = true")
+    long countByActiveTrueAndTenantId(@Param("tenantId") Long tenantId);
+    
+    @Query("SELECT COUNT(u) FROM User u WHERE u.tenantId = :tenantId")
+    long countByTenantId(@Param("tenantId") Long tenantId);
 }

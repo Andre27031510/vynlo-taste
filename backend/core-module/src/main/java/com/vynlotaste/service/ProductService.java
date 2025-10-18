@@ -64,7 +64,9 @@ public class ProductService {
     @Caching(evict = {
         @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true),
         @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
-        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true) // ✅ Limpar stats
+        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true), // ✅ Limpar stats
+        @CacheEvict(value = "caffeine-products-page", allEntries = true), // ✅ Limpar cache de paginação
+        @CacheEvict(value = "caffeine-products-available-page", allEntries = true) // ✅ Limpar cache disponíveis
     })
     public Product createProduct(ProductRequestDto productRequest) {
         long startTime = System.currentTimeMillis();
@@ -146,7 +148,10 @@ public class ProductService {
     // ✅ HYBRID CACHE: Caffeine L1 (in-memory, ultra-rápido)
     // Resolve ClassCastException (Page serializa em Caffeine, não em Redis)
     // Performance: 0.01ms (vs 50ms sem cache)
-    @Cacheable(value = "caffeine-products-page", cacheManager = "hybridCacheManager")
+    // MULTI-TENANCY: Cache separado por tenant
+    @Cacheable(value = "caffeine-products-page", 
+               key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
+               cacheManager = "hybridCacheManager")
     public Page<Product> findAll(Pageable pageable) {
         // Validação de parâmetros de paginação
         if (pageable.getPageSize() > 100) {
@@ -426,8 +431,10 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    // ✅ HYBRID CACHE: Caffeine L1 para paginação
-    @Cacheable(value = "caffeine-products-available-page", cacheManager = "hybridCacheManager")
+    // ✅ HYBRID CACHE: Caffeine L1 para paginação (separado por tenant)
+    @Cacheable(value = "caffeine-products-available-page",
+               key = "'available:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
+               cacheManager = "hybridCacheManager")
     public Page<Product> getAvailableProducts(Pageable pageable) {
         log.debug("Buscando produtos disponíveis paginados: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         
@@ -603,8 +610,10 @@ public class ProductService {
 
     // Método otimizado para busca com filtros avançados
     @Transactional(readOnly = true)
-    // ✅ HYBRID CACHE: Caffeine L1 para busca avançada paginada
-    @Cacheable(value = "caffeine-products-search-page", cacheManager = "hybridCacheManager")
+    // ✅ HYBRID CACHE: Caffeine L1 para busca avançada paginada (separado por tenant)
+    @Cacheable(value = "caffeine-products-search-page",
+               key = "'search:' + (#category ?: 'all') + ':' + (#minPrice ?: 0) + ':' + (#maxPrice ?: 'max') + ':' + (#available ?: 'all') + ':' + #pageable.pageNumber + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
+               cacheManager = "hybridCacheManager")
     public Page<Product> searchProductsAdvanced(String category, BigDecimal minPrice, BigDecimal maxPrice, 
                                               Boolean available, Pageable pageable) {
         // Validações

@@ -163,9 +163,21 @@ public class UserService {
             .orElseThrow(() -> new com.vynlotaste.exception.user.UserNotFoundException(id));
     }
 
-    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'active-users'")
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'active-users:' + (#root.target.getCurrentTenantId() ?: 'super')")
     public List<User> findActiveUsers() {
-        return userRepository.findByActiveTrue();
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os usuários ativos");
+            return userRepository.findByActiveTrue();
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        log.debug("👤 Cliente (tenant_id={}): retornando usuários ativos do tenant", tenantId);
+        return userRepository.findByActiveTrueAndTenantId(tenantId);
     }
 
     public Page<User> findAllUsers(Pageable pageable) {
@@ -182,14 +194,8 @@ public class UserService {
         }
         log.debug("👤 Cliente (tenant_id={}): retornando usuários do tenant", tenantId);
         
-        // Filtrar usando Specification ou query manual
-        // TODO: Adicionar método findAllByTenantId no UserRepository
-        Page<User> allUsers = userRepository.findAll(pageable);
-        java.util.List<User> filteredUsers = allUsers.getContent().stream()
-            .filter(user -> user.getTenantId() != null && user.getTenantId().equals(tenantId))
-            .toList();
-        
-        return new org.springframework.data.domain.PageImpl<>(filteredUsers, pageable, filteredUsers.size());
+        // Usar query otimizada do repository
+        return userRepository.findAllByTenantId(tenantId, pageable);
     }
 
     @Transactional
@@ -237,7 +243,8 @@ public class UserService {
     }
 
     public org.springframework.data.domain.Page<User> findAll(org.springframework.data.domain.Pageable pageable) {
-        return userRepository.findAll(pageable);
+        // MULTI-TENANCY: Usar método já corrigido
+        return findAllUsers(pageable);
     }
 
     @Transactional
@@ -350,7 +357,19 @@ public class UserService {
     }
 
     public List<User> getUsersByRole(UserRole role) {
-        return userRepository.findByRole(role);
+        // MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os usuários com role {}", role);
+            return userRepository.findByRole(role);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando lista vazia");
+            return List.of();
+        }
+        log.debug("👤 Cliente (tenant_id={}): retornando usuários com role {} do tenant", tenantId, role);
+        return userRepository.findByRoleAndTenantId(role, tenantId);
     }
 
 
@@ -359,5 +378,13 @@ public class UserService {
     public User save(User user) {
         log.debug("Salvando usuário: {}", user.getId());
         return userRepository.save(user);
+    }
+    
+    /**
+     * Método helper para cache - retorna tenant_id atual
+     * Usado em @Cacheable key com SpEL: #root.target.getCurrentTenantId()
+     */
+    public Long getCurrentTenantId() {
+        return com.vynlotaste.context.TenantContext.getCurrentTenantId();
     }
 }
