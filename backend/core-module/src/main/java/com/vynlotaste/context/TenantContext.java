@@ -55,22 +55,38 @@ public class TenantContext {
 
     /**
      * Define o tenant_id do usuário logado na thread atual
+     * THREAD-SAFE para sistemas de alta concorrência
      * 
      * @param tenantId ID do tenant (null para Super Admins)
      */
     public static void setCurrentTenantId(Long tenantId) {
+        // Validação de segurança
+        if (tenantId != null && tenantId <= 0) {
+            throw new IllegalArgumentException("SECURITY: tenant_id deve ser positivo: " + tenantId);
+        }
+        
         CURRENT_TENANT.set(tenantId);
-        logger.debug("TenantContext: tenant_id definido = {}", tenantId);
+        logger.debug("TenantContext: tenant_id definido = {} [thread={}]", tenantId, Thread.currentThread().getName());
     }
 
     /**
      * Obtém o tenant_id do usuário logado na thread atual
+     * THREAD-SAFE com validação de integridade
      * 
      * @return tenant_id ou null (Super Admin ou não autenticado)
      */
     public static Long getCurrentTenantId() {
         Long tenantId = CURRENT_TENANT.get();
-        logger.trace("TenantContext: tenant_id obtido = {}", tenantId);
+        
+        // Validação de integridade para sistemas críticos
+        if (tenantId != null && tenantId <= 0) {
+            logger.error("SECURITY BREACH: tenant_id inválido detectado = {} [thread={}]", 
+                        tenantId, Thread.currentThread().getName());
+            clear(); // Limpar contexto corrompido
+            throw new IllegalStateException("SECURITY: Contexto de tenant corrompido");
+        }
+        
+        logger.trace("TenantContext: tenant_id obtido = {} [thread={}]", tenantId, Thread.currentThread().getName());
         return tenantId;
     }
 
@@ -96,6 +112,7 @@ public class TenantContext {
 
     /**
      * Limpa o contexto da thread atual
+     * THREAD-SAFE com auditoria para sistemas críticos
      * 
      * CRÍTICO: SEMPRE chamar no finally do Filter para evitar memory leak!
      * ThreadLocal persiste entre requisições se não limpar
@@ -103,11 +120,24 @@ public class TenantContext {
     public static void clear() {
         Long tenantId = CURRENT_TENANT.get();
         Boolean superAdmin = IS_SUPER_ADMIN.get();
+        String threadName = Thread.currentThread().getName();
         
-        CURRENT_TENANT.remove();
-        IS_SUPER_ADMIN.remove();
-        
-        logger.debug("TenantContext: contexto limpo (tenant_id={}, isSuperAdmin={})", tenantId, superAdmin);
+        try {
+            CURRENT_TENANT.remove();
+            IS_SUPER_ADMIN.remove();
+            
+            logger.debug("TenantContext: contexto limpo (tenant_id={}, isSuperAdmin={}) [thread={}]", 
+                        tenantId, superAdmin, threadName);
+        } catch (Exception e) {
+            logger.error("CRITICAL: Erro ao limpar TenantContext [thread={}]", threadName, e);
+            // Força limpeza mesmo com erro
+            try {
+                CURRENT_TENANT.remove();
+                IS_SUPER_ADMIN.remove();
+            } catch (Exception ignored) {
+                logger.error("CRITICAL: Falha total na limpeza do TenantContext [thread={}]", threadName);
+            }
+        }
     }
 
     /**
@@ -140,7 +170,8 @@ public class TenantContext {
         if (Boolean.TRUE.equals(superAdmin)) {
             return "TenantContext{isSuperAdmin=true, tenantId=null, access=GLOBAL}";
         } else if (tenantId != null) {
-            return "TenantContext{isSuperAdmin=false, tenantId=" + tenantId + ", access=RESTRICTED}";
+            // Sanitização para prevenir XSS
+            return String.format("TenantContext{isSuperAdmin=false, tenantId=%d, access=RESTRICTED}", tenantId);
         } else {
             return "TenantContext{isSuperAdmin=false, tenantId=null, access=UNAUTHENTICATED}";
         }

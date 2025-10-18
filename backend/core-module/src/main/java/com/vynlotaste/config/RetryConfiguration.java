@@ -11,7 +11,6 @@ import org.springframework.dao.TransientDataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.retry.annotation.EnableRetry;
 
-import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
 @Slf4j

@@ -1,6 +1,5 @@
 package com.vynlotaste.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -63,11 +62,11 @@ public class CacheConfig implements CachingConfigurer {
         // Cache de usuários - TTL 15 minutos
         cacheConfigurations.put(USERS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(15)));
         
-        // Cache de produtos - TTL 15 minutos (reduzido de 1h para contexto administrativo)
-        cacheConfigurations.put(PRODUCTS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(15)));
+        // Cache de produtos - TTL 5 minutos (ENTERPRISE: dados críticos, TTL agressivo)
+        cacheConfigurations.put(PRODUCTS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         
-        // Cache de stats de produtos - TTL 30 segundos (reflete cadastros rapidamente)
-        cacheConfigurations.put(PRODUCT_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
+        // Cache de stats de produtos - TTL 15 segundos (ENTERPRISE: alta frequência de atualização)
+        cacheConfigurations.put(PRODUCT_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(15)));
         
         // Cache de pedidos recentes - TTL 5 minutos
         cacheConfigurations.put(ORDERS_CACHE, defaultConfig.entryTtl(Duration.ofMinutes(5)));
@@ -78,10 +77,10 @@ public class CacheConfig implements CachingConfigurer {
         // Cache de categorias - TTL 2 horas
         cacheConfigurations.put(PRODUCT_CATEGORIES_CACHE, defaultConfig.entryTtl(Duration.ofHours(2)));
         
-        // Cache de estatísticas - TTL 30 segundos (alta carga, dados dinâmicos)
-        cacheConfigurations.put(USER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
-        cacheConfigurations.put(DRIVER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
-        cacheConfigurations.put(ORDER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(30)));
+        // Cache de estatísticas - TTL 15 segundos (ENTERPRISE: 3M+ usuários, dados ultra-dinâmicos)
+        cacheConfigurations.put(USER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(15)));
+        cacheConfigurations.put(DRIVER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(15)));
+        cacheConfigurations.put(ORDER_STATS_CACHE, defaultConfig.entryTtl(Duration.ofSeconds(15)));
 
         return RedisCacheManager.builder(connectionFactory)
             .cacheDefaults(defaultConfig)

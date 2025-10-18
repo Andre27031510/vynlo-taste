@@ -7,10 +7,8 @@ import com.vynlotaste.entity.Product;
 import com.vynlotaste.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,6 +39,7 @@ public class ProductService {
     private static final String PRODUCT_NOT_FOUND = "Produto não encontrado com ID: {}";
     private static final String INSUFFICIENT_STOCK = "Estoque insuficiente para produto ID: {}. Disponível: {}, Solicitado: {}";
     private final ProductRepository productRepository;
+    private final TenantCacheService tenantCacheService;
 
     // Custom exceptions para melhor error handling
     public static class ProductNotFoundException extends RuntimeException {
@@ -61,13 +60,6 @@ public class ProductService {
         }
     }
 
-    @Caching(evict = {
-        @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true),
-        @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
-        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true), // ✅ Limpar stats
-        @CacheEvict(value = "caffeine-products-page", allEntries = true), // ✅ Limpar cache de paginação
-        @CacheEvict(value = "caffeine-products-available-page", allEntries = true) // ✅ Limpar cache disponíveis
-    })
     public Product createProduct(ProductRequestDto productRequest) {
         long startTime = System.currentTimeMillis();
         
@@ -93,6 +85,9 @@ public class ProductService {
                      tenantId, tenantId == null ? "Super Admin" : "Cliente");
             
             Product savedProduct = productRepository.save(product);
+            
+            // ✅ TENANT-SAFE: Invalidar apenas cache do tenant atual
+            tenantCacheService.evictProductCacheForCurrentTenant();
             
             long duration = System.currentTimeMillis() - startTime;
             log.info("Produto criado com sucesso - ID: {}, Nome: {}, Tempo: {}ms", 
@@ -151,8 +146,8 @@ public class ProductService {
     // MULTI-TENANCY: Cache separado por tenant
     // IMPORTANTE: unless evita cachear páginas vazias (race condition na primeira carga)
     @Cacheable(value = "caffeine-products-page", 
-               key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
+               key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #root.target.getTenantIdSafe()",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Product> findAll(Pageable pageable) {
         // Validação de parâmetros de paginação
@@ -243,14 +238,6 @@ public class ProductService {
     }
 
     @CachePut(value = CacheConfig.PRODUCTS_CACHE, key = "'id:' + #result.id")
-    @Caching(evict = {
-        @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
-        @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true), // ✅ Limpar lista de produtos
-        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true), // ✅ Limpar stats
-        @CacheEvict(value = "caffeine-products-page", allEntries = true), // ✅ Limpar cache Caffeine
-        @CacheEvict(value = "caffeine-products-available-page", allEntries = true), // ✅ Limpar cache Caffeine
-        @CacheEvict(value = "caffeine-products-search-page", allEntries = true) // ✅ Limpar cache Caffeine
-    })
     public Product updateProduct(Long id, ProductRequestDto productRequest) {
         long startTime = System.currentTimeMillis();
         
@@ -285,6 +272,9 @@ public class ProductService {
             
             Product savedProduct = productRepository.save(product);
             
+            // ✅ TENANT-SAFE: Invalidar apenas cache do tenant atual
+            tenantCacheService.evictProductCacheForCurrentTenant();
+            
             long duration = System.currentTimeMillis() - startTime;
             log.info("Produto atualizado com sucesso - ID: {}, Nome: {}, Tempo: {}ms", 
                 savedProduct.getId(), savedProduct.getName(), duration);
@@ -305,24 +295,20 @@ public class ProductService {
         }
     }
 
-    @Caching(evict = {
-        @CacheEvict(value = CacheConfig.PRODUCTS_CACHE, allEntries = true),
-        @CacheEvict(value = CacheConfig.PRODUCT_CATEGORIES_CACHE, allEntries = true),
-        @CacheEvict(value = CacheConfig.PRODUCT_STATS_CACHE, allEntries = true), // ✅ Limpar stats
-        @CacheEvict(value = "caffeine-products-page", allEntries = true), // ✅ Limpar cache Caffeine
-        @CacheEvict(value = "caffeine-products-available-page", allEntries = true), // ✅ Limpar cache Caffeine
-        @CacheEvict(value = "caffeine-products-search-page", allEntries = true) // ✅ Limpar cache Caffeine
-    })
     public void deleteProduct(Long id) {
         Product product = findById(id);
         productRepository.delete(product);
-        log.debug("Produto deletado e cache invalidado: {}", id);
+        
+        // ✅ TENANT-SAFE: Invalidar apenas cache do tenant atual
+        tenantCacheService.evictProductCacheForCurrentTenant();
+        
+        log.info("Produto deletado e cache invalidado: {} [tenant={}]", id, getTenantIdSafe());
     }
 
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List<Product> serializa OK, compartilhado
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, 
-               key = "'search:' + #name.toLowerCase().trim() + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
+               key = "'search:' + #name.toLowerCase().trim() + ':' + #root.target.getTenantIdSafe()",
                condition = "#name != null && #name.length() >= 2",
                cacheManager = "redisCacheManagerL2")
     public List<Product> searchByName(String name) {
@@ -376,8 +362,8 @@ public class ProductService {
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List<Product> disponíveis (compartilhado)
     // IMPORTANTE: unless evita cachear listas vazias
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'available:' + (#root.target.getCurrentTenantId() ?: 'super')", 
-               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'available:' + #root.target.getTenantIdSafe()", 
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> findAvailableProducts() {
         log.debug("Buscando produtos disponíveis");
@@ -401,8 +387,26 @@ public class ProductService {
     }
     
     /**
-     * Helper method para SpEL cache key
+     * Helper method para SpEL cache key - TENANT-SAFE
+     * CRÍTICO: Sempre retorna tenant_id válido ou falha
      */
+    public String getTenantIdSafe() {
+        if (TenantContext.isSuperAdmin()) {
+            return "super";
+        }
+        
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            throw new IllegalStateException("SECURITY: Tenant não definido - operação negada");
+        }
+        
+        return tenantId.toString();
+    }
+    
+    /**
+     * @deprecated Use getTenantIdSafe() para segurança
+     */
+    @Deprecated
     public Long getCurrentTenantId() {
         return TenantContext.getCurrentTenantId();
     }
@@ -418,8 +422,8 @@ public class ProductService {
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List por categoria (compartilhado)
     // IMPORTANTE: unless evita cachear listas vazias
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'category:' + #category + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'category:' + #category + ':' + #root.target.getTenantIdSafe()",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getProductsByCategory(String category) {
         log.debug("Buscando produtos por categoria: {}", category);
@@ -446,8 +450,8 @@ public class ProductService {
     // ✅ HYBRID CACHE: Caffeine L1 para paginação (separado por tenant)
     // IMPORTANTE: unless evita cachear páginas vazias
     @Cacheable(value = "caffeine-products-available-page",
-               key = "'available:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
+               key = "'available:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + #root.target.getTenantIdSafe()",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Product> getAvailableProducts(Pageable pageable) {
         log.debug("Buscando produtos disponíveis paginados: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
@@ -477,7 +481,6 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {CacheConfig.PRODUCTS_CACHE, CacheConfig.PRODUCT_CATEGORIES_CACHE}, allEntries = true)
     public void decrementStock(Long productId, int quantity) {
         if (quantity <= 0) {
             throw new InvalidProductDataException("Quantidade deve ser positiva");
@@ -499,6 +502,9 @@ public class ProductService {
             product.setStockQuantity(newStock);
             productRepository.save(product);
             
+            // ✅ TENANT-SAFE: Invalidar cache após mudança de estoque
+            tenantCacheService.evictProductCacheForCurrentTenant();
+            
             long duration = System.currentTimeMillis() - startTime;
             log.info("Estoque decrementado - Produto ID: {}, Quantidade: {}, Novo estoque: {}, Tempo: {}ms", 
                 productId, quantity, newStock, duration);
@@ -512,7 +518,6 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {CacheConfig.PRODUCTS_CACHE, CacheConfig.PRODUCT_CATEGORIES_CACHE}, allEntries = true)
     public void incrementStock(Long productId, int quantity) {
         if (quantity <= 0) {
             throw new InvalidProductDataException("Quantidade deve ser positiva");
@@ -531,6 +536,9 @@ public class ProductService {
             product.setStockQuantity(newStock);
             productRepository.save(product);
             
+            // ✅ TENANT-SAFE: Invalidar cache após mudança de estoque
+            tenantCacheService.evictProductCacheForCurrentTenant();
+            
             long duration = System.currentTimeMillis() - startTime;
             log.info("Estoque incrementado - Produto ID: {}, Quantidade: {}, Novo estoque: {}, Tempo: {}ms", 
                 productId, quantity, newStock, duration);
@@ -546,8 +554,8 @@ public class ProductService {
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List por faixa de preço (por tenant)
     // IMPORTANTE: unless evita cachear listas vazias
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'price-range:' + #minPrice + ':' + #maxPrice + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'price-range:' + #minPrice + ':' + #maxPrice + ':' + #root.target.getTenantIdSafe()",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getProductsByPriceRange(java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
         log.debug("Buscando produtos por faixa de preço: {} - {}", minPrice, maxPrice);
@@ -589,8 +597,8 @@ public class ProductService {
     @Transactional(readOnly = true)
     // ✅ REDIS L2: List low stock (por tenant)
     // IMPORTANTE: unless evita cachear listas vazias
-    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'low-stock:' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
+    @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'low-stock:' + #root.target.getTenantIdSafe()",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getLowStockProducts() {
         long startTime = System.currentTimeMillis();
@@ -631,8 +639,8 @@ public class ProductService {
     // ✅ HYBRID CACHE: Caffeine L1 para busca avançada paginada (separado por tenant)
     // IMPORTANTE: unless evita cachear páginas vazias
     @Cacheable(value = "caffeine-products-search-page",
-               key = "'search:' + (#category ?: 'all') + ':' + (#minPrice ?: 0) + ':' + (#maxPrice ?: 'max') + ':' + (#available ?: 'all') + ':' + #pageable.pageNumber + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
+               key = "'search:' + (#category ?: 'all') + ':' + (#minPrice ?: 0) + ':' + (#maxPrice ?: 'max') + ':' + (#available ?: 'all') + ':' + #pageable.pageNumber + ':' + #root.target.getTenantIdSafe()",
+               unless = "#result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Product> searchProductsAdvanced(String category, BigDecimal minPrice, BigDecimal maxPrice, 
                                               Boolean available, Pageable pageable) {
@@ -689,8 +697,8 @@ public class ProductService {
     // Método para obter estatísticas de produtos (para dashboard)
     @Transactional(readOnly = true)
     // ✅ REDIS L2: Stats compartilhados + persistem entre restarts
-    @Cacheable(value = CacheConfig.PRODUCT_STATS_CACHE, key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", 
-               unless = "#root.target.getCurrentTenantId() == null || #result == null",
+    @Cacheable(value = CacheConfig.PRODUCT_STATS_CACHE, key = "'stats:' + #root.target.getTenantIdSafe()", 
+               unless = "#result == null",
                cacheManager = "redisCacheManagerL2")
     public ProductStats getProductStats() {
         long startTime = System.currentTimeMillis();

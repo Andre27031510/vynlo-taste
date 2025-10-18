@@ -74,7 +74,6 @@ public class ReportsController {
         try {
             // Calcular período
             int days = parsePeriod(period);
-            LocalDateTime since = LocalDateTime.now().minusDays(days);
             
             // ✅ REUTILIZAR dados do OrderService (não duplicar)
             long totalOrders = orderService.countOrdersToday(); // TODO: Adicionar countOrdersSince(since)

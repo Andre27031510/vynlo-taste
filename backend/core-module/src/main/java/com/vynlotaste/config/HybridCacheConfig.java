@@ -82,12 +82,16 @@ public class HybridCacheConfig {
         );
         
         cacheManager.setCaffeine(Caffeine.newBuilder()
-            .maximumSize(200)  // 200 páginas total (products + queries) × ~200KB = 40 MB
-            .expireAfterWrite(2, TimeUnit.MINUTES)  // 2 min TTL
-            .recordStats()  // Habilitar métricas (Actuator)
+            .maximumSize(500)  // ENTERPRISE: 500 páginas (3M+ usuários) × ~200KB = 100 MB
+            .expireAfterWrite(90, TimeUnit.SECONDS)  // TTL agressivo para dados críticos
+            .expireAfterAccess(60, TimeUnit.SECONDS)  // Remove dados não acessados
+            .recordStats()  // Métricas para monitoramento
+            .removalListener((key, value, cause) -> {
+                log.trace("♾️ Cache L1 removido: key={}, cause={}", key, cause);
+            })
         );
         
-        log.info("✅ Caffeine Cache configurado: 200 entries (6 caches), TTL 2min, ~40MB RAM");
+        log.info("✅ Caffeine Cache ENTERPRISE configurado: 500 entries (6 caches), TTL 90s, ~100MB RAM");
         return cacheManager;
     }
     

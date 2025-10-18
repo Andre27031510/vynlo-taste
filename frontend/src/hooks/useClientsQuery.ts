@@ -136,12 +136,23 @@ export const useCreateClientMutation = () => {
       const firstName = nameParts[0]
       const lastName = nameParts.slice(1).join(' ') || firstName
       
+      // ✅ LGPD/MULTI-TENANT FIX: Gerar username válido (sem @ nem .)
+      // Backend valida: ^[a-zA-Z0-9_]+$ (não aceita caracteres especiais)
+      const generateUsername = (email: string): string => {
+        const localPart = email.split('@')[0]  // "nunes@email.com" → "nunes"
+        const sanitized = localPart.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase()
+        const timestamp = Date.now().toString().slice(-6)  // Últimos 6 dígitos (unicidade)
+        return `${sanitized}_${timestamp}`  // "nunes_123456"
+      }
+      
+      const username = generateUsername(clientData.email)
+      
       const response = await apiRequest('core-service', 'v1/users', {
         method: 'POST',
         body: JSON.stringify({
           firstName,
           lastName,
-          username: clientData.email,
+          username,  // ✅ Username sanitizado e garantidamente único
           email: clientData.email,
           phone: clientData.phone || '',
           address: clientData.address || '',

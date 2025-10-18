@@ -67,6 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // ✅ THREAD-SAFE: Garantir limpeza do contexto SEMPRE
         try {
             String token = extractTokenFromRequest(request);
             
@@ -74,21 +75,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 authenticateToken(token, request);
             }
-            // Se não houver token, deixa o Spring Security decidir (401 será retornado automaticamente)
+            
+            // Processar requisição
+            filterChain.doFilter(request, response);
+            
         } catch (Exception e) {
-            // Token inválido - limpa contexto e deixa Spring Security retornar 401
-            logger.warn("Token inválido ou expirado: {} - deixando Spring Security gerenciar", e.getMessage());
+            // Token inválido ou erro de autenticação
+            logger.warn("Erro na autenticação: {} [URI={}] - limpando contextos", e.getMessage(), requestURI);
+            
+            // Limpar TODOS os contextos
             SecurityContextHolder.clearContext();
-            TenantContext.clear();  // ✅ Limpar contexto de tenant também
-            // NÃO lança exceção - deixa o filtro continuar para que Spring Security retorne 401
+            TenantContext.clear();
+            
+            // Re-processar requisição (Spring Security retornará 401)
+            filterChain.doFilter(request, response);
+            
         } finally {
-            // ✅ CRÍTICO: SEMPRE limpar TenantContext no finally (evitar memory leak)
-            // ThreadLocal persiste entre requisições se não limpar!
+            // ✅ CRÍTICO: SEMPRE limpar TenantContext (THREAD-SAFE)
             try {
-                filterChain.doFilter(request, response);
-            } finally {
                 TenantContext.clear();
-                logger.trace("TenantContext limpo após requisição: {}", requestURI);
+                logger.trace("TenantContext limpo após requisição: {} [thread={}]", 
+                           requestURI, Thread.currentThread().getName());
+            } catch (Exception clearError) {
+                logger.error("CRITICAL: Falha ao limpar TenantContext [URI={}, thread={}]", 
+                           requestURI, Thread.currentThread().getName(), clearError);
             }
         }
     }
@@ -107,7 +117,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Verificar token Firebase
         FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
         String uid = decodedToken.getUid();
-        String email = decodedToken.getEmail();
         
         // Extrair role do token (custom claims)
         UserRole userRole = extractUserRole(decodedToken);
@@ -123,7 +132,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (isSuperAdmin || userRole == UserRole.SUPER_ADMIN) {
             // Super Admin: acesso global (sem filtro de tenant)
             TenantContext.setIsSuperAdmin(true);
-            logger.info("🔑 Super Admin autenticado: uid={}, email={}, access=GLOBAL", uid, email);
+            logger.info("🔑 Super Admin autenticado: uid={}, access=GLOBAL", sanitizeForLog(uid));
         } else {
             // Cliente normal: buscar tenant_id pelo firebaseUid
             if (tenantRepository != null) {
@@ -131,12 +140,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (tenantOpt.isPresent()) {
                     Tenant tenant = tenantOpt.get();
                     TenantContext.setCurrentTenantId(tenant.getId());
-                    logger.info("👤 Cliente autenticado: uid={}, email={}, tenant_id={}, company={}, access=RESTRICTED", 
-                               uid, email, tenant.getId(), tenant.getCompanyName());
+                    logger.info("👤 Cliente autenticado: uid={}, tenant_id={}, access=RESTRICTED", 
+                               sanitizeForLog(uid), tenant.getId());
                 } else {
                     // CASO RARO: Usuário existe no Firebase mas não tem tenant no BD
                     // Pode acontecer durante migração ou se tenant foi deletado
-                    logger.warn("⚠️ Usuário sem tenant: uid={}, email={} - Acesso negado para endpoints protegidos", uid, email);
+                    logger.warn("⚠️ Usuário sem tenant: uid={} - Acesso negado para endpoints protegidos", sanitizeForLog(uid));
                     TenantContext.setCurrentTenantId(null);  // Explicitamente null
                 }
             } else {
@@ -162,8 +171,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
         // Log de auditoria (resumido)
-        logger.debug("✅ Authentication criado: uid={}, role={}, tenantContext={}", 
-                    uid, userRole, TenantContext.getDebugInfo());
+        logger.debug("✅ Authentication criado: uid={}, role={}", 
+                    sanitizeForLog(uid), userRole);
     }
 
     private UserRole extractUserRole(FirebaseToken token) {
@@ -203,6 +212,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                requestURI.equals("/favicon.ico");
     }
 
+    /**
+     * Sanitiza dados para logs (previne log injection)
+     */
+    private String sanitizeForLog(String input) {
+        if (input == null) return "null";
+        // Remove caracteres perigosos para logs
+        return input.replaceAll("[\r\n\t]", "_")
+                   .replaceAll("[<>\"'&]", "*")
+                   .substring(0, Math.min(input.length(), 50)); // Limita tamanho
+    }
+    
     private String getClientIpAddress(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
