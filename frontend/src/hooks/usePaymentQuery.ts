@@ -134,8 +134,12 @@ export const usePaymentsQuery = (filters?: {
   page?: number
   size?: number
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ content: Payment[], totalElements: number, totalPages: number }>({
-    queryKey: ['payments', filters],
+    queryKey: ['payments', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchPayments(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -144,8 +148,12 @@ export const usePaymentsQuery = (filters?: {
 }
 
 export const usePaymentProvidersQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<PaymentProvider[]>({
-    queryKey: ['payment-providers'],
+    queryKey: ['payment-providers', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchPaymentProviders,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -154,8 +162,12 @@ export const usePaymentProvidersQuery = () => {
 }
 
 export const usePaymentStatsQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<PaymentStats>({
-    queryKey: ['payment-stats'],
+    queryKey: ['payment-stats', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchPaymentStats,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

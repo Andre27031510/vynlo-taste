@@ -88,8 +88,12 @@ export const useTeamQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ members: TeamMember[], total: number, totalPages: number }>({
-    queryKey: ['team', filters],
+    queryKey: ['team', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchTeamMembers(filters),
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos

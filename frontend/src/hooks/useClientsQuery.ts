@@ -99,9 +99,12 @@ export const useClientsQuery = (filters?: {
   limit?: number
 }) => {
   const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
   
   return useQuery<{ clients: Client[], total: number, totalPages: number }>({
-    queryKey: ['clients', filters],
+    queryKey: ['clients', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchClients(filters),
     enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente

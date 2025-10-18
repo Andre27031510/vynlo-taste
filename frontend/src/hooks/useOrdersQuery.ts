@@ -69,8 +69,12 @@ const updateOrderStatus = async ({ orderId, status }: { orderId: string; status:
 
 // Custom hooks
 export const useOrdersQuery = (filters?: { status?: string; search?: string; page?: number; limit?: number }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ orders: Order[], total: number, totalPages: number }>({
-    queryKey: ['orders', filters],
+    queryKey: ['orders', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchOrders(filters),
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos
@@ -83,8 +87,12 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
 }
 
 export const useOrdersStatsQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<OrdersStats>({
-    queryKey: ['orders', 'stats'],
+    queryKey: ['orders-stats', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchOrdersStats,
     staleTime: 30 * 1000, // ✅ 30 segundos - alinhado com outros stats
     gcTime: 2 * 60 * 1000, // 2 minutos

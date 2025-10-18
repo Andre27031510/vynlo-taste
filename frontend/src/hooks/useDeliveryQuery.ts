@@ -81,8 +81,12 @@ export const useDeliveriesQuery = (filters?: {
   page?: number
   limit?: number
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ deliveries: Delivery[], total: number, totalPages: number }>({
-    queryKey: ['deliveries', filters],
+    queryKey: ['deliveries', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchDeliveries(filters),
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos
@@ -96,8 +100,12 @@ export const useDeliveriesQuery = (filters?: {
 
 // Hook para buscar estatísticas - OTIMIZADO PARA PRODUÇÃO
 export const useDeliveryStatsQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<DeliveryStats>({
-    queryKey: ['delivery-stats'],
+    queryKey: ['delivery-stats', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchDeliveryStats,
     staleTime: 30 * 1000, // ✅ 30 segundos - alinhado com outros stats
     gcTime: 2 * 60 * 1000, // 2 minutos

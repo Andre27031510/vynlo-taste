@@ -65,8 +65,12 @@ const runPredictiveAnalysis = async (): Promise<AnalyticsData> => {
 
 // Custom hooks
 export const useSalesReportQuery = (period: string = '7d') => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery({
-    queryKey: ['reports', 'sales', period],
+    queryKey: ['reports', 'sales', tenantKey, period],  // ✅ Isolado por tenant
     queryFn: () => fetchSalesReport(period),
     staleTime: 300000, // 5 minutos
 
@@ -74,8 +78,12 @@ export const useSalesReportQuery = (period: string = '7d') => {
 }
 
 export const useAnalyticsQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery({
-    queryKey: ['reports', 'analytics'],
+    queryKey: ['reports', 'analytics', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchAnalyticsData,
     staleTime: 600000, // 10 minutos
 

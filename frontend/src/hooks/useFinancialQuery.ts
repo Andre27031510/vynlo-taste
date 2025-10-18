@@ -130,8 +130,12 @@ export const useAccountsPayableQuery = (filters?: {
   page?: number
   size?: number
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ content: AccountPayable[], totalElements: number, totalPages: number }>({
-    queryKey: ['accounts-payable', filters],
+    queryKey: ['accounts-payable', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchAccountsPayable(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -144,8 +148,12 @@ export const useAccountsReceivableQuery = (filters?: {
   page?: number
   size?: number
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ content: AccountReceivable[], totalElements: number, totalPages: number }>({
-    queryKey: ['accounts-receivable', filters],
+    queryKey: ['accounts-receivable', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchAccountsReceivable(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -154,8 +162,12 @@ export const useAccountsReceivableQuery = (filters?: {
 }
 
 export const useFinancialSummaryQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<FinancialSummary>({
-    queryKey: ['financial-summary'],
+    queryKey: ['financial-summary', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchFinancialSummary,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

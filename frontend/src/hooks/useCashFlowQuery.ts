@@ -113,8 +113,12 @@ export const useCashFlowQuery = (filters?: {
   page?: number
   size?: number
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ content: CashFlowEntry[], totalElements: number, totalPages: number }>({
-    queryKey: ['cashflow-entries', filters],
+    queryKey: ['cashflow-entries', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchCashFlowEntries(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -126,8 +130,12 @@ export const useCashFlowSummaryQuery = (filters?: {
   startDate?: string
   endDate?: string
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<CashFlowSummary>({
-    queryKey: ['cashflow-summary', filters],
+    queryKey: ['cashflow-summary', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchCashFlowSummary(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

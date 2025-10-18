@@ -110,8 +110,12 @@ export const useFiscalDocumentsQuery = (filters?: {
   page?: number
   size?: number
 }) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<{ content: FiscalDocument[], totalElements: number, totalPages: number }>({
-    queryKey: ['fiscal-documents', filters],
+    queryKey: ['fiscal-documents', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchFiscalDocuments(filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -134,8 +138,12 @@ export const useCreateNFeMutation = () => {
 }
 
 export const useSEFAZStatusQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<SEFAZStatus>({
-    queryKey: ['sefaz-status'],
+    queryKey: ['sefaz-status', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchSEFAZStatus,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

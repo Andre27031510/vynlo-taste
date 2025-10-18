@@ -84,9 +84,12 @@ export const useDriversQuery = (filters?: {
   limit?: number
 }) => {
   const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
   
   return useQuery<{ drivers: Driver[], total: number, totalPages: number }>({
-    queryKey: ['drivers', filters],
+    queryKey: ['drivers', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchDrivers(filters),
     enabled: isAuthReady, // ✅ Só dispara quando auth está pronto
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
@@ -102,8 +105,12 @@ export const useDriversQuery = (filters?: {
 
 // Hook para buscar estatísticas - OTIMIZADO PARA PRODUÇÃO
 export const useDriversStatsQuery = () => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
   return useQuery<DriversStats>({
-    queryKey: ['drivers-stats'],
+    queryKey: ['drivers-stats', tenantKey],  // ✅ Isolado por tenant
     queryFn: fetchDriversStats,
     staleTime: 30 * 1000, // ✅ 30 segundos - alinhado com stats de produtos
     gcTime: 2 * 60 * 1000, // 2 minutos
