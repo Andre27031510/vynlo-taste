@@ -14,8 +14,15 @@ import java.time.LocalDateTime;
 // Created: 2025-10-14 19:00 UTC | Real refunds repository with BigDecimal support
 // Modified: 2025-10-14 19:30 UTC | Final validation and comment added
 
+/**
+ * PaymentRefundRepository - Multi-Tenancy Support
+ */
 @Repository
 public interface PaymentRefundRepository extends JpaRepository<PaymentRefund, Long> {
+
+    // ============================================================================
+    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ============================================================================
 
     Page<PaymentRefund> findByStatus(PaymentRefund.RefundStatus status, Pageable pageable);
 
@@ -29,4 +36,11 @@ public interface PaymentRefundRepository extends JpaRepository<PaymentRefund, Lo
 
     @Query("SELECT COALESCE(SUM(r.amount), 0.0) FROM PaymentRefund r WHERE r.status = 'PROCESSED' AND r.createdAt >= :since")
     BigDecimal sumProcessedAmountSince(@Param("since") LocalDateTime since);
+    
+    // ============================================================================
+    // MULTI-TENANCY: Queries com filtro de tenant_id
+    // ============================================================================
+    
+    @Query("SELECT r FROM PaymentRefund r WHERE r.tenantId = :tenantId")
+    Page<PaymentRefund> findAllByTenantId(@Param("tenantId") Long tenantId, Pageable pageable);
 }

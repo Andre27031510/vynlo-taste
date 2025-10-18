@@ -132,13 +132,13 @@ public class UserService {
         return savedUser;
     }
 
-    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'email-available:' + #email")
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'email-available:' + #email + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public boolean isEmailAvailable(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         return user.isEmpty();
     }
 
-    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'username-available:' + #username")
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'username-available:' + #username + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public boolean isUsernameAvailable(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         return user.isEmpty();
@@ -156,7 +156,7 @@ public class UserService {
         return userRepository.findByFirebaseUid(firebaseUid);
     }
 
-    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'id:' + #id")
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'id:' + #id + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public User findById(Long id) {
         log.debug("Buscando usuário por ID: {}", id);
         return userRepository.findById(id)
@@ -323,7 +323,7 @@ public class UserService {
         return userRepository.countByCreatedAtAfter(startOfDay);
     }
 
-    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'id:' + #id")
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'id:' + #id + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public User getUserById(Long id) {
         return findById(id);
     }

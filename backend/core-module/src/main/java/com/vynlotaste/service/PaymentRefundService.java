@@ -29,7 +29,22 @@ public class PaymentRefundService {
 
     public Page<PaymentRefundResponseDto> getAllRefunds(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PaymentRefund> refunds = paymentRefundRepository.findAll(pageable);
+        
+        // MULTI-TENANCY: Filtrar por tenant_id
+        Page<PaymentRefund> refunds;
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODOS os estornos");
+            refunds = paymentRefundRepository.findAll(pageable);
+        } else {
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - retornando página vazia");
+                return Page.empty(pageable);
+            }
+            log.debug("👤 Cliente (tenant_id={}): retornando estornos do tenant", tenantId);
+            refunds = paymentRefundRepository.findAllByTenantId(tenantId, pageable);
+        }
+        
         return refunds.map(PaymentRefundResponseDto::new);
     }
 

@@ -32,7 +32,20 @@ public class FiscalDocumentService {
             log.info("Buscando todos os documentos fiscais - página: {}, tamanho: {}", 
                 pageable.getPageNumber(), pageable.getPageSize());
             
-            Page<FiscalDocument> documents = fiscalDocumentRepository.findAll(pageable);
+            // MULTI-TENANCY: Filtrar por tenant_id
+            Page<FiscalDocument> documents;
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODOS os documentos fiscais");
+                documents = fiscalDocumentRepository.findAll(pageable);
+            } else {
+                Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando página vazia");
+                    return Page.empty(pageable);
+                }
+                log.debug("👤 Cliente (tenant_id={}): retornando documentos do tenant", tenantId);
+                documents = fiscalDocumentRepository.findAllByTenantId(tenantId, pageable);
+            }
             
             log.info("Documentos encontrados: {} de {}", 
                 documents.getNumberOfElements(), documents.getTotalElements());

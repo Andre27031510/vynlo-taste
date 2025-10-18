@@ -12,9 +12,14 @@ import java.time.LocalDate;
 /**
  * Repository for CashFlow entity operations
  * Provides data access methods for cash flow management
+ * Multi-Tenancy Support
  */
 @Repository
 public interface CashFlowRepository extends JpaRepository<CashFlow, Long>, JpaSpecificationExecutor<CashFlow> {
+    
+    // ============================================================================
+    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ============================================================================
     
     /**
      * Find cash flow entries by type with pagination
@@ -48,4 +53,14 @@ public interface CashFlowRepository extends JpaRepository<CashFlow, Long>, JpaSp
      * @return Page of cash flow entries
      */
     Page<CashFlow> findByCategory(String category, Pageable pageable);
+    
+    // ============================================================================
+    // MULTI-TENANCY: Queries com filtro de tenant_id
+    // ============================================================================
+    
+    @org.springframework.data.jpa.repository.Query("SELECT c FROM CashFlow c WHERE c.tenantId = :tenantId")
+    Page<CashFlow> findAllByTenantId(@org.springframework.data.repository.query.Param("tenantId") Long tenantId, Pageable pageable);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT c FROM CashFlow c WHERE c.tenantId = :tenantId AND c.type = :type")
+    Page<CashFlow> findByTypeAndTenantId(@org.springframework.data.repository.query.Param("type") String type, @org.springframework.data.repository.query.Param("tenantId") Long tenantId, Pageable pageable);
 }

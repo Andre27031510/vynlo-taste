@@ -58,13 +58,8 @@ public class PaymentService {
                 }
                 log.debug("👤 Cliente (tenant_id={}): retornando pagamentos do tenant", tenantId);
                 
-                // Filtrar manualmente - TODO: criar query específica no repository
-                Page<Payment> allPayments = paymentRepository.findAll(pageable);
-                java.util.List<Payment> filteredPayments = allPayments.getContent().stream()
-                    .filter(payment -> payment.getTenantId() != null && payment.getTenantId().equals(tenantId))
-                    .toList();
-                
-                payments = new org.springframework.data.domain.PageImpl<>(filteredPayments, pageable, filteredPayments.size());
+                // Usar query otimizada do repository
+                payments = paymentRepository.findAllByTenantId(tenantId, pageable);
             }
             
             log.info("Pagamentos encontrados: {} de {}", 

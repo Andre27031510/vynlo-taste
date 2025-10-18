@@ -13,9 +13,14 @@ import java.util.Optional;
 /**
  * Repository for FiscalDocument entity operations
  * Provides data access methods for fiscal document management
+ * Multi-Tenancy Support
  */
 @Repository
 public interface FiscalDocumentRepository extends JpaRepository<FiscalDocument, Long>, JpaSpecificationExecutor<FiscalDocument> {
+    
+    // ============================================================================
+    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ============================================================================
     
     /**
      * Find fiscal documents by type with pagination
@@ -48,4 +53,11 @@ public interface FiscalDocumentRepository extends JpaRepository<FiscalDocument, 
      * @return Page of fiscal documents
      */
     Page<FiscalDocument> findByIssueDateBetween(LocalDate start, LocalDate end, Pageable pageable);
+    
+    // ============================================================================
+    // MULTI-TENANCY: Queries com filtro de tenant_id
+    // ============================================================================
+    
+    @org.springframework.data.jpa.repository.Query("SELECT f FROM FiscalDocument f WHERE f.tenantId = :tenantId")
+    Page<FiscalDocument> findAllByTenantId(@org.springframework.data.repository.query.Param("tenantId") Long tenantId, Pageable pageable);
 }

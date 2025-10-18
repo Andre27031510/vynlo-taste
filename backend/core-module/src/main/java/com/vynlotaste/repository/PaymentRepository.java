@@ -13,10 +13,15 @@ import java.util.Optional;
 /**
  * Repository for Payment entity operations
  * Provides data access methods for payment transactions
+ * Multi-Tenancy Support
  * Modified: 2025-10-11 14:04 UTC - Added findByMethod
  */
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpecificationExecutor<Payment> {
+    
+    // ============================================================================
+    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ============================================================================
     
     /**
      * Find payments by status with pagination
@@ -55,5 +60,13 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpec
      * @return Page of payments
      */
     Page<Payment> findByMethod(String method, Pageable pageable);
+    
+    // ============================================================================
+    // MULTI-TENANCY: Queries com filtro de tenant_id
+    // ============================================================================
+    
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Payment p WHERE p.tenantId = :tenantId")
+    Page<Payment> findAllByTenantId(@org.springframework.data.repository.query.Param("tenantId") Long tenantId, Pageable pageable);
 }
 // Modified: 2025-10-11-v26 | findByMethod added
+// Modified: 2025-10-18 | Multi-Tenancy: findAllByTenantId added

@@ -169,7 +169,7 @@ public class DriverService {
             .orElseThrow(() -> new IllegalArgumentException("Driver not found: " + id));
     }
 
-    @Cacheable(value = "driverStats", unless = "#result == null")
+    @Cacheable(value = "driverStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#result == null")
     public Map<String, Object> getDriverStats() {
         try {
             long total = driverRepository.count();
@@ -195,6 +195,14 @@ public class DriverService {
                 "averageRating", 0.0
             );
         }
+    }
+    
+    /**
+     * Método helper para cache - retorna tenant_id atual
+     * Usado em @Cacheable key com SpEL: #root.target.getCurrentTenantId()
+     */
+    public Long getCurrentTenantId() {
+        return com.vynlotaste.context.TenantContext.getCurrentTenantId();
     }
 }
 

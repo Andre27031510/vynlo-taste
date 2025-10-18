@@ -128,7 +128,7 @@ public class DeliveryService {
             .orElseThrow(() -> new IllegalArgumentException("Delivery not found: " + id));
     }
 
-    @Cacheable(value = "deliveryStats", unless = "#result == null")
+    @Cacheable(value = "deliveryStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#result == null")
     public Map<String, Object> getDeliveryStats() {
         try {
             long total = deliveryRepository.count();
@@ -159,6 +159,14 @@ public class DeliveryService {
     public List<Delivery> getRecentDeliveries(int hours) {
         LocalDateTime since = LocalDateTime.now().minusHours(hours);
         return deliveryRepository.findRecentDeliveries(since);
+    }
+    
+    /**
+     * Método helper para cache - retorna tenant_id atual
+     * Usado em @Cacheable key com SpEL: #root.target.getCurrentTenantId()
+     */
+    public Long getCurrentTenantId() {
+        return com.vynlotaste.context.TenantContext.getCurrentTenantId();
     }
 }
 

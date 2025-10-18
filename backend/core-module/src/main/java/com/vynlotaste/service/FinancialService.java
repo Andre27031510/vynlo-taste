@@ -31,7 +31,20 @@ public class FinancialService {
             log.info("Buscando todas as transações financeiras - página: {}, tamanho: {}", 
                 pageable.getPageNumber(), pageable.getPageSize());
             
-            Page<Financial> transactions = financialRepository.findAll(pageable);
+            // MULTI-TENANCY: Filtrar por tenant_id
+            Page<Financial> transactions;
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODAS as transações financeiras");
+                transactions = financialRepository.findAll(pageable);
+            } else {
+                Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando página vazia");
+                    return Page.empty(pageable);
+                }
+                log.debug("👤 Cliente (tenant_id={}): retornando transações do tenant", tenantId);
+                transactions = financialRepository.findAllByTenantId(tenantId, pageable);
+            }
             
             log.info("Transações encontradas: {} de {}", 
                 transactions.getNumberOfElements(), transactions.getTotalElements());

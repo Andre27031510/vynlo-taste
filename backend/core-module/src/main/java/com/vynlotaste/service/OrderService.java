@@ -123,14 +123,14 @@ public class OrderService {
         }
     }
 
-    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'order:' + #id")
+    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'order:' + #id + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public Order getOrderById(@NotNull @Positive Long id) {
         log.debug("Fetching order by ID: {}", id);
         return orderRepository.findById(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND, "Order not found with ID: " + id));
     }
 
-    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'user:' + #userId")
+    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'user:' + #userId + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public List<Order> getOrdersByUser(@NotNull @Positive Long userId) {
         log.debug("Fetching orders for user: {}", userId);
         
@@ -141,7 +141,7 @@ public class OrderService {
         return orderRepository.findByCustomerId(userId);
     }
 
-    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'status:' + #status.name()")
+    @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'status:' + #status.name() + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public List<Order> getOrdersByStatus(@NotNull Order.OrderStatus status) {
         log.debug("Fetching orders by status: {}", status);
         
@@ -443,5 +443,13 @@ public class OrderService {
     public BigDecimal getRevenueToday() {
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         return orderRepository.sumTotalAmountByCreatedAtAfter(startOfDay);
+    }
+    
+    /**
+     * Método helper para cache - retorna tenant_id atual
+     * Usado em @Cacheable key com SpEL: #root.target.getCurrentTenantId()
+     */
+    public Long getCurrentTenantId() {
+        return com.vynlotaste.context.TenantContext.getCurrentTenantId();
     }
 }

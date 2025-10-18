@@ -31,7 +31,20 @@ public class CashFlowService {
             log.info("Buscando todas as entradas de fluxo de caixa - página: {}, tamanho: {}", 
                 pageable.getPageNumber(), pageable.getPageSize());
             
-            Page<CashFlow> entries = cashFlowRepository.findAll(pageable);
+            // MULTI-TENANCY: Filtrar por tenant_id
+            Page<CashFlow> entries;
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: retornando TODAS as entradas de fluxo de caixa");
+                entries = cashFlowRepository.findAll(pageable);
+            } else {
+                Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - retornando página vazia");
+                    return Page.empty(pageable);
+                }
+                log.debug("👤 Cliente (tenant_id={}): retornando entradas do tenant", tenantId);
+                entries = cashFlowRepository.findAllByTenantId(tenantId, pageable);
+            }
             
             log.info("Entradas encontradas: {} de {}", 
                 entries.getNumberOfElements(), entries.getTotalElements());

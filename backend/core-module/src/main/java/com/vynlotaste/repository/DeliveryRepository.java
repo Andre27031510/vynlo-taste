@@ -11,8 +11,15 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * DeliveryRepository - Multi-Tenancy Support
+ */
 @Repository
 public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
+    
+    // ============================================================================
+    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ============================================================================
     
     List<Delivery> findByStatus(Delivery.DeliveryStatus status);
     
@@ -32,5 +39,15 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
            "LOWER(d.customerName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(d.customerPhone) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<Delivery> searchDeliveries(@Param("search") String search, Pageable pageable);
+    
+    // ============================================================================
+    // MULTI-TENANCY: Queries com filtro de tenant_id
+    // ============================================================================
+    
+    @Query("SELECT d FROM Delivery d WHERE d.tenantId = :tenantId")
+    Page<Delivery> findAllByTenantId(@Param("tenantId") Long tenantId, Pageable pageable);
+    
+    @Query("SELECT d FROM Delivery d WHERE d.tenantId = :tenantId AND d.status = :status")
+    Page<Delivery> findByStatusAndTenantId(@Param("status") Delivery.DeliveryStatus status, @Param("tenantId") Long tenantId, Pageable pageable);
 }
 
