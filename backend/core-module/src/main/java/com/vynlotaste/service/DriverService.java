@@ -169,7 +169,7 @@ public class DriverService {
             .orElseThrow(() -> new IllegalArgumentException("Driver not found: " + id));
     }
 
-    @Cacheable(value = "driverStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#result == null")
+    @Cacheable(value = "driverStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#root.target.getCurrentTenantId() == null || #result == null")
     public Map<String, Object> getDriverStats() {
         try {
             // MULTI-TENANCY: Filtrar por tenant_id

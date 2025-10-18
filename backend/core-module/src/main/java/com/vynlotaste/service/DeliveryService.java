@@ -128,7 +128,7 @@ public class DeliveryService {
             .orElseThrow(() -> new IllegalArgumentException("Delivery not found: " + id));
     }
 
-    @Cacheable(value = "deliveryStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#result == null")
+    @Cacheable(value = "deliveryStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#root.target.getCurrentTenantId() == null || #result == null")
     public Map<String, Object> getDeliveryStats() {
         try {
             long total = deliveryRepository.count();

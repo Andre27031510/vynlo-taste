@@ -152,7 +152,7 @@ public class ProductService {
     // IMPORTANTE: unless evita cachear páginas vazias (race condition na primeira carga)
     @Cacheable(value = "caffeine-products-page", 
                key = "'page:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#result == null || #result.isEmpty()",
+               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Product> findAll(Pageable pageable) {
         // Validação de parâmetros de paginação
@@ -377,7 +377,7 @@ public class ProductService {
     // ✅ REDIS L2: List<Product> disponíveis (compartilhado)
     // IMPORTANTE: unless evita cachear listas vazias
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'available:' + (#root.target.getCurrentTenantId() ?: 'super')", 
-               unless = "#result == null || #result.isEmpty()",
+               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> findAvailableProducts() {
         log.debug("Buscando produtos disponíveis");
@@ -419,7 +419,7 @@ public class ProductService {
     // ✅ REDIS L2: List por categoria (compartilhado)
     // IMPORTANTE: unless evita cachear listas vazias
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'category:' + #category + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#result == null || #result.isEmpty()",
+               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getProductsByCategory(String category) {
         log.debug("Buscando produtos por categoria: {}", category);
@@ -447,7 +447,7 @@ public class ProductService {
     // IMPORTANTE: unless evita cachear páginas vazias
     @Cacheable(value = "caffeine-products-available-page",
                key = "'available:' + #pageable.pageNumber + ':' + #pageable.pageSize + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#result == null || #result.isEmpty()",
+               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Product> getAvailableProducts(Pageable pageable) {
         log.debug("Buscando produtos disponíveis paginados: page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
@@ -547,7 +547,7 @@ public class ProductService {
     // ✅ REDIS L2: List por faixa de preço (por tenant)
     // IMPORTANTE: unless evita cachear listas vazias
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'price-range:' + #minPrice + ':' + #maxPrice + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#result == null || #result.isEmpty()",
+               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getProductsByPriceRange(java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
         log.debug("Buscando produtos por faixa de preço: {} - {}", minPrice, maxPrice);
@@ -590,7 +590,7 @@ public class ProductService {
     // ✅ REDIS L2: List low stock (por tenant)
     // IMPORTANTE: unless evita cachear listas vazias
     @Cacheable(value = CacheConfig.PRODUCTS_CACHE, key = "'low-stock:' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#result == null || #result.isEmpty()",
+               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
                cacheManager = "redisCacheManagerL2")
     public List<Product> getLowStockProducts() {
         long startTime = System.currentTimeMillis();
@@ -632,7 +632,7 @@ public class ProductService {
     // IMPORTANTE: unless evita cachear páginas vazias
     @Cacheable(value = "caffeine-products-search-page",
                key = "'search:' + (#category ?: 'all') + ':' + (#minPrice ?: 0) + ':' + (#maxPrice ?: 'max') + ':' + (#available ?: 'all') + ':' + #pageable.pageNumber + ':' + (#root.target.getCurrentTenantId() ?: 'super')",
-               unless = "#result == null || #result.isEmpty()",
+               unless = "#root.target.getCurrentTenantId() == null || #result == null || #result.isEmpty()",
                cacheManager = "hybridCacheManager")
     public Page<Product> searchProductsAdvanced(String category, BigDecimal minPrice, BigDecimal maxPrice, 
                                               Boolean available, Pageable pageable) {
@@ -689,7 +689,8 @@ public class ProductService {
     // Método para obter estatísticas de produtos (para dashboard)
     @Transactional(readOnly = true)
     // ✅ REDIS L2: Stats compartilhados + persistem entre restarts
-    @Cacheable(value = CacheConfig.PRODUCT_STATS_CACHE, key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#result == null",
+    @Cacheable(value = CacheConfig.PRODUCT_STATS_CACHE, key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", 
+               unless = "#root.target.getCurrentTenantId() == null || #result == null",
                cacheManager = "redisCacheManagerL2")
     public ProductStats getProductStats() {
         long startTime = System.currentTimeMillis();
