@@ -129,16 +129,23 @@ export const useCreateDriverMutation = () => {
   
   return useMutation({
     mutationFn: async (driverData: Omit<Driver, 'id' | 'rating' | 'deliveries' | 'createdAt' | 'lastActive'>) => {
+      // ✅ Enviar APENAS os campos que o backend aceita (name, phone, email, vehicle, plate)
+      const payload = {
+        name: driverData.name,
+        phone: driverData.phone,
+        email: driverData.email,
+        vehicle: driverData.vehicle,
+        plate: driverData.plate
+      }
+      
       const response = await apiRequest('core-service', 'v1/drivers', {
         method: 'POST',
-        body: JSON.stringify({
-          ...driverData,
-          status: driverData.status || 'offline'
-        })
+        body: JSON.stringify(payload)
       })
       
       if (!response.ok) {
-        throw new Error(`Erro ao cadastrar motoboy: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || errorData.message || `HTTP ${response.status}`)
       }
       
       return await response.json()

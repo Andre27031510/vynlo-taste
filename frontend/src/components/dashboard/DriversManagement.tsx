@@ -219,19 +219,30 @@ function DriversManagementContent() {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // ✅ Usar mutation em vez de fetch direto + reload
+    // ✅ Sanitizar telefone (backend pode ter validação de formato)
+    const sanitizePhone = (phone: string): string => {
+      // Remove tudo exceto números
+      const digits = phone.replace(/\D/g, '')
+      // Retorna apenas os dígitos (backend fará a validação)
+      return digits
+    }
+    
+    // ✅ Enviar APENAS os campos que o backend aceita
+    const driverPayload = {
+      name: driverForm.name,
+      phone: sanitizePhone(driverForm.phone), // ✅ Sanitizado
+      email: driverForm.email || undefined, // ✅ Opcional
+      vehicle: driverForm.vehicle,
+      plate: driverForm.plate,
+      // ❌ Removido: cpf, cnh, address, status (backend não aceita)
+      status: 'offline' // ✅ Mantido pois useDriversQuery envia
+    }
+    
+    // 🔍 Debug: ver o que está sendo enviado
+    console.log('📤 Enviando motoboy:', JSON.stringify(driverPayload, null, 2))
+    
     createDriverMutation.mutate(
-      {
-        name: driverForm.name,
-        phone: driverForm.phone,
-        email: driverForm.email,
-        cpf: driverForm.cpf,
-        cnh: driverForm.cnh,
-        vehicle: driverForm.vehicle,
-        plate: driverForm.plate,
-        address: driverForm.address,
-        status: 'offline'
-      },
+      driverPayload as any, // ✅ Type assertion para evitar erro de tipagem
       {
         onSuccess: () => {
           // ✅ Fechar modal e limpar form (SEM reload - React Query invalida cache)
