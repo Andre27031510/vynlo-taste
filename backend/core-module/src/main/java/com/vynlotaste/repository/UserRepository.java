@@ -75,4 +75,24 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     
     @Query("SELECT COUNT(u) FROM User u WHERE u.tenantId = :tenantId")
     long countByTenantId(@Param("tenantId") Long tenantId);
+    
+    // ============================================================================
+    // VALIDAÇÃO DE UNICIDADE POR TENANT (LGPD Art. 46)
+    // ============================================================================
+    
+    /**
+     * Verifica se email já existe no tenant específico
+     * Usado para validação ANTES de criar usuário
+     */
+    @Query("SELECT u FROM User u WHERE u.email = :email AND u.tenantId = :tenantId")
+    @EntityGraph(attributePaths = {"role"})
+    Optional<User> findByEmailAndTenantId(@Param("email") String email, @Param("tenantId") Long tenantId);
+    
+    /**
+     * Verifica se username já existe no tenant específico
+     * Usado para validação ANTES de criar usuário
+     */
+    @Query("SELECT u FROM User u WHERE u.username = :username AND u.tenantId = :tenantId")
+    @EntityGraph(attributePaths = {"role"})
+    Optional<User> findByUsernameAndTenantId(@Param("username") String username, @Param("tenantId") Long tenantId);
 }

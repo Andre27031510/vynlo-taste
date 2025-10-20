@@ -132,16 +132,64 @@ public class UserService {
         return savedUser;
     }
 
+    /**
+     * Verifica se email está disponível (GLOBAL - apenas Super Admin)
+     * Para clientes: usar isEmailAvailableInTenant()
+     */
     @Cacheable(value = CacheConfig.USERS_CACHE, key = "'email-available:' + #email + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public boolean isEmailAvailable(String email) {
+        // Se for cliente, verifica por tenant
+        if (!com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            if (tenantId != null) {
+                return isEmailAvailableInTenant(email, tenantId);
+            }
+        }
+        // Super Admin: verifica global
         Optional<User> user = userRepository.findByEmail(email);
         return user.isEmpty();
     }
 
+    /**
+     * Verifica se username está disponível (GLOBAL - apenas Super Admin)
+     * Para clientes: usar isUsernameAvailableInTenant()
+     */
     @Cacheable(value = CacheConfig.USERS_CACHE, key = "'username-available:' + #username + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public boolean isUsernameAvailable(String username) {
+        // Se for cliente, verifica por tenant
+        if (!com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            if (tenantId != null) {
+                return isUsernameAvailableInTenant(username, tenantId);
+            }
+        }
+        // Super Admin: verifica global
         Optional<User> user = userRepository.findByUsername(username);
         return user.isEmpty();
+    }
+    
+    /**
+     * Verifica se email está disponível NO TENANT específico (LGPD Art. 46)
+     * Permite mesmo email em diferentes tenants
+     */
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'email-tenant:' + #email + ':' + #tenantId")
+    public boolean isEmailAvailableInTenant(String email, Long tenantId) {
+        Optional<User> user = userRepository.findByEmailAndTenantId(email, tenantId);
+        boolean available = user.isEmpty();
+        log.debug("🔍 Email {} disponível no tenant {}: {}", email, tenantId, available);
+        return available;
+    }
+    
+    /**
+     * Verifica se username está disponível NO TENANT específico (LGPD Art. 46)
+     * Permite mesmo username em diferentes tenants
+     */
+    @Cacheable(value = CacheConfig.USERS_CACHE, key = "'username-tenant:' + #username + ':' + #tenantId")
+    public boolean isUsernameAvailableInTenant(String username, Long tenantId) {
+        Optional<User> user = userRepository.findByUsernameAndTenantId(username, tenantId);
+        boolean available = user.isEmpty();
+        log.debug("🔍 Username {} disponível no tenant {}: {}", username, tenantId, available);
+        return available;
     }
     
     @Cacheable(value = CacheConfig.USERS_CACHE, key = "'email:' + #email")
