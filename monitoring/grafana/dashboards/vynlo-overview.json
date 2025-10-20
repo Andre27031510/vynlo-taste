@@ -1,0 +1,64 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "vynlo-overview",
+    "title": "Vynlo Taste - Overview",
+    "tags": ["vynlo", "overview", "production"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+        "type": "stat",
+        "title": "Requests Total",
+        "targets": [
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{job=\"vynlo-backend\"}[5m]))",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0},
+        "type": "stat",
+        "title": "Error Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{job=\"vynlo-backend\",status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{job=\"vynlo-backend\"}[5m])) * 100",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0},
+        "type": "gauge",
+        "title": "JVM Memory Used",
+        "targets": [
+          {
+            "expr": "jvm_memory_used_bytes{job=\"vynlo-backend\",area=\"heap\"} / jvm_memory_max_bytes{job=\"vynlo-backend\",area=\"heap\"} * 100",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+        "type": "gauge",
+        "title": "CPU Usage",
+        "targets": [
+          {
+            "expr": "system_cpu_usage{job=\"vynlo-backend\"} * 100",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  }
+}
+

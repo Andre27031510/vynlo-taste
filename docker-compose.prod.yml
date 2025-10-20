@@ -88,11 +88,70 @@ services:
       retries: 3
       start_period: 30s
 
+  # ============================================================================
+  # PROMETHEUS - Metrics Collection (Fase 2)
+  # ============================================================================
+  # Coleta métricas do backend via Spring Boot Actuator
+  # Interface Web: http://localhost:9090
+  # Usado pelas Big Techs: Google, Netflix, Uber, Spotify
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: vynlo-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - vynlo-network
+    depends_on:
+      - backend
+
+  # ============================================================================
+  # GRAFANA - Dashboards & Visualization (Fase 2)
+  # ============================================================================
+  # Visualização de métricas em dashboards profissionais
+  # Interface Web: http://localhost:3001
+  # Login padrão: admin/admin (trocar na primeira vez)
+  # Usado pelas Big Techs: Google, Meta, Amazon, Microsoft
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:10.1.5
+    container_name: vynlo-grafana
+    ports:
+      - "3001:3000"  # Porta 3001 (3000 usado pelo frontend)
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    networks:
+      - vynlo-network
+    depends_on:
+      - prometheus
+
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   vynlo-network:
     driver: bridge
 
 # ALB optimized configuration
+# Fase 2: Monitoring adicionado (Prometheus + Grafana)

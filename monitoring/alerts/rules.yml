@@ -1,0 +1,155 @@
+# ============================================================================
+# PROMETHEUS ALERT RULES - Vynlo Taste
+# ============================================================================
+# Regras de alertas baseadas nos "Four Golden Signals" do Google SRE
+# 
+# CRITICIDADE:
+# - critical: Problema grave, ação imediata necessária
+# - warning: Problema potencial, investigar
+# - info: Informação, monitorar
+#
+# PADRÃO BIG TECH:
+# - Google SRE Book
+# - Netflix Chaos Engineering
+# - Amazon CloudWatch Alarms
+#
+# @version 1.0.0
+# @created 2025-10-20
+# ============================================================================
+
+groups:
+  # ==========================================================================
+  # GRUPO 1: LATENCY (Tempo de Resposta)
+  # ==========================================================================
+  - name: latency_alerts
+    interval: 30s
+    rules:
+      
+      - alert: HighLatencyP99
+        expr: histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{job="vynlo-backend"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: latency
+        annotations:
+          summary: "Latência P99 alta detectada"
+          description: "P99 latency está acima de 1 segundo por mais de 5 minutos. Valor atual: {{ $value }}s"
+      
+      - alert: HighLatencyP95
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{job="vynlo-backend"}[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          category: latency
+        annotations:
+          summary: "Latência P95 elevada"
+          description: "P95 latency está acima de 500ms por mais de 10 minutos. Valor: {{ $value }}s"
+
+  # ==========================================================================
+  # GRUPO 2: ERROR RATE (Taxa de Erro)
+  # ==========================================================================
+  - name: error_alerts
+    interval: 30s
+    rules:
+      
+      - alert: HighErrorRate
+        expr: sum(rate(http_server_requests_seconds_count{job="vynlo-backend",status=~"5.."}[5m])) / sum(rate(http_server_requests_seconds_count{job="vynlo-backend"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          category: errors
+        annotations:
+          summary: "Taxa de erro CRÍTICA (>5%)"
+          description: "Error rate está acima de 5% por mais de 5 minutos. Valor: {{ $value | humanizePercentage }}"
+      
+      - alert: IncreasingErrorRate
+        expr: sum(rate(http_server_requests_seconds_count{job="vynlo-backend",status=~"5.."}[5m])) / sum(rate(http_server_requests_seconds_count{job="vynlo-backend"}[5m])) > 0.01
+        for: 10m
+        labels:
+          severity: warning
+          category: errors
+        annotations:
+          summary: "Taxa de erro elevada (>1%)"
+          description: "Error rate está acima de 1%. Investigar. Valor: {{ $value | humanizePercentage }}"
+
+  # ==========================================================================
+  # GRUPO 3: SATURATION (Uso de Recursos)
+  # ==========================================================================
+  - name: saturation_alerts
+    interval: 30s
+    rules:
+      
+      - alert: HighCPUUsage
+        expr: system_cpu_usage{job="vynlo-backend"} > 0.80
+        for: 5m
+        labels:
+          severity: critical
+          category: saturation
+        annotations:
+          summary: "CPU CRÍTICO (>80%)"
+          description: "CPU usage acima de 80% por 5+ minutos. Valor: {{ $value | humanizePercentage }}"
+      
+      - alert: HighMemoryUsage
+        expr: jvm_memory_used_bytes{job="vynlo-backend",area="heap"} / jvm_memory_max_bytes{job="vynlo-backend",area="heap"} > 0.85
+        for: 5m
+        labels:
+          severity: critical
+          category: saturation
+        annotations:
+          summary: "Memória CRÍTICA (>85%)"
+          description: "JVM Heap usage acima de 85%. Risco de OOM. Valor: {{ $value | humanizePercentage }}"
+      
+      - alert: HighDatabaseConnections
+        expr: hikaricp_connections_active{job="vynlo-backend"} / hikaricp_connections_max{job="vynlo-backend"} > 0.80
+        for: 3m
+        labels:
+          severity: warning
+          category: saturation
+        annotations:
+          summary: "Database connection pool saturado (>80%)"
+          description: "Connection pool usage acima de 80%. Valor: {{ $value | humanizePercentage }}"
+
+  # ==========================================================================
+  # GRUPO 4: AVAILABILITY (Disponibilidade)
+  # ==========================================================================
+  - name: availability_alerts
+    interval: 30s
+    rules:
+      
+      - alert: ServiceDown
+        expr: up{job="vynlo-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "SERVIÇO VYNLO BACKEND OFFLINE"
+          description: "Backend não está respondendo por mais de 1 minuto!"
+      
+      - alert: HighRestartRate
+        expr: changes(process_start_time_seconds{job="vynlo-backend"}[15m]) > 3
+        for: 5m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Backend reiniciando frequentemente"
+          description: "Backend reiniciou {{ $value }} vezes em 15 minutos. Investigar!"
+
+  # ==========================================================================
+  # GRUPO 5: CACHE (Performance)
+  # ==========================================================================
+  - name: cache_alerts
+    interval: 1m
+    rules:
+      
+      - alert: LowCacheHitRate
+        expr: rate(cache_gets{result="hit",job="vynlo-backend"}[5m]) / rate(cache_gets{job="vynlo-backend"}[5m]) < 0.50
+        for: 10m
+        labels:
+          severity: warning
+          category: cache
+        annotations:
+          summary: "Cache hit rate baixo (<50%)"
+          description: "Cache não está efetivo. Hit rate: {{ $value | humanizePercentage }}"
+
