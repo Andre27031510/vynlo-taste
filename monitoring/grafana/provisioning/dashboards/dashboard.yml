@@ -3,6 +3,7 @@
 # ============================================================================
 # Configuração automática de dashboards do Grafana
 # Dashboards são carregados automaticamente ao iniciar
+# Usado por: Netflix, Uber, Spotify (dashboards versionados em Git)
 #
 # @version 1.0.0
 # @created 2025-10-20

@@ -7,6 +7,7 @@
 # - Este arquivo é lido automaticamente pelo Grafana ao iniciar
 # - Não precisa configurar manualmente pela UI
 # - Datasource fica disponível imediatamente
+# - Padrão enterprise: provisioning declarativo (GitOps-ready)
 #
 # @version 1.0.0
 # @created 2025-10-20

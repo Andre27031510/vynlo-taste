@@ -10,6 +10,9 @@
 # @created 2025-10-20
 # ============================================================================
 
+# ============================================================================
+# SPRING CONFIGURATION
+# ============================================================================
 spring:
   jpa:
     show-sql: false  # ✅ Desabilitar SQL logs em produção
@@ -17,6 +20,13 @@ spring:
       hibernate:
         format_sql: false  # ✅ Desabilitar formatação
         use_sql_comments: false  # ✅ Desabilitar comentários
+  
+  # ==========================================================================
+  # CACHE - PRODUCTION TUNING
+  # ==========================================================================
+  cache:
+    caffeine:
+      spec: maximumSize=10000,expireAfterWrite=10m,recordStats  # ✅ TTL 10min + stats
 
 # ============================================================================
 # ACTUATOR - MONITORING & OBSERVABILITY (Fase 2)
@@ -108,11 +118,3 @@ logging:
     max-size: 100MB
     max-history: 30  # Manter logs por 30 dias
     total-size-cap: 1GB
-
-# ============================================================================
-# CACHE - PRODUCTION TUNING
-# ============================================================================
-spring:
-  cache:
-    caffeine:
-      spec: maximumSize=10000,expireAfterWrite=10m,recordStats  # ✅ TTL 10min + stats

@@ -9,9 +9,10 @@
 # - info: Informação, monitorar
 #
 # PADRÃO BIG TECH:
-# - Google SRE Book
+# - Google SRE Book (Site Reliability Engineering)
 # - Netflix Chaos Engineering
 # - Amazon CloudWatch Alarms
+# - Usado por 100% das empresas com SLA 99.9%+
 #
 # @version 1.0.0
 # @created 2025-10-20

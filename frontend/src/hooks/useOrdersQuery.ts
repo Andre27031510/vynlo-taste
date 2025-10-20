@@ -80,7 +80,7 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar janela
-    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
+    refetchOnMount: true, // ✅ CRÍTICO: true (não 'always') - lista atualiza após criar pedido
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 2, // Retry em caso de falha
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
@@ -98,7 +98,7 @@ export const useOrdersStatsQuery = () => {
     staleTime: 30 * 1000, // ✅ 30 segundos - alinhado com outros stats
     gcTime: 2 * 60 * 1000, // 2 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
-    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
+    refetchOnMount: true, // ✅ CRÍTICO: true (não 'always') - stats atualizam após criar pedido
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 2,
     retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
@@ -168,9 +168,24 @@ export const useCreateOrderMutation = () => {
       return response.json()
     },
     onSuccess: () => {
+      // ✅ INVALIDAÇÃO AGRESSIVA - igual aos produtos
       queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
       queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      
+      // ✅ RESETAR queries para forçar reload completo
+      queryClient.resetQueries({ queryKey: ['orders', tenantKey] })
+      queryClient.resetQueries({ queryKey: ['orders-stats', tenantKey] })
+      
+      // ✅ FORÇAR refetch imediato com delay
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['orders', tenantKey], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['orders-stats', tenantKey], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
+      
       toast.success('✅ Pedido criado com sucesso!')
+      console.log('✅ Pedido criado - cache resetado e refetch agressivo')
     },
     onError: (error: Error) => {
       console.error('❌ Erro ao criar pedido:', error)

@@ -4,6 +4,8 @@
 
 Sistema de monitoring profissional usado pelas **Big Techs** (Google, Netflix, Uber, Spotify).
 
+**Padrão CNCF (Cloud Native Computing Foundation)** - Usado por 94% das empresas cloud-native.
+
 **Benefícios:**
 - ✅ Detectar problemas **ANTES** dos clientes
 - ✅ Troubleshooting **10x mais rápido**

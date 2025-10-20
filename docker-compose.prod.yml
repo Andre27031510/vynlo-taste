@@ -94,6 +94,7 @@ services:
   # Coleta métricas do backend via Spring Boot Actuator
   # Interface Web: http://localhost:9090
   # Usado pelas Big Techs: Google, Netflix, Uber, Spotify
+  # Padrão CNCF: 94% das empresas cloud-native usam Prometheus
   # ============================================================================
   prometheus:
     image: prom/prometheus:v2.47.0
@@ -123,6 +124,7 @@ services:
   # Interface Web: http://localhost:3001
   # Login padrão: admin/admin (trocar na primeira vez)
   # Usado pelas Big Techs: Google, Meta, Amazon, Microsoft
+  # 10+ milhões de instalações ativas globalmente
   # ============================================================================
   grafana:
     image: grafana/grafana:10.1.5
