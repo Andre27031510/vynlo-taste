@@ -1,4 +1,5 @@
 'use client'
+// Modal para visualização de detalhes do pedido - Design profissional
 
 import { X, User, MapPin, CreditCard, Package, Clock, CheckCircle } from 'lucide-react'
 import { type Order } from '@/hooks/useOrdersQuery'

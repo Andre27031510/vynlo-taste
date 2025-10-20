@@ -1,4 +1,5 @@
 'use client'
+// Modal para edição rápida de pedidos - UX otimizada
 
 import { useState, useEffect } from 'react'
 import { X, MapPin, CreditCard, Package, Save } from 'lucide-react'

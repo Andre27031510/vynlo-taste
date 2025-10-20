@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 // Modified: 2025-10-14 20:35 UTC | createUser method enhanced with logging + cache eviction
+// Updated: 2025-10-20 | Validação email/username por tenant (LGPD Art. 46 - permite duplicatas entre tenants)
 @Slf4j
 @Service
 @RequiredArgsConstructor

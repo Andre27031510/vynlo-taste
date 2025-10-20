@@ -1,7 +1,7 @@
 'use client'
 // Otimizado para produção - v2.1.2 - Type-safe queries
 // Deploy: 2025-10-11
-// Updated: 2025-10-20 - Modal profissional CRUD completo
+// Updated: 2025-10-20 | Sistema completo pedidos: criar, ver, editar, excluir + modals profissionais
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/format'

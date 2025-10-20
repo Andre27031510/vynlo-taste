@@ -18,6 +18,7 @@ import java.util.Optional;
 /**
  * UserRepository - Multi-Tenancy Support
  * IMPORTANTE: Queries globais + queries filtradas por tenant_id
+ * Updated: 2025-10-20 | Validação de unicidade por tenant (LGPD Art. 46)
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {

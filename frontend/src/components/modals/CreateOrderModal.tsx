@@ -1,4 +1,5 @@
 'use client'
+// Modal profissional para criação de pedidos - Multi-tenant compliant
 
 import { useState, useEffect, useMemo } from 'react'
 import { X, Plus, Minus, ShoppingCart, Trash2, Search, User, MapPin, CreditCard } from 'lucide-react'
@@ -35,8 +36,8 @@ export default function CreateOrderModal({ isOpen, onClose }: CreateOrderModalPr
   const [searchProduct, setSearchProduct] = useState('')
   const [searchCustomer, setSearchCustomer] = useState('')
 
-  // Queries
-  const { data: productsData, isLoading: productsLoading } = useProductsQuery({ status: 'active' })
+  // Queries - Buscar produtos e clientes disponíveis
+  const { data: productsData, isLoading: productsLoading } = useProductsQuery()
   const { data: clientsData, isLoading: clientsLoading } = useClientsQuery({ status: 'active' })
   const createOrderMutation = useCreateOrderMutation()
 
