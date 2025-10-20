@@ -12,7 +12,16 @@ COPY core-module/ ./core-module/
 # COPY financial-module/ ./financial-module/
 
 # Build application (apenas core-module agora)
-RUN mvn -B -DskipTests clean package
+# ✅ CRITICAL: Compilar resources explicitamente antes de package
+RUN mvn -B -DskipTests clean resources:resources compile package
+
+# ✅ DEBUG: Verificar se migrations estão no JAR (build-time verification)
+RUN echo "🔍 Verificando migrations no JAR..." && \
+    jar tf /app/core-module/target/*.jar | grep "db/migration" | head -20 || \
+    (echo "❌ ERROR: Migrations NOT found in JAR!" && \
+     echo "Listing JAR contents:" && \
+     jar tf /app/core-module/target/*.jar | grep -E "BOOT-INF/classes/(db|application)" | head -30 && \
+     exit 1)
 
 # Runtime: Temurin 21 JRE (Alpine)
 FROM eclipse-temurin:21-jre-alpine
