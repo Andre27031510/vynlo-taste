@@ -1,6 +1,27 @@
 #!/bin/bash
 
-# Vynlo Taste - Script de Deploy em Produção
+# ============================================================================
+# Vynlo Taste - Script de Deploy em Produção (AWS CloudFormation/Elastic Beanstalk)
+# ============================================================================
+# 
+# ⚠️ ATENÇÃO: Este script está DESATUALIZADO
+# 
+# DEPLOY ATUAL: Docker + GitHub Actions (CI/CD)
+# - Build: GitHub Actions
+# - Deploy: Docker Compose
+# - Infraestrutura: Gerenciada manualmente
+#
+# ESTE SCRIPT: CloudFormation + Elastic Beanstalk (NÃO USADO)
+# - Mantido para referência histórica
+# - Pode ser útil para migração futura para Elastic Beanstalk
+# - NÃO execute sem atualizar primeiro!
+#
+# Se quiser usar este script:
+# 1. Atualizar paths dos JARs
+# 2. Atualizar configurações AWS
+# 3. Testar em ambiente staging primeiro
+# ============================================================================
+
 set -e
 
 # Configurações
