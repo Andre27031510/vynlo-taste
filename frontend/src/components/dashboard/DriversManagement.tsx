@@ -215,37 +215,70 @@ function DriversManagementContent() {
   // ✅ MUTATION OTIMIZADA PARA PRODUÇÃO (SEM RELOAD!)
   const createDriverMutation = useCreateDriverMutation()
 
-  // Funções memoizadas para gerenciar motoboys
+  // ========================================================================
+  // HANDLER PARA CRIAÇÃO DE MOTOBOY
+  // ========================================================================
+  // Memoizado para evitar re-renders desnecessários
+  // Integrado com React Query (sem window.reload)
+  // ========================================================================
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // ✅ Sanitizar telefone (backend pode ter validação de formato)
+    // ========================================================================
+    // SANITIZAÇÃO DE TELEFONE
+    // ========================================================================
+    // Remove caracteres especiais (espaços, parênteses, hífens, +55, etc)
+    // Backend valida unicidade por tenant e formato específico
+    // ========================================================================
     const sanitizePhone = (phone: string): string => {
       // Remove tudo exceto números
       const digits = phone.replace(/\D/g, '')
-      // Retorna apenas os dígitos (backend fará a validação)
+      // Retorna apenas os dígitos (backend fará validação adicional)
       return digits
     }
     
-    // ✅ Enviar APENAS os campos que o backend aceita
+    // ========================================================================
+    // PREPARAÇÃO DO PAYLOAD PARA O BACKEND
+    // ========================================================================
+    // IMPORTANTE: Backend (DriverController.java) APENAS aceita:
+    // - name (obrigatório)
+    // - phone (obrigatório)
+    // - email (opcional)
+    // - vehicle (obrigatório)
+    // - plate (obrigatório)
+    //
+    // CAMPOS REMOVIDOS (causavam HTTP 400):
+    // ❌ cpf - Backend não aceita
+    // ❌ cnh - Backend não aceita
+    // ❌ address - Backend não aceita
+    // ❌ status - Backend define como OFFLINE automaticamente
+    // ========================================================================
     const driverPayload = {
       name: driverForm.name,
-      phone: sanitizePhone(driverForm.phone), // ✅ Sanitizado
-      email: driverForm.email || undefined, // ✅ Opcional
+      phone: sanitizePhone(driverForm.phone),
+      email: driverForm.email || undefined, // Opcional
       vehicle: driverForm.vehicle,
       plate: driverForm.plate,
-      // ❌ Removido: cpf, cnh, address, status (backend não aceita)
-      status: 'offline' // ✅ Mantido pois useDriversQuery envia
+      status: 'offline' // Mantido para compatibilidade com useDriversQuery
     }
     
-    // 🔍 Debug: ver o que está sendo enviado
+    // 🔍 Debug: ver o que está sendo enviado ao backend
     console.log('📤 Enviando motoboy:', JSON.stringify(driverPayload, null, 2))
     
+    // ========================================================================
+    // MUTAÇÃO COM REACT QUERY (SEM RELOAD)
+    // ========================================================================
+    // Vantagens:
+    // ✅ Cache invalidado automaticamente
+    // ✅ UI atualiza sem reload
+    // ✅ Melhor experiência do usuário
+    // ✅ Otimistic updates possíveis no futuro
+    // ========================================================================
     createDriverMutation.mutate(
-      driverPayload as any, // ✅ Type assertion para evitar erro de tipagem
+      driverPayload as any, // Type assertion (payload compatível com backend)
       {
         onSuccess: () => {
-          // ✅ Fechar modal e limpar form (SEM reload - React Query invalida cache)
+          // Fechar modal e limpar formulário
           setShowModal(false)
           setDriverForm({ name: '', phone: '', email: '', cpf: '', cnh: '', vehicle: '', plate: '', address: '' })
         },

@@ -122,14 +122,38 @@ export const useDriversStatsQuery = () => {
   })
 }
 
-// ✅ MUTATION PARA CRIAR DRIVER (PRODUÇÃO-READY)
-// Substitui window.reload() por invalidação de cache React Query
+// ============================================================================
+// MUTATION PARA CRIAR DRIVER (PRODUÇÃO-READY)
+// ============================================================================
+// Substitui window.reload() por invalidação inteligente de cache React Query
+// Integrado com multi-tenancy (tenant_id setado automaticamente no backend)
+//
+// IMPORTANTE:
+// - Backend (DriverController.java) APENAS aceita: name, phone, email, vehicle, plate
+// - Campos extras (cpf, cnh, address, status) causam HTTP 400
+// - Backend popula automaticamente: tenant_id, created_at, updated_at, status=OFFLINE
+// ============================================================================
 export const useCreateDriverMutation = () => {
   const queryClient = useQueryClient()
   
   return useMutation({
     mutationFn: async (driverData: Omit<Driver, 'id' | 'rating' | 'deliveries' | 'createdAt' | 'lastActive'>) => {
-      // ✅ Enviar APENAS os campos que o backend aceita (name, phone, email, vehicle, plate)
+      // ====================================================================
+      // FILTRAR CAMPOS PARA O BACKEND
+      // ====================================================================
+      // Backend (DriverController.java @PostMapping) espera apenas:
+      // - name (String, obrigatório)
+      // - phone (String, obrigatório) - validado por tenant
+      // - email (String, opcional) - validado por tenant
+      // - vehicle (String, obrigatório)
+      // - plate (String, obrigatório)
+      //
+      // Backend popula automaticamente:
+      // - tenant_id (via TenantContext)
+      // - created_at (via @EnableJpaAuditing)
+      // - updated_at (via @EnableJpaAuditing)
+      // - status = OFFLINE (default no DriverService)
+      // ====================================================================
       const payload = {
         name: driverData.name,
         phone: driverData.phone,
@@ -143,6 +167,15 @@ export const useCreateDriverMutation = () => {
         body: JSON.stringify(payload)
       })
       
+      // ====================================================================
+      // TRATAMENTO DE ERROS ROBUSTO
+      // ====================================================================
+      // Captura mensagens de erro do backend (DriverService validações)
+      // Exemplos de erros comuns:
+      // - "Motoboy com este telefone já existe neste restaurante" (tenant-scoped)
+      // - "Motoboy com este email já existe neste restaurante" (tenant-scoped)
+      // - Validação de campos obrigatórios
+      // ====================================================================
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.error || errorData.message || `HTTP ${response.status}`)

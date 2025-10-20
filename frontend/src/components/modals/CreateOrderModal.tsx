@@ -135,22 +135,47 @@ export default function CreateOrderModal({ isOpen, onClose }: CreateOrderModalPr
       return alert('Informe o endereço de entrega')
     }
 
-    // ✅ Sanitizar telefone (backend exige formato específico: (XX)XXXXX-XXXX)
-    const sanitizePhone = (phone: string): string | undefined => {
+    // ========================================================================
+    // SANITIZAÇÃO DE TELEFONE PARA O BACKEND
+    // ========================================================================
+    // Backend exige formato específico devido a validação @Pattern no OrderRequestDto:
+    // Regex: ^\\(?[1-9]{2}\\)?[0-9]{4,5}-?[0-9]{4}$
+    // 
+    // FORMATOS ACEITOS:
+    // ✅ (11)99999-9999
+    // ✅ 11999999999
+    // ✅ (11) 99999-9999
+    // 
+    // FORMATOS REJEITADOS (causam HTTP 400):
+    // ❌ +55 11 99999-9999
+    // ❌ 11  99999-9999 (espaços extras)
+    // ❌ Qualquer formato com caracteres especiais além de () e -
+    // ========================================================================
+    const sanitizePhone = (phone: string | undefined): string | undefined => {
       if (!phone) return undefined
+      
       // Remove tudo exceto números
       const digits = phone.replace(/\D/g, '')
-      // Valida se tem 10 ou 11 dígitos
+      
+      // Valida se tem 10 ou 11 dígitos (padrão brasileiro)
       if (digits.length === 10 || digits.length === 11) {
-        // Formato: (XX)XXXXX-XXXX ou (XX)XXXX-XXXX
+        // Formata: (XX)XXXXX-XXXX ou (XX)XXXX-XXXX
         const ddd = digits.slice(0, 2)
         const part1 = digits.slice(2, digits.length === 11 ? 7 : 6)
         const part2 = digits.slice(digits.length === 11 ? 7 : 6)
         return `(${ddd})${part1}-${part2}`
       }
-      return undefined // Telefone inválido
+      
+      // Telefone inválido (retorna undefined para não enviar ao backend)
+      return undefined
     }
 
+    // ========================================================================
+    // PREPARAÇÃO DO PAYLOAD PARA O BACKEND
+    // ========================================================================
+    // IMPORTANTE: Apenas campos válidos são enviados (undefined não é serializado)
+    // Isso evita erros de validação no backend
+    // ========================================================================
     const orderData: CreateOrderData = {
       type: orderType,
       customerId: Number(selectedCustomer.id),
@@ -160,10 +185,14 @@ export default function CreateOrderModal({ isOpen, onClose }: CreateOrderModalPr
         unitPrice: item.price,
         itemNotes: item.itemNotes
       })),
+      // Endereço: obrigatório apenas para DELIVERY
       deliveryAddress: orderType === 'DELIVERY' ? deliveryAddress : undefined,
+      // Campos opcionais: só envia se preenchidos
       notes: notes || undefined,
       paymentMethod: paymentMethod || undefined,
+      // Telefone: sanitizado e validado (aceita do input ou do cliente)
       contactPhone: sanitizePhone(contactPhone || selectedCustomer?.phone),
+      // Valores monetários: só envia se maior que 0
       deliveryFee: deliveryFee > 0 ? deliveryFee : undefined,
       discount: discount > 0 ? discount : undefined
     }
