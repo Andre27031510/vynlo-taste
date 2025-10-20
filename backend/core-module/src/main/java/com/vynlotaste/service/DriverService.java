@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Slf4j
+/**
+ * Updated: 2025-10-20 | Validação phone/email por tenant (LGPD Art. 46 - permite duplicatas entre tenants)
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,13 +31,26 @@ public class DriverService {
     @CacheEvict(value = "driverStats", allEntries = true)
     public Driver createDriver(String name, String phone, String email, String vehicle, String plate) {
         try {
-            // Validar duplicados
-            if (driverRepository.existsByPhone(phone)) {
-                throw new IllegalArgumentException("Driver with phone " + phone + " already exists");
-            }
+            // MULTI-TENANCY: Obter tenant atual PRIMEIRO
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
             
-            if (email != null && driverRepository.existsByEmail(email)) {
-                throw new IllegalArgumentException("Driver with email " + email + " already exists");
+            // ✅ LGPD Art. 46: Validar duplicados POR TENANT (não global)
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                // Super Admin: validação global
+                if (driverRepository.existsByPhone(phone)) {
+                    throw new IllegalArgumentException("Driver with phone " + phone + " already exists");
+                }
+                if (email != null && driverRepository.existsByEmail(email)) {
+                    throw new IllegalArgumentException("Driver with email " + email + " already exists");
+                }
+            } else {
+                // Cliente: validação POR TENANT (permite mesmo phone/email em tenants diferentes)
+                if (tenantId != null && driverRepository.existsByPhoneAndTenantId(phone, tenantId)) {
+                    throw new IllegalArgumentException("Motoboy com este telefone já existe neste restaurante");
+                }
+                if (tenantId != null && email != null && driverRepository.existsByEmailAndTenantId(email, tenantId)) {
+                    throw new IllegalArgumentException("Motoboy com este email já existe neste restaurante");
+                }
             }
             
             Driver driver = new Driver();
@@ -45,15 +61,13 @@ public class DriverService {
             driver.setPlate(plate);
             driver.setStatus(Driver.DriverStatus.OFFLINE);
             driver.setRating(0.0);
-            
-            // MULTI-TENANCY: Setar tenant_id automaticamente
-            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
             driver.setTenantId(tenantId);
-            log.debug("🔒 Driver será criado com tenant_id={}", tenantId);
             driver.setTotalDeliveries(0);
             
+            log.debug("🔒 Driver criado com tenant_id={} - {}", tenantId, name);
+            
             Driver saved = driverRepository.save(driver);
-            log.info("Driver created: {} - {}", saved.getId(), saved.getName());
+            log.info("✅ Driver created: {} - {} [tenant_id={}]", saved.getId(), saved.getName(), tenantId);
             return saved;
         } catch (Exception e) {
             log.error("Error creating driver", e);

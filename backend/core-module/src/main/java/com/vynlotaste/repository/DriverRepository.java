@@ -14,6 +14,7 @@ import java.util.Optional;
 /**
  * DriverRepository - Multi-Tenancy Support
  * IMPORTANTE: Queries globais + queries filtradas por tenant_id
+ * Updated: 2025-10-20 | Validação de unicidade por tenant (LGPD Art. 46)
  */
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
@@ -75,5 +76,23 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     
     @Query("SELECT COUNT(d) FROM Driver d WHERE d.tenantId = :tenantId")
     long countByTenantId(@Param("tenantId") Long tenantId);
+    
+    // ============================================================================
+    // VALIDAÇÃO DE UNICIDADE POR TENANT (LGPD Art. 46)
+    // ============================================================================
+    
+    /**
+     * Verifica se phone já existe no tenant específico
+     * Usado para validação ANTES de criar driver
+     */
+    @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM Driver d WHERE d.phone = :phone AND d.tenantId = :tenantId")
+    boolean existsByPhoneAndTenantId(@Param("phone") String phone, @Param("tenantId") Long tenantId);
+    
+    /**
+     * Verifica se email já existe no tenant específico
+     * Usado para validação ANTES de criar driver
+     */
+    @Query("SELECT CASE WHEN COUNT(d) > 0 THEN true ELSE false END FROM Driver d WHERE d.email = :email AND d.tenantId = :tenantId")
+    boolean existsByEmailAndTenantId(@Param("email") String email, @Param("tenantId") Long tenantId);
 }
 
