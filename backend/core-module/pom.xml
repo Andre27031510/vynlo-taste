@@ -245,55 +245,46 @@
         </resources>
         
         <plugins>
+            <!-- Spring Boot Plugin (herda do parent + configurações específicas) -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <!-- ✅ Específico deste módulo -->
                     <mainClass>com.vynlotaste.core.CoreModuleApplication</mainClass>
-                    <!-- ✅ CRITICAL: Incluir resources no repackage -->
-                    <addResources>true</addResources>
-                    <!-- ✅ CRITICAL: Desabilitar layers (pode excluir migrations) -->
-                    <layers>
-                        <enabled>false</enabled>
-                    </layers>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <!-- ✅ Herda do parent: addResources, layers -->
                 </configuration>
             </plugin>
             
-            <!-- ✅ CRITICAL: Maven Resources Plugin para garantir cópia de SQLs -->
+            <!-- Maven Resources Plugin (herda configuração do parent) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
-                <configuration>
-                    <nonFilteredFileExtensions>
-                        <nonFilteredFileExtension>sql</nonFilteredFileExtension>
-                    </nonFilteredFileExtensions>
-                </configuration>
             </plugin>
             
+            <!-- Maven Compiler Plugin (herda source/target do parent) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <!-- ✅ Herda do parent: source=21, target=21 -->
+                    <!-- ✅ Específico deste módulo: annotation processors -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.30</version>
+                            <version>${lombok.version}</version>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
-                            <version>1.5.5.Final</version>
+                            <version>${mapstruct.version}</version>
                         </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
