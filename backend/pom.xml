@@ -148,16 +148,8 @@
     </dependencyManagement>
 
     <build>
-        <!-- ✅ CRITICAL: Configuração global de resources para todos os módulos -->
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
+        <!-- ✅ FASE 3: Resources removidos do parent (packaging=pom não tem src/) -->
+        <!-- ✅ Cada módulo child define seus próprios resources conforme necessidade -->
         
         <!-- ✅ FASE 2: Plugin Management - Centraliza versões e configurações -->
         <pluginManagement>
@@ -219,34 +211,12 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             
-            <!-- Maven Resources Plugin (herda configuração do pluginManagement) -->
-            <!-- ✅ CRITICAL: Garantir cópia de resources -->
+            <!-- Maven Resources Plugin -->
+            <!-- ✅ Herda configuração do pluginManagement -->
+            <!-- ✅ Não precisa de executions no parent (packaging=pom, sem src/) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                    <filtering>false</filtering>
-                                    <includes>
-                                        <include>**/*.sql</include>
-                                        <include>**/*.yml</include>
-                                        <include>**/*.properties</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
