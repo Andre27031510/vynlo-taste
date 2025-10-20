@@ -7,9 +7,13 @@
 // Modified: 2025-10-14 21:10 UTC | Auth guard (enabled) + 401 retry + placeholderData - Cursor recommendation
 // Modified: 2025-10-14 21:15 UTC | Build error fix: null check para auth - Sistema production-ready
 // Modified: 2025-10-14 21:20 UTC | Deploy retry - Auth guard production-ready para 3M+ usuários
+// Modified: 2025-10-20 20:30 UTC | CRITICAL FIX: refetchOnMount true - lista atualiza imediatamente após criar produto
 // FIX: Frontend page=1 → backend page=0 (Spring Data padrão)
 // FIX: 'limit' → 'size' (backend expects 'size')
 // FIX: Added sort=createdAt,desc (deterministic ordering)
+// PROBLEM FIXED: Produto aparecia no card mas não na lista (até recarregar página)
+// ROOT CAUSE: refetchOnMount: false impedia atualização automática da lista
+// SOLUTION: refetchOnMount: true garante que lista sempre busca dados atualizados
 // CRITICAL: Products and inventory must be fully functional
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -211,7 +215,7 @@ export const useProductsQuery = (filters?: {
     staleTime: 2 * 60 * 1000, // ✅ 2 minutos (Amazon Q: mais conservador para produção)
     gcTime: 10 * 60 * 1000, // ✅ 10 minutos (Amazon Q: manter dados mais tempo)
     refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
-    refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
+    refetchOnMount: true, // ✅ HABILITADO - lista sempre atualizada após criar/editar produto
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: (failureCount, error) => {
       const errorMsg = error?.message || ''
@@ -252,7 +256,7 @@ export const useProductStatsQuery = () => {
     staleTime: 2 * 60 * 1000, // ✅ 2 minutos - stats mudam pouco
     gcTime: 10 * 60 * 1000, // ✅ 10 minutos (Amazon Q: production-safe)
     refetchOnWindowFocus: false, // ✅ DESABILITADO - evita refetch desnecessário
-    refetchOnMount: false, // ✅ DESABILITADO - usa cache se disponível
+    refetchOnMount: true, // ✅ HABILITADO - stats sempre atualizadas
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: (failureCount, error) => {
       const errorMsg = error?.message || ''
