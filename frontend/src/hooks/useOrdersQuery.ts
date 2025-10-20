@@ -3,6 +3,10 @@
 // Modified: 2025-10-11-v13 | Orders query optimized - Fixed React Query v5 API (gcTime)
 // Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - pedidos sempre atualizados
 // Updated: 2025-10-20 | CRUD completo + mutations multi-tenant
+// CRITICAL FIX: 2025-10-20 21:36 UTC | refetchOnMount true + invalidação agressiva (alinhado com produtos)
+// PROBLEM FIXED: Pedidos não apareciam na lista após criar (mesmo recarregando)
+// ROOT CAUSE: refetchOnMount: 'always' (string inválida) + invalidação fraca
+// SOLUTION: refetchOnMount: true + resetQueries + setTimeout refetch (padrão Big Tech)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
