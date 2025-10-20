@@ -267,6 +267,38 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
+    // ========================================================================
+    // HANDLER 404 - NÃO MASCARAR COMO 500 (Cursor Recommendation)
+    // ========================================================================
+    // IMPORTANTE: Este handler DEVE vir ANTES do Exception.class genérico
+    // Previne que 404 seja convertido em 500 (causa falhas em health checks)
+    // Padrão Big Tech: retornar código HTTP correto (Google SRE, Netflix)
+    // ========================================================================
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex, 
+            HttpServletRequest request) {
+        
+        // ✅ NÃO logar como erro crítico (404 é normal)
+        log.debug("Resource not found: {} - {}", request.getRequestURI(), ex.getMessage());
+        
+        // ✅ NÃO registrar métricas de erro (404 não é erro de sistema)
+        // monitoringService.recordError() - REMOVIDO
+        
+        ErrorResponse errorResponse = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.NOT_FOUND.value())
+            .error("Not Found")
+            .message(ex.getMessage())
+            .code("VT-4041")  // Código específico para 404
+            .path(request.getRequestURI())
+            .requestId(MDC.get("requestId"))
+            .traceId(MDC.get("traceId"))
+            .build();
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, HttpServletRequest request) {

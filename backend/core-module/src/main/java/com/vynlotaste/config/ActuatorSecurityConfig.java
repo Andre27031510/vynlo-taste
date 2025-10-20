@@ -18,6 +18,10 @@ import java.util.Arrays;
 /**
  * Configuração de segurança específica para Spring Boot Actuator
  * Implementa segurança enterprise para monitoramento em produção
+ * 
+ * Updated: 2025-10-20 | Reforçado para produção 3M+ usuários
+ * SEGURANÇA: Apenas /health público (ALB). Prometheus protegido (LGPD + OWASP)
+ * IMPORTANTE: Para Prometheus scraping, configurar autenticação no Prometheus
  */
 @Configuration
 @EnableWebSecurity
@@ -35,15 +39,16 @@ public class ActuatorSecurityConfig {
                 // Permitir OPTIONS requests para CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/actuator/**").permitAll()
                 
-                // Health endpoint público para ALB
+                // ✅ PÚBLICO: Apenas Health (para ALB health check)
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/actuator/health/**").permitAll()
                 
-                // Endpoints sensíveis protegidos
+                // 🔒 PROTEGIDOS: Todos os outros endpoints (SEGURANÇA)
+                // LGPD Art. 46 + OWASP: Informações sensíveis apenas para admins
                 .requestMatchers("/actuator/info").hasRole("ADMIN")
                 .requestMatchers("/actuator/metrics").hasRole("ADMIN")
                 .requestMatchers("/actuator/metrics/**").hasRole("ADMIN")
-                .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
+                .requestMatchers("/actuator/prometheus").hasRole("ADMIN")  // 🔒 SEGURO: Apenas admins
                 
                 // Bloquear endpoints perigosos
                 .requestMatchers("/actuator/shutdown").denyAll()

@@ -68,6 +68,13 @@ scrape_configs:
     # IMPORTANTE: /api (context-path) + /actuator (base-path) + /prometheus
     metrics_path: '/api/actuator/prometheus'
     
+    # 🔒 AUTENTICAÇÃO BÁSICA (SEGURANÇA)
+    # LGPD Art. 46 + OWASP: Endpoints de métricas devem ser protegidos
+    # TODO: Configurar usuário/senha específico para Prometheus
+    # basic_auth:
+    #   username: 'prometheus'
+    #   password: 'SENHA_SEGURA_AQUI'
+    
     # Targets
     static_configs:
       - targets: ['backend:8080']  # Nome do serviço no Docker Compose
