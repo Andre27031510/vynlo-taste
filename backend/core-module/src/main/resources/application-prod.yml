@@ -85,6 +85,11 @@ spring:
 # ============================================================================
 # Expõe métricas para Prometheus e health checks para AWS Load Balancer
 # 
+# IMPORTANTE:
+# - server.servlet.context-path: /api (application.yml)
+# - management.endpoints.web.base-path: /actuator (SEM /api)
+# - RESULTADO: /api/actuator (CORRETO!)
+#
 # ENDPOINTS EXPOSTOS:
 # - /api/actuator/health (público - ALB health check)
 # - /api/actuator/prometheus (público - Prometheus scraping)
@@ -99,8 +104,8 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus  # ✅ ADICIONAR prometheus
-      base-path: /api/actuator
+        include: health,info,metrics,prometheus  # ✅ Expor prometheus
+      base-path: /actuator  # ✅ SEM /api (context-path já adiciona)
   
   endpoint:
     health:

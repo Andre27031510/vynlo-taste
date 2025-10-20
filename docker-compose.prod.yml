@@ -60,6 +60,8 @@ services:
     networks:
       - vynlo-network
     healthcheck:
+      # IMPORTANTE: /api/actuator/health (não /api/api/actuator)
+      # context-path (/api) + base-path (/actuator) = /api/actuator
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
       interval: 30s
       timeout: 10s

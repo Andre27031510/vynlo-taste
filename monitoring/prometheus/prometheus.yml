@@ -65,6 +65,7 @@ scrape_configs:
     scrape_timeout: 5s        # Timeout de 5s
     
     # Métricas path (Spring Boot Actuator padrão)
+    # IMPORTANTE: /api (context-path) + /actuator (base-path) + /prometheus
     metrics_path: '/api/actuator/prometheus'
     
     # Targets
