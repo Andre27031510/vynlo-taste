@@ -253,6 +253,10 @@
                     <mainClass>com.vynlotaste.core.CoreModuleApplication</mainClass>
                     <!-- ✅ CRITICAL: Incluir resources no repackage -->
                     <addResources>true</addResources>
+                    <!-- ✅ CRITICAL: Desabilitar layers (pode excluir migrations) -->
+                    <layers>
+                        <enabled>false</enabled>
+                    </layers>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
