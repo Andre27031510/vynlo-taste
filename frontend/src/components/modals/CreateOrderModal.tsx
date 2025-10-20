@@ -135,6 +135,22 @@ export default function CreateOrderModal({ isOpen, onClose }: CreateOrderModalPr
       return alert('Informe o endereço de entrega')
     }
 
+    // ✅ Sanitizar telefone (backend exige formato específico: (XX)XXXXX-XXXX)
+    const sanitizePhone = (phone: string): string | undefined => {
+      if (!phone) return undefined
+      // Remove tudo exceto números
+      const digits = phone.replace(/\D/g, '')
+      // Valida se tem 10 ou 11 dígitos
+      if (digits.length === 10 || digits.length === 11) {
+        // Formato: (XX)XXXXX-XXXX ou (XX)XXXX-XXXX
+        const ddd = digits.slice(0, 2)
+        const part1 = digits.slice(2, digits.length === 11 ? 7 : 6)
+        const part2 = digits.slice(digits.length === 11 ? 7 : 6)
+        return `(${ddd})${part1}-${part2}`
+      }
+      return undefined // Telefone inválido
+    }
+
     const orderData: CreateOrderData = {
       type: orderType,
       customerId: Number(selectedCustomer.id),
@@ -145,12 +161,15 @@ export default function CreateOrderModal({ isOpen, onClose }: CreateOrderModalPr
         itemNotes: item.itemNotes
       })),
       deliveryAddress: orderType === 'DELIVERY' ? deliveryAddress : undefined,
-      notes,
-      paymentMethod,
-      contactPhone: contactPhone || selectedCustomer.phone,
-      deliveryFee,
-      discount
+      notes: notes || undefined,
+      paymentMethod: paymentMethod || undefined,
+      contactPhone: sanitizePhone(contactPhone || selectedCustomer?.phone),
+      deliveryFee: deliveryFee > 0 ? deliveryFee : undefined,
+      discount: discount > 0 ? discount : undefined
     }
+
+    // 🔍 Debug: ver o que está sendo enviado
+    console.log('📤 Enviando pedido:', JSON.stringify(orderData, null, 2))
 
     createOrderMutation.mutate(orderData, {
       onSuccess: () => {
