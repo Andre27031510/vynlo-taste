@@ -119,3 +119,118 @@ export const useUpdateOrderStatus = () => {
     }
   })
 }
+
+// ===================================================================
+// MUTATIONS CRUD COMPLETO - PADRÃO ENTERPRISE
+// ===================================================================
+
+export interface CreateOrderData {
+  type: 'DELIVERY' | 'PICKUP' | 'DINE_IN'
+  customerId: number
+  items: {
+    productId: number
+    quantity: number
+    unitPrice?: number
+    itemNotes?: string
+  }[]
+  deliveryAddress?: string
+  notes?: string
+  paymentMethod?: string
+  contactPhone?: string
+  deliveryFee?: number
+  discount?: number
+  couponCode?: string
+}
+
+export interface UpdateOrderData {
+  status?: Order['status']
+  deliveryAddress?: string
+  notes?: string
+  paymentMethod?: string
+}
+
+export const useCreateOrderMutation = () => {
+  const queryClient = useQueryClient()
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
+  return useMutation({
+    mutationFn: async (orderData: CreateOrderData) => {
+      const response = await apiRequest('core-service', 'v1/orders', {
+        method: 'POST',
+        body: JSON.stringify(orderData)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Erro ao criar pedido')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
+      toast.success('✅ Pedido criado com sucesso!')
+    },
+    onError: (error: Error) => {
+      console.error('❌ Erro ao criar pedido:', error)
+      toast.error(error.message || 'Erro ao criar pedido')
+    }
+  })
+}
+
+export const useUpdateOrderMutation = () => {
+  const queryClient = useQueryClient()
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
+  return useMutation({
+    mutationFn: async ({ orderId, data }: { orderId: string; data: UpdateOrderData }) => {
+      const response = await apiRequest('core-service', `v1/orders/${orderId}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Erro ao atualizar pedido')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
+      toast.success('✅ Pedido atualizado com sucesso!')
+    },
+    onError: (error: Error) => {
+      console.error('❌ Erro ao atualizar pedido:', error)
+      toast.error(error.message || 'Erro ao atualizar pedido')
+    }
+  })
+}
+
+export const useDeleteOrderMutation = () => {
+  const queryClient = useQueryClient()
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
+  return useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await apiRequest('core-service', `v1/orders/${orderId}`, {
+        method: 'DELETE'
+      })
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Erro ao excluir pedido')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
+      toast.success('✅ Pedido excluído com sucesso!')
+    },
+    onError: (error: Error) => {
+      console.error('❌ Erro ao excluir pedido:', error)
+      toast.error(error.message || 'Erro ao excluir pedido')
+    }
+  })
+}

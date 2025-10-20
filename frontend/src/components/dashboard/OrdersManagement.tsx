@@ -1,6 +1,7 @@
 'use client'
 // Otimizado para produção - v2.1.2 - Type-safe queries
 // Deploy: 2025-10-11
+// Updated: 2025-10-20 - Modal profissional CRUD completo
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { formatCurrency, formatDateTime } from '@/utils/format'
@@ -15,12 +16,23 @@ import {
   Filter,
   Search,
   Eye,
-  Edit
+  Edit,
+  Trash2,
+  Plus
 } from 'lucide-react'
-import { useOrdersQuery, useOrdersStatsQuery, useUpdateOrderStatus, type Order } from '@/hooks/useOrdersQuery'
+import { 
+  useOrdersQuery, 
+  useOrdersStatsQuery, 
+  useUpdateOrderStatus, 
+  useDeleteOrderMutation,
+  type Order 
+} from '@/hooks/useOrdersQuery'
 import { useDebounce } from '@/hooks/useDebounce'
 import toast from 'react-hot-toast'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import CreateOrderModal from '@/components/modals/CreateOrderModal'
+import OrderDetailsModal from '@/components/modals/OrderDetailsModal'
+import EditOrderModal from '@/components/modals/EditOrderModal'
 
 // Componente de skeleton para loading - Memoizado
 const OrderSkeleton = memo(() => (
@@ -61,9 +73,21 @@ const StatsSkeleton = memo(() => (
 StatsSkeleton.displayName = 'StatsSkeleton'
 
 // Componente de card de pedido memoizado
-const OrderCard = memo(({ order, onStatusUpdate, getStatusColor, getStatusIcon, isUpdating }: {
+const OrderCard = memo(({ 
+  order, 
+  onStatusUpdate, 
+  onViewDetails,
+  onEdit,
+  onDelete,
+  getStatusColor, 
+  getStatusIcon, 
+  isUpdating 
+}: {
   order: Order
   onStatusUpdate: (orderId: string, newStatus: Order['status']) => void
+  onViewDetails: (order: Order) => void
+  onEdit: (order: Order) => void
+  onDelete: (orderId: string) => void
   getStatusColor: (status: Order['status']) => string
   getStatusIcon: (status: Order['status']) => JSX.Element
   isUpdating: boolean
@@ -143,8 +167,30 @@ const OrderCard = memo(({ order, onStatusUpdate, getStatusColor, getStatusIcon, 
             </button>
           )}
           
-          <button className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+          <button 
+            onClick={() => onViewDetails(order)}
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+            title="Ver detalhes"
+          >
             <Eye className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => onEdit(order)}
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200"
+            title="Editar pedido"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => {
+              if (confirm(`Tem certeza que deseja excluir o pedido #${order.id}?`)) {
+                onDelete(order.id)
+              }
+            }}
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-200"
+            title="Excluir pedido"
+          >
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -158,6 +204,12 @@ function OrdersManagementContent() {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10)
+  
+  // Modals state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
   // Debounce da busca para melhor performance
   const debouncedSearchTerm = useDebounce(searchTerm, 500)
@@ -195,14 +247,29 @@ function OrdersManagementContent() {
   const stats = statsData as { total: number, pending: number, completed: number, revenue: number, averageOrderValue: number } | undefined
 
   const updateOrderMutation = useUpdateOrderStatus()
+  const deleteOrderMutation = useDeleteOrderMutation()
 
   // Os filtros agora são aplicados no backend via query parameters
   const filteredOrders = orders
 
-  // Função para atualizar status do pedido - Memoizada
+  // Funções de ação - Memoizadas
   const handleStatusUpdate = useCallback((orderId: string, newStatus: Order['status']) => {
     updateOrderMutation.mutate({ orderId, status: newStatus })
   }, [updateOrderMutation])
+
+  const handleViewDetails = useCallback((order: Order) => {
+    setSelectedOrder(order)
+    setIsDetailsModalOpen(true)
+  }, [])
+
+  const handleEdit = useCallback((order: Order) => {
+    setSelectedOrder(order)
+    setIsEditModalOpen(true)
+  }, [])
+
+  const handleDelete = useCallback((orderId: string) => {
+    deleteOrderMutation.mutate(orderId)
+  }, [deleteOrderMutation])
 
   // Função para obter cor do status - Memoizada
   const getStatusColor = useMemo(() => {
@@ -247,6 +314,13 @@ function OrdersManagementContent() {
               <span className="text-xs sm:text-sm font-medium">API Conectada</span>
             </div>
           )}
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all shadow-md text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Novo Pedido</span>
+          </button>
           <button
             onClick={() => refetchOrders()}
             disabled={ordersLoading}
@@ -375,6 +449,9 @@ function OrdersManagementContent() {
               key={order.id} 
               order={order} 
               onStatusUpdate={handleStatusUpdate}
+              onViewDetails={handleViewDetails}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
               getStatusColor={getStatusColor}
               getStatusIcon={getStatusIcon}
               isUpdating={updateOrderMutation.isPending}
@@ -382,6 +459,28 @@ function OrdersManagementContent() {
           ))
         )}
       </div>
+
+      {/* Modals */}
+      <CreateOrderModal 
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+      <OrderDetailsModal 
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false)
+          setSelectedOrder(null)
+        }}
+        order={selectedOrder}
+      />
+      <EditOrderModal 
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedOrder(null)
+        }}
+        order={selectedOrder}
+      />
 
       {/* Paginação - Responsiva */}
       {totalPages > 1 && (
