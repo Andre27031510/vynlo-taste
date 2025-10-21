@@ -91,7 +91,7 @@ export const useDeliveriesQuery = (filters?: {
     staleTime: 30 * 1000, // ✅ 30 segundos - reflete mudanças rapidamente
     gcTime: 5 * 60 * 1000, // 5 minutos
     refetchOnWindowFocus: true, // Atualiza ao focar
-    refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
+    refetchOnMount: true, // ✅ CORREÇÃO: true (não 'always') - boolean válido
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 2, // ✅ Retry limitado (evita tempestade de requests)
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Backoff exponencial

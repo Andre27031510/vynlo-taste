@@ -178,6 +178,7 @@ export const useUpdateOrderStatus = () => {
 export interface CreateOrderData {
   type: 'DELIVERY' | 'PICKUP' | 'DINE_IN'
   customerId: number
+  customerName?: string // ✅ CORREÇÃO: Adicionar customerName para delivery automático
   items: {
     productId: number
     quantity: number
@@ -215,7 +216,41 @@ export const useCreateOrderMutation = () => {
         const error = await response.json()
         throw new Error(error.message || 'Erro ao criar pedido')
       }
-      return response.json()
+      const createdOrder = await response.json()
+      
+      // 🚚 FLUXO AUTOMÁTICO: Se pedido é DELIVERY, criar delivery automaticamente
+      if (orderData.type === 'DELIVERY') {
+        try {
+          // Criar delivery automaticamente
+          await apiRequest('core-service', 'v1/deliveries', {
+            method: 'POST',
+            body: JSON.stringify({
+              orderId: createdOrder.id,
+              customerName: orderData.customerName || 'Cliente',
+              customerPhone: orderData.contactPhone || 'Não informado',
+              deliveryAddress: orderData.deliveryAddress || 'Endereço não informado',
+              source: 'WEBSITE'
+            })
+          })
+          
+          // Invalidar cache de deliveries
+          queryClient.invalidateQueries({ queryKey: ['deliveries'] })
+          queryClient.invalidateQueries({ queryKey: ['deliveries', tenantKey] })
+          queryClient.resetQueries({ queryKey: ['deliveries'] })
+          
+          // Refetch imediato após um pequeno delay
+          setTimeout(() => {
+            queryClient.refetchQueries({ queryKey: ['deliveries'], type: 'all' })
+          }, 100)
+          
+          console.log('✅ Delivery criado automaticamente para pedido:', createdOrder.id)
+        } catch (error) {
+          console.warn('⚠️ Não foi possível criar delivery automático:', error)
+          // Não falha a criação do pedido se delivery falhar
+        }
+      }
+      
+      return createdOrder
     },
     onSuccess: () => {
       // ✅ INVALIDAÇÃO AGRESSIVA - igual aos produtos
