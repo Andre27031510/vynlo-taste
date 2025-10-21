@@ -18,7 +18,7 @@ export interface Order {
   customerName: string
   items: OrderItem[]
   total: number
-  status: 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+  status: 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled' | 'PENDING' | 'PREPARING' | 'READY' | 'DELIVERED' | 'CANCELLED'
   createdAt: string
   deliveryAddress?: string
   paymentMethod: string
@@ -133,17 +133,21 @@ export const useUpdateOrderStatus = () => {
               body: JSON.stringify({
                 orderId: orderId,
                 customerName: orderData.customerName || 'Cliente',
-                address: orderData.deliveryAddress || 'Endereço não informado',
-                phone: orderData.contactPhone || orderData.customer?.phone || 'Não informado',
-                totalAmount: orderData.total || orderData.totalAmount || 0,
-                status: 'PENDING', // Delivery inicia como pendente
-                priority: 'NORMAL',
-                notes: `Delivery automático do pedido #${orderId}`
+                customerPhone: orderData.contactPhone || orderData.customer?.phone || 'Não informado', // ✅ CORREÇÃO: customerPhone (não phone)
+                deliveryAddress: orderData.deliveryAddress || 'Endereço não informado', // ✅ CORREÇÃO: deliveryAddress (não address)
+                source: 'WEBSITE' // ✅ CORREÇÃO: Adicionar source obrigatório
               })
             })
             
-            // Invalidar cache de deliveries
+            // Invalidar cache de deliveries - INVALIDAÇÃO AGRESSIVA
+            queryClient.invalidateQueries({ queryKey: ['deliveries'] })
             queryClient.invalidateQueries({ queryKey: ['deliveries', tenantKey] })
+            queryClient.resetQueries({ queryKey: ['deliveries'] })
+            
+            // Refetch imediato após um pequeno delay
+            setTimeout(() => {
+              queryClient.refetchQueries({ queryKey: ['deliveries'], type: 'all' })
+            }, 100)
             
             toast.success('✅ Pedido marcado como entregue! Delivery criado automaticamente 🚚', { duration: 5000 })
           }

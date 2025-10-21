@@ -20,7 +20,13 @@ export default function OrderDetailsModal({ isOpen, onClose, order }: OrderDetai
       preparing: { label: 'Preparando', color: 'blue', icon: Package },
       ready: { label: 'Pronto', color: 'green', icon: CheckCircle },
       delivered: { label: 'Entregue', color: 'gray', icon: CheckCircle },
-      cancelled: { label: 'Cancelado', color: 'red', icon: X }
+      cancelled: { label: 'Cancelado', color: 'red', icon: X },
+      // ✅ CORREÇÃO: Adicionar versões UPPERCASE do backend
+      PENDING: { label: 'Pendente', color: 'yellow', icon: Clock },
+      PREPARING: { label: 'Preparando', color: 'blue', icon: Package },
+      READY: { label: 'Pronto', color: 'green', icon: CheckCircle },
+      DELIVERED: { label: 'Entregue', color: 'gray', icon: CheckCircle },
+      CANCELLED: { label: 'Cancelado', color: 'red', icon: X }
     }
     return statusMap[status] || statusMap.pending
   }

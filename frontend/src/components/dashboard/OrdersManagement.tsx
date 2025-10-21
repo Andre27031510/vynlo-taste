@@ -280,7 +280,13 @@ function OrdersManagementContent() {
       preparing: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
       ready: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
       delivered: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      // ✅ CORREÇÃO: Adicionar versões UPPERCASE do backend
+      PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      PREPARING: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      READY: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      DELIVERED: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
     }
     return (status: Order['status']) => colors[status] || colors.pending
   }, [])
@@ -292,7 +298,13 @@ function OrdersManagementContent() {
       preparing: RefreshCw,
       ready: CheckCircle,
       delivered: Truck,
-      cancelled: XCircle
+      cancelled: XCircle,
+      // ✅ CORREÇÃO: Adicionar versões UPPERCASE do backend
+      PENDING: Clock,
+      PREPARING: RefreshCw,
+      READY: CheckCircle,
+      DELIVERED: Truck,
+      CANCELLED: XCircle
     }
     return (status: Order['status']) => {
       const IconComponent = icons[status] || Clock
@@ -304,10 +316,16 @@ function OrdersManagementContent() {
   const getStatusText = useMemo(() => {
     const texts = {
       pending: 'Pendente',
-      preparing: 'Preparando',
+      preparing: 'Preparando', 
       ready: 'Pronto',
       delivered: 'Entregue',
-      cancelled: 'Cancelado'
+      cancelled: 'Cancelado',
+      // ✅ CORREÇÃO: Adicionar versões UPPERCASE do backend
+      PENDING: 'Pendente',
+      PREPARING: 'Preparando',
+      READY: 'Pronto', 
+      DELIVERED: 'Entregue',
+      CANCELLED: 'Cancelado'
     }
     return (status: Order['status']) => texts[status] || status
   }, [])
