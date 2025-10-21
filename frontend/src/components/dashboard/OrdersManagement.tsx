@@ -80,7 +80,8 @@ const OrderCard = memo(({
   onEdit,
   onDelete,
   getStatusColor, 
-  getStatusIcon, 
+  getStatusIcon,
+  getStatusText,
   isUpdating 
 }: {
   order: Order
@@ -90,6 +91,7 @@ const OrderCard = memo(({
   onDelete: (orderId: string) => void
   getStatusColor: (status: Order['status']) => string
   getStatusIcon: (status: Order['status']) => JSX.Element
+  getStatusText: (status: Order['status']) => string
   isUpdating: boolean
 }) => {
   const formattedDate = useMemo(() => 
@@ -120,7 +122,7 @@ const OrderCard = memo(({
           </p>
           <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
             {getStatusIcon(order.status)}
-            <span className="capitalize">{order.status}</span>
+            <span>{getStatusText(order.status)}</span>
           </span>
         </div>
       </div>
@@ -277,7 +279,7 @@ function OrdersManagementContent() {
       pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
       preparing: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
       ready: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      delivered: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+      delivered: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
       cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
     }
     return (status: Order['status']) => colors[status] || colors.pending
@@ -296,6 +298,18 @@ function OrdersManagementContent() {
       const IconComponent = icons[status] || Clock
       return <IconComponent className="w-4 h-4" />
     }
+  }, [])
+
+  // Função para obter texto do status em português - Memoizada
+  const getStatusText = useMemo(() => {
+    const texts = {
+      pending: 'Pendente',
+      preparing: 'Preparando',
+      ready: 'Pronto',
+      delivered: 'Entregue',
+      cancelled: 'Cancelado'
+    }
+    return (status: Order['status']) => texts[status] || status
   }, [])
 
   return (
@@ -454,6 +468,7 @@ function OrdersManagementContent() {
               onDelete={handleDelete}
               getStatusColor={getStatusColor}
               getStatusIcon={getStatusIcon}
+              getStatusText={getStatusText}
               isUpdating={updateOrderMutation.isPending}
             />
           ))
