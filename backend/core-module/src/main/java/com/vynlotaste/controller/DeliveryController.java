@@ -1,6 +1,8 @@
 package com.vynlotaste.controller;
 
+import com.vynlotaste.dto.delivery.DeliveryResponseDto;
 import com.vynlotaste.entity.Delivery;
+import com.vynlotaste.mapper.DeliveryMapper;
 import com.vynlotaste.service.DeliveryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import java.util.Map;
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
+    private final DeliveryMapper deliveryMapper;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -34,14 +37,19 @@ public class DeliveryController {
             
             Page<Delivery> deliveriesPage = deliveryService.getDeliveries(deliveryStatus, search, page, limit);
             
+            // ✅ CORREÇÃO: Converter para DTOs antes de retornar (evita lazy loading)
+            java.util.List<DeliveryResponseDto> deliveryDtos = deliveriesPage.getContent().stream()
+                .map(deliveryMapper::toResponseDto)
+                .toList();
+            
             return ResponseEntity.ok(Map.of(
-                "deliveries", deliveriesPage.getContent(),
+                "deliveries", deliveryDtos,
                 "total", deliveriesPage.getTotalElements(),
                 "page", page,
                 "totalPages", deliveriesPage.getTotalPages()
             ));
         } catch (Exception e) {
-            log.error("Error fetching deliveries", e);
+            log.error("❌ Erro ao buscar deliveries", e);
             return ResponseEntity.ok(Map.of(
                 "deliveries", java.util.List.of(),
                 "total", 0,
@@ -74,9 +82,11 @@ public class DeliveryController {
     public ResponseEntity<?> getDeliveryById(@PathVariable Long id) {
         try {
             Delivery delivery = deliveryService.getDeliveryById(id);
-            return ResponseEntity.ok(delivery);
+            // ✅ CORREÇÃO: Converter para DTO (evita lazy loading)
+            DeliveryResponseDto responseDto = deliveryMapper.toResponseDto(delivery);
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            log.error("Error fetching delivery: {}", id, e);
+            log.error("❌ Erro ao buscar delivery: {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "Delivery not found"));
         }
@@ -104,8 +114,11 @@ public class DeliveryController {
                 orderId, customerName, customerPhone, deliveryAddress, source
             );
             
+            // ✅ CORREÇÃO: Converter para DTO antes de retornar (evita lazy loading)
+            DeliveryResponseDto responseDto = deliveryMapper.toResponseDto(delivery);
+            
             log.info("✅ Delivery criado com sucesso: id={}", delivery.getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(delivery);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
         } catch (IllegalArgumentException e) {
             log.error("❌ Erro de validação ao criar delivery: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -129,9 +142,11 @@ public class DeliveryController {
             Delivery.DeliveryStatus newStatus = Delivery.DeliveryStatus.valueOf(status.toUpperCase());
             Delivery delivery = deliveryService.updateDeliveryStatus(id, newStatus, notes);
             
-            return ResponseEntity.ok(delivery);
+            // ✅ CORREÇÃO: Converter para DTO (evita lazy loading)
+            DeliveryResponseDto responseDto = deliveryMapper.toResponseDto(delivery);
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            log.error("Error updating delivery status: {}", id, e);
+            log.error("❌ Erro ao atualizar status do delivery: {}", id, e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", e.getMessage()));
         }
@@ -145,9 +160,11 @@ public class DeliveryController {
         try {
             Long driverId = request.get("driverId");
             Delivery delivery = deliveryService.assignDriver(id, driverId);
-            return ResponseEntity.ok(delivery);
+            // ✅ CORREÇÃO: Converter para DTO (evita lazy loading)
+            DeliveryResponseDto responseDto = deliveryMapper.toResponseDto(delivery);
+            return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            log.error("Error assigning driver to delivery: {}", id, e);
+            log.error("❌ Erro ao atribuir motoboy ao delivery: {}", id, e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", e.getMessage()));
         }

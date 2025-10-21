@@ -119,9 +119,14 @@ public class DeliveryService {
         try {
             // ✅ CORREÇÃO CRÍTICA: Buscar tenant_id do contexto
             Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
-            log.debug("🔒 Buscando deliveries para tenant_id={}", tenantId);
+            log.debug("🔒 Buscando deliveries para tenant_id={}, page={}, limit={}", tenantId, page, limit);
             
-            Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+            // ✅ CORREÇÃO CRÍTICA: Paginação 0-indexed (Spring Data espera 0-based)
+            // Frontend envia page=1 (primeira página), backend precisa de page=0
+            int pageZero = Math.max(0, page - 1);
+            Pageable pageable = PageRequest.of(pageZero, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+            
+            log.debug("🔒 Pageable: page={}, size={}", pageZero, limit);
             
             // ✅ CORREÇÃO: Usar métodos com filtro de tenant
             if (status != null) {
@@ -130,7 +135,7 @@ public class DeliveryService {
             
             return deliveryRepository.findAllByTenantId(tenantId, pageable);
         } catch (Exception e) {
-            log.error("Error fetching deliveries", e);
+            log.error("❌ Erro ao buscar deliveries: page={}, limit={}", page, limit, e);
             return Page.empty();
         }
     }
