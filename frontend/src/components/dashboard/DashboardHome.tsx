@@ -64,7 +64,7 @@ function DashboardHomeContent() {
   })
 
   // Hook para métricas em tempo real
-  const { stats: statsData, loading: statsLoading, error: statsError, refetch } = useDashboardStats()
+  const { data: statsData, isLoading: statsLoading, error: statsError, refetch } = useDashboardStats()
   
   // Type-safe stats (garantir que não dará erro TypeScript)
   const stats = statsData || {

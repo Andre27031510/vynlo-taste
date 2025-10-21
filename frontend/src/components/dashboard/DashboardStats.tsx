@@ -11,7 +11,7 @@ import { formatCurrency, formatNumber } from '@/utils/format';
 
 export default function DashboardStats() {
   // Usar hooks que chamam APIs reais
-  const { stats: dashboardStats, loading: dashboardLoading } = useDashboardStats();
+  const { data: dashboardStats, isLoading: dashboardLoading } = useDashboardStats();
   const { data: productsData, isLoading: productsLoading } = useProductStatsQuery();
   
   const loading = dashboardLoading || productsLoading;
@@ -19,6 +19,21 @@ export default function DashboardStats() {
   // Type guard para garantir tipo correto
   const productsStats = productsData as ProductStats | undefined;
   const activeProducts = productsStats?.activeProducts ?? 0;
+  
+  // ✅ CORREÇÃO: Garantir que dashboardStats não seja undefined
+  const stats = dashboardStats || {
+    totalOrders: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+    activeDrivers: 0,
+    totalClients: 0,
+    systemHealth: {
+      orders: 'down' as const,
+      payments: 'down' as const,
+      delivery: 'down' as const,
+      integrations: 'down' as const
+    }
+  };
 
   if (loading) {
     return (
@@ -39,7 +54,7 @@ export default function DashboardStats() {
         <div className="flex items-center">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Pedidos</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(dashboardStats.totalOrders)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.totalOrders)}</p>
           </div>
           <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
             <svg className="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +68,7 @@ export default function DashboardStats() {
         <div className="flex items-center">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Receita Total</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(dashboardStats.totalRevenue)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(stats.totalRevenue)}</p>
           </div>
           <div className="p-3 bg-green-100 dark:bg-green-900 rounded-full">
             <svg className="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +96,7 @@ export default function DashboardStats() {
         <div className="flex items-center">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Clientes</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{dashboardStats.totalClients}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.totalClients)}</p>
           </div>
           <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
             <svg className="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -218,6 +218,7 @@ export const useUpdateOrderMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
       queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })  // ✅ CORREÇÃO: Invalidar dashboard stats também
       toast.success('✅ Pedido atualizado com sucesso!')
     },
     onError: (error: Error) => {
@@ -246,6 +247,7 @@ export const useDeleteOrderMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
       queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })  // ✅ CORREÇÃO: Invalidar dashboard stats também
       toast.success('✅ Pedido excluído com sucesso!')
     },
     onError: (error: Error) => {

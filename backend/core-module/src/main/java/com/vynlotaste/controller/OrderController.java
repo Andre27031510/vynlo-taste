@@ -30,6 +30,16 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<OrderResponseDto> updateOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody com.vynlotaste.dto.order.OrderUpdateDto updateDto) {
+        Order order = orderService.updateOrder(id, updateDto);
+        OrderResponseDto response = orderMapper.toResponseDto(order);
+        return ResponseEntity.ok(response);
+    }
+    
     @PutMapping("/{id}/status")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponseDto> updateOrderStatus(
@@ -118,6 +128,18 @@ public class OrderController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> deleteOrder(@PathVariable Long id) {
+        try {
+            orderService.deleteOrder(id);
+            return ResponseEntity.ok(java.util.Map.of("message", "Pedido excluído com sucesso"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(java.util.Map.of("error", "Erro ao excluir pedido: " + e.getMessage()));
+        }
+    }
+    
     @GetMapping("/my-orders")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<OrderResponseDto>> getUserOrders(@RequestParam Long userId) {

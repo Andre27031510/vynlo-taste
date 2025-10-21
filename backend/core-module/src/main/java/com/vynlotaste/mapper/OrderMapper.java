@@ -112,11 +112,30 @@ public interface OrderMapper {
     @AfterMapping
     default void enrichOrderResponse(@MappingTarget OrderResponseDto dto, Order order) {
         if (order != null && dto != null) {
+            // ✅ CORREÇÃO: Garantir que todos os campos sejam mapeados corretamente
+            if (dto.getTotalAmount() == null && order.getTotalAmount() != null) {
+                dto.setTotalAmount(order.getTotalAmount());
+            }
+            
+            if (dto.getFinalAmount() == null) {
+                dto.setFinalAmount(calculateFinalAmount(order));
+            }
+            
             if (dto.getStatusDisplay() == null) {
                 dto.setStatusDisplay(getStatusDisplay(order.getStatus()));
             }
+            
             if (dto.getProgressPercentage() == null) {
                 dto.setProgressPercentage(calculateProgress(order.getStatus()));
+            }
+            
+            if (dto.getRemainingTime() == null) {
+                dto.setRemainingTime(calculateRemainingTime(order));
+            }
+            
+            // ✅ CORREÇÃO: Mapear itens manualmente se necessário
+            if (dto.getItems() == null && order.getItems() != null && !order.getItems().isEmpty()) {
+                dto.setItems(toOrderItemResponseDtoList(order.getItems()));
             }
         }
     }

@@ -216,6 +216,54 @@ public class OrderService {
         return savedOrder;
     }
 
+    /**
+     * Atualiza um pedido existente (usado pelo modal de edição)
+     * ✅ MULTI-TENANCY: Verifica se o pedido pertence ao tenant_id atual
+     */
+    @Transactional
+    public Order updateOrder(Long orderId, com.vynlotaste.dto.order.OrderUpdateDto updateDto) {
+        // MULTI-TENANCY: Buscar pedido com verificação de tenant_id
+        Order order = getOrderById(orderId);
+        
+        // Atualizar campos
+        if (updateDto.getStatus() != null) {
+            order.setStatus(updateDto.getStatus());
+        }
+        
+        if (updateDto.getDeliveryAddress() != null && !updateDto.getDeliveryAddress().trim().isEmpty()) {
+            order.setDeliveryAddress(updateDto.getDeliveryAddress());
+        }
+        
+        // Nota: paymentMethod não existe na entidade Order atual
+        // Se necessário, adicionar campo na entidade Order primeiro
+        
+        if (updateDto.getNotes() != null && !updateDto.getNotes().trim().isEmpty()) {
+            String currentNotes = order.getNotes() != null ? order.getNotes() : "";
+            order.setNotes(currentNotes + (currentNotes.isEmpty() ? "" : " | ") + updateDto.getNotes());
+        }
+        
+        Order savedOrder = orderRepository.save(order);
+        log.info("✅ Pedido {} atualizado com sucesso", orderId);
+        
+        return savedOrder;
+    }
+    
+    /**
+     * Exclui um pedido (soft delete)
+     * ✅ MULTI-TENANCY: Verifica se o pedido pertence ao tenant_id atual
+     */
+    @Transactional
+    public void deleteOrder(Long orderId) {
+        // MULTI-TENANCY: Buscar pedido com verificação de tenant_id
+        Order order = getOrderById(orderId);
+        
+        // Soft delete - marcar como deletado
+        order.setDeleted(true);
+        orderRepository.save(order);
+        
+        log.info("✅ Pedido {} excluído com sucesso", orderId);
+    }
+    
     public BigDecimal calculateTotal(@NotNull List<OrderItem> items) {
         if (items == null || items.isEmpty()) {
             return BigDecimal.ZERO;
