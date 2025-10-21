@@ -77,6 +77,15 @@ public class SecurityConfig {
                 // ✅ Garantir /api/actuator/** também (para ALB com context-path)
                 .requestMatchers("/api/actuator/**").permitAll()
                 .requestMatchers("/api/actuator/health").permitAll()
+                
+                // ✅ SWAGGER/OPENAPI (Fase 3) - PROTEGIDO para produção
+                // Desenvolvimento: permitAll() | Produção: hasRole("ADMIN")
+                // Padrão Big Tech: Docs protegidas (Stripe, Twilio, Nubank)
+                .requestMatchers("/docs/**").hasRole("ADMIN")  // Swagger UI
+                .requestMatchers("/v3/api-docs/**").hasRole("ADMIN")  // OpenAPI JSON
+                .requestMatchers("/swagger-ui/**").hasRole("ADMIN")  // Swagger resources
+                .requestMatchers("/swagger-ui.html").hasRole("ADMIN")  // Swagger index
+                
                 .requestMatchers("/v1/auth/**").permitAll()
                 .requestMatchers("/v1/public/**").permitAll()
                 .requestMatchers("/v1/test/**").permitAll()
