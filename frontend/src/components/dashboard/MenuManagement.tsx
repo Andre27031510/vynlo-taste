@@ -248,6 +248,17 @@ const MenuManagement = memo(() => {
     resolver: yupResolver(productSchema)
   })
 
+  // Schema mais permissivo para edição (permite campos opcionais)
+  const productSchemaEdit = useMemo(() => yup.object().shape({
+    name: yup.string(),
+    category: yup.string(),
+    price: yup.number().positive().min(0.01).max(9999.99),
+    cost: yup.number().positive().min(0.01),
+    stock: yup.number().integer().min(0).max(99999),
+    minStock: yup.number().integer().min(0),
+    description: yup.string()
+  }), [])
+
   // Hook form para editar produto
   const {
     register: registerEdit,
@@ -256,7 +267,7 @@ const MenuManagement = memo(() => {
     reset: resetEdit,
     setValue: setValueEdit
   } = useForm({
-    resolver: yupResolver(productSchema)
+    resolver: yupResolver(productSchemaEdit)
   })
 
 
@@ -275,14 +286,20 @@ const MenuManagement = memo(() => {
     }
   }, [createProductMutation, resetAdd])
 
-  // Função para editar produto (submit)
-  const handleEditProductSubmit = useCallback(async (formData: CreateProductData) => {
+  // Função para editar produto (submit) - Aceita campos opcionais
+  const handleEditProductSubmit = useCallback(async (formData: Partial<CreateProductData>) => {
     if (!selectedProduct) return
     
     try {
       const updateData: UpdateProductData = {
-        ...formData,
-        id: selectedProduct.id
+        id: selectedProduct.id,
+        name: formData.name || selectedProduct.name,
+        category: formData.category || selectedProduct.category,
+        price: formData.price !== undefined ? Number(formData.price) : selectedProduct.price,
+        cost: formData.cost !== undefined ? Number(formData.cost) : selectedProduct.cost,
+        stock: formData.stock !== undefined ? Number(formData.stock) : selectedProduct.stock,
+        minStock: formData.minStock !== undefined ? Number(formData.minStock) : selectedProduct.minStock,
+        description: formData.description || selectedProduct.description
       }
       await updateProductMutation.mutateAsync(updateData)
       setShowEditProduct(false)
