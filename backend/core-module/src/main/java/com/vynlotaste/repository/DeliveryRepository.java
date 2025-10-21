@@ -49,5 +49,12 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     
     @Query("SELECT d FROM Delivery d WHERE d.tenantId = :tenantId AND d.status = :status")
     Page<Delivery> findByStatusAndTenantId(@Param("status") Delivery.DeliveryStatus status, @Param("tenantId") Long tenantId, Pageable pageable);
+    
+    // ✅ CORREÇÃO: Métodos para stats com multi-tenancy
+    @Query("SELECT COUNT(d) FROM Delivery d WHERE d.tenantId = :tenantId")
+    long countByTenantId(@Param("tenantId") Long tenantId);
+    
+    @Query("SELECT COUNT(d) FROM Delivery d WHERE d.tenantId = :tenantId AND d.status = :status")
+    long countByStatusAndTenantId(@Param("status") Delivery.DeliveryStatus status, @Param("tenantId") Long tenantId);
 }
 

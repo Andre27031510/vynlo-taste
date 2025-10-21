@@ -106,17 +106,18 @@ public class DeliveryService {
 
     public Page<Delivery> getDeliveries(Delivery.DeliveryStatus status, String search, int page, int limit) {
         try {
+            // ✅ CORREÇÃO CRÍTICA: Buscar tenant_id do contexto
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            log.debug("🔒 Buscando deliveries para tenant_id={}", tenantId);
+            
             Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
             
-            if (search != null && !search.trim().isEmpty()) {
-                return deliveryRepository.searchDeliveries(search, pageable);
-            }
-            
+            // ✅ CORREÇÃO: Usar métodos com filtro de tenant
             if (status != null) {
-                return deliveryRepository.findByStatus(status, pageable);
+                return deliveryRepository.findByStatusAndTenantId(status, tenantId, pageable);
             }
             
-            return deliveryRepository.findAll(pageable);
+            return deliveryRepository.findAllByTenantId(tenantId, pageable);
         } catch (Exception e) {
             log.error("Error fetching deliveries", e);
             return Page.empty();
@@ -131,11 +132,15 @@ public class DeliveryService {
     @Cacheable(value = "deliveryStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#root.target.getCurrentTenantId() == null || #result == null")
     public Map<String, Object> getDeliveryStats() {
         try {
-            long total = deliveryRepository.count();
-            long inTransit = deliveryRepository.countByStatus(Delivery.DeliveryStatus.IN_TRANSIT);
-            long preparing = deliveryRepository.countByStatus(Delivery.DeliveryStatus.PREPARING);
-            long delivered = deliveryRepository.countByStatus(Delivery.DeliveryStatus.DELIVERED);
-            long problems = deliveryRepository.countByStatus(Delivery.DeliveryStatus.PROBLEM);
+            // ✅ CORREÇÃO CRÍTICA: Filtrar stats por tenant_id
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            log.debug("🔒 Buscando stats de delivery para tenant_id={}", tenantId);
+            
+            long total = deliveryRepository.countByTenantId(tenantId);
+            long inTransit = deliveryRepository.countByStatusAndTenantId(Delivery.DeliveryStatus.IN_TRANSIT, tenantId);
+            long preparing = deliveryRepository.countByStatusAndTenantId(Delivery.DeliveryStatus.PREPARING, tenantId);
+            long delivered = deliveryRepository.countByStatusAndTenantId(Delivery.DeliveryStatus.DELIVERED, tenantId);
+            long problems = deliveryRepository.countByStatusAndTenantId(Delivery.DeliveryStatus.PROBLEM, tenantId);
             
             return Map.of(
                 "totalDeliveries", total,
