@@ -1,6 +1,12 @@
 package com.vynlotaste.mapper;
 
 import com.vynlotaste.dto.order.OrderRequestDto;
+
+/**
+ * Mapper para conversão entre Order entity e DTOs
+ * v2.1.1 - Adicionado @AfterMapping para garantir mapeamento completo
+ * Fix: Lista de pedidos agora mostra valores e detalhes corretos
+ */
 import com.vynlotaste.dto.order.OrderResponseDto;
 import com.vynlotaste.entity.Order;
 import com.vynlotaste.entity.OrderItem;

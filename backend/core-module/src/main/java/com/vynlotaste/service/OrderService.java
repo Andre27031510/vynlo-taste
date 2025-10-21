@@ -1,6 +1,12 @@
 package com.vynlotaste.service;
 
 import com.vynlotaste.config.CacheConfig;
+
+/**
+ * Service para operações de pedidos
+ * v2.1.1 - Adicionados métodos updateOrder() e deleteOrder() com multi-tenancy
+ * Fix: Paginação corrigida (1-indexed frontend → 0-indexed Spring Data)
+ */
 import com.vynlotaste.dto.order.OrderRequestDto;
 import com.vynlotaste.entity.*;
 import com.vynlotaste.exception.order.OrderValidationException;

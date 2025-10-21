@@ -1,5 +1,6 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
-// v2.1.2 - Type-safe queries with generics
+// v2.1.1 - Fix: Invalidação automática de dashboard-stats
+// Type-safe queries with generics
 // Modified: 2025-10-11-v13 | Orders query optimized - Fixed React Query v5 API (gcTime)
 // Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - pedidos sempre atualizados
 // Updated: 2025-10-20 | CRUD completo + mutations multi-tenant

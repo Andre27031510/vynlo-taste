@@ -1,5 +1,5 @@
 // Otimizado para produção - cache 5min, sem auto-refresh
-// v2.1.2 - Enterprise-grade caching for 3M+ users
+// v2.1.1 - Fix: Campos corretos (totalOrders vs total)
 // Fixed: Removed auto-refresh for better scalability
 // Modified: 2025-10-14 18:20 UTC | Health path fixed: /api/actuator/health + no Authorization (verified ✓) - Production optimization
 // Modified: 2025-10-14 20:35 UTC | Stats mapping corrigido: totalUsers → totalClients (backend retorna totalUsers)

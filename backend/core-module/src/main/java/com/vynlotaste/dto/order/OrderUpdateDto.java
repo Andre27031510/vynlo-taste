@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 
 /**
  * DTO para atualização de pedidos
- * Usado pelo endpoint PUT /v1/orders/{id}
+ * v2.1.1 - Criado para endpoint PUT /v1/orders/{id}
+ * Usado pelo modal de edição de pedidos
  */
 @Data
 @Builder

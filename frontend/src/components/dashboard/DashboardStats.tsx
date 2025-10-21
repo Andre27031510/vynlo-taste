@@ -1,6 +1,6 @@
 'use client';
 // Otimizado para produção - carrega dados reais das APIs
-// v2.1.2 - Produção ready para 3M+ usuários
+// v2.1.1 - Fix: Cards agora mostram dados consistentes
 // Fixed: Dashboard stats now load from backend APIs
 // Deploy: 2025-10-11
 

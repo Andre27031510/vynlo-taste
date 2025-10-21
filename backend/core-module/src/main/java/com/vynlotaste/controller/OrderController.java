@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller para operações de pedidos
+ * v2.1.1 - Adicionados endpoints PUT e DELETE para operações completas
+ * Fix: HTTP 500 ao editar/excluir pedidos resolvido
+ */
+
 @RestController
 @RequestMapping("/v1/orders")
 @RequiredArgsConstructor
