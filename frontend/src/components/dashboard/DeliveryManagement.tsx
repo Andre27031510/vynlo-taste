@@ -141,6 +141,112 @@ const AssignDriverModal = memo(({
 })
 AssignDriverModal.displayName = 'AssignDriverModal'
 
+// ✅ CORREÇÃO: Modal para ver detalhes do delivery
+const DeliveryDetailsModal = memo(({ 
+  isOpen, 
+  onClose, 
+  delivery,
+  getStatusInfo
+}: {
+  isOpen: boolean
+  onClose: () => void
+  delivery: Delivery | null
+  getStatusInfo: (status: Delivery['status']) => any
+}) => {
+  if (!isOpen || !delivery) return null
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        <div className="bg-blue-600 p-6 text-white rounded-t-2xl">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl font-bold">Detalhes da Entrega</h3>
+            <button
+              onClick={onClose}
+              className="text-white/80 hover:text-white transition-colors duration-200"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+          </div>
+          <p className="text-blue-100 mt-2">Pedido #{delivery.orderId} • Delivery #{delivery.id}</p>
+        </div>
+
+        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          {/* Informações do Cliente */}
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+              <User className="w-5 h-5 mr-2" />
+              Cliente
+            </h4>
+            <div className="space-y-2">
+              <p className="text-gray-900 dark:text-white"><strong>Nome:</strong> {delivery.customer}</p>
+              <p className="text-gray-900 dark:text-white"><strong>Telefone:</strong> {delivery.phone}</p>
+              <p className="text-gray-900 dark:text-white"><strong>Endereço:</strong> {delivery.address}</p>
+            </div>
+          </div>
+
+          {/* Informações do Pedido */}
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+              <Package className="w-5 h-5 mr-2" />
+              Pedido
+            </h4>
+            <div className="space-y-2">
+              <p className="text-gray-900 dark:text-white"><strong>Total:</strong> R$ {formatCurrency(delivery.total)}</p>
+              <p className="text-gray-900 dark:text-white"><strong>Itens:</strong></p>
+              <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 ml-4">
+                {delivery.items && delivery.items.length > 0 ? (
+                  delivery.items.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))
+                ) : (
+                  <li>Nenhum item encontrado</li>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          {/* Informações do Delivery */}
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+              <Truck className="w-5 h-5 mr-2" />
+              Entrega
+            </h4>
+            <div className="space-y-2">
+              <p className="text-gray-900 dark:text-white"><strong>Status:</strong> 
+                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusInfo(delivery.status).color}`}>
+                  {getStatusInfo(delivery.status).label}
+                </span>
+              </p>
+              <p className="text-gray-900 dark:text-white"><strong>Fonte:</strong> {delivery.source}</p>
+              <p className="text-gray-900 dark:text-white"><strong>Criado em:</strong> {delivery.createdAt}</p>
+              {delivery.driver && (
+                <p className="text-gray-900 dark:text-white"><strong>Motoboy:</strong> {delivery.driver}</p>
+              )}
+              {delivery.estimatedTime && (
+                <p className="text-gray-900 dark:text-white"><strong>Tempo estimado:</strong> {delivery.estimatedTime}</p>
+              )}
+              {delivery.distance && (
+                <p className="text-gray-900 dark:text-white"><strong>Distância:</strong> {delivery.distance}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-b-2xl">
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+})
+DeliveryDetailsModal.displayName = 'DeliveryDetailsModal'
+
 const StatsSkeleton = memo(() => (
   <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 animate-pulse">
     <div className="flex items-center space-x-3">
@@ -155,7 +261,7 @@ const StatsSkeleton = memo(() => (
 StatsSkeleton.displayName = 'StatsSkeleton'
 
 // Componente de card de entrega memoizado
-const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, markAsArrived, openMaps, callCustomer, openAssignDriverModal }: {
+const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, markAsArrived, openMaps, callCustomer, openAssignDriverModal, onViewDetails }: {
   delivery: Delivery
   getStatusInfo: (status: Delivery['status']) => any
   updateDeliveryStatus: (deliveryId: string, newStatus: Delivery['status']) => void
@@ -163,6 +269,7 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
   openMaps: (address: string) => void
   callCustomer: (phone: string) => void
   openAssignDriverModal: (delivery: Delivery) => void // ✅ CORREÇÃO: Adicionar função para atribuir motoboy
+  onViewDetails: (delivery: Delivery) => void // ✅ CORREÇÃO: Adicionar função para ver detalhes
 }) => {
   const statusInfo = useMemo(() => getStatusInfo(delivery.status), [getStatusInfo, delivery.status])
   
@@ -284,7 +391,11 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
             </button>
           )}
           
-          <button className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors duration-200">
+          <button 
+            onClick={() => onViewDetails(delivery)}
+            className="p-1 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors duration-200"
+            title="Ver Detalhes"
+          >
             <Eye className="w-4 h-4" />
           </button>
         </div>
@@ -303,6 +414,10 @@ function DeliveryManagementContent() {
   // ✅ CORREÇÃO: Estados para modal de atribuição de motoboy
   const [isAssignDriverModalOpen, setIsAssignDriverModalOpen] = useState(false)
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null)
+  
+  // ✅ CORREÇÃO: Estados para modal de detalhes
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [selectedDeliveryForDetails, setSelectedDeliveryForDetails] = useState<Delivery | null>(null)
 
   // Debounce da busca para melhor performance
   const debouncedSearchTerm = useDebounce(searchTerm, 500)
@@ -479,6 +594,12 @@ function DeliveryManagementContent() {
     setIsAssignDriverModalOpen(true)
   }, [])
 
+  // ✅ CORREÇÃO: Função para abrir modal de detalhes
+  const openDeliveryDetails = useCallback((delivery: Delivery) => {
+    setSelectedDeliveryForDetails(delivery)
+    setIsDetailsModalOpen(true)
+  }, [])
+
 
 
   // Os filtros agora são aplicados no backend via query parameters
@@ -642,6 +763,7 @@ function DeliveryManagementContent() {
               openMaps={openMaps}
               callCustomer={callCustomer}
               openAssignDriverModal={openAssignDriverModal}
+              onViewDetails={openDeliveryDetails}
             />
           ))
         )}
@@ -683,6 +805,17 @@ function DeliveryManagementContent() {
         }}
         delivery={selectedDelivery}
         onAssignDriver={assignDriver}
+      />
+
+      {/* ✅ CORREÇÃO: Modal para ver detalhes */}
+      <DeliveryDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false)
+          setSelectedDeliveryForDetails(null)
+        }}
+        delivery={selectedDeliveryForDetails}
+        getStatusInfo={getStatusInfo}
       />
 
     </div>

@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * DTO para resposta de Delivery
- * v2.1.2 - Criado para evitar serialização de proxies Hibernate
- * Fix: HTTP 500 ao criar delivery (lazy loading)
+ * v2.1.3 - Adicionado campos para exibição completa na lista
+ * Fix: Informações do pedido não apareciam na lista de delivery
  */
 @Data
 @Builder
@@ -39,5 +41,13 @@ public class DeliveryResponseDto {
     private String driverName;
     private String driverPhone;
     private String driverVehicle;
+    
+    // ✅ CORREÇÃO: Campos para exibição na lista (compatibilidade com frontend)
+    private String customer;        // Alias para customerName
+    private String address;        // Alias para deliveryAddress  
+    private String phone;          // Alias para customerPhone
+    private String driver;         // Alias para driverName
+    private BigDecimal total;       // Total do pedido
+    private List<String> items;     // Lista de itens do pedido
 }
 
