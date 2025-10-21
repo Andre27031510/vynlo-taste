@@ -9,6 +9,7 @@ import React, { useMemo, useState, useCallback } from 'react'
 import { formatCurrency } from '@/utils/format'
 // Modified: 2025-10-14 16:48 UTC | Safe formatters verified ✓ (3 occurrences)
 import { useClientsQuery, useCreateClientMutation, useUpdateClientMutation, useDeleteClientMutation, type Client } from '@/hooks/useClientsQuery'
+import toast from 'react-hot-toast' // ✅ CORREÇÃO: Importar toast
 // import { FixedSizeList as List } from 'react-window'
 import {
   Users,
@@ -270,15 +271,16 @@ export default function ClientsManagement() {
     updateClientMutation.mutate(
       {
         id: selectedClient.id,
-              name: clientForm.name,
-              email: clientForm.email,
+        name: clientForm.name,
+        email: clientForm.email,
         phone: clientForm.phone || '',
         address: clientForm.address || '',
         status: clientForm.status as 'active' | 'inactive'
       },
       {
         onSuccess: () => {
-    setShowEditModal(false)
+          toast.success('✅ Cliente atualizado com sucesso!')
+          setShowEditModal(false)
     setSelectedClient(null)
     resetForm()
         },
@@ -480,17 +482,17 @@ export default function ClientsManagement() {
         )}
       </div>
 
-      {/* Modal: Cadastrar */}
+      {/* Modal: Cadastrar - ✅ CORREÇÃO: Dark mode profissional */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
             <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Users className="w-6 h-6" />
                   <h3 className="text-2xl font-manrope font-bold">Cadastrar Cliente</h3>
                 </div>
-                <button onClick={() => setShowModal(false)} className="text-white hover:text-gray-200">
+                <button onClick={() => setShowModal(false)} className="text-white/80 hover:text-white transition-colors">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -594,16 +596,17 @@ export default function ClientsManagement() {
       )}
 
       {/* Modal: Visualizar */}
+      {/* Modal: Ver Detalhes - ✅ CORREÇÃO: Dark mode profissional */}
       {showViewModal && selectedClient && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Eye className="w-6 h-6" />
                   <h3 className="text-2xl font-manrope font-bold">Detalhes do Cliente</h3>
                 </div>
-                <button onClick={() => setShowViewModal(false)} className="text-white hover:text-gray-200">
+                <button onClick={() => setShowViewModal(false)} className="text-white/80 hover:text-white transition-colors">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -695,17 +698,17 @@ export default function ClientsManagement() {
         </div>
       )}
 
-      {/* Modal: Editar */}
+      {/* Modal: Editar - ✅ CORREÇÃO: Dark mode profissional */}
       {showEditModal && selectedClient && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="bg-gradient-to-r from-green-600 to-blue-600 p-6 text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Edit className="w-6 h-6" />
                   <h3 className="text-2xl font-manrope font-bold">Editar Cliente</h3>
                 </div>
-                <button onClick={() => setShowEditModal(false)} className="text-white hover:text-gray-200">
+                <button onClick={() => setShowEditModal(false)} className="text-white/80 hover:text-white transition-colors">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -808,10 +811,10 @@ export default function ClientsManagement() {
         </div>
       )}
 
-      {/* Modal: Excluir */}
+      {/* Modal: Excluir - ✅ CORREÇÃO: Dark mode profissional */}
       {showDeleteModal && selectedClient && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl max-w-md w-full shadow-2xl">
             <div className="bg-gradient-to-r from-red-600 to-pink-600 p-6 text-white">
               <div className="flex items-center space-x-3">
                 <Trash2 className="w-6 h-6" />
