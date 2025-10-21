@@ -141,7 +141,9 @@ public class DriverService {
 
     public Page<Driver> getDrivers(Driver.DriverStatus status, String search, int page, int limit) {
         try {
-            Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name"));
+            // ✅ CORREÇÃO: Converter page 1-indexed (frontend) para 0-indexed (Spring Data)
+            int zeroIndexedPage = Math.max(0, page - 1);
+            Pageable pageable = PageRequest.of(zeroIndexedPage, limit, Sort.by(Sort.Direction.ASC, "name"));
             
             // MULTI-TENANCY: Filtrar por tenant_id
             if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {

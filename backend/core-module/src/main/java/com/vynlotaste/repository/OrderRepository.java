@@ -82,4 +82,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.tenantId = :tenantId AND o.createdAt >= :since")
     java.math.BigDecimal sumTotalAmountByTenantIdAndCreatedAtAfter(@Param("tenantId") Long tenantId, @Param("since") LocalDateTime since);
+    
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.tenantId = :tenantId AND o.createdAt >= :since")
+    long countByTenantIdAndCreatedAtAfter(@Param("tenantId") Long tenantId, @Param("since") LocalDateTime since);
 }

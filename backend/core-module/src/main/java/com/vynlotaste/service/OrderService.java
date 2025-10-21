@@ -307,8 +307,12 @@ public class OrderService {
 
     public List<Order> getAllOrders(int page, int limit, String status, String search) {
         try {
+            // ✅ CORREÇÃO: Converter page 1-indexed (frontend) para 0-indexed (Spring Data)
+            // Frontend envia page=1, mas Spring Data espera page=0
+            int zeroIndexedPage = Math.max(0, page - 1);
+            
             // Usar paginação correta para evitar OutOfMemory com 3M+ usuários
-            Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+            Pageable pageable = PageRequest.of(zeroIndexedPage, limit, Sort.by("createdAt").descending());
             
             // MULTI-TENANCY: Filtrar por tenant_id
             Page<Order> orderPage;
@@ -424,7 +428,19 @@ public class OrderService {
     }
 
     public long countPendingOrders() {
-        return orderRepository.countByStatus(Order.OrderStatus.PENDING);
+        // ✅ MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: contando TODOS os pedidos pendentes");
+            return orderRepository.countByStatus(Order.OrderStatus.PENDING);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return 0L;
+        }
+        log.debug("👤 Cliente (tenant_id={}): contando pedidos pendentes do tenant", tenantId);
+        return orderRepository.countByTenantIdAndStatus(tenantId, Order.OrderStatus.PENDING);
     }
 
     public long countOrdersLastHour() {
@@ -439,12 +455,38 @@ public class OrderService {
 
     public long countOrdersToday() {
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        return orderRepository.countByCreatedAtAfter(startOfDay);
+        
+        // ✅ MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: contando TODOS os pedidos de hoje");
+            return orderRepository.countByCreatedAtAfter(startOfDay);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return 0L;
+        }
+        log.debug("👤 Cliente (tenant_id={}): contando pedidos de hoje do tenant", tenantId);
+        return orderRepository.countByTenantIdAndCreatedAtAfter(tenantId, startOfDay);
     }
 
     public BigDecimal getRevenueToday() {
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        return orderRepository.sumTotalAmountByCreatedAtAfter(startOfDay);
+        
+        // ✅ MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: somando TODA a receita de hoje");
+            return orderRepository.sumTotalAmountByCreatedAtAfter(startOfDay);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return BigDecimal.ZERO;
+        }
+        log.debug("👤 Cliente (tenant_id={}): somando receita de hoje do tenant", tenantId);
+        return orderRepository.sumTotalAmountByTenantIdAndCreatedAtAfter(tenantId, startOfDay);
     }
     
     /**
