@@ -78,13 +78,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/actuator/**").permitAll()
                 .requestMatchers("/api/actuator/health").permitAll()
                 
-                // ✅ SWAGGER/OPENAPI (Fase 3) - PROTEGIDO para produção
-                // Desenvolvimento: permitAll() | Produção: hasRole("ADMIN")
-                // Padrão Big Tech: Docs protegidas (Stripe, Twilio, Nubank)
-                .requestMatchers("/docs/**").hasRole("ADMIN")  // Swagger UI
-                .requestMatchers("/v3/api-docs/**").hasRole("ADMIN")  // OpenAPI JSON
-                .requestMatchers("/swagger-ui/**").hasRole("ADMIN")  // Swagger resources
-                .requestMatchers("/swagger-ui.html").hasRole("ADMIN")  // Swagger index
+                // ✅ SWAGGER/OPENAPI (Fase 3) - HÍBRIDO (UI público + API protegida)
+                // ESTRATÉGIA: Permitir recursos estáticos (HTML/CSS/JS) para navegador carregar
+                //             Mas proteger dados sensíveis (OpenAPI JSON, Try It Out)
+                // Padrão Big Tech: UI público, dados protegidos (Stripe, AWS, Twilio)
+                .requestMatchers("/swagger-ui/**").permitAll()  // Recursos estáticos (CSS/JS/HTML)
+                .requestMatchers("/swagger-ui.html").permitAll()  // Swagger index
+                .requestMatchers("/docs/**").permitAll()  // Redirect para Swagger UI
+                .requestMatchers("/v3/api-docs/**").hasRole("ADMIN")  // OpenAPI JSON (dados sensíveis)
                 
                 .requestMatchers("/v1/auth/**").permitAll()
                 .requestMatchers("/v1/public/**").permitAll()
