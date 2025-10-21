@@ -86,6 +86,9 @@ public class DeliveryController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> createDelivery(@RequestBody Map<String, Object> request) {
         try {
+            // ✅ CORREÇÃO: Logs detalhados para debug
+            log.info("📦 Recebendo request para criar delivery: {}", request);
+            
             Long orderId = Long.valueOf(request.get("orderId").toString());
             String customerName = request.get("customerName").toString();
             String customerPhone = request.get("customerPhone").toString();
@@ -94,15 +97,23 @@ public class DeliveryController {
                 request.getOrDefault("source", "WEBSITE").toString().toUpperCase()
             );
             
+            log.info("🚚 Criando delivery para order_id={}, customer={}, phone={}, address={}", 
+                orderId, customerName, customerPhone, deliveryAddress);
+            
             Delivery delivery = deliveryService.createDelivery(
                 orderId, customerName, customerPhone, deliveryAddress, source
             );
             
+            log.info("✅ Delivery criado com sucesso: id={}", delivery.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(delivery);
-        } catch (Exception e) {
-            log.error("Error creating delivery", e);
+        } catch (IllegalArgumentException e) {
+            log.error("❌ Erro de validação ao criar delivery: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            log.error("❌ Erro interno ao criar delivery", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro interno ao criar delivery: " + e.getMessage()));
         }
     }
 

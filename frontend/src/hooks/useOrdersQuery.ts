@@ -221,17 +221,30 @@ export const useCreateOrderMutation = () => {
       // 🚚 FLUXO AUTOMÁTICO: Se pedido é DELIVERY, criar delivery automaticamente
       if (orderData.type === 'DELIVERY') {
         try {
+          const deliveryPayload = {
+            orderId: createdOrder.id,
+            customerName: orderData.customerName || 'Cliente',
+            customerPhone: orderData.contactPhone || 'Não informado',
+            deliveryAddress: orderData.deliveryAddress || 'Endereço não informado',
+            source: 'WEBSITE'
+          }
+          
+          console.log('🚚 Criando delivery automático:', deliveryPayload)
+          
           // Criar delivery automaticamente
-          await apiRequest('core-service', 'v1/deliveries', {
+          const deliveryResponse = await apiRequest('core-service', 'v1/deliveries', {
             method: 'POST',
-            body: JSON.stringify({
-              orderId: createdOrder.id,
-              customerName: orderData.customerName || 'Cliente',
-              customerPhone: orderData.contactPhone || 'Não informado',
-              deliveryAddress: orderData.deliveryAddress || 'Endereço não informado',
-              source: 'WEBSITE'
-            })
+            body: JSON.stringify(deliveryPayload)
           })
+          
+          if (!deliveryResponse.ok) {
+            const errorData = await deliveryResponse.json().catch(() => ({ error: 'Erro desconhecido' }))
+            console.error('❌ Erro ao criar delivery:', errorData)
+            throw new Error(`Erro ao criar delivery: ${errorData.error || deliveryResponse.statusText}`)
+          }
+          
+          const deliveryData = await deliveryResponse.json()
+          console.log('✅ Delivery criado automaticamente:', deliveryData)
           
           // Invalidar cache de deliveries
           queryClient.invalidateQueries({ queryKey: ['deliveries'] })
@@ -242,11 +255,10 @@ export const useCreateOrderMutation = () => {
           setTimeout(() => {
             queryClient.refetchQueries({ queryKey: ['deliveries'], type: 'all' })
           }, 100)
-          
-          console.log('✅ Delivery criado automaticamente para pedido:', createdOrder.id)
         } catch (error) {
-          console.warn('⚠️ Não foi possível criar delivery automático:', error)
+          console.error('❌ Não foi possível criar delivery automático:', error)
           // Não falha a criação do pedido se delivery falhar
+          toast.error('⚠️ Pedido criado, mas delivery não pôde ser criado automaticamente')
         }
       }
       
