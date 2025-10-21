@@ -23,7 +23,7 @@ import {
   Eye
 } from 'lucide-react'
 // Otimizado para produção - v2.1.2
-import { useDeliveriesQuery, useDeliveryStatsQuery, type Delivery } from '@/hooks/useDeliveryQuery'
+import { useDeliveriesQuery, useDeliveryStatsQuery, useUpdateDeliveryStatusMutation, type Delivery } from '@/hooks/useDeliveryQuery'
 import { useDriversQuery, type Driver } from '@/hooks/useDriversQuery' // ✅ CORREÇÃO: Importar hooks de motoboys
 import { useDebounce } from '@/hooks/useDebounce'
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -240,7 +240,7 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
             </button>
           )}
           
-          {delivery.status === 'in_transit' && (
+          {(delivery.status === 'in_transit' || delivery.status === 'IN_TRANSIT') && (
             <button 
               onClick={() => markAsArrived(delivery.id)}
               className="px-2 sm:px-3 py-1 bg-purple-600 text-white text-xs sm:text-sm rounded hover:bg-purple-700 transition-colors duration-200 flex-1 sm:flex-none"
@@ -249,7 +249,7 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
             </button>
           )}
           
-          {delivery.status === 'arrived' && (
+          {(delivery.status === 'arrived' || delivery.status === 'ARRIVED') && (
             <button 
               onClick={() => updateDeliveryStatus(delivery.id, 'delivered')}
               className="px-2 sm:px-3 py-1 bg-green-600 text-white text-xs sm:text-sm rounded hover:bg-green-700 transition-colors duration-200 flex-1 sm:flex-none"
@@ -273,7 +273,7 @@ const DeliveryCard = memo(({ delivery, getStatusInfo, updateDeliveryStatus, mark
           </button>
           
           {/* ✅ CORREÇÃO: Botão para atribuir motoboy */}
-          {delivery.status === 'preparing' && (
+          {(delivery.status === 'preparing' || delivery.status === 'PREPARING') && (
             <button 
               onClick={() => openAssignDriverModal(delivery)}
               className="px-2 sm:px-3 py-1 bg-orange-600 text-white text-xs sm:text-sm rounded hover:bg-orange-700 transition-colors duration-200 flex-1 sm:flex-none"
@@ -377,6 +377,43 @@ function DeliveryManagementContent() {
         color: 'bg-red-100 text-red-800 border-red-200',
         icon: <XCircle className="w-4 h-4" />,
         bgColor: 'bg-red-50'
+      },
+      // ✅ CORREÇÃO: Adicionar versões UPPERCASE do backend
+      PREPARING: {
+        label: 'Preparando',
+        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        icon: <Package className="w-4 h-4" />,
+        bgColor: 'bg-yellow-50'
+      },
+      IN_TRANSIT: {
+        label: 'Em Trânsito',
+        color: 'bg-blue-100 text-blue-800 border-blue-200',
+        icon: <Truck className="w-4 h-4" />,
+        bgColor: 'bg-blue-50'
+      },
+      ARRIVED: {
+        label: 'Cheguei',
+        color: 'bg-purple-100 text-purple-800 border-purple-200',
+        icon: <MapPin className="w-4 h-4" />,
+        bgColor: 'bg-purple-50'
+      },
+      DELIVERED: {
+        label: 'Entregue',
+        color: 'bg-green-100 text-green-800 border-green-200',
+        icon: <CheckCircle className="w-4 h-4" />,
+        bgColor: 'bg-green-50'
+      },
+      PROBLEM: {
+        label: 'Problema',
+        color: 'bg-red-100 text-red-800 border-red-200',
+        icon: <AlertCircle className="w-4 h-4" />,
+        bgColor: 'bg-red-50'
+      },
+      CANCELLED: {
+        label: 'Cancelado',
+        color: 'bg-gray-100 text-gray-800 border-gray-200',
+        icon: <XCircle className="w-4 h-4" />,
+        bgColor: 'bg-gray-50'
       }
     }
     
@@ -390,6 +427,9 @@ function DeliveryManagementContent() {
     }
   }, [])
 
+  // ✅ CORREÇÃO: Usar mutation real para atualizar status
+  const updateDeliveryStatusMutation = useUpdateDeliveryStatusMutation()
+
   // Funções memoizadas para ações
   const updateDeliveryStatus = useCallback((deliveryId: string, newStatus: Delivery['status'], notes?: string) => {
     const now = new Date()
@@ -398,8 +438,9 @@ function DeliveryManagementContent() {
     console.log(`🚚 Delivery ${deliveryId} atualizado para ${newStatus} às ${timeString}`)
     if (notes) console.log(`📝 Nota: ${notes}`)
     
-    refetchDeliveries()
-  }, [refetchDeliveries])
+    // ✅ CORREÇÃO: Usar mutation real em vez de apenas refetch
+    updateDeliveryStatusMutation.mutate({ deliveryId, status: newStatus })
+  }, [updateDeliveryStatusMutation])
 
   const openMaps = useCallback((address: string) => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`

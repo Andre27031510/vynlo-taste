@@ -3,9 +3,11 @@
 // v2.1.2 - Type-safe queries with generics
 // Modified: 2025-10-11-v15 | Delivery query optimized
 // Modified: 2025-10-14 21:00 UTC | staleTime 30s + refetchOnMount always - deliveries sempre atualizadas - Fixed React Query v5 API (gcTime)
+// ✅ CORREÇÃO: Adicionado mutations para atualizar status de delivery
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
+import toast from 'react-hot-toast'
 
 export interface Delivery {
   id: string
@@ -15,7 +17,7 @@ export interface Delivery {
   phone: string
   driver: string
   driverPhone: string
-  status: 'preparing' | 'in_transit' | 'arrived' | 'delivered' | 'problem' | 'cancelled'
+  status: 'preparing' | 'in_transit' | 'arrived' | 'delivered' | 'problem' | 'cancelled' | 'PREPARING' | 'IN_TRANSIT' | 'ARRIVED' | 'DELIVERED' | 'PROBLEM' | 'CANCELLED'
   estimatedTime: string
   distance: string
   total: number
@@ -112,5 +114,58 @@ export const useDeliveryStatsQuery = () => {
     refetchOnWindowFocus: true, // Atualiza ao focar
     refetchOnMount: 'always', // ✅ SEMPRE refetch ao montar componente
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
+  })
+}
+
+// ✅ CORREÇÃO: Mutations para atualizar status de delivery
+const updateDeliveryStatus = async ({ deliveryId, status }: { deliveryId: string; status: Delivery['status'] }) => {
+  // ✅ CORREÇÃO: Converter status para UPPERCASE (backend espera UPPERCASE)
+  const backendStatus = status.toUpperCase().replace('_', '_')
+  
+  const response = await apiRequest('core-service', `v1/deliveries/${deliveryId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status: backendStatus })
+  })
+  
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.message || 'Erro ao atualizar status do delivery')
+  }
+  
+  return response.json()
+}
+
+export const useUpdateDeliveryStatusMutation = () => {
+  const queryClient = useQueryClient()
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
+  return useMutation({
+    mutationFn: updateDeliveryStatus,
+    onSuccess: (data, variables) => {
+      // ✅ INVALIDAÇÃO AGRESSIVA - limpar TODO cache relacionado
+      queryClient.invalidateQueries({ queryKey: ['deliveries'] })
+      queryClient.invalidateQueries({ queryKey: ['deliveries', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['delivery-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['delivery-stats', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      
+      // ✅ RESETAR queries para forçar reload completo
+      queryClient.resetQueries({ queryKey: ['deliveries', tenantKey] })
+      queryClient.resetQueries({ queryKey: ['delivery-stats', tenantKey] })
+      
+      // ✅ FORÇAR refetch imediato com delay
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['deliveries', tenantKey], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['delivery-stats', tenantKey], type: 'all' })
+      }, 100)
+      
+      toast.success(`✅ Status do delivery atualizado para: ${variables.status}`)
+      console.log('✅ Delivery status updated:', { deliveryId: variables.deliveryId, status: variables.status })
+    },
+    onError: (error) => {
+      toast.error(`❌ Erro ao atualizar delivery: ${error.message}`)
+      console.error('❌ Erro ao atualizar delivery:', error)
+    }
   })
 }
