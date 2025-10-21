@@ -239,8 +239,13 @@ export const useCreateOrderMutation = () => {
           
           if (!deliveryResponse.ok) {
             const errorData = await deliveryResponse.json().catch(() => ({ error: 'Erro desconhecido' }))
-            console.error('❌ Erro ao criar delivery:', errorData)
-            throw new Error(`Erro ao criar delivery: ${errorData.error || deliveryResponse.statusText}`)
+            console.error('❌ Erro ao criar delivery:', {
+              status: deliveryResponse.status,
+              statusText: deliveryResponse.statusText,
+              errorData: errorData,
+              payload: deliveryPayload
+            })
+            throw new Error(`Erro ao criar delivery: ${JSON.stringify(errorData)}`)
           }
           
           const deliveryData = await deliveryResponse.json()

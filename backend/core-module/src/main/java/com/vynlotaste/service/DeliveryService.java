@@ -36,8 +36,20 @@ public class DeliveryService {
     public Delivery createDelivery(Long orderId, String customerName, String customerPhone, 
                                    String deliveryAddress, Delivery.DeliverySource source) {
         try {
+            // ✅ CORREÇÃO CRÍTICA: Buscar tenant_id ANTES de buscar order
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            log.info("🔒 Buscando order_id={} com tenant_id={}", orderId, tenantId);
+            
+            // ✅ CORREÇÃO: Buscar order SEM filtro de tenant (findById é global)
+            // O order já foi criado com o tenant correto, apenas precisamos dele
             Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
+                .orElseThrow(() -> {
+                    log.error("❌ Order não encontrado: orderId={}, tenantId={}", orderId, tenantId);
+                    return new IllegalArgumentException("Order not found: " + orderId);
+                });
+            
+            log.info("✅ Order encontrado: id={}, tenant_id={}, customer={}", 
+                order.getId(), order.getTenantId(), order.getCustomer().getFullName());
             
             Delivery delivery = new Delivery();
             delivery.setOrder(order);
@@ -48,15 +60,14 @@ public class DeliveryService {
             delivery.setStatus(Delivery.DeliveryStatus.PREPARING);
             
             // MULTI-TENANCY: Setar tenant_id automaticamente
-            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
             delivery.setTenantId(tenantId);
-            log.debug("🔒 Delivery será criado com tenant_id={}", tenantId);
+            log.info("🔒 Delivery será criado com tenant_id={}", tenantId);
             
             Delivery saved = deliveryRepository.save(delivery);
-            log.info("Delivery created: {} for order: {}", saved.getId(), orderId);
+            log.info("✅ Delivery criado com sucesso: id={} para order: {}", saved.getId(), orderId);
             return saved;
         } catch (Exception e) {
-            log.error("Error creating delivery for order: {}", orderId, e);
+            log.error("❌ Erro ao criar delivery para order: {}", orderId, e);
             throw e;
         }
     }
