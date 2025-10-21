@@ -179,6 +179,7 @@ export default function CreateOrderModal({ isOpen, onClose }: CreateOrderModalPr
     const orderData: CreateOrderData = {
       type: orderType,
       customerId: Number(selectedCustomer.id),
+      customerName: selectedCustomer.name, // ✅ CORREÇÃO: Adicionar customerName para delivery automático
       items: cart.map(item => ({
         productId: item.productId,
         quantity: item.quantity,
