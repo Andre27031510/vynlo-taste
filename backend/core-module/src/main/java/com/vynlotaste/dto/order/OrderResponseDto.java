@@ -28,6 +28,9 @@ public class OrderResponseDto {
     @Schema(description = "Valor total do pedido", example = "89.90")
     private BigDecimal totalAmount;
     
+    @Schema(description = "Alias para totalAmount (frontend compatibility)", example = "89.90")
+    private BigDecimal total;
+    
     @Schema(description = "Taxa de entrega", example = "5.90")
     private BigDecimal deliveryFee;
     
@@ -45,6 +48,9 @@ public class OrderResponseDto {
     
     @Schema(description = "Dados do cliente")
     private UserResponseDto customer;
+    
+    @Schema(description = "Nome do cliente (derivado)", example = "João Silva")
+    private String customerName;
     
     @Schema(description = "Lista de itens do pedido")
     private List<OrderItemResponseDto> items;

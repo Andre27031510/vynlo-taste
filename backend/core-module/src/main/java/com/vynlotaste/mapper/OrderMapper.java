@@ -143,6 +143,16 @@ public interface OrderMapper {
             if (dto.getItems() == null && order.getItems() != null && !order.getItems().isEmpty()) {
                 dto.setItems(toOrderItemResponseDtoList(order.getItems()));
             }
+            
+            // ✅ CORREÇÃO: Mapear customerName do customer.fullName
+            if (dto.getCustomerName() == null && order.getCustomer() != null) {
+                dto.setCustomerName(order.getCustomer().getFullName());
+            }
+            
+            // ✅ CORREÇÃO: Mapear total como alias de totalAmount (frontend compatibility)
+            if (dto.getTotal() == null && dto.getTotalAmount() != null) {
+                dto.setTotal(dto.getTotalAmount());
+            }
         }
     }
 }

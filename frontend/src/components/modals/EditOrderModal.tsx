@@ -35,7 +35,7 @@ export default function EditOrderModal({ isOpen, onClose, order }: EditOrderModa
     if (!order) return
 
     const updateData: UpdateOrderData = {
-      status,
+      status: status.toUpperCase() as Order['status'], // Backend espera UPPERCASE
       deliveryAddress: deliveryAddress || undefined,
       paymentMethod,
       notes: notes || undefined
