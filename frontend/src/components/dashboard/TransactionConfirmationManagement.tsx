@@ -1,6 +1,7 @@
 'use client'
-// Interface para confirmação manual de transações financeiras
-// v2.1.3 - Implementação completa do fluxo financeiro
+// v2.1.3 - Fluxo financeiro completo implementado
+// Fix: Interface para confirmação manual de transações financeiras
+// Deploy: 2025-10-22 12:06 UTC
 
 import { useState, useEffect } from 'react'
 import { formatCurrency, formatDate } from '@/utils/format'
@@ -304,7 +305,7 @@ export default function TransactionConfirmationManagement() {
             </p>
           </div>
         ) : (
-          transactions.map((transaction) => {
+          transactions.map((transaction: any) => {
             const statusInfo = getStatusInfo(transaction.status)
             
             return (

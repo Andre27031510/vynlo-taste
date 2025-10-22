@@ -1,5 +1,7 @@
 'use client'
-// v2.1.2 - Production ready for 3M+ users
+// v2.1.3 - Fluxo financeiro completo implementado
+// Fix: Hook para confirmação de transações financeiras
+// Deploy: 2025-10-22 12:06 UTC
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'

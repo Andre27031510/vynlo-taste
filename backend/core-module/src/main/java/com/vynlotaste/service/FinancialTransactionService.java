@@ -1,5 +1,9 @@
 package com.vynlotaste.service;
 
+// v2.1.3 - Fluxo financeiro completo implementado
+// Fix: Confirmação automática baseada no método de pagamento
+// Deploy: 2025-10-22 12:06 UTC
+
 import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.dto.financial.FinancialTransactionDto;
 import com.vynlotaste.entity.FinancialTransaction;
