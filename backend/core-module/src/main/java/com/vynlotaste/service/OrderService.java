@@ -9,6 +9,7 @@ import com.vynlotaste.config.CacheConfig;
  */
 import com.vynlotaste.dto.order.OrderRequestDto;
 import com.vynlotaste.entity.*;
+import com.vynlotaste.entity.FinancialTransaction;
 import com.vynlotaste.exception.order.OrderValidationException;
 import com.vynlotaste.exception.user.UserNotFoundException;
 import com.vynlotaste.exception.product.ProductOutOfStockException;
@@ -63,6 +64,7 @@ public class OrderService {
     private final MeterRegistry meterRegistry;
     private final PaymentService paymentService;
     private final NotificationService notificationService;
+    private final FinancialTransactionService financialTransactionService; // ✅ NOVO: Injetar FinancialTransactionService
     
     private Counter orderCreatedCounter;
     private Counter orderCancelledCounter;
@@ -293,7 +295,18 @@ public class OrderService {
             );
             
             if (paymentResult) {
+                // 1. Atualizar status do pedido
                 updateOrderStatus(order.getId(), Order.OrderStatus.CONFIRMED);
+                
+                // 2. ✅ NOVO: Criar transação financeira
+                try {
+                    FinancialTransaction transaction = financialTransactionService.createFromOrder(order, paymentMethod);
+                    log.info("✅ Transação financeira criada: ID={} para pedido: {}", transaction.getId(), order.getId());
+                } catch (Exception e) {
+                    log.error("❌ Erro ao criar transação financeira para pedido: {}", order.getId(), e);
+                    // Não falhar o pagamento por causa da transação financeira
+                }
+                
                 log.info("Payment processed successfully for order: {}", order.getId());
             } else {
                 log.warn("Payment failed for order: {}", order.getId());

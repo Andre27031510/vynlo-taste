@@ -70,6 +70,19 @@ public class CashFlow {
     @Column(name = "tenant_id")
     private Long tenantId;
 
+    // ✅ NOVO: Campos para integração com pedidos e transações financeiras
+    @Column(name = "order_id")
+    private Long orderId;
+
+    @Column(name = "financial_transaction_id")
+    private Long financialTransactionId;
+
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod;
+
+    @Column(name = "reference_number", length = 100)
+    private String referenceNumber;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -148,4 +161,17 @@ public class CashFlow {
 
     public Long getTenantId() { return tenantId; }
     public void setTenantId(Long tenantId) { this.tenantId = tenantId; }
+
+    // ✅ NOVO: Getters e Setters para integração
+    public Long getOrderId() { return orderId; }
+    public void setOrderId(Long orderId) { this.orderId = orderId; }
+
+    public Long getFinancialTransactionId() { return financialTransactionId; }
+    public void setFinancialTransactionId(Long financialTransactionId) { this.financialTransactionId = financialTransactionId; }
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getReferenceNumber() { return referenceNumber; }
+    public void setReferenceNumber(String referenceNumber) { this.referenceNumber = referenceNumber; }
 }

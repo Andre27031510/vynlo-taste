@@ -1,6 +1,8 @@
 package com.vynlotaste.service;
 
 import com.vynlotaste.entity.CashFlow;
+import com.vynlotaste.entity.Order;
+import com.vynlotaste.entity.FinancialTransaction;
 import com.vynlotaste.repository.CashFlowRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -342,5 +344,109 @@ public class CashFlowService {
         
         public com.vynlotaste.entity.User getUser() { return user; }
         public void setUser(com.vynlotaste.entity.User user) { this.user = user; }
+    }
+
+    // ✅ NOVO: Métodos para integração com pedidos e transações financeiras
+
+    /**
+     * Criar entrada de fluxo de caixa a partir de pedido
+     */
+    @Transactional
+    public CashFlow createFromOrder(Order order, String paymentMethod) {
+        log.info("💰 Criando entrada de fluxo de caixa para pedido: {} - R$ {}", order.getId(), order.getTotalAmount());
+
+        CashFlow cashFlow = new CashFlow();
+        cashFlow.setType("INCOME");
+        cashFlow.setCategory("Vendas");
+        cashFlow.setDescription("Pedido #" + order.getId() + " - " + order.getCustomer().getFullName());
+        cashFlow.setAmount(order.getTotalAmount());
+        cashFlow.setDate(java.time.LocalDate.now());
+        cashFlow.setStatus("PENDING");
+        cashFlow.setUser(order.getCustomer());
+        cashFlow.setOrderId(order.getId());
+        cashFlow.setPaymentMethod(paymentMethod);
+        cashFlow.setReferenceNumber("ORD-" + order.getId());
+        cashFlow.setTenantId(order.getTenantId());
+
+        CashFlow savedCashFlow = cashFlowRepository.save(cashFlow);
+
+        log.info("✅ Entrada de fluxo de caixa criada: ID={} para pedido: {}", savedCashFlow.getId(), order.getId());
+
+        return savedCashFlow;
+    }
+
+    /**
+     * Criar entrada de fluxo de caixa a partir de transação financeira
+     */
+    @Transactional
+    public CashFlow createFromFinancialTransaction(FinancialTransaction transaction) {
+        log.info("💰 Criando entrada de fluxo de caixa para transação: {} - R$ {}", transaction.getId(), transaction.getAmount());
+
+        CashFlow cashFlow = new CashFlow();
+        cashFlow.setType(transaction.getType().name());
+        cashFlow.setCategory(transaction.getCategory());
+        cashFlow.setDescription(transaction.getDescription());
+        cashFlow.setAmount(transaction.getAmount());
+        cashFlow.setDate(transaction.getTransactionDate());
+        cashFlow.setStatus(transaction.getStatus().name());
+        cashFlow.setFinancialTransactionId(transaction.getId());
+        cashFlow.setPaymentMethod(transaction.getPaymentMethod());
+        cashFlow.setReferenceNumber(transaction.getReferenceNumber());
+        cashFlow.setTenantId(transaction.getTenantId());
+
+        // Definir usuário baseado no tipo de transação
+        if (transaction.getCustomerId() != null) {
+            // Para receitas, usar o cliente
+            cashFlow.setUser(new com.vynlotaste.entity.User());
+            cashFlow.getUser().setId(transaction.getCustomerId());
+        }
+
+        CashFlow savedCashFlow = cashFlowRepository.save(cashFlow);
+
+        log.info("✅ Entrada de fluxo de caixa criada: ID={} para transação: {}", savedCashFlow.getId(), transaction.getId());
+
+        return savedCashFlow;
+    }
+
+    /**
+     * Confirmar entrada de fluxo de caixa
+     */
+    @Transactional
+    public CashFlow confirmCashFlowEntry(Long cashFlowId) {
+        log.info("✅ Confirmando entrada de fluxo de caixa: {}", cashFlowId);
+
+        CashFlow cashFlow = cashFlowRepository.findById(cashFlowId)
+                .orElseThrow(() -> new RuntimeException("Entrada de fluxo de caixa não encontrada: " + cashFlowId));
+
+        if (!"PENDING".equals(cashFlow.getStatus())) {
+            throw new IllegalStateException("Entrada de fluxo de caixa já foi processada: " + cashFlow.getStatus());
+        }
+
+        cashFlow.setStatus("CONFIRMED");
+
+        CashFlow confirmedCashFlow = cashFlowRepository.save(cashFlow);
+
+        log.info("✅ Entrada de fluxo de caixa confirmada: ID={}, Valor={}", 
+                confirmedCashFlow.getId(), confirmedCashFlow.getAmount());
+
+        return confirmedCashFlow;
+    }
+
+    /**
+     * Buscar entradas de fluxo de caixa por pedido
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<CashFlow> findByOrderId(Long orderId) {
+        log.debug("🔍 Buscando entradas de fluxo de caixa do pedido: {}", orderId);
+        return cashFlowRepository.findByOrderId(orderId);
+    }
+
+    /**
+     * Buscar entradas de fluxo de caixa por transação financeira
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<CashFlow> findByFinancialTransactionId(Long financialTransactionId) {
+        log.debug("🔍 Buscando entradas de fluxo de caixa da transação: {}", financialTransactionId);
+        return cashFlowRepository.findByFinancialTransactionId(financialTransactionId);
     }
 }
