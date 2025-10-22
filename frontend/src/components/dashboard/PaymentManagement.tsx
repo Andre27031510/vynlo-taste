@@ -219,6 +219,31 @@ export default function PaymentManagement() {
   const providers = providersData ?? []
   const stats = statsData ?? { totalPayments: 0, successfulPayments: 0, failedPayments: 0, totalAmount: 0 }
   
+  // ✅ CORREÇÃO: useEffect movido para ANTES do early return (Fix React Error #310)
+  // Fechar menu de geração quando clicar fora ou pressionar ESC
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (showGenerateMenu && !target.closest('.generate-menu-container')) {
+        setShowGenerateMenu(false)
+      }
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showGenerateMenu) {
+        setShowGenerateMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [showGenerateMenu])
+
   // ✅ Early return APÓS todos os hooks (Fix React Error #310)
   if (isLoading) {
     return <FinancialSkeleton theme={theme} />
@@ -260,30 +285,6 @@ export default function PaymentManagement() {
   // TanStack Query já gerencia refetch automático via staleTime/gcTime
   // Webhooks devem ser processados via endpoint real: POST /v1/payments/webhooks
   // Fix: 2025-10-17 | Removido setInterval problemático que usava paymentsData sem dependência
-
-  // Fechar menu de geração quando clicar fora ou pressionar ESC
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (showGenerateMenu && !target.closest('.generate-menu-container')) {
-        setShowGenerateMenu(false)
-      }
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && showGenerateMenu) {
-        setShowGenerateMenu(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [showGenerateMenu])
 
   // Carregar webhooks reais da API
   const loadWebhooks = async () => {
