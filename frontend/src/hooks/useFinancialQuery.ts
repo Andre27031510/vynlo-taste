@@ -191,5 +191,75 @@ export const useCreateTransactionMutation = () => {
   })
 }
 
+export const useConfirmTransactionMutation = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (transactionId: string) => {
+      const response = await apiRequest('core-service', `v1/financial-transactions/${transactionId}/confirm`, {
+        method: 'POST'
+      })
+      
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => response.statusText)
+        throw new Error(`Erro ao confirmar transação: ${response.status} - ${errorText}`)
+      }
+      
+      return await response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financial-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['cashflow-summary'] })
+      queryClient.invalidateQueries({ queryKey: ['cashflow-entries'] })
+    },
+    onError: (error: Error) => {
+      console.error('❌ Erro ao confirmar transação:', error)
+    }
+  })
+}
+
+export const useFinancialTransactionsQuery = (filters?: {
+  status?: string
+  search?: string
+  page?: number
+  size?: number
+}) => {
+  // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
+  const { useTenantKey } = require('./useTenantKey')
+  const tenantKey = useTenantKey()
+  
+  return useQuery({
+    queryKey: ['financial-transactions', tenantKey, filters],  // ✅ Isolado por tenant
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      
+      // Paginação 0-based
+      const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
+      const size = filters?.size ?? 10
+      params.append('page', pageZero.toString())
+      params.append('size', size.toString())
+      params.append('sort', 'createdAt,desc')
+      
+      if (filters?.status && filters.status !== 'all') params.append('status', filters.status)
+      if (filters?.search) params.append('search', filters.search)
+
+      const response = await apiRequest('core-service', `v1/financial-transactions?${params.toString()}`)
+      
+      if (!response.ok) {
+        return {
+          content: [],
+          totalElements: 0,
+          totalPages: 0
+        }
+      }
+      
+      return await response.json()
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    gcTime: 5 * 60 * 1000,    // 5 minutos
+    refetchInterval: false,
+  })
+}
+
 // Modified: 2025-10-11-v6 | Category field for financial transactions
 // Modified: 2025-10-14 20:50 UTC | Cursor: Paginação 0-based + sort=createdAt,desc

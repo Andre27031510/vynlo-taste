@@ -63,10 +63,69 @@ public class FinancialTransactionService {
         // Salvar transação
         FinancialTransaction savedTransaction = financialTransactionRepository.save(transaction);
 
+        // ✅ CORREÇÃO: Confirmar transação automaticamente baseado no método de pagamento
+        if (savedTransaction.getOrderId() != null) {
+            try {
+                // Determinar se deve confirmar automaticamente baseado no método de pagamento
+                boolean shouldAutoConfirm = shouldAutoConfirmPayment(savedTransaction.getPaymentMethod());
+                
+                if (shouldAutoConfirm) {
+                    savedTransaction.setStatus(FinancialTransaction.Status.COMPLETED);
+                    savedTransaction.setPaymentDate(LocalDate.now());
+                    FinancialTransaction confirmedTransaction = financialTransactionRepository.save(savedTransaction);
+                    
+                    // Criar entrada de fluxo de caixa
+                    CashFlow cashFlow = cashFlowService.createFromFinancialTransaction(confirmedTransaction);
+                    log.info("✅ Entrada de fluxo de caixa criada automaticamente: ID={} para transação: {}", 
+                            cashFlow.getId(), confirmedTransaction.getId());
+                    
+                    return confirmedTransaction;
+                } else {
+                    log.info("⏳ Transação criada com status PENDING - aguardando confirmação manual: {}", savedTransaction.getId());
+                }
+            } catch (Exception e) {
+                log.error("❌ Erro ao processar confirmação automática: {}", savedTransaction.getId(), e);
+                return savedTransaction;
+            }
+        }
+
         log.info("✅ Transação financeira criada: ID={}, Tenant={}, Valor={}", 
                 savedTransaction.getId(), savedTransaction.getTenantId(), savedTransaction.getAmount());
 
         return savedTransaction;
+    }
+
+    /**
+     * ✅ NOVO: Determinar se deve confirmar automaticamente baseado no método de pagamento
+     * Baseado em boas práticas empresariais (TOTVS/SAP/Oracle)
+     */
+    private boolean shouldAutoConfirmPayment(String paymentMethod) {
+        if (paymentMethod == null) {
+            return false;
+        }
+        
+        String method = paymentMethod.toUpperCase();
+        
+        // Métodos que confirmam automaticamente (via webhook/integração)
+        if (method.contains("PIX") || 
+            method.contains("CARTAO") || 
+            method.contains("CARTAO_CREDITO") ||
+            method.contains("CARTAO_DEBITO") ||
+            method.contains("DIGITAL") ||
+            method.contains("ONLINE")) {
+            return true;
+        }
+        
+        // Métodos que requerem confirmação manual
+        if (method.contains("DINHEIRO") || 
+            method.contains("CASH") ||
+            method.contains("CHEQUE") ||
+            method.contains("MANUAL")) {
+            return false;
+        }
+        
+        // Default: não confirmar automaticamente (segurança)
+        return false;
     }
 
     /**
