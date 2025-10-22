@@ -92,10 +92,10 @@ public class OrderController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getOrdersStats() {
         try {
-            // Buscar dados reais do banco
-            long totalOrders = orderService.countOrdersToday();
+            // ✅ CORREÇÃO: Buscar dados reais do banco - TODOS OS PEDIDOS (não apenas de hoje)
+            long totalOrders = orderService.countAllOrders();
             long pendingOrders = orderService.countPendingOrders();
-            java.math.BigDecimal revenue = orderService.getRevenueToday();
+            java.math.BigDecimal revenue = orderService.getTotalRevenue();
             
             log.debug("📊 Dashboard Stats - totalOrders: {}, pendingOrders: {}, revenue: {}", 
                      totalOrders, pendingOrders, revenue);

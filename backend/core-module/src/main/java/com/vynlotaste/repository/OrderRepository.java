@@ -85,4 +85,15 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     
     @Query("SELECT COUNT(o) FROM Order o WHERE o.tenantId = :tenantId AND o.createdAt >= :since")
     long countByTenantIdAndCreatedAtAfter(@Param("tenantId") Long tenantId, @Param("since") LocalDateTime since);
+
+    // ✅ NOVO: Métodos para contar TODOS os pedidos e somar TODA a receita
+    
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.tenantId = :tenantId")
+    long countByTenantId(@Param("tenantId") Long tenantId);
+    
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.tenantId = :tenantId")
+    java.math.BigDecimal sumTotalAmountByTenantId(@Param("tenantId") Long tenantId);
+    
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o")
+    java.math.BigDecimal sumTotalAmount();
 }

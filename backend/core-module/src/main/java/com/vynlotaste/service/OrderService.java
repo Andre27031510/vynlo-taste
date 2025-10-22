@@ -574,6 +574,29 @@ public class OrderService {
         return count;
     }
 
+    /**
+     * ✅ NOVO: Contar TODOS os pedidos (não apenas de hoje)
+     */
+    public long countAllOrders() {
+        // ✅ MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: contando TODOS os pedidos");
+            long count = orderRepository.count();
+            log.debug("🔑 Super Admin: total de pedidos = {}", count);
+            return count;
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return 0L;
+        }
+        log.debug("👤 Cliente (tenant_id={}): contando TODOS os pedidos do tenant", tenantId);
+        long count = orderRepository.countByTenantId(tenantId);
+        log.debug("👤 Cliente (tenant_id={}): total de pedidos = {}", tenantId, count);
+        return count;
+    }
+
     public BigDecimal getRevenueToday() {
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         
@@ -593,6 +616,29 @@ public class OrderService {
         log.debug("👤 Cliente (tenant_id={}): somando receita de hoje do tenant", tenantId);
         BigDecimal revenue = orderRepository.sumTotalAmountByTenantIdAndCreatedAtAfter(tenantId, startOfDay);
         log.debug("👤 Cliente (tenant_id={}): receita total hoje = {}", tenantId, revenue);
+        return revenue;
+    }
+
+    /**
+     * ✅ NOVO: Somar TODA a receita (não apenas de hoje)
+     */
+    public BigDecimal getTotalRevenue() {
+        // ✅ MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: somando TODA a receita");
+            BigDecimal revenue = orderRepository.sumTotalAmount();
+            log.debug("🔑 Super Admin: receita total = {}", revenue);
+            return revenue;
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return BigDecimal.ZERO;
+        }
+        log.debug("👤 Cliente (tenant_id={}): somando TODA a receita do tenant", tenantId);
+        BigDecimal revenue = orderRepository.sumTotalAmountByTenantId(tenantId);
+        log.debug("👤 Cliente (tenant_id={}): receita total = {}", tenantId, revenue);
         return revenue;
     }
     
