@@ -31,6 +31,14 @@ import { type CashFlowEntry } from '@/hooks/useCashFlowQuery'
 
 export default function CashFlowManagement() {
   const [selectedPeriod, setSelectedPeriod] = useState('30d')
+  const [showNewEntryModal, setShowNewEntryModal] = useState(false)
+  const [newEntryForm, setNewEntryForm] = useState({
+    type: 'inflow',
+    amount: '',
+    description: '',
+    category: 'Vendas',
+    date: new Date().toISOString().split('T')[0]
+  })
   const [filterType, setFilterType] = useState('all')
   
   // Responsividade
@@ -81,14 +89,8 @@ export default function CashFlowManagement() {
           
           <button 
             onClick={() => {
-              // TODO: Abrir modal de nova entrada
-              createMutation.mutate({
-                type: 'inflow',
-                amount: 0,
-                description: 'Nova entrada',
-                category: 'Vendas',
-                date: new Date().toISOString().split('T')[0]
-              })
+              // ✅ CORREÇÃO: Abrir modal de nova entrada
+              setShowNewEntryModal(true)
             }}
             className="flex items-center justify-center space-x-2 px-3 py-2 md:px-4 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
           >

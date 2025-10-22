@@ -112,6 +112,22 @@ public class OrderService {
             // Salvar pedido
             Order savedOrder = orderRepository.save(order);
             
+            // ✅ NOVO: Processar pagamento automaticamente
+            try {
+                // Simular pagamento aprovado para demonstração
+                // Em produção, isso seria feito via webhook ou integração real
+                boolean paymentResult = processPayment(savedOrder, "PIX");
+                
+                if (paymentResult) {
+                    log.info("✅ Pagamento processado automaticamente para pedido: {}", savedOrder.getId());
+                } else {
+                    log.warn("⚠️ Pagamento não processado para pedido: {}", savedOrder.getId());
+                }
+            } catch (Exception e) {
+                log.error("❌ Erro ao processar pagamento para pedido: {}", savedOrder.getId(), e);
+                // Não falhar a criação do pedido por causa do pagamento
+            }
+            
             // Publicar evento
             eventPublisher.publishEvent(new OrderEvent("ORDER_CREATED", savedOrder.getId(), customer.getId()));
             

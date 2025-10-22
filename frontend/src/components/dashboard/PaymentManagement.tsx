@@ -117,6 +117,17 @@ export default function PaymentManagement() {
   // Estados para menu de geração de relatórios (MOVIDO ANTES DO EARLY RETURN)
   const [showGenerateMenu, setShowGenerateMenu] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
+  
+  // ✅ NOVO: Estado para modal de nova transação
+  const [showNewTransactionModal, setShowNewTransactionModal] = useState(false)
+  const [newTransactionForm, setNewTransactionForm] = useState({
+    type: 'income',
+    amount: '',
+    description: '',
+    category: 'Vendas',
+    date: new Date().toISOString().split('T')[0],
+    paymentMethod: 'PIX'
+  })
   const [emailRecipient, setEmailRecipient] = useState('')
 
   // Estados para seções colapsáveis da aba de taxas (MOVIDO ANTES DO EARLY RETURN)
@@ -883,6 +894,10 @@ export default function PaymentManagement() {
             <span className="font-manrope">Integrações</span>
           </button>
           <button 
+            onClick={() => {
+              // ✅ CORREÇÃO: Abrir modal de nova transação
+              setShowNewTransactionModal(true)
+            }}
             className="bg-blue-600 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
