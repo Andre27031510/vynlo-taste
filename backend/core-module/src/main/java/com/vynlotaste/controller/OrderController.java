@@ -7,6 +7,7 @@ import com.vynlotaste.mapper.OrderMapper;
 import com.vynlotaste.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/orders")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
 
     private final OrderService orderService;
@@ -95,15 +97,24 @@ public class OrderController {
             long pendingOrders = orderService.countPendingOrders();
             java.math.BigDecimal revenue = orderService.getRevenueToday();
             
+            log.debug("📊 Dashboard Stats - totalOrders: {}, pendingOrders: {}, revenue: {}", 
+                     totalOrders, pendingOrders, revenue);
+            
             // Calcular média se houver pedidos
             double averageOrderValue = totalOrders > 0 
                 ? revenue.divide(java.math.BigDecimal.valueOf(totalOrders), 2, java.math.RoundingMode.HALF_UP).doubleValue()
                 : 0.0;
             
+            // ✅ CORREÇÃO: Calcular completedOrders corretamente
+            long completedOrders = orderService.countCompletedOrders();
+            
+            log.debug("📊 Dashboard Stats - completedOrders: {}, averageOrderValue: {}", 
+                     completedOrders, averageOrderValue);
+            
             return ResponseEntity.ok(java.util.Map.of(
                 "totalOrders", totalOrders,
                 "pendingOrders", pendingOrders,
-                "completedOrders", totalOrders - pendingOrders,
+                "completedOrders", completedOrders,
                 "revenue", revenue.doubleValue(),
                 "averageOrderValue", averageOrderValue
             ));

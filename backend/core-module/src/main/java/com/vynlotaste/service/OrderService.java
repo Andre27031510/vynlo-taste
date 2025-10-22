@@ -481,6 +481,22 @@ public class OrderService {
         return true;
     }
 
+    public long countCompletedOrders() {
+        // ✅ MULTI-TENANCY: Filtrar por tenant_id
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: contando TODOS os pedidos concluídos");
+            return orderRepository.countByStatus(Order.OrderStatus.DELIVERED);
+        }
+        
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        if (tenantId == null) {
+            log.warn("⚠️ Tenant não definido - retornando 0");
+            return 0L;
+        }
+        log.debug("👤 Cliente (tenant_id={}): contando pedidos concluídos do tenant", tenantId);
+        return orderRepository.countByTenantIdAndStatus(tenantId, Order.OrderStatus.DELIVERED);
+    }
+
     public long countPendingOrders() {
         // ✅ MULTI-TENANCY: Filtrar por tenant_id
         if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
@@ -513,7 +529,9 @@ public class OrderService {
         // ✅ MULTI-TENANCY: Filtrar por tenant_id
         if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
             log.debug("🔑 Super Admin: contando TODOS os pedidos de hoje");
-            return orderRepository.countByCreatedAtAfter(startOfDay);
+            long count = orderRepository.countByCreatedAtAfter(startOfDay);
+            log.debug("🔑 Super Admin: total de pedidos hoje = {}", count);
+            return count;
         }
         
         Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
@@ -522,7 +540,9 @@ public class OrderService {
             return 0L;
         }
         log.debug("👤 Cliente (tenant_id={}): contando pedidos de hoje do tenant", tenantId);
-        return orderRepository.countByTenantIdAndCreatedAtAfter(tenantId, startOfDay);
+        long count = orderRepository.countByTenantIdAndCreatedAtAfter(tenantId, startOfDay);
+        log.debug("👤 Cliente (tenant_id={}): total de pedidos hoje = {}", tenantId, count);
+        return count;
     }
 
     public BigDecimal getRevenueToday() {
@@ -531,7 +551,9 @@ public class OrderService {
         // ✅ MULTI-TENANCY: Filtrar por tenant_id
         if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
             log.debug("🔑 Super Admin: somando TODA a receita de hoje");
-            return orderRepository.sumTotalAmountByCreatedAtAfter(startOfDay);
+            BigDecimal revenue = orderRepository.sumTotalAmountByCreatedAtAfter(startOfDay);
+            log.debug("🔑 Super Admin: receita total hoje = {}", revenue);
+            return revenue;
         }
         
         Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
@@ -540,7 +562,9 @@ public class OrderService {
             return BigDecimal.ZERO;
         }
         log.debug("👤 Cliente (tenant_id={}): somando receita de hoje do tenant", tenantId);
-        return orderRepository.sumTotalAmountByTenantIdAndCreatedAtAfter(tenantId, startOfDay);
+        BigDecimal revenue = orderRepository.sumTotalAmountByTenantIdAndCreatedAtAfter(tenantId, startOfDay);
+        log.debug("👤 Cliente (tenant_id={}): receita total hoje = {}", tenantId, revenue);
+        return revenue;
     }
     
     /**
