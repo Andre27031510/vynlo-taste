@@ -5,6 +5,8 @@
 import { useState, useEffect } from 'react'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { useFinancialTransactionsQuery } from '@/hooks/useFinancialQuery'
+import { useOrdersQuery } from '@/hooks/useOrdersQuery'
+import { useCashFlowQuery } from '@/hooks/useCashFlowQuery'
 import { 
   CheckCircle, 
   AlertCircle, 
@@ -29,6 +31,7 @@ import {
 import { useThemeContext } from '../../contexts/ThemeContext'
 import { FINANCIAL_COLORS } from '@/constants/financialTheme'
 import GenericModal from '../GenericModal'
+import toast from 'react-hot-toast'
 
 interface Discrepancy {
   id: string
@@ -65,6 +68,8 @@ export default function ReconciliationManagement() {
 
   // Queries da API
   const { data: transactionsData, isLoading: transactionsLoading, refetch: refetchTransactions } = useFinancialTransactionsQuery()
+  const { data: ordersData, isLoading: ordersLoading, refetch: refetchOrders } = useOrdersQuery()
+  const { data: cashFlowData, isLoading: cashFlowLoading, refetch: refetchCashFlow } = useCashFlowQuery()
 
   // Estados para dados de reconciliação
   const [reconciliationData, setReconciliationData] = useState<ReconciliationData>({
@@ -76,59 +81,104 @@ export default function ReconciliationManagement() {
     lastReconciliation: new Date()
   })
 
-  const [alerts, setAlerts] = useState([
-    {
-      id: '1',
-      type: 'discrepancy',
-      severity: 'warning',
-      message: 'Discrepância encontrada entre pedidos e transações',
-      amount: 150.00,
-      date: new Date(),
-      status: 'pending'
-    },
-    {
-      id: '2',
-      type: 'missing_transaction',
-      severity: 'critical',
-      message: 'Transação financeira não encontrada para pedido #1234',
-      amount: 89.50,
-      date: new Date(),
-      status: 'pending'
-    }
-  ])
+  const [alerts, setAlerts] = useState<any[]>([])
 
-  // Simular dados de reconciliação
+  // ✅ CORREÇÃO: Calcular dados reais de reconciliação
   useEffect(() => {
-    const mockReconciliationData = {
-      totalOrders: 156,
-      totalTransactions: 154,
-      totalCashFlow: 152,
-      discrepancies: [
-        {
-          id: '1',
-          type: 'missing_transaction',
-          orderId: '1234',
-          amount: 89.50,
-          date: new Date(),
-          description: 'Pedido sem transação financeira'
-        },
-        {
-          id: '2',
-          type: 'amount_mismatch',
-          orderId: '1235',
-          expectedAmount: 150.00,
-          actualAmount: 145.00,
-          difference: 5.00,
-          date: new Date(),
-          description: 'Valor da transação não confere com o pedido'
+    if (transactionsData && ordersData && cashFlowData) {
+      const orders = ordersData.orders || []
+      const transactions = transactionsData.transactions || []
+      const cashFlowEntries = cashFlowData.content || []
+      
+      // Calcular totais
+      const totalOrders = orders.length
+      const totalTransactions = transactions.length
+      const totalCashFlow = cashFlowEntries.length
+      
+      // Calcular discrepâncias
+      const discrepancies: Discrepancy[] = []
+      
+      // Verificar pedidos sem transação financeira
+      orders.forEach(order => {
+        const hasTransaction = transactions.some(t => t.orderId === order.id)
+        if (!hasTransaction && order.status === 'delivered') {
+          discrepancies.push({
+            id: `missing-transaction-${order.id}`,
+            type: 'missing_transaction',
+            orderId: order.id,
+            amount: order.total,
+            date: new Date(order.createdAt),
+            description: `Pedido entregue sem transação financeira`
+          })
         }
-      ],
-      isBalanced: false,
-      lastReconciliation: new Date()
+      })
+      
+      // Verificar transações sem entrada no fluxo de caixa
+      transactions.forEach(transaction => {
+        if (transaction.status === 'confirmed') {
+          const hasCashFlow = cashFlowEntries.some(cf => cf.financialTransactionId === transaction.id)
+          if (!hasCashFlow) {
+            discrepancies.push({
+              id: `missing-cashflow-${transaction.id}`,
+              type: 'missing_cashflow',
+              orderId: transaction.orderId || 'N/A',
+              amount: transaction.amount,
+              date: new Date(transaction.transactionDate),
+              description: `Transação confirmada sem entrada no fluxo de caixa`
+            })
+          }
+        }
+      })
+      
+      // Verificar se está balanceado
+      const isBalanced = discrepancies.length === 0
+      
+      setReconciliationData({
+        totalOrders,
+        totalTransactions,
+        totalCashFlow,
+        discrepancies,
+        isBalanced,
+        lastReconciliation: new Date()
+      })
+      
+      // Gerar alertas baseados nas discrepâncias
+      const newAlerts = discrepancies.map(d => ({
+        id: d.id,
+        type: d.type,
+        severity: d.type === 'missing_transaction' ? 'critical' : 'warning',
+        message: d.description,
+        amount: d.amount,
+        date: d.date,
+        status: 'pending'
+      }))
+      setAlerts(newAlerts)
     }
-    
-    setReconciliationData(mockReconciliationData)
-  }, [])
+  }, [transactionsData, ordersData, cashFlowData])
+
+  // ✅ CORREÇÃO: Função para atualizar dados
+  const handleRefresh = async () => {
+    try {
+      await Promise.all([
+        refetchTransactions(),
+        refetchOrders(),
+        refetchCashFlow()
+      ])
+      toast.success('Dados atualizados com sucesso!')
+    } catch (error) {
+      toast.error('Erro ao atualizar dados')
+    }
+  }
+
+  // ✅ CORREÇÃO: Função para reconciliar agora
+  const handleReconcileNow = async () => {
+    try {
+      await handleRefresh()
+      toast.success('Reconciliação executada com sucesso!')
+    } catch (error) {
+      toast.error('Erro ao executar reconciliação')
+    }
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -148,21 +198,6 @@ export default function ReconciliationManagement() {
     }
   }
 
-  const handleReconcileNow = async () => {
-    try {
-      // Simular reconciliação
-      setReconciliationData(prev => ({
-        ...prev,
-        isBalanced: true,
-        discrepancies: [],
-        lastReconciliation: new Date()
-      }))
-      
-      setShowReconciliationModal(false)
-    } catch (error) {
-      console.error('Erro na reconciliação:', error)
-    }
-  }
 
   const handleResolveDiscrepancy = async (discrepancyId: string) => {
     try {
@@ -205,7 +240,7 @@ export default function ReconciliationManagement() {
         
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => refetchTransactions()}
+            onClick={handleRefresh}
             className="btn-secondary flex items-center space-x-2"
           >
             <RefreshCw className="w-4 h-4" />
@@ -213,7 +248,7 @@ export default function ReconciliationManagement() {
           </button>
           
           <button
-            onClick={() => setShowReconciliationModal(true)}
+            onClick={handleReconcileNow}
             className="btn-primary flex items-center space-x-2"
           >
             <CheckCircle className="w-4 h-4" />

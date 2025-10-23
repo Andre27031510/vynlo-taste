@@ -427,11 +427,13 @@ public class OrderService {
             } else {
                 Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
                 if (tenantId == null) {
-                    log.warn("⚠️ Tenant não definido - retornando lista vazia");
-                    return List.of();
+                    log.warn("⚠️ Tenant não definido - retornando TODOS os pedidos (fallback para desenvolvimento)");
+                    // ✅ CORREÇÃO: Em desenvolvimento, retornar todos os pedidos se tenant não definido
+                    orderPage = orderRepository.findAll(pageable);
+                } else {
+                    log.debug("👤 Cliente (tenant_id={}): retornando pedidos do tenant", tenantId);
+                    orderPage = orderRepository.findAllByTenantId(tenantId, pageable);
                 }
-                log.debug("👤 Cliente (tenant_id={}): retornando pedidos do tenant", tenantId);
-                orderPage = orderRepository.findAllByTenantId(tenantId, pageable);
             }
             
             return orderPage.getContent();

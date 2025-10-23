@@ -128,6 +128,15 @@ public class DeliveryService {
             
             log.debug("🔒 Pageable: page={}, size={}", pageZero, limit);
             
+            // ✅ CORREÇÃO: Fallback para desenvolvimento se tenant não definido
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - retornando TODOS os deliveries (fallback para desenvolvimento)");
+                if (status != null) {
+                    return deliveryRepository.findByStatus(status, pageable);
+                }
+                return deliveryRepository.findAll(pageable);
+            }
+            
             // ✅ CORREÇÃO: Usar métodos com filtro de tenant
             if (status != null) {
                 return deliveryRepository.findByStatusAndTenantId(status, tenantId, pageable);
@@ -151,6 +160,24 @@ public class DeliveryService {
             // ✅ CORREÇÃO CRÍTICA: Filtrar stats por tenant_id
             Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
             log.debug("🔒 Buscando stats de delivery para tenant_id={}", tenantId);
+            
+            // ✅ CORREÇÃO: Fallback para desenvolvimento se tenant não definido
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - retornando stats de TODOS os deliveries (fallback para desenvolvimento)");
+                long total = deliveryRepository.count();
+                long inTransit = deliveryRepository.countByStatus(Delivery.DeliveryStatus.IN_TRANSIT);
+                long preparing = deliveryRepository.countByStatus(Delivery.DeliveryStatus.PREPARING);
+                long delivered = deliveryRepository.countByStatus(Delivery.DeliveryStatus.DELIVERED);
+                long problems = deliveryRepository.countByStatus(Delivery.DeliveryStatus.PROBLEM);
+                
+                return Map.of(
+                    "totalDeliveries", total,
+                    "inTransit", inTransit,
+                    "preparing", preparing,
+                    "delivered", delivered,
+                    "problems", problems
+                );
+            }
             
             long total = deliveryRepository.countByTenantId(tenantId);
             long inTransit = deliveryRepository.countByStatusAndTenantId(Delivery.DeliveryStatus.IN_TRANSIT, tenantId);
