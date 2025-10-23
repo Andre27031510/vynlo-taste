@@ -112,9 +112,7 @@ public class OrderService {
             // Salvar pedido
             Order savedOrder = orderRepository.save(order);
             
-            // ✅ TEMPORÁRIO: Desabilitar processamento automático para debug
-            // TODO: Reabilitar após resolver HTTP 500
-            /*
+            // ✅ SEGURO: Processamento de pagamento com fallback
             try {
                 // Simular pagamento aprovado para demonstração
                 // Em produção, isso seria feito via webhook ou integração real
@@ -127,10 +125,12 @@ public class OrderService {
                 }
             } catch (Exception e) {
                 log.error("❌ Erro ao processar pagamento para pedido: {}", savedOrder.getId(), e);
-                // Não falhar a criação do pedido por causa do pagamento
-                // Continuar com a criação do pedido mesmo se o pagamento falhar
+                // ✅ SEGURO: Continuar com pedido em status PENDING
+                // O pagamento pode ser processado posteriormente via interface
+                savedOrder.setStatus(Order.OrderStatus.PENDING);
+                orderRepository.save(savedOrder);
+                log.info("✅ Pedido criado em status PENDING - pagamento pode ser processado posteriormente");
             }
-            */
             
             // Publicar evento
             eventPublisher.publishEvent(new OrderEvent("ORDER_CREATED", savedOrder.getId(), customer.getId()));
@@ -308,6 +308,22 @@ public class OrderService {
         log.info("Processing payment for order: {} with method: {}", order.getId(), paymentMethod);
         
         try {
+            // ✅ SEGURO: Verificar se FinancialTransactionService está disponível
+            if (financialTransactionService == null) {
+                log.warn("⚠️ FinancialTransactionService não disponível - processando pagamento sem transação financeira");
+                boolean paymentResult = paymentService.processPaymentSync(
+                    order.getId().toString(), 
+                    order.getTotalAmount(), 
+                    paymentMethod
+                );
+                
+                if (paymentResult) {
+                    updateOrderStatus(order.getId(), Order.OrderStatus.CONFIRMED);
+                    log.info("✅ Pagamento processado sem transação financeira para pedido: {}", order.getId());
+                }
+                return paymentResult;
+            }
+            
             boolean paymentResult = paymentService.processPaymentSync(
                 order.getId().toString(), 
                 order.getTotalAmount(), 
@@ -318,13 +334,15 @@ public class OrderService {
                 // 1. Atualizar status do pedido
                 updateOrderStatus(order.getId(), Order.OrderStatus.CONFIRMED);
                 
-                // 2. ✅ NOVO: Criar transação financeira
+                // 2. ✅ SEGURO: Criar transação financeira com tratamento de erro
                 try {
                     FinancialTransaction transaction = financialTransactionService.createFromOrder(order, paymentMethod);
                     log.info("✅ Transação financeira criada: ID={} para pedido: {}", transaction.getId(), order.getId());
                 } catch (Exception e) {
                     log.error("❌ Erro ao criar transação financeira para pedido: {}", order.getId(), e);
-                    // Não falhar o pagamento por causa da transação financeira
+                    // ✅ SEGURO: Não falhar o pagamento por causa da transação financeira
+                    // O pagamento foi processado com sucesso, apenas a transação financeira falhou
+                    log.info("✅ Pagamento processado com sucesso, mas transação financeira falhou - pedido: {}", order.getId());
                 }
                 
                 log.info("Payment processed successfully for order: {}", order.getId());
