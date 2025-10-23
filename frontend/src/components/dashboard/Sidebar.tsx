@@ -24,14 +24,15 @@ import {
   Store,
   BarChart,
   Cog,
-  Globe
+  Globe,
+  CheckCircle
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import { useMediaQuery } from 'react-responsive'
 
 // Tipo para as seções válidas do dashboard
-export type DashboardSection = 'dashboard' | 'orders' | 'menu' | 'delivery' | 'drivers' | 'clients' | 'financial' | 'payments' | 'cashflow' | 'fiscal' | 'team' | 'reports-analytics' | 'analytics' | 'integrations' | 'settings'
+export type DashboardSection = 'dashboard' | 'orders' | 'menu' | 'delivery' | 'drivers' | 'clients' | 'financial' | 'payments' | 'cashflow' | 'fiscal' | 'team' | 'reports-analytics' | 'analytics' | 'integrations' | 'reconciliation' | 'transaction-confirmation' | 'settings'
 
 interface SidebarProps {
   activeSection: DashboardSection
@@ -119,6 +120,8 @@ export default function Sidebar({ activeSection, setActiveSection, collapsed, se
         { id: 'financial', label: 'Financeiro', icon: CreditCard, description: 'Controle financeiro' },
         { id: 'payments', label: 'Pagamentos', icon: DollarSign, description: 'Gestão de pagamentos' },
         { id: 'cashflow', label: 'Fluxo de Caixa', icon: TrendingUp, description: 'Análise de caixa' },
+        { id: 'reconciliation', label: 'Reconciliação', icon: Shield, description: 'Reconciliação automática' },
+        { id: 'transaction-confirmation', label: 'Confirmação de Transações', icon: CheckCircle, description: 'Confirmação manual' },
         { id: 'fiscal', label: 'Nota Fiscal', icon: FileText, description: 'Gestão fiscal' }
       ]
     },

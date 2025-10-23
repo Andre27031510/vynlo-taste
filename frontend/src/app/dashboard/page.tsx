@@ -23,6 +23,8 @@ const ReportsAnalytics = lazy(() => import('@/components/dashboard/ReportsAnalyt
 const BigDataAnalytics = lazy(() => import('@/components/dashboard/BigDataAnalytics'))
 const MultiChannelIntegration = lazy(() => import('@/components/dashboard/MultiChannelIntegration'))
 const SpecializedSolutions = lazy(() => import('@/components/dashboard/SpecializedSolutions'))
+const TransactionConfirmationManagement = lazy(() => import('@/components/dashboard/TransactionConfirmationManagement'))
+const ReconciliationManagement = lazy(() => import('@/components/dashboard/ReconciliationManagement'))
 const SystemSettings = lazy(() => import('@/components/dashboard/SystemSettings'))
 
 // Componente de loading para o Suspense
@@ -54,6 +56,8 @@ export default function DashboardPage() {
       'reports-analytics': ReportsAnalytics,
       analytics: BigDataAnalytics,
       integrations: MultiChannelIntegration,
+      'reconciliation': ReconciliationManagement,
+      'transaction-confirmation': TransactionConfirmationManagement,
       settings: SystemSettings
     }
 
