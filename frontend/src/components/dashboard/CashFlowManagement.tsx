@@ -20,7 +20,10 @@ import {
   Banknote,
   PiggyBank,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  X,
+  Save,
+  Loader2
 } from 'lucide-react'
 import { useMediaQuery } from 'react-responsive'
 import { FINANCIAL_COLORS } from '@/constants/financialTheme'
@@ -271,6 +274,187 @@ export default function CashFlowManagement() {
           ))
         )}
       </div>
+
+      {/* ✅ NOVO: Modal de Nova Entrada */}
+      {showNewEntryModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden">
+            {/* Header do Modal */}
+            <div className="bg-blue-600 p-6 text-white rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold">Nova Entrada de Caixa</h3>
+                <button
+                  onClick={() => setShowNewEntryModal(false)}
+                  className="text-white/80 hover:text-white transition-colors duration-200"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <p className="text-blue-100 mt-2 text-sm">Adicione uma nova entrada ou saída ao fluxo de caixa</p>
+            </div>
+
+            {/* Formulário */}
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tipo de Transação
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNewEntryForm(prev => ({ ...prev, type: 'inflow' }))}
+                    className={`p-3 rounded-lg border-2 transition-all duration-200 ${
+                      newEntryForm.type === 'inflow'
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-green-400'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Plus className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-600">Entrada</span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewEntryForm(prev => ({ ...prev, type: 'outflow' }))}
+                    className={`p-3 rounded-lg border-2 transition-all duration-200 ${
+                      newEntryForm.type === 'outflow'
+                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-red-400'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Minus className="w-4 h-4 text-red-600" />
+                      <span className="text-sm font-medium text-red-600">Saída</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Valor
+                </label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newEntryForm.amount}
+                    onChange={(e) => setNewEntryForm(prev => ({ ...prev, amount: e.target.value }))}
+                    placeholder="0,00"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Descrição
+                </label>
+                <input
+                  type="text"
+                  value={newEntryForm.description}
+                  onChange={(e) => setNewEntryForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Ex: Venda de produtos, Pagamento de fornecedor..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Categoria
+                </label>
+                <select
+                  value={newEntryForm.category}
+                  onChange={(e) => setNewEntryForm(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="Vendas">Vendas</option>
+                  <option value="Serviços">Serviços</option>
+                  <option value="Investimentos">Investimentos</option>
+                  <option value="Fornecedores">Fornecedores</option>
+                  <option value="Salários">Salários</option>
+                  <option value="Aluguel">Aluguel</option>
+                  <option value="Outros">Outros</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Data
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="date"
+                    value={newEntryForm.date}
+                    onChange={(e) => setNewEntryForm(prev => ({ ...prev, date: e.target.value }))}
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-b-2xl">
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowNewEntryModal(false)}
+                  className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-200 font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!newEntryForm.amount || !newEntryForm.description) {
+                      alert('Por favor, preencha todos os campos obrigatórios')
+                      return
+                    }
+
+                    try {
+                      await createMutation.mutateAsync({
+                        type: newEntryForm.type as 'inflow' | 'outflow',
+                        amount: parseFloat(newEntryForm.amount),
+                        description: newEntryForm.description,
+                        category: newEntryForm.category,
+                        date: newEntryForm.date
+                      })
+                      
+                      setShowNewEntryModal(false)
+                      setNewEntryForm({
+                        type: 'inflow',
+                        amount: '',
+                        description: '',
+                        category: 'Vendas',
+                        date: new Date().toISOString().split('T')[0]
+                      })
+                    } catch (error) {
+                      console.error('Erro ao criar entrada:', error)
+                      alert('Erro ao criar entrada. Tente novamente.')
+                    }
+                  }}
+                  disabled={createMutation.isPending}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center justify-center space-x-2"
+                >
+                  {createMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Salvando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Salvar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
