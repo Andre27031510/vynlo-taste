@@ -507,10 +507,17 @@ public class OrderService {
             orderItem.setItemNotes(itemRequest.getItemNotes());
             orderItem.setCustomizations(itemRequest.getCustomizations());
             
+            // ✅ CORREÇÃO: Calcular totalPrice explicitamente
+            // Garante que o campo seja preenchido antes de salvar
+            BigDecimal totalPrice = orderItem.getUnitPrice()
+                .multiply(BigDecimal.valueOf(orderItem.getQuantity()))
+                .setScale(2, RoundingMode.HALF_UP);
+            orderItem.setTotalPrice(totalPrice);
+            
             // MULTI-TENANCY: OrderItem também precisa de tenant_id
             Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
             orderItem.setTenantId(tenantId);
-            log.trace("🔒 OrderItem será criado com tenant_id={}", tenantId);
+            log.trace("🔒 OrderItem será criado com tenant_id={}, totalPrice={}", tenantId, totalPrice);
             
             order.addItem(orderItem);
         }

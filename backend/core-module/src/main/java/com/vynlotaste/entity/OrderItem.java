@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 // Construtores e getters/setters manuais
@@ -49,6 +50,16 @@ public class OrderItem {
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
+    /**
+     * ✅ CORREÇÃO: Campo total_price persistido no banco
+     * Resolve HTTP 500 causado por constraint NOT NULL no banco
+     * Calculado automaticamente via @PrePersist/@PreUpdate
+     */
+    @NotNull(message = "Preço total é obrigatório")
+    @DecimalMin(value = "0.01", message = "Preço total deve ser maior que zero")
+    @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPrice;
+
     @Size(max = 300, message = "Observações do item devem ter no máximo 300 caracteres")
     @Column(name = "item_notes", length = 300)
     private String itemNotes;
@@ -80,11 +91,20 @@ public class OrderItem {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    // Métodos de negócio
-    public BigDecimal getTotalPrice() {
-        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    /**
+     * ✅ CORREÇÃO: Callbacks JPA para calcular totalPrice automaticamente
+     * Resolve HTTP 500 causado por constraint NOT NULL no banco
+     */
+    @PrePersist
+    @PreUpdate
+    private void computeTotalPrice() {
+        if (unitPrice != null && quantity != null) {
+            this.totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity))
+                .setScale(2, RoundingMode.HALF_UP);
+        }
     }
 
+    // Métodos de negócio
     public String getProductName() {
         return product != null ? product.getName() : null;
     }
@@ -114,6 +134,9 @@ public class OrderItem {
 
     public BigDecimal getUnitPrice() { return unitPrice; }
     public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
+
+    public BigDecimal getTotalPrice() { return totalPrice; }
+    public void setTotalPrice(BigDecimal totalPrice) { this.totalPrice = totalPrice; }
 
     public String getItemNotes() { return itemNotes; }
     public void setItemNotes(String itemNotes) { this.itemNotes = itemNotes; }
