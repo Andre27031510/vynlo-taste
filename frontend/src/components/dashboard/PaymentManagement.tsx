@@ -12,15 +12,18 @@ import { useThemeContext } from '../../contexts/ThemeContext'
 import { usePaymentsQuery, usePaymentProvidersQuery, usePaymentStatsQuery, useCreatePaymentMutation } from '@/hooks/usePaymentQuery'
 import { FINANCIAL_COLORS } from '@/constants/financialTheme'
 import FinancialSkeleton from './financial/FinancialSkeleton'
+import GenericModal from '../GenericModal'
 import { 
   CreditCard, 
   DollarSign, 
   TrendingUp, 
+  TrendingDown,
   Shield, 
   CheckCircle, 
   AlertCircle, 
   Plus, 
   Filter,
+  Calendar,
   Settings,
   Wifi,
   Smartphone,
@@ -3532,6 +3535,162 @@ export default function PaymentManagement() {
           </div>
         </div>
       )}
+
+      {/* ✅ NOVO: Modal Nova Transação usando GenericModal */}
+      <GenericModal
+        isOpen={showNewTransactionModal}
+        onClose={() => setShowNewTransactionModal(false)}
+        title="Nova Transação Financeira"
+        type="add"
+        size="md"
+        onSubmit={async () => {
+          if (!newTransactionForm.amount || !newTransactionForm.description) {
+            alert('Por favor, preencha todos os campos obrigatórios')
+            return
+          }
+
+          try {
+            await createMutation.mutateAsync({
+              amount: parseFloat(newTransactionForm.amount),
+              method: newTransactionForm.paymentMethod
+            })
+            
+            setShowNewTransactionModal(false)
+            setNewTransactionForm({
+              type: 'income',
+              amount: '',
+              description: '',
+              category: 'Vendas',
+              date: new Date().toISOString().split('T')[0],
+              paymentMethod: 'PIX'
+            })
+          } catch (error) {
+            console.error('Erro ao criar transação:', error)
+            alert('Erro ao criar transação. Tente novamente.')
+          }
+        }}
+        isLoading={createMutation.isPending}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Tipo de Transação
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setNewTransactionForm(prev => ({ ...prev, type: 'income' }))}
+                className={`p-3 rounded-lg border-2 transition-all duration-200 ${
+                  newTransactionForm.type === 'income'
+                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-green-400'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-600">Receita</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewTransactionForm(prev => ({ ...prev, type: 'expense' }))}
+                className={`p-3 rounded-lg border-2 transition-all duration-200 ${
+                  newTransactionForm.type === 'expense'
+                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-red-400'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <TrendingDown className="w-4 h-4 text-red-600" />
+                  <span className="text-sm font-medium text-red-600">Despesa</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Valor
+            </label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={newTransactionForm.amount}
+                onChange={(e) => setNewTransactionForm(prev => ({ ...prev, amount: e.target.value }))}
+                placeholder="0,00"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Descrição
+            </label>
+            <input
+              type="text"
+              value={newTransactionForm.description}
+              onChange={(e) => setNewTransactionForm(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Ex: Venda de produtos, Pagamento de fornecedor..."
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Categoria
+            </label>
+            <select
+              value={newTransactionForm.category}
+              onChange={(e) => setNewTransactionForm(prev => ({ ...prev, category: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="Vendas">Vendas</option>
+              <option value="Serviços">Serviços</option>
+              <option value="Investimentos">Investimentos</option>
+              <option value="Fornecedores">Fornecedores</option>
+              <option value="Salários">Salários</option>
+              <option value="Aluguel">Aluguel</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Método de Pagamento
+            </label>
+            <select
+              value={newTransactionForm.paymentMethod}
+              onChange={(e) => setNewTransactionForm(prev => ({ ...prev, paymentMethod: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="PIX">PIX</option>
+              <option value="Cartão de Crédito">Cartão de Crédito</option>
+              <option value="Cartão de Débito">Cartão de Débito</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Transferência">Transferência</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Data
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="date"
+                value={newTransactionForm.date}
+                onChange={(e) => setNewTransactionForm(prev => ({ ...prev, date: e.target.value }))}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
+      </GenericModal>
     </div>
   )
 }

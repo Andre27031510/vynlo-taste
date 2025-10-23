@@ -263,5 +263,6 @@ export const useFinancialTransactionsQuery = (filters?: {
   })
 }
 
+
 // Modified: 2025-10-11-v6 | Category field for financial transactions
 // Modified: 2025-10-14 20:50 UTC | Cursor: Paginação 0-based + sort=createdAt,desc
