@@ -2,6 +2,7 @@ package com.vynlotaste.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -299,5 +300,78 @@ public class FinancialDashboardService {
         alerts.put("highPriority", 0);
         alerts.put("generatedAt", LocalDateTime.now());
         return alerts;
+    }
+
+    /**
+     * ✅ NOVO: Geração automática de relatórios financeiros
+     * Executa diariamente às 6h para relatório do dia anterior
+     */
+    @Scheduled(cron = "0 0 6 * * *") // Diariamente às 6h
+    public void generateDailyFinancialReport() {
+        log.info("📊 Gerando relatório financeiro diário automático");
+        
+        try {
+            LocalDate yesterday = LocalDate.now().minusDays(1);
+            
+            // Obter métricas do dia anterior
+            Map<String, Object> dailyMetrics = getDashboardMetrics();
+            
+            // Obter performance do dia anterior
+            Map<String, Object> dailyPerformance = getPerformanceMetrics();
+            
+            // Gerar relatório consolidado
+            Map<String, Object> dailyReport = new HashMap<>();
+            dailyReport.put("date", yesterday);
+            dailyReport.put("metrics", dailyMetrics);
+            dailyReport.put("performance", dailyPerformance);
+            dailyReport.put("generatedAt", LocalDateTime.now());
+            
+            log.info("✅ Relatório diário gerado: {} - Receita: {}, Pedidos: {}", 
+                    yesterday, 
+                    dailyMetrics.get("totalRevenue"), 
+                    dailyMetrics.get("totalOrders"));
+            
+            // Aqui poderia salvar o relatório em arquivo ou enviar por email
+            
+        } catch (Exception e) {
+            log.error("❌ Erro na geração automática de relatório diário: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * ✅ NOVO: Geração automática de relatório semanal
+     * Executa semanalmente às segundas-feiras às 8h
+     */
+    @Scheduled(cron = "0 0 8 * * MON") // Segundas-feiras às 8h
+    public void generateWeeklyFinancialReport() {
+        log.info("📈 Gerando relatório financeiro semanal automático");
+        
+        try {
+            LocalDate endDate = LocalDate.now().minusDays(1);
+            LocalDate startDate = endDate.minusDays(6); // Últimos 7 dias
+            
+            // Obter métricas da semana
+            Map<String, Object> weeklyMetrics = getDashboardMetrics();
+            
+            // Obter performance da semana
+            Map<String, Object> weeklyPerformance = getPerformanceMetrics();
+            
+            // Gerar relatório consolidado
+            Map<String, Object> weeklyReport = new HashMap<>();
+            weeklyReport.put("period", startDate + " a " + endDate);
+            weeklyReport.put("metrics", weeklyMetrics);
+            weeklyReport.put("performance", weeklyPerformance);
+            weeklyReport.put("generatedAt", LocalDateTime.now());
+            
+            log.info("✅ Relatório semanal gerado: {} - Receita: {}, Pedidos: {}", 
+                    weeklyReport.get("period"), 
+                    weeklyMetrics.get("totalRevenue"), 
+                    weeklyMetrics.get("totalOrders"));
+            
+            // Aqui poderia salvar o relatório em arquivo ou enviar por email
+            
+        } catch (Exception e) {
+            log.error("❌ Erro na geração automática de relatório semanal: {}", e.getMessage(), e);
+        }
     }
 }

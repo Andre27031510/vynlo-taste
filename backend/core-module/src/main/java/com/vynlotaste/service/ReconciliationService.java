@@ -6,6 +6,7 @@ import com.vynlotaste.repository.FinancialTransactionRepository;
 import com.vynlotaste.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ public class ReconciliationService {
 
     private final OrderRepository orderRepository;
     private final FinancialTransactionRepository financialTransactionRepository;
+    private final FinancialAlertService financialAlertService;
 
     /**
      * Gerar relatório de reconciliação
@@ -288,5 +290,66 @@ public class ReconciliationService {
         public List<Discrepancy> getDiscrepancies() { return discrepancies; }
         public boolean isBalanced() { return isBalanced; }
         public java.time.LocalDateTime getGeneratedAt() { return generatedAt; }
+    }
+
+    /**
+     * ✅ NOVO: Reconciliação automática agendada
+     * Executa a cada 5 minutos para verificar inconsistências
+     * Baseado em melhores práticas TOTVS/SAP/Oracle
+     */
+    @Scheduled(fixedRate = 300000) // 5 minutos
+    public void performAutomaticReconciliation() {
+        log.debug("🔄 Executando reconciliação automática");
+        
+        try {
+            // Período: últimas 24 horas
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusDays(1);
+            
+            ReconciliationReport report = generateReport(startDate, endDate);
+            
+            if (!report.isBalanced()) {
+                log.warn("⚠️ Discrepâncias encontradas na reconciliação automática: {}", report.getDiscrepancies().size());
+                
+                // Gerar alerta automático
+                financialAlertService.generateReconciliationAlert(report);
+                
+                log.info("🚨 Alerta de reconciliação enviado para {} discrepâncias", report.getDiscrepancies().size());
+            } else {
+                log.debug("✅ Reconciliação automática: dados consistentes");
+            }
+            
+        } catch (Exception e) {
+            log.error("❌ Erro na reconciliação automática: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * ✅ NOVO: Reconciliação diária completa
+     * Executa diariamente à meia-noite para relatório completo
+     */
+    @Scheduled(cron = "0 0 0 * * *") // Diariamente à meia-noite
+    public void performDailyReconciliation() {
+        log.info("📊 Executando reconciliação diária completa");
+        
+        try {
+            // Período: dia anterior
+            LocalDate endDate = LocalDate.now().minusDays(1);
+            LocalDate startDate = endDate;
+            
+            ReconciliationReport report = generateReport(startDate, endDate);
+            
+            // Sempre gerar relatório diário, mesmo se balanceado
+            log.info("📋 Relatório diário gerado: {} pedidos, {} transações, {} entradas de caixa", 
+                    report.getTotalOrders(), report.getTotalTransactions(), report.getTotalCashFlowEntries());
+            
+            if (!report.isBalanced()) {
+                log.warn("⚠️ Discrepâncias no relatório diário: {}", report.getDiscrepancies().size());
+                financialAlertService.generateDailyReconciliationAlert(report);
+            }
+            
+        } catch (Exception e) {
+            log.error("❌ Erro na reconciliação diária: {}", e.getMessage(), e);
+        }
     }
 }

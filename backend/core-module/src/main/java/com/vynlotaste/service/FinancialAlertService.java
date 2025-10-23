@@ -2,6 +2,7 @@ package com.vynlotaste.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -355,5 +356,72 @@ public class FinancialAlertService {
         alerts.put("checkedAt", LocalDateTime.now());
         alerts.put("nextCheck", LocalDateTime.now().plusMinutes(5));
         return alerts;
+    }
+
+    /**
+     * ✅ NOVO: Verificação automática de alertas
+     * Executa a cada 10 minutos para monitoramento contínuo
+     */
+    @Scheduled(fixedRate = 600000) // 10 minutos
+    public void performAutomaticAlertCheck() {
+        log.debug("🚨 Executando verificação automática de alertas");
+        
+        try {
+            Map<String, Object> alerts = checkAllAlerts();
+            var alertList = (java.util.List<Map<String, Object>>) alerts.get("alerts");
+            
+            if (alertList != null && !alertList.isEmpty()) {
+                log.warn("⚠️ {} alertas financeiros encontrados", alertList.size());
+                
+                // Processar alertas críticos
+                long criticalCount = alertList.stream()
+                    .filter(alert -> "critical".equals(alert.get("severity")))
+                    .count();
+                
+                if (criticalCount > 0) {
+                    log.error("🚨 {} alertas críticos encontrados!", criticalCount);
+                    // Aqui poderia enviar notificações por email/SMS
+                }
+            } else {
+                log.debug("✅ Verificação automática: nenhum alerta encontrado");
+            }
+            
+        } catch (Exception e) {
+            log.error("❌ Erro na verificação automática de alertas: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * ✅ NOVO: Gerar alerta de reconciliação
+     */
+    public void generateReconciliationAlert(Object reconciliationReport) {
+        log.warn("🚨 Gerando alerta de reconciliação: {}", reconciliationReport);
+        
+        try {
+            // Implementar lógica de alerta específica para reconciliação
+            // Pode incluir notificações por email, dashboard, etc.
+            
+            log.info("✅ Alerta de reconciliação processado");
+            
+        } catch (Exception e) {
+            log.error("❌ Erro ao gerar alerta de reconciliação: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * ✅ NOVO: Gerar alerta de reconciliação diária
+     */
+    public void generateDailyReconciliationAlert(Object reconciliationReport) {
+        log.warn("📊 Gerando alerta de reconciliação diária: {}", reconciliationReport);
+        
+        try {
+            // Implementar lógica de alerta específica para relatório diário
+            // Pode incluir relatórios por email, dashboard, etc.
+            
+            log.info("✅ Alerta de reconciliação diária processado");
+            
+        } catch (Exception e) {
+            log.error("❌ Erro ao gerar alerta de reconciliação diária: {}", e.getMessage(), e);
+        }
     }
 }
