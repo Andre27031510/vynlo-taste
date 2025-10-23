@@ -112,7 +112,9 @@ public class OrderService {
             // Salvar pedido
             Order savedOrder = orderRepository.save(order);
             
-            // ✅ NOVO: Processar pagamento automaticamente
+            // ✅ TEMPORÁRIO: Desabilitar processamento automático para debug
+            // TODO: Reabilitar após resolver HTTP 500
+            /*
             try {
                 // Simular pagamento aprovado para demonstração
                 // Em produção, isso seria feito via webhook ou integração real
@@ -126,7 +128,9 @@ public class OrderService {
             } catch (Exception e) {
                 log.error("❌ Erro ao processar pagamento para pedido: {}", savedOrder.getId(), e);
                 // Não falhar a criação do pedido por causa do pagamento
+                // Continuar com a criação do pedido mesmo se o pagamento falhar
             }
+            */
             
             // Publicar evento
             eventPublisher.publishEvent(new OrderEvent("ORDER_CREATED", savedOrder.getId(), customer.getId()));
