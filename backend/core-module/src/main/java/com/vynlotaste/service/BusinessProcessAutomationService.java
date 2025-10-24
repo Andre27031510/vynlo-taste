@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * - Integração entre sistemas
  * - Aprovações automáticas
  * - Relatórios automatizados
+ * 
+ * NOTA: Regras configuráveis via properties - fácil manutenção e ajustes
  */
 @Slf4j
 @Service

@@ -5,6 +5,12 @@
 -- PROBLEMA: Campo total_price pode estar NULL em registros existentes
 -- SOLUÇÃO: Garantir que todos os registros tenham total_price calculado
 --
+-- CORREÇÃO CRÍTICA: Resolve conflito entre schema DB e entidade JPA
+-- - Adiciona coluna total_price se não existir
+-- - Backfill de dados existentes com cálculo correto
+-- - Aplica constraints NOT NULL e CHECK
+-- - Garante integridade referencial
+--
 -- Created: 2025-10-24
 -- Author: Vynlo Tech - Fase 3 Robustez
 -- Status: PRODUCTION-READY

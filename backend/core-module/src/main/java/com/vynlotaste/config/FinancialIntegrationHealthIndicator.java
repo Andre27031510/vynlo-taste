@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * - Taxa de falhas de integração
  * - Tempo de resposta dos serviços
  * - Estado dos componentes críticos
+ * 
+ * NOTA: Integra com Micrometer para métricas em tempo real
  */
 @Slf4j
 @Component
@@ -36,7 +38,7 @@ public class FinancialIntegrationHealthIndicator {
     /**
      * Verificar saúde da integração financeira
      */
-    public boolean isHealthy() {
+    public boolean isHealthy() { 
         try {
             log.debug("🔍 Verificando saúde da integração financeira");
 

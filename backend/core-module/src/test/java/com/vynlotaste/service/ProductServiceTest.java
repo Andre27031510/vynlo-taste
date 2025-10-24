@@ -4,6 +4,7 @@ import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.dto.product.ProductRequestDto;
 import com.vynlotaste.entity.Product;
 import com.vynlotaste.repository.ProductRepository;
+import com.vynlotaste.service.TenantCacheService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

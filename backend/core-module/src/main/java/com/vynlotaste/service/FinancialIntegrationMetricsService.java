@@ -19,8 +19,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * Métricas implementadas:
  * - Contadores: Pagamentos processados, transações criadas, entradas de caixa
  * - Timers: Tempo de processamento de pagamentos, criação de transações
- * - Gauges: Transações pendentes, falhas de integração
+ * - Gauges: Transações pendentes, falhas de integração (corrigido conflito de nomes)
  * - Distribution: Valores de pagamentos, tempos de processamento
+ * 
+ * CORREÇÃO: Renomeado gauge de "failures" para "failures.current" para evitar conflito com counter
  */
 @Slf4j
 @Service
@@ -28,14 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class FinancialIntegrationMetricsService {
 
     private final MeterRegistry meterRegistry;
-
-    // Contadores para eventos financeiros
-    private Counter paymentsProcessed;
-    private Counter financialTransactionsCreated;
-    private Counter cashFlowEntriesCreated;
-    private Counter integrationFailures;
-    private Counter paymentApprovals;
-    private Counter paymentRefunds;
 
     // Timers para performance
     private Timer paymentProcessingTime;
@@ -54,31 +48,6 @@ public class FinancialIntegrationMetricsService {
     @PostConstruct
     public void initializeMetrics() {
         log.info("🔧 Inicializando métricas de integração financeira");
-
-        // Contadores
-        paymentsProcessed = Counter.builder("vynlo.financial.payments.processed")
-            .description("Total payments processed")
-            .register(meterRegistry);
-
-        financialTransactionsCreated = Counter.builder("vynlo.financial.transactions.created")
-            .description("Total financial transactions created")
-            .register(meterRegistry);
-
-        cashFlowEntriesCreated = Counter.builder("vynlo.financial.cashflow.created")
-            .description("Total cash flow entries created")
-            .register(meterRegistry);
-
-        integrationFailures = Counter.builder("vynlo.financial.integration.failures")
-            .description("Total integration failures")
-            .register(meterRegistry);
-
-        paymentApprovals = Counter.builder("vynlo.financial.payments.approved")
-            .description("Total payments approved")
-            .register(meterRegistry);
-
-        paymentRefunds = Counter.builder("vynlo.financial.payments.refunded")
-            .description("Total payments refunded")
-            .register(meterRegistry);
 
         // Timers
         paymentProcessingTime = Timer.builder("vynlo.financial.payment.processing.time")
@@ -99,7 +68,7 @@ public class FinancialIntegrationMetricsService {
 
         // Gauges
         meterRegistry.gauge("vynlo.financial.transactions.pending", pendingFinancialTransactions);
-        meterRegistry.gauge("vynlo.financial.integration.failures", failedIntegrations);
+        meterRegistry.gauge("vynlo.financial.integration.failures.current", failedIntegrations);
         meterRegistry.gauge("vynlo.financial.revenue.processed", totalRevenueProcessed);
 
         // Distribution summaries

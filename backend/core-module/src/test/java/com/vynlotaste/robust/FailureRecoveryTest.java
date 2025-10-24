@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
 @DisplayName("TESTES DE FALHA E RECUPERAÇÃO - SISTEMA ROBUSTO")
 class FailureRecoveryTest {

@@ -14,7 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
 @DisplayName("Testes de Segurança - Sistema Robusto")
 class SecurityTest {

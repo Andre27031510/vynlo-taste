@@ -10,6 +10,7 @@ import com.vynlotaste.repository.UserRepository;
 import com.vynlotaste.repository.ProductRepository;
 import com.vynlotaste.event.EventPublisher;
 import com.vynlotaste.notification.NotificationService;
+import com.vynlotaste.service.PaymentService;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.*;

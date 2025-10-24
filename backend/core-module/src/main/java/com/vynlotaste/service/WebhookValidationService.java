@@ -22,6 +22,8 @@ import java.util.Map;
  * - Validação de timestamp para evitar replay attacks
  * - Suporte a múltiplos provedores
  * - Configuração via properties
+ * 
+ * NOTA: Implementação segura para produção - secrets configurados via environment variables
  */
 @Slf4j
 @Service

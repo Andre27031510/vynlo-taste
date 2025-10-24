@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * - Aprendizado contínuo
  * - Suporte multilíngue
  * - Escalação automática para humanos
+ * 
+ * NOTA: Base de conhecimento extensível - fácil adição de novos padrões e respostas
  */
 @Slf4j
 @Service

@@ -22,6 +22,8 @@ import java.util.function.Supplier;
  * - Recuperação personalizada após falhas
  * - Configuração flexível por tipo de operação
  * - Métricas de retry para monitoramento
+ * 
+ * NOTA: Usa Spring Retry (@Retryable) com configurações otimizadas para produção
  */
 @Slf4j
 @Service

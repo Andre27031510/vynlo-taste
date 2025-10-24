@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
  * - Previsão de vendas por período
  * - Detecção de padrões de compra
  * - Otimização de preços baseada em demanda
+ * 
+ * NOTA: Implementação simulada para demonstração - em produção integrar com bibliotecas ML reais
  */
 @Slf4j
 @Service

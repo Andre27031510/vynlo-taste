@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * - Métricas históricas para decisões inteligentes
  * - Integração com load balancer
  * - Previsão de demanda baseada em padrões
+ * 
+ * NOTA: Simulação de métricas para demonstração - em produção integrar com Micrometer/Actuator real
  */
 @Slf4j
 @Service
