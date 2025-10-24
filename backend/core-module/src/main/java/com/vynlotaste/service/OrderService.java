@@ -112,11 +112,14 @@ public class OrderService {
             // Salvar pedido
             Order savedOrder = orderRepository.save(order);
             
+            // ✅ FASE 2: Criar Payment automaticamente
+            createPaymentForOrder(savedOrder, orderRequest.getPaymentMethod());
+            
             // ✅ SEGURO: Processamento de pagamento com fallback
             try {
                 // Simular pagamento aprovado para demonstração
                 // Em produção, isso seria feito via webhook ou integração real
-                boolean paymentResult = processPayment(savedOrder, "PIX");
+                boolean paymentResult = processPayment(savedOrder, orderRequest.getPaymentMethod() != null ? orderRequest.getPaymentMethod() : "PIX");
                 
                 if (paymentResult) {
                     log.info("✅ Pagamento processado automaticamente para pedido: {}", savedOrder.getId());
@@ -438,8 +441,10 @@ public class OrderService {
             
             return orderPage.getContent();
         } catch (Exception e) {
-            log.error("Error fetching orders", e);
-            return List.of();
+            log.error("❌ Erro crítico ao buscar pedidos: page={}, limit={}", page, limit, e);
+            // ✅ CORREÇÃO FASE 1: Não retornar lista vazia silenciosamente
+            // Deixar o erro propagar para o controller retornar 500
+            throw new RuntimeException("Erro interno ao buscar pedidos: " + e.getMessage(), e);
         }
     }
 
@@ -671,6 +676,34 @@ public class OrderService {
         BigDecimal revenue = orderRepository.sumTotalAmountByTenantId(tenantId);
         log.debug("👤 Cliente (tenant_id={}): receita total = {}", tenantId, revenue);
         return revenue;
+    }
+    
+    /**
+     * ✅ FASE 2: Criar Payment automaticamente para pedido
+     * Integra pedido com sistema de pagamentos
+     */
+    private void createPaymentForOrder(Order order, String paymentMethod) {
+        try {
+            log.info("💳 Criando payment automaticamente para pedido: {} - Método: {}", 
+                order.getId(), paymentMethod);
+
+            // Criar Payment via PaymentService
+            PaymentService.PaymentRequestDto paymentRequest = new PaymentService.PaymentRequestDto();
+            paymentRequest.setOrder(order);
+            paymentRequest.setAmount(order.getTotalAmount());
+            paymentRequest.setMethod(paymentMethod != null ? paymentMethod : "PIX");
+            paymentRequest.setProvider("INTERNAL"); // Pagamento interno/simulado
+            paymentRequest.setMetadata("Criado automaticamente com pedido");
+
+            Payment payment = paymentService.createPayment(paymentRequest);
+            
+            log.info("✅ Payment criado automaticamente: {} para pedido: {}", 
+                payment.getId(), order.getId());
+
+        } catch (Exception e) {
+            log.error("❌ Erro ao criar payment para pedido: {}", order.getId(), e);
+            // Não falhar a criação do pedido se payment falhar
+        }
     }
     
     /**

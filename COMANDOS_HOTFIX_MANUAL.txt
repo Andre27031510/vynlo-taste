@@ -1,0 +1,32 @@
+# ============================================================================
+# COMANDOS INDIVIDUAIS PARA HOTFIX NO SERVIDOR
+# ============================================================================
+# 
+# Execute estes comandos um por vez no servidor:
+#
+# 1. BACKUP DE SEGURANÇA:
+# pg_dump -h localhost -U vynlo_user -d vynlo_taste > backup_antes_hotfix_$(date +%Y%m%d_%H%M%S).sql
+#
+# 2. CONECTAR AO BANCO:
+# psql -h localhost -U vynlo_user -d vynlo_taste
+#
+# 3. EXECUTAR HOTFIX (dentro do psql):
+# ALTER TABLE order_items ADD COLUMN IF NOT EXISTS total_price numeric(10,2);
+# UPDATE order_items SET total_price = quantity * unit_price WHERE total_price IS NULL;
+# ALTER TABLE order_items ALTER COLUMN total_price SET NOT NULL;
+# ALTER TABLE order_items ADD CONSTRAINT order_items_total_price_calc CHECK (total_price = quantity * unit_price);
+#
+# 4. VERIFICAR RESULTADO:
+# SELECT COUNT(*) FROM order_items;
+# \d order_items
+#
+# 5. SAIR DO PSQL:
+# \q
+#
+# 6. REINICIAR APLICAÇÃO:
+# sudo systemctl restart vynlo-taste-backend
+#
+# 7. VERIFICAR LOGS:
+# sudo journalctl -u vynlo-taste-backend -f
+#
+# ============================================================================

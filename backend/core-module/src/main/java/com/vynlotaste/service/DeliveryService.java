@@ -144,8 +144,10 @@ public class DeliveryService {
             
             return deliveryRepository.findAllByTenantId(tenantId, pageable);
         } catch (Exception e) {
-            log.error("❌ Erro ao buscar deliveries: page={}, limit={}", page, limit, e);
-            return Page.empty();
+            log.error("❌ Erro crítico ao buscar deliveries: page={}, limit={}", page, limit, e);
+            // ✅ CORREÇÃO FASE 1: Não retornar página vazia silenciosamente
+            // Deixar o erro propagar para o controller retornar 500
+            throw new RuntimeException("Erro interno ao buscar deliveries: " + e.getMessage(), e);
         }
     }
 

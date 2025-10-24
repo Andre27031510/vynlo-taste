@@ -1,6 +1,8 @@
 package com.vynlotaste.service;
 
 import com.vynlotaste.entity.Payment;
+import com.vynlotaste.entity.FinancialTransaction;
+import com.vynlotaste.entity.Order;
 import com.vynlotaste.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.Timer;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -25,6 +28,10 @@ import java.util.*;
 public class PaymentService {
     
     private final PaymentRepository paymentRepository;
+    private final FinancialTransactionService financialTransactionService;
+    private final FinancialIntegrationMetricsService metricsService;
+    private final IntegrationAlertService alertService;
+    private final RetryService retryService;
     
     @Value("${stripe.secret-key:}")
     private String stripeSecretKey;
@@ -129,6 +136,9 @@ public class PaymentService {
             payment.setStatus(status);
             
             Payment updatedPayment = paymentRepository.save(payment);
+            
+            // ✅ FASE 2: Integração financeira automática
+            processFinancialIntegration(updatedPayment);
             
             log.info("✅ Status do pagamento atualizado: ID={}, status={}", 
                 updatedPayment.getId(), updatedPayment.getStatus());
@@ -389,6 +399,219 @@ public class PaymentService {
         } catch (Exception e) {
             log.error("❌ Erro ao buscar pagamentos por order ID: {}", orderId, e);
             throw new RuntimeException("Erro interno ao buscar pagamentos", e);
+        }
+    }
+
+    /**
+     * ✅ FASE 2: Processar integração financeira automática
+     * Cria transações financeiras e entradas de fluxo de caixa baseado no status do pagamento
+     * ✅ FASE 3: Implementa idempotência para evitar processamento duplicado
+     */
+    private void processFinancialIntegration(Payment payment) {
+        Timer.Sample totalTimer = metricsService.startTotalIntegrationTimer();
+        
+        try {
+            log.info("💰 Processando integração financeira para pagamento: {} - Status: {}", 
+                payment.getId(), payment.getStatus());
+
+            // ✅ FASE 3: Verificar se já foi processado (idempotência)
+            if (isPaymentAlreadyProcessed(payment)) {
+                log.info("⏭️ Pagamento {} já foi processado - pulando integração financeira", payment.getId());
+                return;
+            }
+
+            // Buscar pedido relacionado
+            Order order = findOrderByPayment(payment);
+            if (order == null) {
+                log.warn("⚠️ Pedido não encontrado para pagamento: {}", payment.getId());
+                metricsService.recordIntegrationFailure("ORDER_NOT_FOUND", "PaymentService");
+                return;
+            }
+
+            switch (payment.getStatus().toUpperCase()) {
+                case "APPROVED":
+                    processApprovedPayment(payment, order);
+                    break;
+                case "REFUNDED":
+                    processRefundedPayment(payment, order);
+                    break;
+                case "FAILED":
+                case "CANCELLED":
+                    processFailedPayment(payment, order);
+                    break;
+                default:
+                    log.debug("Status de pagamento {} não requer integração financeira", payment.getStatus());
+            }
+
+            // ✅ FASE 3: Marcar como processado
+            markPaymentAsProcessed(payment);
+
+        } catch (Exception e) {
+            log.error("❌ Erro na integração financeira para pagamento: {}", payment.getId(), e);
+            metricsService.recordIntegrationFailure("INTEGRATION_ERROR", "PaymentService");
+            alertService.recordIntegrationFailure("PaymentService", "INTEGRATION_ERROR", e.getMessage());
+            // Não falhar o updateStatus por causa da integração financeira
+        } finally {
+            metricsService.stopTotalIntegrationTimer(totalTimer);
+        }
+    }
+
+    /**
+     * Processar pagamento aprovado
+     * ✅ FASE 4: Com retry automático e backoff exponencial
+     */
+    private void processApprovedPayment(Payment payment, Order order) {
+        Timer.Sample paymentTimer = metricsService.startPaymentProcessingTimer();
+        
+        try {
+            log.info("✅ Processando pagamento aprovado: {} - Pedido: {}", payment.getId(), order.getId());
+
+            // ✅ FASE 4: Usar retry service para operações críticas
+            retryService.executePaymentWithRetry(
+                payment.getMethod(),
+                "createFinancialTransaction",
+                () -> {
+                    Timer.Sample transactionTimer = metricsService.startFinancialTransactionCreationTimer();
+                    try {
+                        FinancialTransaction transaction = financialTransactionService.createFromOrder(order, payment.getMethod());
+                        metricsService.stopFinancialTransactionCreationTimer(transactionTimer);
+                        
+                        metricsService.recordFinancialTransactionCreated("INCOME", order.getTotalAmount());
+                        log.info("✅ Transação financeira criada: {}", transaction.getId());
+
+                        // Confirmar transação automaticamente (se método permite)
+                        if (shouldAutoConfirmPayment(payment.getMethod())) {
+                            retryService.executeFinancialTransactionWithRetry(
+                                "INCOME",
+                                "confirmTransaction",
+                                () -> {
+                                    financialTransactionService.confirmTransaction(transaction.getId());
+                                    log.info("✅ Transação financeira confirmada automaticamente: {}", transaction.getId());
+                                    return null;
+                                }
+                            );
+                        }
+
+                        return transaction;
+                    } catch (Exception e) {
+                        metricsService.stopFinancialTransactionCreationTimer(transactionTimer);
+                        throw e;
+                    }
+                }
+            );
+
+            // Registrar métricas de sucesso
+            metricsService.recordPaymentProcessed(payment.getMethod(), order.getTotalAmount(), true);
+            metricsService.recordPaymentApproved(payment.getMethod(), order.getTotalAmount());
+
+        } catch (Exception e) {
+            log.error("❌ Erro ao processar pagamento aprovado: {}", payment.getId(), e);
+            metricsService.recordIntegrationFailure("PAYMENT_APPROVAL_ERROR", "PaymentService");
+            alertService.recordIntegrationFailure("PaymentService", "PAYMENT_APPROVAL_ERROR", e.getMessage());
+            metricsService.recordPaymentProcessed(payment.getMethod(), order.getTotalAmount(), false);
+        } finally {
+            metricsService.stopPaymentProcessingTimer(paymentTimer);
+        }
+    }
+
+    /**
+     * Processar estorno
+     */
+    private void processRefundedPayment(Payment payment, Order order) {
+        try {
+            log.info("🔄 Processando estorno: {} - Pedido: {}", payment.getId(), order.getId());
+
+            // TODO: Implementar lógica de estorno
+            // 1. Buscar transação financeira original
+            // 2. Criar transação de estorno
+            // 3. Criar entrada de fluxo de caixa de saída
+
+            log.info("⚠️ Lógica de estorno ainda não implementada para pagamento: {}", payment.getId());
+
+        } catch (Exception e) {
+            log.error("❌ Erro ao processar estorno: {}", payment.getId(), e);
+        }
+    }
+
+    /**
+     * Processar pagamento falhado/cancelado
+     */
+    private void processFailedPayment(Payment payment, Order order) {
+        try {
+            log.info("❌ Processando pagamento falhado: {} - Pedido: {}", payment.getId(), order.getId());
+
+            // TODO: Implementar lógica de pagamento falhado
+            // 1. Cancelar transações financeiras pendentes
+            // 2. Atualizar status do pedido se necessário
+
+            log.info("⚠️ Lógica de pagamento falhado ainda não implementada para pagamento: {}", payment.getId());
+
+        } catch (Exception e) {
+            log.error("❌ Erro ao processar pagamento falhado: {}", payment.getId(), e);
+        }
+    }
+
+    /**
+     * Verificar se método de pagamento deve ser confirmado automaticamente
+     */
+    private boolean shouldAutoConfirmPayment(String paymentMethod) {
+        if (paymentMethod == null) return false;
+        
+        String method = paymentMethod.toUpperCase();
+        return method.contains("PIX") || 
+               method.contains("CARTAO") || 
+               method.contains("CARTAO_CREDITO") ||
+               method.contains("CARTAO_DEBITO") ||
+               method.contains("DIGITAL");
+    }
+
+    /**
+     * Buscar pedido por pagamento
+     */
+    private Order findOrderByPayment(Payment payment) {
+        try {
+            if (payment.getOrder() == null) {
+                return null;
+            }
+            return payment.getOrder();
+        } catch (Exception e) {
+            log.error("❌ Erro ao buscar pedido por pagamento: {}", payment.getId(), e);
+            return null;
+        }
+    }
+
+    /**
+     * ✅ FASE 3: Verificar se pagamento já foi processado (idempotência)
+     */
+    private boolean isPaymentAlreadyProcessed(Payment payment) {
+        try {
+            // Verificar se já existe transação financeira para este pagamento
+            // Em produção, isso seria verificado via FinancialTransactionService
+            // Por enquanto, usar uma verificação simples baseada no metadata
+            return payment.getMetadata() != null && 
+                   payment.getMetadata().contains("FINANCIAL_INTEGRATION_PROCESSED");
+        } catch (Exception e) {
+            log.warn("⚠️ Erro ao verificar se pagamento foi processado: {}", payment.getId(), e);
+            return false; // Em caso de erro, processar novamente
+        }
+    }
+
+    /**
+     * ✅ FASE 3: Marcar pagamento como processado (idempotência)
+     */
+    private void markPaymentAsProcessed(Payment payment) {
+        try {
+            // Adicionar flag no metadata para indicar que foi processado
+            String currentMetadata = payment.getMetadata() != null ? payment.getMetadata() : "";
+            String newMetadata = currentMetadata + "|FINANCIAL_INTEGRATION_PROCESSED:" + System.currentTimeMillis();
+            
+            payment.setMetadata(newMetadata);
+            paymentRepository.save(payment);
+            
+            log.debug("✅ Pagamento {} marcado como processado", payment.getId());
+        } catch (Exception e) {
+            log.warn("⚠️ Erro ao marcar pagamento como processado: {}", payment.getId(), e);
+            // Não falhar o processamento por causa disso
         }
     }
 

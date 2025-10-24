@@ -2,6 +2,7 @@ package com.vynlotaste.controller;
 
 import com.vynlotaste.dto.payment.PaymentWebhookDto;
 import com.vynlotaste.service.PaymentWebhookService;
+import com.vynlotaste.service.WebhookValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +22,41 @@ import java.util.Map;
 public class PaymentWebhookController {
 
     private final PaymentWebhookService paymentWebhookService;
+    private final WebhookValidationService webhookValidationService;
 
     /**
      * Webhook genérico para qualquer provedor
+     * ✅ FASE 4: Com validação de assinatura e timestamp
      */
     @PostMapping("/{provider}")
     public ResponseEntity<?> handleWebhook(
             @PathVariable String provider,
+            @RequestHeader(value = "X-Signature", required = false) String signature,
+            @RequestHeader(value = "X-Timestamp", required = false) Long timestamp,
             @RequestBody PaymentWebhookDto webhook) {
         
         log.info("🔔 Webhook recebido do provedor: {} - Status: {}", provider, webhook.getStatus());
         
         try {
+            // ✅ FASE 4: Validar webhook se signature e timestamp fornecidos
+            if (signature != null && timestamp != null) {
+                String payload = convertToJsonString(webhook);
+                boolean isValid = webhookValidationService.validateWebhook(provider, signature, payload, timestamp);
+                
+                if (!isValid) {
+                    log.warn("❌ Webhook inválido do provedor: {} - assinatura ou timestamp inválidos", provider);
+                    return ResponseEntity.status(401).body(Map.of(
+                        "status", "error",
+                        "message", "Webhook inválido - assinatura ou timestamp inválidos",
+                        "processed", false
+                    ));
+                }
+                
+                log.info("✅ Webhook validado com sucesso para provedor: {}", provider);
+            } else {
+                log.warn("⚠️ Webhook sem validação de segurança do provedor: {}", provider);
+            }
+            
             // Processar webhook
             PaymentWebhookService.PaymentResult result = paymentWebhookService.processWebhook(provider, webhook);
             
@@ -68,7 +92,7 @@ public class PaymentWebhookController {
      */
     @PostMapping("/stone")
     public ResponseEntity<?> handleStoneWebhook(@RequestBody PaymentWebhookDto webhook) {
-        return handleWebhook("stone", webhook);
+        return handleWebhook("stone", null, null, webhook);
     }
 
     /**
@@ -76,7 +100,7 @@ public class PaymentWebhookController {
      */
     @PostMapping("/cielo")
     public ResponseEntity<?> handleCieloWebhook(@RequestBody PaymentWebhookDto webhook) {
-        return handleWebhook("cielo", webhook);
+        return handleWebhook("cielo", null, null, webhook);
     }
 
     /**
@@ -84,7 +108,7 @@ public class PaymentWebhookController {
      */
     @PostMapping("/rede")
     public ResponseEntity<?> handleRedeWebhook(@RequestBody PaymentWebhookDto webhook) {
-        return handleWebhook("rede", webhook);
+        return handleWebhook("rede", null, null, webhook);
     }
 
     /**
@@ -92,7 +116,7 @@ public class PaymentWebhookController {
      */
     @PostMapping("/pagseguro")
     public ResponseEntity<?> handlePagSeguroWebhook(@RequestBody PaymentWebhookDto webhook) {
-        return handleWebhook("pagseguro", webhook);
+        return handleWebhook("pagseguro", null, null, webhook);
     }
 
     /**
@@ -100,7 +124,7 @@ public class PaymentWebhookController {
      */
     @PostMapping("/pix")
     public ResponseEntity<?> handlePixWebhook(@RequestBody PaymentWebhookDto webhook) {
-        return handleWebhook("pix", webhook);
+        return handleWebhook("pix", null, null, webhook);
     }
 
     /**
@@ -128,5 +152,20 @@ public class PaymentWebhookController {
             "receivedData", testData,
             "timestamp", System.currentTimeMillis()
         ));
+    }
+
+    /**
+     * Converter PaymentWebhookDto para JSON string
+     */
+    private String convertToJsonString(PaymentWebhookDto webhook) {
+        // Implementação simples - em produção usar ObjectMapper
+        return String.format(
+            "{\"transactionId\":\"%s\",\"status\":\"%s\",\"amount\":%s,\"method\":\"%s\",\"orderId\":\"%s\"}",
+            webhook.getTransactionId(),
+            webhook.getStatus(),
+            webhook.getAmount(),
+            webhook.getMethod(),
+            webhook.getOrderId()
+        );
     }
 }

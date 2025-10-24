@@ -128,43 +128,9 @@ export const useUpdateOrderStatus = () => {
     mutationFn: async ({ orderId, status }: { orderId: string; status: Order['status'] }) => {
       const result = await updateOrderStatus({ orderId, status })
       
-      // 🚚 FLUXO AUTOMÁTICO: Se status = 'delivered', criar delivery automaticamente
-      if (status === 'delivered' || status.toUpperCase() === 'DELIVERED') {
-        try {
-          // Buscar dados do pedido para criar delivery
-          const orderResponse = await apiRequest('core-service', `v1/orders/${orderId}`)
-          if (orderResponse.ok) {
-            const orderData = await orderResponse.json()
-            
-            // Criar delivery automaticamente
-            await apiRequest('core-service', 'v1/deliveries', {
-              method: 'POST',
-              body: JSON.stringify({
-                orderId: orderId,
-                customerName: orderData.customerName || 'Cliente',
-                customerPhone: orderData.contactPhone || orderData.customer?.phone || 'Não informado', // ✅ CORREÇÃO: customerPhone (não phone)
-                deliveryAddress: orderData.deliveryAddress || 'Endereço não informado', // ✅ CORREÇÃO: deliveryAddress (não address)
-                source: 'WEBSITE' // ✅ CORREÇÃO: Adicionar source obrigatório
-              })
-            })
-            
-            // Invalidar cache de deliveries - INVALIDAÇÃO AGRESSIVA
-            queryClient.invalidateQueries({ queryKey: ['deliveries'] })
-            queryClient.invalidateQueries({ queryKey: ['deliveries', tenantKey] })
-            queryClient.resetQueries({ queryKey: ['deliveries'] })
-            
-            // Refetch imediato após um pequeno delay
-            setTimeout(() => {
-              queryClient.refetchQueries({ queryKey: ['deliveries'], type: 'all' })
-            }, 100)
-            
-            toast.success('✅ Pedido marcado como entregue! Delivery criado automaticamente 🚚', { duration: 5000 })
-          }
-        } catch (error) {
-          console.warn('⚠️ Não foi possível criar delivery automático:', error)
-          // Não falha a atualização do status se delivery falhar
-        }
-      }
+      // ✅ CORREÇÃO FASE 1: Remover criação automática de delivery ao mudar status
+      // Delivery já é criado automaticamente na criação do pedido DELIVERY
+      // Não criar delivery duplicado ao marcar como "delivered"
       
       return result
     },
