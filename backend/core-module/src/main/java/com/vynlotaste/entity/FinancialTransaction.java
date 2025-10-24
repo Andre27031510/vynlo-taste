@@ -62,18 +62,18 @@ public class FinancialTransaction {
     @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 
-    @Column(name = "recurring_info", columnDefinition = "JSONB")
+    @Column(name = "recurring_info", columnDefinition = "TEXT")
     private String recurringInfo;
 
-    @Column(name = "attachments", columnDefinition = "JSONB")
+    @Column(name = "attachments", columnDefinition = "TEXT")
     @Builder.Default
     private String attachments = "[]";
 
-    @Column(name = "tags", columnDefinition = "JSONB")
+    @Column(name = "tags", columnDefinition = "TEXT")
     @Builder.Default
     private String tags = "[]";
 
-    @Column(name = "metadata", columnDefinition = "JSONB")
+    @Column(name = "metadata", columnDefinition = "TEXT")
     @Builder.Default
     private String metadata = "{}";
 
