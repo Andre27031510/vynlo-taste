@@ -46,11 +46,11 @@ const fetchDeliveries = async (filters?: {
   try {
     const params = new URLSearchParams()
     
-    // ✅ Paginação 0-based + size param (Spring Data JPA padrão)
-    const pageZero = Math.max(0, (filters?.page ?? 1) - 1)
-    const size = (filters?.limit ?? 10)
-    params.append('page', pageZero.toString())
-    params.append('size', size.toString())
+    // ✅ CORREÇÃO: Enviar page 1-based e usar "limit"
+    const pageOneBased = filters?.page ?? 1
+    const limit = filters?.limit ?? 10
+    params.append('page', pageOneBased.toString())
+    params.append('limit', limit.toString())
     params.append('sort', 'createdAt,desc') // Ordenação determinística
     
     if (filters?.status && filters.status !== 'all') params.append('status', filters.status)
@@ -59,9 +59,8 @@ const fetchDeliveries = async (filters?: {
     const response = await apiRequest('core-service', `v1/deliveries?${params.toString()}`)
     return await response.json()
   } catch (error) {
-    // ✅ FALLBACK SEGURO: retorna vazio em vez de throw (UI não quebra)
-    console.warn('[useDeliveryQuery] API temporariamente indisponível, retornando vazio:', error)
-    return { deliveries: [], total: 0, totalPages: 0 }
+    console.error('[useDeliveryQuery] Erro na API:', error)
+    throw error  // Deixar React Query tratar o erro
   }
 }
 

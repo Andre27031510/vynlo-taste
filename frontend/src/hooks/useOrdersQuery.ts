@@ -330,28 +330,6 @@ export const useCreateOrderMutation = () => {
       
       toast.success('✅ Pedido criado com sucesso!')
       console.log('✅ Pedido criado - cache resetado e refetch agressivo')
-      
-      return createdOrder
-    },
-    onSuccess: () => {
-      // ✅ INVALIDAÇÃO AGRESSIVA - igual aos produtos
-      queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
-      queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
-      
-      // ✅ RESETAR queries para forçar reload completo
-      queryClient.resetQueries({ queryKey: ['orders', tenantKey] })
-      queryClient.resetQueries({ queryKey: ['orders-stats', tenantKey] })
-      
-      // ✅ FORÇAR refetch imediato com delay
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: ['orders', tenantKey], type: 'all' })
-        queryClient.refetchQueries({ queryKey: ['orders-stats', tenantKey], type: 'all' })
-        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
-      }, 100)
-      
-      toast.success('✅ Pedido criado com sucesso!')
-      console.log('✅ Pedido criado - cache resetado e refetch agressivo')
     },
     onError: (error: Error) => {
       console.error('❌ Erro ao criar pedido:', error)

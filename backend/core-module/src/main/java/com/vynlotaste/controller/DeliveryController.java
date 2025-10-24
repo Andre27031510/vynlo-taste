@@ -29,13 +29,19 @@ public class DeliveryController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit) {
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) Integer size) {
         try {
             Delivery.DeliveryStatus deliveryStatus = status != null && !status.equals("all") 
                 ? Delivery.DeliveryStatus.valueOf(status.toUpperCase()) 
                 : null;
             
-            Page<Delivery> deliveriesPage = deliveryService.getDeliveries(deliveryStatus, search, page, limit);
+            // ✅ CORREÇÃO: Usar size se fornecido, senão limit
+            int actualLimit = size != null ? size : limit;
+            // ✅ CORREÇÃO: Clamp page para mínimo 1
+            int safePage = Math.max(1, page);
+            
+            Page<Delivery> deliveriesPage = deliveryService.getDeliveries(deliveryStatus, search, safePage, actualLimit);
             
             // ✅ CORREÇÃO: Converter para DTOs antes de retornar (evita lazy loading)
             java.util.List<DeliveryResponseDto> deliveryDtos = deliveriesPage.getContent().stream()
@@ -50,12 +56,8 @@ public class DeliveryController {
             ));
         } catch (Exception e) {
             log.error("❌ Erro ao buscar deliveries", e);
-            return ResponseEntity.ok(Map.of(
-                "deliveries", java.util.List.of(),
-                "total", 0,
-                "page", page,
-                "totalPages", 1
-            ));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Database error", "message", e.getMessage()));
         }
     }
 

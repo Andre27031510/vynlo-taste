@@ -79,12 +79,9 @@ public class OrderController {
                 "totalPages", 1
             ));
         } catch (Exception e) {
-            return ResponseEntity.ok(java.util.Map.of(
-                "orders", java.util.List.of(),
-                "total", 0,
-                "page", page,
-                "totalPages", 1
-            ));
+            log.error("❌ Erro ao buscar orders", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(java.util.Map.of("error", "Database error", "message", e.getMessage()));
         }
     }
 
