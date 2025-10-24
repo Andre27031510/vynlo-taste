@@ -11,6 +11,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
+import { useAuthReady } from './useAuthReady'
 
 // Tipos para pedidos
 export interface Order {
@@ -79,6 +80,9 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
   const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
+  // ✅ AUTH GUARD: Prevenir race condition (Cursor recommendation)
+  const isAuthReady = useAuthReady()
+  
   return useQuery<{ orders: Order[], total: number, totalPages: number }>({
     queryKey: ['orders', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchOrders(filters),
@@ -88,7 +92,8 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
     refetchOnMount: true, // ✅ CRÍTICO: true (não 'always') - lista atualiza após criar pedido
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 2, // Retry em caso de falha
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    enabled: isAuthReady // ✅ CRÍTICO: Só executa quando auth estiver pronto
   })
 }
 
@@ -96,6 +101,9 @@ export const useOrdersStatsQuery = () => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
   const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
+  
+  // ✅ AUTH GUARD: Prevenir race condition (Cursor recommendation)
+  const isAuthReady = useAuthReady()
   
   return useQuery<OrdersStats>({
     queryKey: ['orders-stats', tenantKey],  // ✅ Isolado por tenant
@@ -106,7 +114,8 @@ export const useOrdersStatsQuery = () => {
     refetchOnMount: true, // ✅ CRÍTICO: true (não 'always') - stats atualizam após criar pedido
     refetchInterval: false, // ❌ REMOVIDO auto-refresh (produção)
     retry: 2,
-    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000)
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    enabled: isAuthReady // ✅ CRÍTICO: Só executa quando auth estiver pronto
   })
 }
 
@@ -208,16 +217,52 @@ export const useCreateOrderMutation = () => {
   
   return useMutation({
     mutationFn: async (orderData: CreateOrderData) => {
-      const response = await apiRequest('core-service', 'v1/orders', {
-        method: 'POST',
-        body: JSON.stringify(orderData)
-      })
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Erro ao criar pedido')
+      // ✅ CORREÇÃO: Retry automático em caso de 401 (Cursor recommendation)
+      const makeRequest = async (forceRefresh = false) => {
+        if (forceRefresh && typeof window !== 'undefined') {
+          try {
+            const { getAuthInstance } = await import('@/config/firebase')
+            const auth = getAuthInstance()
+            if (auth?.currentUser) {
+              // Forçar refresh do token
+              await auth.currentUser.getIdToken(true)
+            }
+          } catch (error) {
+            console.warn('Erro ao refresh token:', error)
+          }
+        }
+        
+        const response = await apiRequest('core-service', 'v1/orders', {
+          method: 'POST',
+          body: JSON.stringify(orderData)
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.message || 'Erro ao criar pedido')
+        }
+        
+        return await response.json()
       }
-      const createdOrder = await response.json()
       
+      try {
+        return await makeRequest()
+      } catch (error: any) {
+        // ✅ RETRY ÚNICO em caso de 401 (Cursor recommendation)
+        if (error.message?.includes('HTTP 401')) {
+          console.log('🔄 Token expirado, tentando refresh...')
+          try {
+            return await makeRequest(true) // Force refresh
+          } catch (retryError) {
+            console.error('❌ Falha após refresh do token:', retryError)
+            toast.error('Sessão expirada. Faça login novamente.')
+            throw retryError
+          }
+        }
+        throw error
+      }
+    },
+    onSuccess: async (createdOrder, orderData) => {
       // 🚚 FLUXO AUTOMÁTICO: Se pedido é DELIVERY, criar delivery automaticamente
       if (orderData.type === 'DELIVERY') {
         try {
@@ -266,6 +311,25 @@ export const useCreateOrderMutation = () => {
           toast.error('⚠️ Pedido criado, mas delivery não pôde ser criado automaticamente')
         }
       }
+      
+      // ✅ INVALIDAÇÃO AGRESSIVA - igual aos produtos
+      queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['orders-stats', tenantKey] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      
+      // ✅ RESETAR queries para forçar reload completo
+      queryClient.resetQueries({ queryKey: ['orders', tenantKey] })
+      queryClient.resetQueries({ queryKey: ['orders-stats', tenantKey] })
+      
+      // ✅ FORÇAR refetch imediato com delay
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['orders', tenantKey], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['orders-stats', tenantKey], type: 'all' })
+        queryClient.refetchQueries({ queryKey: ['dashboard-stats'], type: 'all' })
+      }, 100)
+      
+      toast.success('✅ Pedido criado com sucesso!')
+      console.log('✅ Pedido criado - cache resetado e refetch agressivo')
       
       return createdOrder
     },

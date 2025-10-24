@@ -100,7 +100,7 @@ export default function ReconciliationManagement() {
       
       // Verificar pedidos sem transação financeira
       orders.forEach(order => {
-        const hasTransaction = transactions.some(t => t.orderId === order.id)
+        const hasTransaction = transactions.some((t: any) => t.orderId === order.id)
         if (!hasTransaction && order.status === 'delivered') {
           discrepancies.push({
             id: `missing-transaction-${order.id}`,
@@ -114,9 +114,9 @@ export default function ReconciliationManagement() {
       })
       
       // Verificar transações sem entrada no fluxo de caixa
-      transactions.forEach(transaction => {
+      transactions.forEach((transaction: any) => {
         if (transaction.status === 'confirmed') {
-          const hasCashFlow = cashFlowEntries.some(cf => cf.financialTransactionId === transaction.id)
+          const hasCashFlow = cashFlowEntries.some((cf: any) => cf.financialTransactionId === transaction.id)
           if (!hasCashFlow) {
             discrepancies.push({
               id: `missing-cashflow-${transaction.id}`,
