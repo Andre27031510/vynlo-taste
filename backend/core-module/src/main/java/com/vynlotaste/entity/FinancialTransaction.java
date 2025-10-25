@@ -99,7 +99,7 @@ public class FinancialTransaction {
     private Long tenantId;
 
     @Column(name = "user_id")
-    private Long userId;
+    private Long userId; // ✅ Campo obrigatório para compliance LGPD e auditoria
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

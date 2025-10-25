@@ -42,7 +42,7 @@ public class FinancialTransactionDto {
     private Long customerId;
     private Long supplierId;
     private Long tenantId;
-    private Long userId;
+    private Long userId; // ✅ Campo obrigatório para compliance LGPD e auditoria
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long createdBy;

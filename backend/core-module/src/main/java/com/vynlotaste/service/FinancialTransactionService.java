@@ -149,7 +149,7 @@ public class FinancialTransactionService {
                 .orderId(order.getId())
                 .customerId(order.getCustomer().getId())
                 .restaurantId(order.getTenantId()) // ✅ CORREÇÃO: usar tenantId em vez de restaurantId
-                .userId(order.getCustomer().getId()) // ✅ CORREÇÃO: definir userId
+                .userId(order.getCustomer().getId()) // ✅ CORREÇÃO: definir userId para compliance LGPD
                 .referenceNumber("ORD-" + order.getId())
                 .build();
 
