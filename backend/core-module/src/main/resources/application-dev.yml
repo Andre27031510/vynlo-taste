@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/vynlo_taste_dev
+    url: jdbc:postgresql://3.92.86.250:5432/vynlotaste
     username: vynlo_user
-    password: vynlo_pass
+    password: 96043020
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
