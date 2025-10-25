@@ -22,15 +22,17 @@ import {
 } from 'lucide-react'
 import { useThemeContext } from '../../contexts/ThemeContext'
 import { FINANCIAL_COLORS } from '@/constants/financialTheme'
+import { toast } from 'react-hot-toast'
 
 interface TransactionConfirmationModalProps {
   isOpen: boolean
   onClose: () => void
   transaction: any
   onConfirm: (transactionId: string) => void
+  isPending?: boolean
 }
 
-const TransactionConfirmationModal = ({ isOpen, onClose, transaction, onConfirm }: TransactionConfirmationModalProps) => {
+const TransactionConfirmationModal = ({ isOpen, onClose, transaction, onConfirm, isPending = false }: TransactionConfirmationModalProps) => {
   const { currentTheme } = useThemeContext()
   const theme: 'light' | 'dark' = currentTheme === 'dark' ? 'dark' : 'light'
 
@@ -145,10 +147,20 @@ const TransactionConfirmationModal = ({ isOpen, onClose, transaction, onConfirm 
             </button>
             <button
               onClick={() => onConfirm(transaction.id)}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium flex items-center justify-center space-x-2"
+              disabled={isPending}
+              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <CheckCircle className="w-4 h-4" />
-              <span>Confirmar Pagamento</span>
+              {isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Confirmando...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Confirmar Pagamento</span>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -179,11 +191,13 @@ export default function TransactionConfirmationManagement() {
   const handleConfirmTransaction = async (transactionId: string) => {
     try {
       await confirmMutation.mutateAsync(transactionId)
+      toast.success('✅ Pagamento confirmado com sucesso!')
       setShowConfirmationModal(false)
       setSelectedTransaction(null)
       refetch() // Atualizar lista
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao confirmar transação:', error)
+      toast.error(`❌ Erro ao confirmar pagamento: ${error.message || 'Erro desconhecido'}`)
     }
   }
 
@@ -376,6 +390,7 @@ export default function TransactionConfirmationManagement() {
         }}
         transaction={selectedTransaction}
         onConfirm={handleConfirmTransaction}
+        isPending={confirmMutation.isPending}
       />
     </div>
   )

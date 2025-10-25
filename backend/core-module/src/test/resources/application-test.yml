@@ -1,0 +1,67 @@
+spring:
+  profiles:
+    active: test
+  
+  # Configuração do banco de dados para testes
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  # Configuração JPA para testes
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Configuração Flyway para testes
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  
+  # Configuração H2 Console para testes
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  # Configuração de cache para testes
+  cache:
+    type: simple
+
+# Configuração de logging para testes
+logging:
+  level:
+    root: WARN
+    com.vynlotaste: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# Configuração do servidor para testes
+server:
+  port: 0  # Porta aleatória para evitar conflitos
+
+# Configuração Firebase para testes (mock)
+firebase:
+  auth:
+    enabled: false  # Desabilitar Firebase para testes
+  project-id: test-project
+  private-key: test-key
+  client-email: test@test.com
+
+# Configuração de cache para testes
+vynlo:
+  cache:
+    caffeine:
+      spec: maximumSize=100,expireAfterWrite=5m
+  features:
+    newUi: false
+    analytics: false
+    betaFeatures: false

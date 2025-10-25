@@ -81,8 +81,8 @@ public class DriverService {
                               String vehicle, String plate, String address, 
                               String cpf, String cnh) {
         try {
-            Driver driver = driverRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Driver not found: " + id));
+            // MULTI-TENANCY: Validar acesso usando getDriverById
+            Driver driver = getDriverById(id);
             
             if (name != null) driver.setName(name);
             if (phone != null) driver.setPhone(phone);
@@ -106,8 +106,8 @@ public class DriverService {
     @CacheEvict(value = "driverStats", allEntries = true)
     public Driver updateDriverStatus(Long id, Driver.DriverStatus newStatus) {
         try {
-            Driver driver = driverRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Driver not found: " + id));
+            // MULTI-TENANCY: Validar acesso usando getDriverById
+            Driver driver = getDriverById(id);
             
             driver.setStatus(newStatus);
             if (newStatus != Driver.DriverStatus.OFFLINE) {
@@ -127,9 +127,8 @@ public class DriverService {
     @CacheEvict(value = "driverStats", allEntries = true)
     public void deleteDriver(Long id) {
         try {
-            if (!driverRepository.existsById(id)) {
-                throw new IllegalArgumentException("Driver not found: " + id);
-            }
+            // MULTI-TENANCY: Validar acesso usando getDriverById
+            getDriverById(id);
             
             driverRepository.deleteById(id);
             log.info("Driver deleted: {}", id);
@@ -181,8 +180,20 @@ public class DriverService {
     }
 
     public Driver getDriverById(Long id) {
-        return driverRepository.findById(id)
+        Driver driver = driverRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Driver not found: " + id));
+        
+        // MULTI-TENANCY: Validação de acesso ao driver
+        if (!com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            if (tenantId == null || !tenantId.equals(driver.getTenantId())) {
+                log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar driver (tenant_id={}, id={})", 
+                        tenantId, driver.getTenantId(), id);
+                throw new IllegalArgumentException("Driver not found: " + id);
+            }
+        }
+        
+        return driver;
     }
 
     @Cacheable(value = "driverStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#root.target.getCurrentTenantId() == null || #result == null")

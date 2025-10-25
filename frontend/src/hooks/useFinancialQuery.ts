@@ -207,7 +207,21 @@ export const useConfirmTransactionMutation = () => {
         throw new Error(`Erro ao confirmar transação: ${response.status} - ${errorText}`)
       }
       
-      return await response.json()
+      // ✅ CORREÇÃO: Verificar se há conteúdo antes de fazer parse JSON
+      const responseText = await response.text()
+      
+      if (!responseText || responseText.trim() === '') {
+        // Resposta vazia - considerar como sucesso
+        console.log('✅ Confirmação realizada com sucesso (resposta vazia)')
+        return { success: true, message: 'Transação confirmada com sucesso' }
+      }
+      
+      try {
+        return JSON.parse(responseText)
+      } catch (parseError) {
+        console.warn('⚠️ Resposta não é JSON válido, mas operação pode ter sido bem-sucedida:', responseText)
+        return { success: true, message: 'Transação confirmada com sucesso', rawResponse: responseText }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['financial-transactions'] })

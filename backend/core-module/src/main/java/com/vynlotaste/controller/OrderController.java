@@ -66,6 +66,8 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String search) {
+        // ✅ VALIDAÇÃO MULTI-TENANT: Service já filtra automaticamente por tenant_id
+        // Super Admin: vê todos os pedidos | Cliente: vê apenas seus pedidos
         try {
             List<Order> orders = orderService.getAllOrders(page, limit, status, search);
             List<OrderResponseDto> response = orders.stream()

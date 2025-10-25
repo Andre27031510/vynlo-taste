@@ -22,6 +22,12 @@ import java.util.Optional;
 public interface FinancialTransactionRepository extends JpaRepository<FinancialTransaction, Long> {
 
     /**
+     * Buscar transação por ID e tenant_id (segurança multi-tenant)
+     */
+    @Query("SELECT ft FROM FinancialTransaction ft WHERE ft.id = :id AND ft.tenantId = :tenantId AND ft.deletedAt IS NULL")
+    Optional<FinancialTransaction> findByIdAndTenantId(@Param("id") Long id, @Param("tenantId") Long tenantId);
+
+    /**
      * Buscar transações por tenant_id (multi-tenancy)
      */
     @Query("SELECT ft FROM FinancialTransaction ft WHERE ft.tenantId = :tenantId AND ft.deletedAt IS NULL")

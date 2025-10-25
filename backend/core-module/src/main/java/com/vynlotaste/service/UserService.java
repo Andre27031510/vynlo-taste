@@ -208,8 +208,20 @@ public class UserService {
     @Cacheable(value = CacheConfig.USERS_CACHE, key = "'id:' + #id + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public User findById(Long id) {
         log.debug("Buscando usuário por ID: {}", id);
-        return userRepository.findById(id)
+        User user = userRepository.findById(id)
             .orElseThrow(() -> new com.vynlotaste.exception.user.UserNotFoundException(id));
+        
+        // MULTI-TENANCY: Validação de acesso ao usuário
+        if (!com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            if (tenantId == null || !tenantId.equals(user.getTenantId())) {
+                log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar user (tenant_id={}, id={})", 
+                        tenantId, user.getTenantId(), id);
+                throw new com.vynlotaste.exception.user.UserNotFoundException(id);
+            }
+        }
+        
+        return user;
     }
 
     @Cacheable(value = CacheConfig.USERS_CACHE, key = "'active-users:' + (#root.target.getCurrentTenantId() ?: 'super')",

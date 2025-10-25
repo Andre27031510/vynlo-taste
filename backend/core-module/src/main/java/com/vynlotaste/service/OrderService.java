@@ -157,8 +157,28 @@ public class OrderService {
     @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'order:' + #id + ':' + (#root.target.getCurrentTenantId() ?: 'super')")
     public Order getOrderById(@NotNull @Positive Long id) {
         log.debug("Fetching order by ID: {}", id);
-        return orderRepository.findById(id)
-            .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND, "Order not found with ID: " + id));
+        
+        // ✅ CORREÇÃO CRÍTICA: Buscar com filtro de tenant ANTES de retornar dados
+        Order order;
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            // Super Admin: pode acessar qualquer pedido
+            order = orderRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND, "Order not found with ID: " + id));
+        } else {
+            // Cliente: buscar apenas pedidos do seu tenant
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - acesso negado");
+                throw new BusinessException(ErrorCode.ORDER_NOT_FOUND, "Order not found with ID: " + id);
+            }
+            
+            order = orderRepository.findByIdAndTenantId(id, tenantId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND, "Order not found with ID: " + id));
+            
+            log.debug("✅ Pedido encontrado: ID={}, tenant_id={}", id, tenantId);
+        }
+        
+        return order;
     }
 
     @Cacheable(value = CacheConfig.ORDERS_CACHE, key = "'user:' + #userId + ':' + (#root.target.getCurrentTenantId() ?: 'super')")

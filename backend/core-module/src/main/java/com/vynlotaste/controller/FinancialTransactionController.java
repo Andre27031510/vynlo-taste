@@ -138,10 +138,18 @@ public class FinancialTransactionController {
     public ResponseEntity<FinancialTransactionDto.Response> confirmTransaction(@PathVariable Long id) {
         log.info("✅ Confirmando transação: {}", id);
         
-        FinancialTransaction transaction = financialTransactionService.confirmTransaction(id);
-        FinancialTransactionDto.Response response = financialTransactionMapper.toResponseDto(transaction);
-        
-        return ResponseEntity.ok(response);
+        try {
+            FinancialTransaction transaction = financialTransactionService.confirmTransaction(id);
+            log.info("✅ Transação confirmada no service: ID={}, Status={}", transaction.getId(), transaction.getStatus());
+            
+            FinancialTransactionDto.Response response = financialTransactionMapper.toResponseDto(transaction);
+            log.info("✅ DTO criado: ID={}, Status={}, Amount={}", response.getId(), response.getStatus(), response.getAmount());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("❌ Erro ao confirmar transação: {}", id, e);
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     /**

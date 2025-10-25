@@ -21,18 +21,38 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
     
     // ============================================================================
-    // QUERIES GLOBAIS (APENAS SUPER ADMIN - sem filtro tenant_id)
+    // ⚠️ QUERIES GLOBAIS (APENAS SUPER ADMIN) - USO RESTRITO
+    // ============================================================================
+    // 🚨 SEGURANÇA: Estas queries retornam dados de TODOS os tenants
+    // 🚨 USO: Apenas Super Admins podem usar (TenantContext.isSuperAdmin() == true)
+    // 🚨 VALIDAÇÃO: Services DEVEM verificar TenantContext.isSuperAdmin() antes de usar
     // ============================================================================
     
+    /**
+     * ⚠️ GLOBAL: Buscar pedidos por cliente (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
     @EntityGraph(attributePaths = {"customer", "status", "type"})
     List<Order> findByCustomerId(Long customerId);
     
+    /**
+     * ⚠️ GLOBAL: Buscar pedidos por status (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
     @EntityGraph(attributePaths = {"customer", "type"})
     List<Order> findByStatus(Order.OrderStatus status);
     
+    /**
+     * ⚠️ GLOBAL: Buscar pedido por número (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
     @EntityGraph(attributePaths = {"customer", "status", "type"})
     Order findByOrderNumber(String orderNumber);
     
+    /**
+     * ⚠️ GLOBAL: Buscar pedidos por período (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
     @EntityGraph(attributePaths = {"customer", "status", "type"})
     List<Order> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
     
@@ -57,6 +77,11 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     // ============================================================================
     // MULTI-TENANCY: Queries com filtro de tenant_id
     // ============================================================================
+    
+    // ✅ CRÍTICO: Buscar pedido por ID e tenant_id (segurança multi-tenant)
+    @Query("SELECT o FROM Order o WHERE o.id = :id AND o.tenantId = :tenantId")
+    @EntityGraph(attributePaths = {"customer", "status", "type"})
+    java.util.Optional<Order> findByIdAndTenantId(@Param("id") Long id, @Param("tenantId") Long tenantId);
     
     @Query("SELECT o FROM Order o WHERE o.tenantId = :tenantId")
     @EntityGraph(attributePaths = {"customer", "status", "type"})

@@ -218,13 +218,32 @@ public class FinancialTransactionService {
     public FinancialTransaction findById(Long id) {
         log.debug("🔍 Buscando transação financeira: {}", id);
 
-        FinancialTransaction transaction = financialTransactionRepository.findById(id)
+        // ✅ CORREÇÃO CRÍTICA: Buscar com filtro de tenant ANTES de retornar dados
+        FinancialTransaction transaction;
+        if (TenantContext.isSuperAdmin()) {
+            // Super Admin: pode acessar qualquer transação
+            transaction = financialTransactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transação financeira não encontrada: " + id));
-
-        // Verificar multi-tenancy
-        Long tenantId = TenantContext.getCurrentTenantId();
-        if (!TenantContext.isSuperAdmin() && !transaction.getTenantId().equals(tenantId)) {
-            throw new RuntimeException("Acesso negado à transação financeira: " + id);
+        } else {
+            // Cliente: buscar apenas transações do seu tenant
+            Long tenantId = TenantContext.getCurrentTenantId();
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - acesso negado");
+                throw new RuntimeException("Transação financeira não encontrada: " + id);
+            }
+            
+            // Buscar transação e validar tenant_id
+            transaction = financialTransactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transação financeira não encontrada: " + id));
+            
+            // Validar se a transação pertence ao tenant atual
+            if (!tenantId.equals(transaction.getTenantId())) {
+                log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar transação (tenant_id={}, id={})", 
+                        tenantId, transaction.getTenantId(), id);
+                throw new RuntimeException("Transação financeira não encontrada: " + id);
+            }
+            
+            log.debug("✅ Transação encontrada: ID={}, tenant_id={}", id, tenantId);
         }
 
         return transaction;

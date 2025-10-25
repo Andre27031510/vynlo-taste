@@ -139,7 +139,10 @@ export const useCreateTeamMemberMutation = () => {
       return await response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] })
+      // ✅ MULTI-TENANT: Invalidar cache apenas do tenant atual
+      const { useTenantKey } = require('./useTenantKey')
+      const tenantKey = useTenantKey()
+      queryClient.invalidateQueries({ queryKey: ['team', tenantKey] })
       console.log('✅ Membro da equipe criado com sucesso')
     },
     onError: (error) => {
@@ -184,7 +187,10 @@ export const useUpdateTeamMemberMutation = () => {
       return await response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] })
+      // ✅ MULTI-TENANT: Invalidar cache apenas do tenant atual
+      const { useTenantKey } = require('./useTenantKey')
+      const tenantKey = useTenantKey()
+      queryClient.invalidateQueries({ queryKey: ['team', tenantKey] })
       console.log('✅ Membro da equipe atualizado com sucesso')
     },
     onError: (error) => {
@@ -209,7 +215,10 @@ export const useDeleteTeamMemberMutation = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] })
+      // ✅ MULTI-TENANT: Invalidar cache apenas do tenant atual
+      const { useTenantKey } = require('./useTenantKey')
+      const tenantKey = useTenantKey()
+      queryClient.invalidateQueries({ queryKey: ['team', tenantKey] })
       console.log('✅ Membro da equipe deletado com sucesso')
     },
     onError: (error) => {

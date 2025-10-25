@@ -202,25 +202,24 @@ public class ProductService {
         long startTime = System.currentTimeMillis();
         
         try {
-            Optional<Product> productOpt = productRepository.findById(id);
-            
-            if (productOpt.isEmpty()) {
-                log.warn(PRODUCT_NOT_FOUND, id);
-                throw new ProductNotFoundException("Produto não encontrado com ID: " + id);
-            }
-            
-            Product product = productOpt.get();
-            
-            // ============================================================================
-            // MULTI-TENANCY: Validação de acesso ao produto
-            // ============================================================================
-            if (!TenantContext.isSuperAdmin()) {
+            // ✅ CORREÇÃO CRÍTICA: Buscar com filtro de tenant ANTES de retornar dados
+            Product product;
+            if (TenantContext.isSuperAdmin()) {
+                // Super Admin: pode acessar qualquer produto
+                product = productRepository.findById(id)
+                    .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado com ID: " + id));
+            } else {
+                // Cliente: buscar apenas produtos do seu tenant
                 Long tenantId = TenantContext.getCurrentTenantId();
-                if (tenantId == null || !tenantId.equals(product.getTenantId())) {
-                    log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar produto (tenant_id={}, id={})", 
-                            tenantId, product.getTenantId(), id);
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido - acesso negado");
                     throw new ProductNotFoundException("Produto não encontrado com ID: " + id);
                 }
+                
+                product = productRepository.findByIdAndTenantId(id, tenantId)
+                    .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado com ID: " + id));
+                
+                log.debug("✅ Produto encontrado: ID={}, tenant_id={}", id, tenantId);
             }
             
             long duration = System.currentTimeMillis() - startTime;

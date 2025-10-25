@@ -26,6 +26,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     // MULTI-TENANCY: Queries com filtro de tenant_id
     // ============================================================================
     
+    // ✅ CRÍTICO: Buscar produto por ID e tenant_id (segurança multi-tenant)
+    @Query("SELECT p FROM Product p WHERE p.id = :id AND p.tenantId = :tenantId AND p.deleted = false")
+    java.util.Optional<Product> findByIdAndTenantId(@Param("id") Long id, @Param("tenantId") Long tenantId);
+    
     /**
      * Buscar todos os produtos de um tenant específico
      * USO: ProductService quando usuário NÃO é Super Admin
@@ -78,24 +82,61 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     List<Product> findByNameContainingIgnoreCaseAndTenantId(@Param("name") String name, @Param("tenantId") Long tenantId);
     
     // ============================================================================
-    // QUERIES GLOBAIS (APENAS SUPER ADMIN)
-    // Mantidas para compatibilidade, mas devem ser usadas apenas por Super Admins
+    // ⚠️ QUERIES GLOBAIS (APENAS SUPER ADMIN) - USO RESTRITO
+    // ============================================================================
+    // 🚨 SEGURANÇA: Estas queries retornam dados de TODOS os tenants
+    // 🚨 USO: Apenas Super Admins podem usar (TenantContext.isSuperAdmin() == true)
+    // 🚨 VALIDAÇÃO: Services DEVEM verificar TenantContext.isSuperAdmin() antes de usar
     // ============================================================================
     
+    /**
+     * ⚠️ GLOBAL: Buscar todos os produtos disponíveis (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
+    @Query("SELECT p FROM Product p WHERE p.available = true AND p.deleted = false")
     List<Product> findByAvailableTrue();
     
-    List<Product> findByNameContainingIgnoreCase(String name);
+    /**
+     * ⚠️ GLOBAL: Buscar produtos por nome (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
+    @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')) AND p.deleted = false")
+    List<Product> findByNameContainingIgnoreCase(@Param("name") String name);
     
+    /**
+     * ⚠️ GLOBAL: Buscar produtos disponíveis paginados (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
+    @Query("SELECT p FROM Product p WHERE p.available = true AND p.deleted = false")
     Page<Product> findByAvailableTrue(Pageable pageable);
     
-    List<Product> findByCategory(String category);
+    /**
+     * ⚠️ GLOBAL: Buscar produtos por categoria (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
+    @Query("SELECT p FROM Product p WHERE p.category = :category AND p.deleted = false")
+    List<Product> findByCategory(@Param("category") String category);
     
-    List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
+    /**
+     * ⚠️ GLOBAL: Buscar produtos por faixa de preço (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
+    @Query("SELECT p FROM Product p WHERE p.price BETWEEN :minPrice AND :maxPrice AND p.deleted = false")
+    List<Product> findByPriceBetween(@Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice);
     
-    @Query("SELECT p FROM Product p WHERE p.stockQuantity <= :threshold")
+    /**
+     * ⚠️ GLOBAL: Buscar produtos com estoque baixo (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
+    @Query("SELECT p FROM Product p WHERE p.stockQuantity <= :threshold AND p.deleted = false")
     List<Product> findByStockQuantityLessThanEqual(@Param("threshold") Integer threshold);
     
-    List<Product> findByStockQuantityLessThan(Integer threshold);
+    /**
+     * ⚠️ GLOBAL: Buscar produtos com estoque baixo (TODOS os tenants)
+     * 🚨 SEGURANÇA: Usar apenas se TenantContext.isSuperAdmin() == true
+     */
+    @Query("SELECT p FROM Product p WHERE p.stockQuantity < :threshold AND p.deleted = false")
+    List<Product> findByStockQuantityLessThan(@Param("threshold") Integer threshold);
     
     // ✅ FIX: Incluir soft delete para consistência com findAll()
     @Query("SELECT COUNT(p) FROM Product p WHERE p.available = true AND p.deleted = false")
