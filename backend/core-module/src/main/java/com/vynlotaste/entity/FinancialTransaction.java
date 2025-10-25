@@ -50,6 +50,9 @@ public class FinancialTransaction {
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
 
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
+
     @Column(name = "due_date")
     private LocalDate dueDate;
 
@@ -114,6 +117,15 @@ public class FinancialTransaction {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    // JPA Callbacks para sincronizar coluna 'date' com 'transaction_date'
+    @PrePersist
+    @PreUpdate
+    private void syncDateColumn() {
+        if (this.date == null) {
+            this.date = this.transactionDate != null ? this.transactionDate : LocalDate.now();
+        }
+    }
 
     /**
      * Tipos de transação financeira
