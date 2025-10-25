@@ -103,12 +103,12 @@ public class FirebaseService {
                     
                     InputStream serviceAccount = new ByteArrayInputStream(serviceAccountJson.getBytes());
                     GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
-                    FirebaseOptions options = FirebaseOptions.builder()
+                FirebaseOptions options = FirebaseOptions.builder()
                         .setCredentials(credentials)
-                        .setProjectId(projectId)
-                        .build();
-                    
-                    FirebaseApp.initializeApp(options);
+                    .setProjectId(projectId)
+                    .build();
+                
+                FirebaseApp.initializeApp(options);
                     log.info("✅ Firebase Service inicializado com variáveis de ambiente");
                 }
                 

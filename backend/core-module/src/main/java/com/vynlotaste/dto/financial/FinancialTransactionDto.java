@@ -42,6 +42,7 @@ public class FinancialTransactionDto {
     private Long customerId;
     private Long supplierId;
     private Long tenantId;
+    private Long userId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long createdBy;
@@ -72,6 +73,7 @@ public class FinancialTransactionDto {
         private Long orderId;
         private Long customerId;
         private Long supplierId;
+        private Long userId;
     }
 
     /**
@@ -101,6 +103,7 @@ public class FinancialTransactionDto {
         private Long orderId;
         private Long customerId;
         private Long supplierId;
+        private Long userId;
     }
 
     /**
@@ -132,6 +135,7 @@ public class FinancialTransactionDto {
         private Long customerId;
         private Long supplierId;
         private Long tenantId;
+        private Long userId;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private Long createdBy;
