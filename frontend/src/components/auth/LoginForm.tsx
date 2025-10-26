@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Eye, EyeOff, Lock, Mail, CheckCircle, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -41,8 +41,26 @@ const LoginForm = memo(function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasBackHistory, setHasBackHistory] = useState(false);
   const router = useRouter();
   const { login, user } = useAuth();
+  
+  // Verificar se existe histórico de navegação
+  useEffect(() => {
+    // Verificar se há histórico de navegação válido
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      setHasBackHistory(true);
+    }
+  }, []);
+  
+  // Função para voltar à página anterior
+  const handleGoBack = useCallback(() => {
+    if (hasBackHistory && typeof window !== 'undefined') {
+      router.back(); // Usa a API do navegador para voltar
+    } else {
+      router.push('/'); // Fallback para homepage se não houver histórico
+    }
+  }, [hasBackHistory, router]);
 
   const {
     register,
@@ -303,6 +321,18 @@ const LoginForm = memo(function LoginForm() {
       {/* Painel Esquerdo - Formulário de Login */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
+          {/* Botão Voltar Mobile */}
+          <div className="lg:hidden mb-4">
+            <button
+              onClick={handleGoBack}
+              className="inline-flex items-center text-blue-200 hover:text-white transition-colors duration-200"
+              aria-label="Voltar à página anterior"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              <span className="font-medium">Voltar</span>
+            </button>
+          </div>
+          
           {/* Logo Mobile */}
           <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
@@ -524,6 +554,16 @@ const LoginForm = memo(function LoginForm() {
 
       {/* Painel Direito - Conteúdo Informativo */}
       <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-center relative">
+        {/* Botão Voltar Desktop */}
+        <button
+          onClick={handleGoBack}
+          className="absolute top-4 left-4 inline-flex items-center text-blue-200 hover:text-white transition-colors duration-200 z-10"
+          aria-label="Voltar à página anterior"
+        >
+          <ArrowLeft className="w-6 h-6 mr-2" />
+          <span className="font-medium">Voltar</span>
+        </button>
+        
         <div className="text-center">
           <div className="flex items-center justify-center space-x-4 mb-8">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl border border-blue-300/30">

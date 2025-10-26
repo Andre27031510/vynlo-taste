@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Eye, EyeOff, Lock, Mail, User, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -20,8 +20,25 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [hasBackHistory, setHasBackHistory] = useState(false);
   const router = useRouter();
   const { register, loginWithGoogle } = useAuth();
+  
+  // Verificar se existe histórico de navegação
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      setHasBackHistory(true);
+    }
+  }, []);
+  
+  // Função para voltar à página anterior
+  const handleGoBack = useCallback(() => {
+    if (hasBackHistory && typeof window !== 'undefined') {
+      router.back(); // Usa a API do navegador para voltar
+    } else {
+      router.push('/'); // Fallback para homepage se não houver histórico
+    }
+  }, [hasBackHistory, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -322,15 +339,15 @@ export default function RegisterForm() {
           </p>
         </div>
 
-        {/* Back to Site */}
+        {/* Back Button */}
         <div className="mt-4 text-center">
-          <Link
-            href="/"
+          <button
+            onClick={handleGoBack}
             className="inline-flex items-center text-orange-600 hover:text-orange-700 text-sm font-medium transition-colors duration-200"
           >
-            <ArrowRight className="w-4 h-4 mr-1 transform rotate-180" />
-            Voltar ao site
-          </Link>
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Voltar
+          </button>
         </div>
       </div>
     </div>
