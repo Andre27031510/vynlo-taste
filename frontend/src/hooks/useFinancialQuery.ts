@@ -224,9 +224,14 @@ export const useConfirmTransactionMutation = () => {
       }
     },
     onSuccess: () => {
+      // ✅ Invalidate TODAS as queries relacionadas para atualização imediata
       queryClient.invalidateQueries({ queryKey: ['financial-transactions'] })
       queryClient.invalidateQueries({ queryKey: ['cashflow-summary'] })
       queryClient.invalidateQueries({ queryKey: ['cashflow-entries'] })
+      
+      // ✅ Forçar refetch imediato de todas as queries de cash flow
+      queryClient.refetchQueries({ queryKey: ['cashflow-summary'] })
+      queryClient.refetchQueries({ queryKey: ['cashflow-entries'] })
     },
     onError: (error: Error) => {
       console.error('❌ Erro ao confirmar transação:', error)

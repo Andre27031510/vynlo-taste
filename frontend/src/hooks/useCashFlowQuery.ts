@@ -137,7 +137,7 @@ export const useCashFlowQuery = (filters?: {
   return useQuery<{ content: CashFlowEntry[], totalElements: number, totalPages: number }>({
     queryKey: ['cashflow-entries', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchCashFlowEntries(filters),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // ✅ Atualizar imediatamente quando invalidado
     gcTime: 10 * 60 * 1000,
     refetchInterval: false,
   })
@@ -154,7 +154,7 @@ export const useCashFlowSummaryQuery = (filters?: {
   return useQuery<CashFlowSummary>({
     queryKey: ['cashflow-summary', tenantKey, filters],  // ✅ Isolado por tenant
     queryFn: () => fetchCashFlowSummary(filters),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // ✅ Atualizar imediatamente quando invalidado
     gcTime: 10 * 60 * 1000,
     refetchInterval: false,
   })
