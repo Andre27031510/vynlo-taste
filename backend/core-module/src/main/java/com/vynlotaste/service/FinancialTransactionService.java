@@ -286,7 +286,9 @@ public class FinancialTransactionService {
             
             // ✅ CORREÇÃO: Usar filtros específicos do tenant
             if (status != null && !status.isEmpty() && !status.equals("all")) {
-                transactions = financialTransactionRepository.findAllByTenantIdAndStatus(tenantId, status, pageable);
+                // Converter string para enum
+                FinancialTransaction.Status statusEnum = FinancialTransaction.Status.valueOf(status.toUpperCase());
+                transactions = financialTransactionRepository.findByStatusAndTenantId(statusEnum, tenantId, pageable);
             } else {
                 transactions = financialTransactionRepository.findAllByTenantId(tenantId, pageable);
             }
