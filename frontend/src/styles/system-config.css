@@ -1,0 +1,126 @@
+/* ============================================================================ */
+/* System Configuration CSS Variables */
+/* ============================================================================ */
+/* Application-level styles that respond to system configuration changes */
+
+:root {
+  --font-size-base: 16px;
+  --shadows-enabled: 1;
+  --animations-enabled: 1;
+  --border-radius-base: 8px;
+  --primary-color: #3b82f6;
+  --secondary-color: #8b5cf6;
+}
+
+/* Apply font size globally */
+html {
+  font-size: var(--font-size-base);
+}
+
+body {
+  font-size: var(--font-size-base);
+}
+
+/* Shadows configuration */
+body.no-shadows *,
+body.no-shadows *::before,
+body.no-shadows *::after {
+  box-shadow: none !important;
+}
+
+body.no-shadows .shadow,
+body.no-shadows .shadow-sm,
+body.no-shadows .shadow-md,
+body.no-shadows .shadow-lg,
+body.no-shadows .shadow-xl {
+  box-shadow: none !important;
+}
+
+/* Animations configuration */
+body.no-animations *,
+body.no-animations *::before,
+body.no-animations *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+body.no-animations .animate-spin,
+body.no-animations .animate-bounce,
+body.no-animations .animate-pulse {
+  animation: none !important;
+}
+
+/* Compact mode */
+body.compact-mode {
+  --spacing-unit: 0.5rem;
+}
+
+body.compact-mode .space-y-4 > * + * {
+  margin-top: calc(var(--spacing-unit) * 2) !important;
+}
+
+body.compact-mode .p-6 {
+  padding: 0.75rem !important;
+}
+
+body.compact-mode .p-4 {
+  padding: 0.5rem !important;
+}
+
+body.compact-mode .gap-4 {
+  gap: 0.5rem !important;
+}
+
+body.compact-mode .py-3\.5 {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Border radius */
+* {
+  border-radius: var(--border-radius-base);
+}
+
+/* Primary and Secondary Colors */
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+.text-secondary {
+  color: var(--secondary-color) !important;
+}
+
+.bg-secondary {
+  background-color: var(--secondary-color) !important;
+}
+
+.border-secondary {
+  border-color: var(--secondary-color) !important;
+}
+
+/* Buttons with primary color */
+.btn-primary {
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color)) !important;
+}
+
+/* Apply primary color to Tailwind classes */
+.bg-blue-600 {
+  background-color: var(--primary-color) !important;
+}
+
+.text-blue-600 {
+  color: var(--primary-color) !important;
+}
+
+.border-blue-600 {
+  border-color: var(--primary-color) !important;
+}
+

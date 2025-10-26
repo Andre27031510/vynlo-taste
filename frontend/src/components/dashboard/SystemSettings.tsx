@@ -63,7 +63,9 @@ import {
 } from 'lucide-react'
 import { useThemeContext } from '../../contexts/ThemeContext'
 import { apiRequest } from '@/services/api'
+import { configManager, applyConfigToSystem } from '@/utils/configManager'
 import toast from 'react-hot-toast'
+import '@/styles/system-config.css'
 
 export default function SystemSettings() {
   const { currentTheme, toggleTheme } = useThemeContext()
@@ -135,9 +137,14 @@ export default function SystemSettings() {
       setBusinessConfigs(business)
       setPerformanceConfigs(performance)
       
+      // ✅ Aplicar configurações ao sistema
+      applyConfigToSystem(configsMap)
+      
     } catch (error: any) {
       console.error('Erro ao carregar configurações:', error)
       toast.error(`❌ Erro ao carregar configurações: ${error.message}`)
+      // Usar valores padrão mesmo em erro
+      initializeDefaultConfigs()
     } finally {
       setIsLoading(false)
     }
@@ -180,6 +187,15 @@ export default function SystemSettings() {
       toggleTheme(value as 'light' | 'dark' | 'auto')
       toast.success(`✅ Tema alterado para: ${value}`)
     }
+    
+    // Aplicar configurações de aparência imediatamente
+    if (key === 'appearance.font_size') configManager.applyFontSize(value)
+    if (key === 'appearance.shadows') configManager.applyShadows(value === 'true')
+    if (key === 'appearance.animations') configManager.applyAnimations(value === 'true')
+    if (key === 'appearance.compact_mode') configManager.applyCompactMode(value === 'true')
+    if (key === 'appearance.border_radius') configManager.applyBorderRadius(value)
+    if (key === 'appearance.primary_color') configManager.applyPrimaryColor(value)
+    if (key === 'appearance.secondary_color') configManager.applySecondaryColor(value)
     
     // Atualizar categoria específica
     if (key.startsWith('appearance.')) {
