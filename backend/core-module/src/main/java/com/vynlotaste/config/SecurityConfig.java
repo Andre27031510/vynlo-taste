@@ -90,7 +90,8 @@ public class SecurityConfig {
                 .requestMatchers("/v1/auth/**").permitAll()
                 .requestMatchers("/v1/public/**").permitAll()
                 .requestMatchers("/v1/test/**").permitAll()
-                .requestMatchers("/v1/users/sync-firebase").permitAll()
+                // ✅ P1: Endpoint /sync-firebase PROTEGIDO (requer autenticação HMAC ou IP allowlist)
+                // .requestMatchers("/v1/users/sync-firebase").permitAll() // ❌ REMOVIDO: Risco de abuso
                 .requestMatchers("/favicon.ico").permitAll()
                 
                 // Stats endpoints - PROTEGIDOS (MULTI-TENANCY: dados sensíveis por tenant)

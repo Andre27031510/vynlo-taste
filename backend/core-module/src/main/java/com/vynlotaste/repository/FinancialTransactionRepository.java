@@ -34,10 +34,22 @@ public interface FinancialTransactionRepository extends JpaRepository<FinancialT
     Page<FinancialTransaction> findAllByTenantId(@Param("tenantId") Long tenantId, Pageable pageable);
 
     /**
+     * ✅ NOVO: Buscar transações por tenant_id e status (multi-tenancy com filtro)
+     */
+    @Query("SELECT ft FROM FinancialTransaction ft WHERE ft.tenantId = :tenantId AND ft.status = :status AND ft.deletedAt IS NULL")
+    Page<FinancialTransaction> findAllByTenantIdAndStatus(@Param("tenantId") Long tenantId, @Param("status") String status, Pageable pageable);
+
+    /**
      * Buscar transações por pedido
      */
     @Query("SELECT ft FROM FinancialTransaction ft WHERE ft.orderId = :orderId AND ft.deletedAt IS NULL")
     List<FinancialTransaction> findByOrderId(@Param("orderId") Long orderId);
+
+    /**
+     * ✅ NOVO: Buscar transações por pedido e tenant (multi-tenancy seguro)
+     */
+    @Query("SELECT ft FROM FinancialTransaction ft WHERE ft.orderId = :orderId AND ft.tenantId = :tenantId AND ft.deletedAt IS NULL")
+    List<FinancialTransaction> findByOrderIdAndTenantId(@Param("orderId") Long orderId, @Param("tenantId") Long tenantId);
 
     /**
      * Buscar transações por status

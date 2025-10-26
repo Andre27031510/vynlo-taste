@@ -4,6 +4,7 @@ import { Bell, Search, User, Menu, Moon, Sun, Monitor, LogOut, Settings, Chevron
 import { useTheme } from '@/hooks/useTheme'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState, useEffect, useRef } from 'react'
+import UserProfileModal from '@/components/user/UserProfileModal'
 
 interface HeaderProps {
   sidebarCollapsed: boolean
@@ -14,6 +15,7 @@ export default function Header({ sidebarCollapsed, setSidebarCollapsed }: Header
   const { currentTheme, toggleTheme } = useTheme()
   const { user, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const userMenuRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
@@ -194,7 +196,10 @@ export default function Header({ sidebarCollapsed, setSidebarCollapsed }: Header
                 aria-label="Menu do usuário"
               >
                 <button
-                  onClick={() => {/* TODO: Implementar configurações */}}
+                  onClick={() => {
+                    setShowUserMenu(false)
+                    setShowProfileModal(true)
+                  }}
                   className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-2 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700"
                   role="menuitem"
                 >
@@ -215,6 +220,12 @@ export default function Header({ sidebarCollapsed, setSidebarCollapsed }: Header
           </div>
         </div>
       </div>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
     </header>
   )
 }

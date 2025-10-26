@@ -6,9 +6,11 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
-      connection-timeout: 30000
+      connection-timeout: 60000      # ✅ Aumentado para 60s (era 30s)
       idle-timeout: 600000
       max-lifetime: 1800000
+      connection-test-query: SELECT 1  # ✅ Testar conexão antes de usar
+      validation-timeout: 5000        # ✅ Timeout para validação
 
   redis:
     host: localhost
@@ -26,9 +28,8 @@ spring:
         format_sql: true
 
   cache:
-    type: redis
-    redis:
-      time-to-live: 300000 # 5 minutos desenvolvimento
+    type: simple  # ✅ Usar cache simples em dev para evitar dependência de Redis
+    cache-names: users,products,orders
 
 management:
   endpoints:

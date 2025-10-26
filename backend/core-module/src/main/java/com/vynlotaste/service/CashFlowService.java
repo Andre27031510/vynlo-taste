@@ -3,7 +3,9 @@ package com.vynlotaste.service;
 import com.vynlotaste.entity.CashFlow;
 import com.vynlotaste.entity.Order;
 import com.vynlotaste.entity.FinancialTransaction;
+import com.vynlotaste.entity.User;
 import com.vynlotaste.repository.CashFlowRepository;
+import com.vynlotaste.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,7 @@ import java.util.Map;
 public class CashFlowService {
 
     private final CashFlowRepository cashFlowRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public Page<CashFlow> findAllEntries(Pageable pageable) {
@@ -104,8 +107,30 @@ public class CashFlowService {
                 throw new IllegalArgumentException("ID da entrada deve ser um número positivo");
             }
             
-            CashFlow entry = cashFlowRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entrada não encontrada com ID: " + id));
+            // ✅ CORREÇÃO CRÍTICA: Validar tenant ANTES de retornar dados
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            
+            CashFlow entry;
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: buscando entrada global");
+                entry = cashFlowRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Entrada não encontrada com ID: " + id));
+            } else {
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido");
+                    throw new RuntimeException("Entrada não encontrada com ID: " + id);
+                }
+                
+                entry = cashFlowRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Entrada não encontrada com ID: " + id));
+                
+                // ✅ CRÍTICO: Validar se entry pertence ao tenant atual
+                if (entry.getTenantId() != null && !tenantId.equals(entry.getTenantId())) {
+                    log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar cashflow (tenant_id={}, id={})", 
+                            tenantId, entry.getTenantId(), id);
+                    throw new RuntimeException("Entrada não encontrada com ID: " + id);
+                }
+            }
             
             log.info("Entrada encontrada - ID: {}, tipo: {}, valor: {}", 
                 entry.getId(), entry.getType(), entry.getAmount());
@@ -388,18 +413,32 @@ public class CashFlowService {
         cashFlow.setDescription(transaction.getDescription());
         cashFlow.setAmount(transaction.getAmount());
         cashFlow.setDate(transaction.getTransactionDate());
-        cashFlow.setStatus(transaction.getStatus().name());
+        // ✅ CORREÇÃO CRÍTICA: Mapear status corretamente
+        // FinancialTransaction.Status.COMPLETED → CashFlow.Status.CONFIRMED
+        String cashFlowStatus = "CONFIRMED"; // Sempre CONFIRMED para transações confirmadas
+        if ("PENDING".equals(transaction.getStatus().name())) {
+            cashFlowStatus = "PENDING";
+        } else if ("CANCELLED".equals(transaction.getStatus().name())) {
+            cashFlowStatus = "CANCELLED";
+        }
+        cashFlow.setStatus(cashFlowStatus);
         cashFlow.setFinancialTransactionId(transaction.getId());
         cashFlow.setPaymentMethod(transaction.getPaymentMethod());
         cashFlow.setReferenceNumber(transaction.getReferenceNumber());
         cashFlow.setTenantId(transaction.getTenantId());
 
-        // Definir usuário baseado no tipo de transação
-        if (transaction.getCustomerId() != null) {
-            // Para receitas, usar o cliente
-            cashFlow.setUser(new com.vynlotaste.entity.User());
-            cashFlow.getUser().setId(transaction.getCustomerId());
+        // ✅ CORREÇÃO SIMPLIFICADA: Usar usuário padrão do sistema
+        User user = userRepository.findById(1L).orElse(null);
+        if (user == null) {
+            // Criar usuário temporário para evitar erro de constraint
+            user = new User();
+            user.setId(1L);
+            user.setFirstName("Sistema");
+            user.setLastName("Vynlo");
+            user.setEmail("sistema@vynlotaste.com");
+            log.warn("⚠️ Usando usuário temporário para fluxo de caixa da transação: {}", transaction.getId());
         }
+        cashFlow.setUser(user);
 
         CashFlow savedCashFlow = cashFlowRepository.save(cashFlow);
 

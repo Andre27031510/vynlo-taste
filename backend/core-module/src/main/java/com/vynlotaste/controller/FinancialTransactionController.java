@@ -59,12 +59,15 @@ public class FinancialTransactionController {
             @RequestParam(required = false) String paymentMethod,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String search,
             Pageable pageable) {
         
-        log.debug("🔍 Buscando transações financeiras - página: {}, tamanho: {}", 
-                pageable.getPageNumber(), pageable.getPageSize());
+        log.debug("🔍 Buscando transações financeiras - página: {}, tamanho: {}, status: {}, search: {}", 
+                pageable.getPageNumber(), pageable.getPageSize(), status, search);
         
-        Page<FinancialTransaction> transactions = financialTransactionService.findAllTransactions(pageable);
+        // ✅ CORREÇÃO: Usar filtros corretamente
+        Page<FinancialTransaction> transactions = financialTransactionService.findAllTransactions(
+            status, category, paymentMethod, startDate, endDate, search, pageable);
         Page<FinancialTransactionDto.Response> response = transactions.map(financialTransactionMapper::toResponseDto);
         
         return ResponseEntity.ok(response);

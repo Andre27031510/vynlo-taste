@@ -95,7 +95,7 @@ export default function WhyChooseVynlo() {
         </div>
 
         {/* Reasons Cards */}
-        <div className="space-y-20">
+        <div className="space-y-12 md:space-y-20">
           {reasons.map((reason, index) => {
             const IconComponent = reason.icon
             const isLeft = index % 2 === 0
@@ -105,13 +105,13 @@ export default function WhyChooseVynlo() {
                 key={index}
                 onMouseEnter={() => handleCardHover(index)}
                 onMouseLeave={() => setActiveCard(null)}
-                className={`flex items-center gap-16 ${isLeft ? 'flex-row' : 'flex-row-reverse'} group`}
+                className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} group`}
                 style={{
                   animationDelay: `${index * 0.2}s`
                 }}
               >
                 {/* Card */}
-                <div className="flex-shrink-0 w-80">
+                <div className="flex-shrink-0 w-full md:w-80">
                   <div className={`relative bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-blue-400/50 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 cursor-pointer ${
                     activeCard === index ? 'shadow-2xl shadow-blue-500/25 border-blue-400/50' : 'hover:shadow-xl'
                   }`}>
@@ -144,11 +144,11 @@ export default function WhyChooseVynlo() {
 
                 {/* Explanation */}
                 <div className="flex-1">
-                  <h3 className="text-4xl font-manrope font-black text-white mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-300">
+                  <h3 className="text-2xl md:text-4xl font-manrope font-black text-white mb-6 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-300">
                     {reason.title}
                   </h3>
                   
-                  <p className="text-lg text-gray-300 font-manrope leading-relaxed mb-8">
+                  <p className="text-base md:text-lg text-gray-300 font-manrope leading-relaxed mb-8">
                     {reason.description}
                   </p>
 

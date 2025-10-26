@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import software.amazon.awssdk.services.secretsmanager.model.SecretsManagerException;
 
+import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,22 +20,32 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class AwsSecretsService {
 
-    private final SecretsManagerClient secretsManagerClient;
-    private final ObjectMapper objectMapper;
+    private SecretsManagerClient secretsManagerClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final Map<String, String> secretCache = new ConcurrentHashMap<>();
     
     @Value("${aws.region:us-east-1}")
     private String awsRegion;
 
     public AwsSecretsService() {
-        // Usar região padrão se não estiver configurada
+        // ✅ CORREÇÃO: ObjectMapper pode ser criado no construtor
+        // secretsManagerClient será inicializado via @PostConstruct
+    }
+
+    /**
+     * ✅ CORREÇÃO CRÍTICA: Inicializar AWS client após injeção de @Value
+     * Spring processa @PostConstruct APÓS injeção de todas as dependências
+     */
+    @PostConstruct
+    public void initialize() {
         String region = awsRegion != null && !awsRegion.isEmpty() ? awsRegion : "us-east-1";
         
         this.secretsManagerClient = SecretsManagerClient.builder()
                 .region(Region.of(region))
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
-        this.objectMapper = new ObjectMapper();
+        
+        log.info("✅ AWS Secrets Manager client inicializado com região: {}", region);
     }
 
     /**

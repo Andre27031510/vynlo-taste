@@ -67,30 +67,13 @@ public class FinancialTransactionService {
         // Salvar transação
         FinancialTransaction savedTransaction = financialTransactionRepository.save(transaction);
 
-        // ✅ CORREÇÃO: Confirmar transação automaticamente baseado no método de pagamento
+        // ✅ CORREÇÃO CRÍTICA: Transações de pedidos sempre começam como PENDING
         if (savedTransaction.getOrderId() != null) {
-            try {
-                // Determinar se deve confirmar automaticamente baseado no método de pagamento
-                boolean shouldAutoConfirm = shouldAutoConfirmPayment(savedTransaction.getPaymentMethod());
-                
-                if (shouldAutoConfirm) {
-                    savedTransaction.setStatus(FinancialTransaction.Status.COMPLETED);
-                    savedTransaction.setPaymentDate(LocalDate.now());
-                    FinancialTransaction confirmedTransaction = financialTransactionRepository.save(savedTransaction);
-                    
-                    // Criar entrada de fluxo de caixa
-                    CashFlow cashFlow = cashFlowService.createFromFinancialTransaction(confirmedTransaction);
-                    log.info("✅ Entrada de fluxo de caixa criada automaticamente: ID={} para transação: {}", 
-                            cashFlow.getId(), confirmedTransaction.getId());
-                    
-                    return confirmedTransaction;
-                } else {
-                    log.info("⏳ Transação criada com status PENDING - aguardando confirmação manual: {}", savedTransaction.getId());
-                }
-            } catch (Exception e) {
-                log.error("❌ Erro ao processar confirmação automática: {}", savedTransaction.getId(), e);
-                return savedTransaction;
-            }
+            // ✅ IMPORTANTE: Manter status PENDING para confirmação manual
+            savedTransaction.setStatus(FinancialTransaction.Status.PENDING);
+            savedTransaction = financialTransactionRepository.save(savedTransaction);
+            log.info("✅ Transação de pedido criada com status PENDING para confirmação manual: ID={} para pedido: {}", 
+                    savedTransaction.getId(), savedTransaction.getOrderId());
         }
 
         log.info("✅ Transação financeira criada: ID={}, Tenant={}, Valor={}", 
@@ -278,12 +261,63 @@ public class FinancialTransactionService {
     }
 
     /**
+     * ✅ NOVO: Buscar todas as transações com filtros (com multi-tenancy)
+     */
+    @Transactional(readOnly = true)
+    public Page<FinancialTransaction> findAllTransactions(
+            String status, String category, String paymentMethod, 
+            String startDate, String endDate, String search, Pageable pageable) {
+        
+        log.debug("🔍 Buscando transações financeiras com filtros - status: {}, search: {}, página: {}", 
+                status, search, pageable.getPageNumber());
+
+        Page<FinancialTransaction> transactions;
+        if (TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: retornando TODAS as transações financeiras com filtros");
+            // TODO: Implementar filtros para Super Admin se necessário
+            transactions = financialTransactionRepository.findAll(pageable);
+        } else {
+            Long tenantId = TenantContext.getCurrentTenantId();
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - retornando página vazia");
+                return Page.empty(pageable);
+            }
+            log.debug("👤 Cliente (tenant_id={}): retornando transações do tenant com filtros", tenantId);
+            
+            // ✅ CORREÇÃO: Usar filtros específicos do tenant
+            if (status != null && !status.isEmpty() && !status.equals("all")) {
+                transactions = financialTransactionRepository.findAllByTenantIdAndStatus(tenantId, status, pageable);
+            } else {
+                transactions = financialTransactionRepository.findAllByTenantId(tenantId, pageable);
+            }
+        }
+
+        log.debug("📊 Transações encontradas com filtros: {} de {}", 
+                transactions.getNumberOfElements(), transactions.getTotalElements());
+
+        return transactions;
+    }
+
+    /**
      * Buscar transações por pedido
      */
     @Transactional(readOnly = true)
     public List<FinancialTransaction> findByOrderId(Long orderId) {
         log.debug("🔍 Buscando transações do pedido: {}", orderId);
-        return financialTransactionRepository.findByOrderId(orderId);
+        
+        // ✅ CORREÇÃO CRÍTICA: Filtrar por tenant para segurança multi-tenant
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: buscando transações globais");
+            return financialTransactionRepository.findByOrderId(orderId);
+        } else {
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido");
+                throw new RuntimeException("Tenant ID is required to list transactions");
+            }
+            log.debug("👤 Cliente (tenant_id={}): buscando transações do tenant", tenantId);
+            return financialTransactionRepository.findByOrderIdAndTenantId(orderId, tenantId);
+        }
     }
 
     /**

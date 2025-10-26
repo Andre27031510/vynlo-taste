@@ -354,17 +354,17 @@ public class OrderService {
             );
             
             if (paymentResult) {
-                // 1. Atualizar status do pedido
+                // 1. Atualizar status do pedido para CONFIRMED (aguardando pagamento)
                 updateOrderStatus(order.getId(), Order.OrderStatus.CONFIRMED);
                 
-                // 2. ✅ SEGURO: Criar transação financeira com tratamento de erro
+                // 2. ✅ CORREÇÃO: Criar transação financeira com status PENDING (aguardando confirmação)
                 try {
                     FinancialTransaction transaction = financialTransactionService.createFromOrder(order, paymentMethod);
-                    log.info("✅ Transação financeira criada: ID={} para pedido: {}", transaction.getId(), order.getId());
+                    // ✅ IMPORTANTE: Manter transação como PENDING para confirmação manual
+                    log.info("✅ Transação financeira criada com status PENDING: ID={} para pedido: {}", transaction.getId(), order.getId());
                 } catch (Exception e) {
                     log.error("❌ Erro ao criar transação financeira para pedido: {}", order.getId(), e);
                     // ✅ SEGURO: Não falhar o pagamento por causa da transação financeira
-                    // O pagamento foi processado com sucesso, apenas a transação financeira falhou
                     log.info("✅ Pagamento processado com sucesso, mas transação financeira falhou - pedido: {}", order.getId());
                 }
                 
@@ -450,9 +450,9 @@ public class OrderService {
             } else {
                 Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
                 if (tenantId == null) {
-                    log.warn("⚠️ Tenant não definido - retornando TODOS os pedidos (fallback para desenvolvimento)");
-                    // ✅ CORREÇÃO: Em desenvolvimento, retornar todos os pedidos se tenant não definido
-                    orderPage = orderRepository.findAll(pageable);
+                    log.warn("⚠️ Tenant não definido - retornando página vazia");
+                    // ✅ CORREÇÃO CRÍTICA: Remover fallback inseguro
+                    orderPage = Page.empty(pageable);
                 } else {
                     log.debug("👤 Cliente (tenant_id={}): retornando pedidos do tenant", tenantId);
                     orderPage = orderRepository.findAllByTenantId(tenantId, pageable);

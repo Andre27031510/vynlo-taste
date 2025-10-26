@@ -299,7 +299,7 @@ export default function TransactionConfirmationManagement() {
             }`}
           >
             <option value="PENDING">Aguardando Confirmação</option>
-            <option value="COMPLETED">Confirmados</option>
+            <option value="COMPLETED">Pagamento Confirmado</option>
             <option value="CANCELLED">Cancelados</option>
             <option value="all">Todos</option>
           </select>

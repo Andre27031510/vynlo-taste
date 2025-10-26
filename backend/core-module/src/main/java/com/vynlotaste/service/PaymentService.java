@@ -162,8 +162,30 @@ public class PaymentService {
                 throw new IllegalArgumentException("ID do pagamento deve ser um número positivo");
             }
             
-            Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pagamento não encontrado com ID: " + id));
+            // ✅ CORREÇÃO CRÍTICA: Validar tenant ANTES de retornar dados
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            
+            Payment payment;
+            if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+                log.debug("🔑 Super Admin: buscando pagamento global");
+                payment = paymentRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Pagamento não encontrado com ID: " + id));
+            } else {
+                if (tenantId == null) {
+                    log.warn("⚠️ Tenant não definido");
+                    throw new RuntimeException("Pagamento não encontrado com ID: " + id);
+                }
+                
+                payment = paymentRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Pagamento não encontrado com ID: " + id));
+                
+                // ✅ CRÍTICO: Validar se payment pertence ao tenant atual
+                if (payment.getTenantId() != null && !tenantId.equals(payment.getTenantId())) {
+                    log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar payment (tenant_id={}, id={})", 
+                            tenantId, payment.getTenantId(), id);
+                    throw new RuntimeException("Pagamento não encontrado com ID: " + id);
+                }
+            }
             
             log.info("Pagamento encontrado - ID: {}, método: {}, valor: {}", 
                 payment.getId(), payment.getMethod(), payment.getAmount());

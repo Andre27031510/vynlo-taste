@@ -321,7 +321,8 @@ function OrdersManagementContent() {
       delivered: 'Entregue',
       cancelled: 'Cancelado',
       // ✅ CORREÇÃO: Adicionar versões UPPERCASE do backend
-      PENDING: 'Pendente',
+      PENDING: 'Aguardando Pagamento',
+      CONFIRMED: 'Pagamento Confirmado',
       PREPARING: 'Preparando',
       READY: 'Pronto', 
       DELIVERED: 'Entregue',

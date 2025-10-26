@@ -35,22 +35,28 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  // Handle click outside dropdown
+  // Handle click outside dropdown and mobile menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Fechar dropdown se clicar fora
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownVisible(false);
       }
+      
+      // ✅ Fechar menu mobile se clicar fora
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
     };
 
-    if (isDropdownVisible) {
+    if (isDropdownVisible || isMobileMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isDropdownVisible]);
+  }, [isDropdownVisible, isMobileMenuOpen]);
 
   return (
     <>
@@ -112,14 +118,19 @@ const Header: React.FC = () => {
         }
         
         @media (max-width: 768px) {
+          /* ✅ CORREÇÃO: Nav oculto por padrão no mobile */
           .desktop-nav {
             display: none !important;
           }
+          
+          /* ✅ Menu hambúrguer sempre visível no mobile */
           .mobile-menu {
             display: block !important;
             position: relative;
             z-index: 1002;
           }
+          
+          /* ✅ Menu expandido quando clicado */
           .desktop-nav.mobile-open {
             display: flex !important;
             position: fixed !important;
@@ -134,13 +145,16 @@ const Header: React.FC = () => {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
             backdrop-filter: blur(15px) !important;
           }
+          
           .desktop-nav.mobile-open a {
             padding: 12px 0 !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
           }
+          
           .desktop-nav.mobile-open a:last-child {
             border-bottom: none !important;
           }
+          
           .desktop-nav.mobile-open .dropdown-menu {
             position: static !important;
             transform: none !important;
@@ -149,11 +163,15 @@ const Header: React.FC = () => {
             margin: 10px 0 !important;
             border-radius: 8px !important;
           }
+          
+          /* ✅ Botões ocultos no mobile */
           .header-cta {
             display: none !important;
           }
         }
+        
         @media (min-width: 769px) {
+          /* ✅ Desktop: hambúrguer oculto, nav visível */
           .mobile-menu {
             display: none !important;
           }
@@ -163,30 +181,34 @@ const Header: React.FC = () => {
         }
       `}</style>
       <header style={{ position: 'fixed', top: 0, left: 0, right: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(15px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 9999, padding: '16px 0' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginLeft: '40px' }}>
-            <Link href="/" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</Link>
-            <nav className={`desktop-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`} ref={mobileMenuRef}>
-              <button 
-                className="mobile-menu" 
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label="Menu de navegação"
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* ✅ MOBILE: Logo e hambúrguer lado a lado */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            {/* ✅ Botão hambúrguer FORA do nav - sempre visível no mobile */}
+            <button 
+              className="mobile-menu" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Menu de navegação"
+              style={{ marginLeft: '0' }}
+            >
+              <svg 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
               >
-                <svg 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                >
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-              </button>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+            <Link href="/" style={{ color: '#ffffff', fontFamily: 'Manrope, sans-serif', fontSize: '1.5rem', fontWeight: 700, textDecoration: 'none' }}>Vynlo Tech</Link>
+            {/* ✅ Nav SEM o botão hambúrguer dentro */}
+            <nav className={`desktop-nav ${isMobileMenuOpen ? 'mobile-open' : ''}`} ref={mobileMenuRef}>
               <div 
                 className="dropdown-container"
                 onMouseEnter={() => setIsDropdownVisible(true)}
@@ -295,7 +317,8 @@ const Header: React.FC = () => {
               <Link href="/landingpages/suporte" style={{ color: '#e2e8f0', fontFamily: 'Manrope, sans-serif', fontSize: '16px', fontWeight: 500, textDecoration: 'none' }}>Suporte</Link>
             </nav>
           </div>
-          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '80px' }}>
+          {/* ✅ Botões de ação - desktop e mobile */}
+          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Link href="/contato" style={{ background: '#60a5fa', color: '#1e40af', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 600, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>LIGAMOS PARA VOCÊ</Link>
             <Link href="/login" style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'white', fontFamily: 'Manrope, sans-serif', fontSize: '12px', fontWeight: 500, padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', transition: 'all 0.3s ease', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
               SOU CLIENTE

@@ -45,6 +45,11 @@ export default function TeamManagement() {
 
   const modalRef = useRef<HTMLDivElement>(null)
 
+  // ✅ DEBUG: Monitorar estado do modal
+  useEffect(() => {
+    console.log('🔍 DEBUG: showModal mudou para:', showModal)
+  }, [showModal])
+
   // ✅ Usando React Query - dados reais da API
   const { data: teamData, isLoading } = useTeamQuery({ limit: 100 })
   const teamMembers = teamData?.members ?? []
@@ -86,6 +91,7 @@ export default function TeamManagement() {
 
   // ✅ Gerenciamento de modal profissionalizado
   const openModal = (member?: TeamMember) => {
+    console.log('🔍 DEBUG: openModal chamado com member:', member)
     if (member) {
       setEditingMember(member)
       setFormData({
@@ -102,6 +108,7 @@ export default function TeamManagement() {
     setFormErrors({})
     setShowPassword(false)
     setIsSubmitting(false)
+    console.log('🔍 DEBUG: setShowModal(true) sendo chamado')
     setShowModal(true)
   }
 

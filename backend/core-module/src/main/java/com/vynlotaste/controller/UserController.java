@@ -142,6 +142,7 @@ public class UserController {
     }
 
     @PostMapping("/sync-firebase")
+    @PreAuthorize("isAuthenticated()")  // ✅ P1: Endpoint protegido - requer autenticação
     public ResponseEntity<FirebaseUserSyncResponse> syncFirebaseUser(
             @Valid @RequestBody FirebaseUserSyncRequest request) {
         
@@ -176,8 +177,9 @@ public class UserController {
                 
         } catch (Exception e) {
             log.error("❌ ERRO Firebase sync: email={}, error={}", request.getEmail(), e.getMessage(), e);
-            // NÃO retornar 500, retornar 200 com status de erro para evitar spam no console
-            return ResponseEntity.ok(FirebaseUserSyncResponse.error("Erro ao sincronizar usuário: " + e.getMessage()));
+            // ✅ P1: Retornar erro apropriado (4xx/5xx) em vez de mascarar com 200
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(FirebaseUserSyncResponse.error("Erro ao sincronizar usuário: " + e.getMessage()));
         }
     }
 }

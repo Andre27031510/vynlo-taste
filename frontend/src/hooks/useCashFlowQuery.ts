@@ -50,7 +50,11 @@ const fetchCashFlowEntries = async (filters?: {
   params.append('size', size.toString())
   params.append('sort', 'createdAt,desc') // Novas entradas no topo
   
-  if (filters?.type) params.append('type', filters.type)
+  if (filters?.type) {
+    // ✅ CORREÇÃO: Mapear tipos do frontend para backend
+    const backendType = filters.type === 'inflow' ? 'INCOME' : 'EXPENSE'
+    params.append('type', backendType)
+  }
   if (filters?.category) params.append('category', filters.category)
   if (filters?.startDate) params.append('startDate', filters.startDate)
   if (filters?.endDate) params.append('endDate', filters.endDate)
@@ -65,7 +69,20 @@ const fetchCashFlowEntries = async (filters?: {
     }
   }
   
-  return await response.json()
+  const data = await response.json()
+  
+  // ✅ CORREÇÃO: Mapear tipos do backend para frontend
+  const mappedContent = data.content?.map((entry: any) => ({
+    ...entry,
+    type: entry.type === 'INCOME' ? 'inflow' : 'outflow',
+    status: entry.status === 'CONFIRMED' ? 'confirmed' : 
+            entry.status === 'PENDING' ? 'pending' : 'cancelled'
+  })) || []
+  
+  return {
+    ...data,
+    content: mappedContent
+  }
 }
 
 const fetchCashFlowSummary = async (filters?: {

@@ -51,7 +51,7 @@ public class FiscalDocument {
     @NotNull(message = "Valor é obrigatório")
     @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
     @DecimalMax(value = "999999.99", message = "Valor deve ser menor que R$ 999.999,99")
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "document_value", nullable = false, precision = 10, scale = 2)
     private BigDecimal value;
 
     @NotNull(message = "Data de emissão é obrigatória")

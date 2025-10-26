@@ -128,13 +128,10 @@ public class DeliveryService {
             
             log.debug("🔒 Pageable: page={}, size={}", pageZero, limit);
             
-            // ✅ CORREÇÃO: Fallback para desenvolvimento se tenant não definido
+            // ✅ CORREÇÃO CRÍTICA: Remover fallback inseguro - sempre validar tenant
             if (tenantId == null) {
-                log.warn("⚠️ Tenant não definido - retornando TODOS os deliveries (fallback para desenvolvimento)");
-                if (status != null) {
-                    return deliveryRepository.findByStatus(status, pageable);
-                }
-                return deliveryRepository.findAll(pageable);
+                log.warn("⚠️ Tenant não definido - retornando página vazia");
+                return Page.empty(pageable);
             }
             
             // ✅ CORREÇÃO: Usar métodos com filtro de tenant
@@ -152,8 +149,32 @@ public class DeliveryService {
     }
 
     public Delivery getDeliveryById(Long id) {
-        return deliveryRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Delivery not found: " + id));
+        // ✅ CORREÇÃO CRÍTICA: Validar tenant ANTES de retornar dados
+        Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+        
+        Delivery delivery;
+        if (com.vynlotaste.context.TenantContext.isSuperAdmin()) {
+            log.debug("🔑 Super Admin: buscando delivery global");
+            delivery = deliveryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Delivery not found: " + id));
+        } else {
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido");
+                throw new IllegalArgumentException("Delivery not found: " + id);
+            }
+            
+            delivery = deliveryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Delivery not found: " + id));
+            
+            // ✅ CRÍTICO: Validar se delivery pertence ao tenant atual
+            if (delivery.getTenantId() != null && !tenantId.equals(delivery.getTenantId())) {
+                log.warn("🚫 Acesso negado: usuário (tenant_id={}) tentou acessar delivery (tenant_id={}, id={})", 
+                        tenantId, delivery.getTenantId(), id);
+                throw new IllegalArgumentException("Delivery not found: " + id);
+            }
+        }
+        
+        return delivery;
     }
 
     @Cacheable(value = "deliveryStats", key = "'stats:' + (#root.target.getCurrentTenantId() ?: 'super')", unless = "#root.target.getCurrentTenantId() == null || #result == null")
@@ -163,21 +184,15 @@ public class DeliveryService {
             Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
             log.debug("🔒 Buscando stats de delivery para tenant_id={}", tenantId);
             
-            // ✅ CORREÇÃO: Fallback para desenvolvimento se tenant não definido
+            // ✅ CORREÇÃO CRÍTICA: Remover fallback inseguro - sempre validar tenant
             if (tenantId == null) {
-                log.warn("⚠️ Tenant não definido - retornando stats de TODOS os deliveries (fallback para desenvolvimento)");
-                long total = deliveryRepository.count();
-                long inTransit = deliveryRepository.countByStatus(Delivery.DeliveryStatus.IN_TRANSIT);
-                long preparing = deliveryRepository.countByStatus(Delivery.DeliveryStatus.PREPARING);
-                long delivered = deliveryRepository.countByStatus(Delivery.DeliveryStatus.DELIVERED);
-                long problems = deliveryRepository.countByStatus(Delivery.DeliveryStatus.PROBLEM);
-                
+                log.warn("⚠️ Tenant não definido - retornando stats vazios");
                 return Map.of(
-                    "totalDeliveries", total,
-                    "inTransit", inTransit,
-                    "preparing", preparing,
-                    "delivered", delivered,
-                    "problems", problems
+                    "totalDeliveries", 0,
+                    "inTransit", 0,
+                    "preparing", 0,
+                    "delivered", 0,
+                    "problems", 0
                 );
             }
             

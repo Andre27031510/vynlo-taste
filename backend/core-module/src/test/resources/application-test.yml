@@ -1,7 +1,7 @@
+# Configuração de teste para o Vynlo Taste
+# spring.profiles.active não deve ser definido em arquivos específicos de profile
+
 spring:
-  profiles:
-    active: test
-  
   # Configuração do banco de dados para testes
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -12,7 +12,7 @@ spring:
   # Configuração JPA para testes
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create-drop  # Criar e dropar schema para cada teste
     show-sql: false
     properties:
       hibernate:
@@ -21,7 +21,7 @@ spring:
 
   # Configuração Flyway para testes
   flyway:
-    enabled: true
+    enabled: false  # Desabilitar Flyway para testes com H2
     baseline-on-migrate: true
     locations: classpath:db/migration
   
@@ -34,6 +34,19 @@ spring:
   # Configuração de cache para testes
   cache:
     type: simple
+
+  # Configuração de email para testes (mock)
+  mail:
+    host: localhost
+    port: 587
+    username: test@test.com
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 
 # Configuração de logging para testes
 logging:
