@@ -66,7 +66,7 @@ import { apiRequest } from '@/services/api'
 import toast from 'react-hot-toast'
 
 export default function SystemSettings() {
-  const { currentTheme } = useThemeContext()
+  const { currentTheme, toggleTheme } = useThemeContext()
   
   // Estados para dados reais
   const [configs, setConfigs] = useState<Map<string, any>>(new Map())
@@ -93,7 +93,11 @@ export default function SystemSettings() {
       const response = await apiRequest('core-service', 'v1/system-configs/all')
       
       if (!response.ok) {
-        throw new Error(`Erro ao carregar configurações: ${response.status}`)
+        // Se não houver configurações no banco, usar valores padrão
+        console.warn('⚠️ Nenhuma configuração encontrada, usando valores padrão')
+        initializeDefaultConfigs()
+        setIsLoading(false)
+        return
       }
       
       const data = await response.json()
@@ -171,6 +175,12 @@ export default function SystemSettings() {
     newConfigs.set(key, value)
     setConfigs(newConfigs)
     
+    // Aplicar mudança de tema imediatamente
+    if (key === 'appearance.theme' && value) {
+      toggleTheme(value as 'light' | 'dark' | 'auto')
+      toast.success(`✅ Tema alterado para: ${value}`)
+    }
+    
     // Atualizar categoria específica
     if (key.startsWith('appearance.')) {
       const newAppearance = new Map(appearanceConfigs)
@@ -199,6 +209,90 @@ export default function SystemSettings() {
     }
   }
 
+  // ✅ Inicializar configurações padrão
+  const initializeDefaultConfigs = () => {
+    const defaultConfigs = new Map([
+      // Aparência
+      ['appearance.theme', 'light'],
+      ['appearance.primary_color', '#3b82f6'],
+      ['appearance.secondary_color', '#8b5cf6'],
+      ['appearance.font_size', 'medium'],
+      ['appearance.border_radius', 'medium'],
+      ['appearance.shadows', 'true'],
+      ['appearance.animations', 'true'],
+      ['appearance.compact_mode', 'false'],
+      
+      // Sistema
+      ['system.language', 'pt-BR'],
+      ['system.timezone', 'America/Sao_Paulo'],
+      ['system.date_format', 'DD/MM/YYYY'],
+      ['system.time_format', '24h'],
+      ['system.currency', 'BRL'],
+      ['system.decimal_places', '2'],
+      ['system.thousands_separator', '.'],
+      ['system.decimal_separator', ','],
+      
+      // Segurança
+      ['security.session_timeout', '3600'],
+      ['security.password_min_length', '8'],
+      ['security.password_require_special', 'true'],
+      ['security.password_require_numbers', 'true'],
+      ['security.password_require_uppercase', 'true'],
+      ['security.max_login_attempts', '5'],
+      ['security.lockout_duration', '15'],
+      ['security.require_2fa', 'false'],
+      
+      // Notificações
+      ['notifications.email_enabled', 'true'],
+      ['notifications.sms_enabled', 'false'],
+      ['notifications.push_enabled', 'true'],
+      ['notifications.whatsapp_enabled', 'false'],
+      
+      // Negócio
+      ['business.delivery_fee', '5.00'],
+      ['business.min_order_value', '10.00'],
+      ['business.max_delivery_distance', '10'],
+      ['business.delivery_time_estimate', '30'],
+      ['business.auto_accept_orders', 'false'],
+      
+      // Performance
+      ['performance.cache_ttl', '300'],
+      ['performance.max_cache_size', '100'],
+      ['performance.enable_redis', 'false'],
+      ['performance.redis_ttl', '600'],
+      ['performance.max_connections', '50'],
+      ['performance.connection_timeout', '30'],
+      ['performance.request_timeout', '60'],
+      ['performance.rate_limit_per_minute', '100']
+    ])
+    
+    setConfigs(defaultConfigs)
+    
+    // Separar por categoria
+    const appearance = new Map()
+    const system = new Map()
+    const security = new Map()
+    const notifications = new Map()
+    const business = new Map()
+    const performance = new Map()
+    
+    defaultConfigs.forEach((value, key) => {
+      if (key.startsWith('appearance.')) appearance.set(key, value)
+      else if (key.startsWith('system.')) system.set(key, value)
+      else if (key.startsWith('security.')) security.set(key, value)
+      else if (key.startsWith('notifications.')) notifications.set(key, value)
+      else if (key.startsWith('business.')) business.set(key, value)
+      else if (key.startsWith('performance.')) performance.set(key, value)
+    })
+    
+    setAppearanceConfigs(appearance)
+    setSystemConfigs(system)
+    setSecurityConfigs(security)
+    setNotificationConfigs(notifications)
+    setBusinessConfigs(business)
+    setPerformanceConfigs(performance)
+  }
+
   // ✅ Carregar dados na inicialização
   useEffect(() => {
     loadConfigs()
@@ -213,6 +307,12 @@ export default function SystemSettings() {
   const renderConfigField = (key: string, label: string, type: string = 'text', options?: any[]) => {
     const value = getConfigValue(key)
     
+    // Valores padrão para campos de cor
+    const getColorValue = () => {
+      if (value && value.startsWith('#')) return value
+      return value || '#3b82f6' // Valor padrão azul
+    }
+    
     return (
       <div key={key} className="space-y-2">
         <label className={`block text-sm font-medium ${currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -221,7 +321,7 @@ export default function SystemSettings() {
         
         {type === 'select' && options ? (
           <select
-            value={value}
+            value={value || ''}
             onChange={(e) => updateConfig(key, e.target.value)}
             className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
           >
@@ -233,7 +333,7 @@ export default function SystemSettings() {
           </select>
         ) : type === 'textarea' ? (
           <textarea
-            value={value}
+            value={value || ''}
             onChange={(e) => updateConfig(key, e.target.value)}
             rows={3}
             className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
@@ -253,14 +353,21 @@ export default function SystemSettings() {
         ) : type === 'number' ? (
           <input
             type="number"
-            value={value}
+            value={value || ''}
             onChange={(e) => updateConfig(key, e.target.value)}
             className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
+          />
+        ) : type === 'color' ? (
+          <input
+            type="color"
+            value={getColorValue()}
+            onChange={(e) => updateConfig(key, e.target.value)}
+            className={`w-full h-10 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700`}
           />
         ) : (
           <input
             type={type}
-            value={value}
+            value={value || ''}
             onChange={(e) => updateConfig(key, e.target.value)}
             className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
           />
