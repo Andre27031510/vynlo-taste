@@ -18,14 +18,36 @@ const fetchUserProfile = async (): Promise<UserProfile | null> => {
     const response = await apiRequest('core-service', 'v1/auth/me')
     
     if (!response.ok) {
-      console.warn('User profile not available')
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('User profile not available, status:', response.status)
+      }
       return null
     }
     
-    const data = await response.json()
+    // ✅ CORREÇÃO: Verificar se há conteúdo antes de fazer .json()
+    const contentType = response.headers.get('content-type')
+    if (!contentType?.includes('application/json')) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Response não é JSON, status:', response.status)
+      }
+      return null
+    }
+    
+    // Verificar se há conteúdo
+    const text = await response.text()
+    if (!text || text.trim() === '') {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Response vazia')
+      }
+      return null
+    }
+    
+    const data = JSON.parse(text)
     return data
   } catch (error) {
-    console.warn('Error fetching user profile:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Error fetching user profile:', error)
+    }
     return null
   }
 }

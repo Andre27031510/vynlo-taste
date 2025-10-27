@@ -116,16 +116,6 @@ const createCashFlowEntry = async (entryData: CreateCashFlowData): Promise<CashF
   
   if (!response.ok) {
     const errorText = await response.text().catch(() => response.statusText)
-    
-    // ✅ CORREÇÃO: Se for 401 após retry, redirecionar para login
-    if (response.status === 401) {
-      if (typeof window !== 'undefined') {
-        console.error('❌ Sessão expirada após retry - redirecionando para login')
-        window.location.href = '/login'
-      }
-      throw new Error('Sessão expirada. Faça login novamente.')
-    }
-    
     throw new Error(`Erro ao criar entrada de fluxo de caixa: ${response.status} - ${errorText}`)
   }
   

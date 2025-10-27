@@ -190,6 +190,10 @@ export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string 
   return `${baseUrl}/api/${cleanEndpoint}`
 }
 
+// Cache do token para evitar múltiplas chamadas ao Firebase
+let cachedToken: { token: string; expiresAt: number } | null = null
+const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000 // 5 minutos antes de expirar
+
 // Headers padrão com autenticação (sem Content-Type para evitar preflight em GET)
 export const getAuthHeaders = async (): Promise<Record<string, string>> => {
   let token = null
@@ -200,12 +204,48 @@ export const getAuthHeaders = async (): Promise<Record<string, string>> => {
       const auth = getAuthInstance()
       
       if (auth?.currentUser) {
-        token = await auth.currentUser.getIdToken()
+        // ✅ SOLUÇÃO DEFINITIVA: Verificar se o token está próximo de expirar
+        const now = Date.now()
+        
+        if (cachedToken && cachedToken.expiresAt > now) {
+          // Token ainda válido no cache
+          token = cachedToken.token
+          
+          if (process.env.NODE_ENV === 'development') {
+            const timeUntilExpiry = cachedToken.expiresAt - now
+            console.log(`✅ Token válido no cache (${Math.floor(timeUntilExpiry / 1000)}s restantes)`)
+          }
+        } else {
+          // Token expirado ou não existe - buscar novo token com refresh preventivo
+          const idTokenResult = await auth.currentUser.getIdTokenResult()
+          const expiresAt = idTokenResult.expirationTime ? new Date(idTokenResult.expirationTime).getTime() : now + 60 * 60 * 1000 // Default 1h
+          
+          // Se está próximo de expirar (menos de 5 minutos), forçar refresh
+          const shouldRefresh = (expiresAt - now) < TOKEN_REFRESH_BUFFER_MS
+          
+          if (shouldRefresh && process.env.NODE_ENV === 'development') {
+            console.log('🔄 Token próximo de expirar, forçando refresh preventivo...')
+          }
+          
+          token = await auth.currentUser.getIdToken(shouldRefresh) // force refresh se necessário
+          
+          // Cachear o novo token
+          cachedToken = {
+            token,
+            expiresAt
+          }
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ Novo token obtido e cacheado (expira em ${Math.floor((expiresAt - now) / 1000)}s)`)
+          }
+        }
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Erro ao obter token Firebase:', error)
       }
+      // Limpar cache em caso de erro
+      cachedToken = null
     }
   }
   
@@ -270,17 +310,30 @@ export const apiRequest = async (
     
     let response = await fetchWithCircuitBreaker(url, { ...options, headers: finalHeaders })
     
-    // ✅ CORREÇÃO CRÍTICA: Retry automático UMA VEZ em caso de 401 (token expirado)
-    // Padrão usado por: Google Cloud SDK, AWS SDK, Microsoft Azure SDK
+    // ✅ SOLUÇÃO DEFINITIVA: Se recebemos 401, limpar cache e tentar UMA VEZ
     if (response.status === 401 && typeof window !== 'undefined' && !(options as any).__retryAttempted) {
       try {
+        // Limpar token cacheado pois está inválido
+        cachedToken = null
+        
         const { getAuthInstance } = await import('@/config/firebase')
         const auth = getAuthInstance()
         
         // Forçar refresh do token
         if (auth?.currentUser) {
-          console.log('🔄 Token expirado, forçando refresh...')
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔄 Recebido 401 - forçando refresh do token...')
+          }
+          
           const newToken = await auth.currentUser.getIdToken(true) // true = force refresh
+          const idTokenResult = await auth.currentUser.getIdTokenResult()
+          const expiresAt = idTokenResult.expirationTime ? new Date(idTokenResult.expirationTime).getTime() : Date.now() + 60 * 60 * 1000
+          
+          // Cachear o novo token
+          cachedToken = {
+            token: newToken,
+            expiresAt
+          }
           
           // Tentar novamente com o novo token (marcar como retry para evitar loop)
           const newAuthHeaders = {
@@ -295,7 +348,10 @@ export const apiRequest = async (
             ...(options.body && { 'Content-Type': 'application/json' })
           }
           
-          console.log('🔄 Retentando requisição com novo token (única tentativa)...')
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔄 Retentando requisição com token refreshado...')
+          }
+          
           const retryOptions = { 
             ...options, 
             headers: retryHeaders,
@@ -304,14 +360,22 @@ export const apiRequest = async (
           
           response = await fetchWithCircuitBreaker(url, retryOptions)
           
-          if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === 'development' && response.ok) {
             console.log('✅ Retry bem-sucedido após refresh do token')
+          } else if (process.env.NODE_ENV === 'development' && response.status === 401) {
+            console.error('❌ 401 persistente após refresh - usuário não autenticado ou sessão expirada')
           }
         }
       } catch (refreshError) {
         console.error('❌ Falha ao refresh token:', refreshError)
-        // Continuar com o 401 original (não fazer mais retries)
+        cachedToken = null // Limpar cache em caso de erro
       }
+    }
+    
+    // Se 401 ainda persistir após retry, lançar erro apropriado
+    if (response.status === 401 && !response.ok) {
+      const errorMessage = await response.text().catch(() => 'Unauthorized')
+      throw new Error(`HTTP 401: ${errorMessage}`)
     }
     
     // Log de sucesso em desenvolvimento

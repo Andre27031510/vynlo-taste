@@ -58,20 +58,36 @@ const syncUserWithBackend = async (user: User) => {
     })
 
     if (response.ok) {
-      const result = await response.json()
-      // Só logar se for sucesso REAL ou usuário já existe (silencioso)
-      if (result.status === 'success' || result.status === 'already_exists') {
-        // Remover log para não poluir console em produção
-        // console.log('✅ Auto-sync successful:', result)
-      } else if (result.status === 'error') {
-        console.warn('⚠️ Firebase sync error from backend:', result.message)
+      // ✅ CORREÇÃO: Verificar se há conteúdo antes de fazer .json()
+      const contentType = response.headers.get('content-type')
+      if (contentType?.includes('application/json')) {
+        const text = await response.text()
+        if (text && text.trim() !== '') {
+          try {
+            const result = JSON.parse(text)
+            // Só logar se for sucesso REAL ou usuário já existe (silencioso)
+            if (result.status === 'success' || result.status === 'already_exists') {
+              // Remover log para não poluir console em produção
+            } else if (result.status === 'error') {
+              console.warn('⚠️ Firebase sync error from backend:', result.message)
+            }
+          } catch (jsonError) {
+            // JSON inválido, ignorar silenciosamente
+          }
+        }
       }
-    } else {
+    } else if (response.status === 401) {
+      // ✅ Se for 401, o token está expirado/inválido - não logar para não poluir
+      // O sistema já vai tentar refresh automaticamente via api.ts
+    } else if (process.env.NODE_ENV === 'development') {
       console.warn('⚠️ Auto-sync HTTP error:', response.status)
     }
   } catch (error) {
-    // Silenciar erros de sync em produção (não atrapalha UX)
-    console.warn('⚠️ Auto-sync silent fail (non-critical):', (error as Error).message)
+    // ✅ CORREÇÃO: Não logar 401 errors (são esperados e tratados automaticamente)
+    const errorMessage = (error as Error).message
+    if (!errorMessage.includes('401')) {
+      console.warn('⚠️ Auto-sync silent fail (non-critical):', errorMessage)
+    }
   }
 }
 // Modified: 2025-10-14 17:05 UTC | Silenced console errors + graceful error handling
