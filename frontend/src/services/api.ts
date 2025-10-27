@@ -142,7 +142,8 @@ const createTimeoutSignal = (timeout: number): AbortSignal => {
 // Fetch otimizado para produção com circuit breaker por origem
 export const fetchWithCircuitBreaker = async (
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retryConfig?: { maxRetries: number; currentRetry: number }
 ): Promise<Response> => {
   // ✅ Pegar circuit breaker isolado por origem
   const origin = new URL(url).origin
@@ -168,7 +169,8 @@ export const fetchWithCircuitBreaker = async (
       signal: options.signal || createTimeoutSignal(API_CONFIG.TIMEOUT)
     })
     
-    if (!response.ok) {
+    // ✅ CORREÇÃO: Não lançar exceção para 401 imediatamente - deixar apiRequest tratar
+    if (!response.ok && response.status !== 401) {
       throw new Error(`HTTP ${response.status}`)
     }
     
