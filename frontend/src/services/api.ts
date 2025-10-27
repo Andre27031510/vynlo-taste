@@ -268,8 +268,9 @@ export const apiRequest = async (
     
     let response = await fetchWithCircuitBreaker(url, { ...options, headers: finalHeaders })
     
-    // ✅ CORREÇÃO CRÍTICA: Retry automático em caso de 401 (token expirado)
-    if (response.status === 401 && typeof window !== 'undefined') {
+    // ✅ CORREÇÃO CRÍTICA: Retry automático UMA VEZ em caso de 401 (token expirado)
+    // Padrão usado por: Google Cloud SDK, AWS SDK, Microsoft Azure SDK
+    if (response.status === 401 && typeof window !== 'undefined' && !(options as any).__retryAttempted) {
       try {
         const { getAuthInstance } = await import('@/config/firebase')
         const auth = getAuthInstance()
@@ -279,7 +280,7 @@ export const apiRequest = async (
           console.log('🔄 Token expirado, forçando refresh...')
           const newToken = await auth.currentUser.getIdToken(true) // true = force refresh
           
-          // Tentar novamente com o novo token
+          // Tentar novamente com o novo token (marcar como retry para evitar loop)
           const newAuthHeaders = {
             ...authHeaders,
             'Authorization': `Bearer ${newToken}`
@@ -292,15 +293,22 @@ export const apiRequest = async (
             ...(options.body && { 'Content-Type': 'application/json' })
           }
           
-          console.log('🔄 Retentando requisição com novo token...')
-          response = await fetchWithCircuitBreaker(url, { 
+          console.log('🔄 Retentando requisição com novo token (única tentativa)...')
+          const retryOptions = { 
             ...options, 
-            headers: retryHeaders 
-          })
+            headers: retryHeaders,
+            __retryAttempted: true // Marcar como retry para evitar loop
+          } as RequestInit
+          
+          response = await fetchWithCircuitBreaker(url, retryOptions)
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Retry bem-sucedido após refresh do token')
+          }
         }
       } catch (refreshError) {
         console.error('❌ Falha ao refresh token:', refreshError)
-        // Continuar com o 401 original
+        // Continuar com o 401 original (não fazer mais retries)
       }
     }
     
