@@ -250,11 +250,21 @@ public class SystemConfigService {
         
         Long tenantId = TenantContext.getCurrentTenantId();
         
+        // Extrair categoria da chave (ex: "appearance.theme" -> "appearance")
         for (Map.Entry<String, String> entry : configs.entrySet()) {
             String configKey = entry.getKey();
             String configValue = entry.getValue();
             
-            Optional<SystemConfig> existingConfig = findByConfigKey(configKey);
+            // Determinar categoria baseado no prefixo da chave
+            SystemConfig.ConfigCategory category = determineCategory(configKey);
+            
+            // Buscar configuração existente do tenant
+            Optional<SystemConfig> existingConfig = Optional.empty();
+            if (tenantId != null) {
+                existingConfig = systemConfigRepository.findByTenantIdAndConfigKey(tenantId, configKey);
+            } else {
+                existingConfig = systemConfigRepository.findByConfigKey(configKey);
+            }
             
             if (existingConfig.isPresent()) {
                 // Atualizar configuração existente
@@ -262,12 +272,13 @@ public class SystemConfigService {
                 config.setConfigValue(configValue);
                 config.setUpdatedAt(LocalDateTime.now());
                 systemConfigRepository.save(config);
+                log.debug("✅ Configuração atualizada: {} = {}", configKey, configValue);
             } else {
                 // Criar nova configuração
                 SystemConfig newConfig = SystemConfig.builder()
                     .configKey(configKey)
                     .configValue(configValue)
-                    .category(SystemConfig.ConfigCategory.SYSTEM) // Categoria padrão
+                    .category(category)
                     .scope(tenantId != null ? SystemConfig.ConfigScope.TENANT : SystemConfig.ConfigScope.GLOBAL)
                     .tenantId(tenantId)
                     .createdAt(LocalDateTime.now())
@@ -275,10 +286,29 @@ public class SystemConfigService {
                     .build();
                 
                 systemConfigRepository.save(newConfig);
+                log.debug("✅ Nova configuração criada: {} = {}", configKey, configValue);
             }
         }
         
         log.info("✅ Configurações atualizadas em lote com sucesso");
+    }
+    
+    // ✅ Método auxiliar para determinar categoria baseado no prefixo da chave
+    private SystemConfig.ConfigCategory determineCategory(String configKey) {
+        if (configKey.startsWith("appearance.")) {
+            return SystemConfig.ConfigCategory.APPEARANCE;
+        } else if (configKey.startsWith("system.")) {
+            return SystemConfig.ConfigCategory.SYSTEM;
+        } else if (configKey.startsWith("security.")) {
+            return SystemConfig.ConfigCategory.SECURITY;
+        } else if (configKey.startsWith("notifications.")) {
+            return SystemConfig.ConfigCategory.NOTIFICATIONS;
+        } else if (configKey.startsWith("business.")) {
+            return SystemConfig.ConfigCategory.BUSINESS;
+        } else if (configKey.startsWith("performance.")) {
+            return SystemConfig.ConfigCategory.PERFORMANCE;
+        }
+        return SystemConfig.ConfigCategory.SYSTEM; // Default
     }
 
     // Métodos auxiliares
