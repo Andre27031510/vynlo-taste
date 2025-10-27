@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense, lazy } from 'react'
+import { useState, Suspense, lazy, useEffect } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Sidebar, { DashboardSection } from '@/components/dashboard/Sidebar'
@@ -39,6 +39,14 @@ export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState<DashboardSection>('dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { currentTheme } = useTheme()
+  
+  // ✅ CORREÇÃO: Adicionar classe dashboard-context ao body
+  useEffect(() => {
+    document.body.classList.add('dashboard-context')
+    return () => {
+      document.body.classList.remove('dashboard-context')
+    }
+  }, [])
 
   const renderContent = () => {
     const components: Record<DashboardSection, React.LazyExoticComponent<React.ComponentType<any>>> = {

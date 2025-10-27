@@ -2,6 +2,7 @@
 /* System Configuration CSS Variables */
 /* ============================================================================ */
 /* Application-level styles that respond to system configuration changes */
+/* ✅ CRITICAL: SCOPED TO DASHBOARD ONLY - NO LANDING PAGES */
 
 :root {
   --font-size-base: 16px;
@@ -12,115 +13,111 @@
   --secondary-color: #8b5cf6;
 }
 
-/* Apply font size globally */
-html {
+/* ✅ CORREÇÃO: Aplicar APENAS dentro do dashboard */
+body.dashboard-context {
   font-size: var(--font-size-base);
 }
 
-body {
-  font-size: var(--font-size-base);
-}
-
-/* Shadows configuration */
-body.no-shadows *,
-body.no-shadows *::before,
-body.no-shadows *::after {
+/* Shadows configuration - APENAS NO DASHBOARD */
+body.dashboard-context.no-shadows *,
+body.dashboard-context.no-shadows *::before,
+body.dashboard-context.no-shadows *::after {
   box-shadow: none !important;
 }
 
-body.no-shadows .shadow,
-body.no-shadows .shadow-sm,
-body.no-shadows .shadow-md,
-body.no-shadows .shadow-lg,
-body.no-shadows .shadow-xl {
+body.dashboard-context.no-shadows .shadow,
+body.dashboard-context.no-shadows .shadow-sm,
+body.dashboard-context.no-shadows .shadow-md,
+body.dashboard-context.no-shadows .shadow-lg,
+body.dashboard-context.no-shadows .shadow-xl {
   box-shadow: none !important;
 }
 
-/* Animations configuration */
-body.no-animations *,
-body.no-animations *::before,
-body.no-animations *::after {
+/* Animations configuration - APENAS NO DASHBOARD */
+body.dashboard-context.no-animations *,
+body.dashboard-context.no-animations *::before,
+body.dashboard-context.no-animations *::after {
   animation: none !important;
   transition: none !important;
 }
 
-body.no-animations .animate-spin,
-body.no-animations .animate-bounce,
-body.no-animations .animate-pulse {
+body.dashboard-context.no-animations .animate-spin,
+body.dashboard-context.no-animations .animate-bounce,
+body.dashboard-context.no-animations .animate-pulse {
   animation: none !important;
 }
 
-/* Compact mode */
-body.compact-mode {
+/* Compact mode - APENAS NO DASHBOARD */
+body.dashboard-context.compact-mode {
   --spacing-unit: 0.5rem;
 }
 
-body.compact-mode .space-y-4 > * + * {
+body.dashboard-context.compact-mode .space-y-4 > * + * {
   margin-top: calc(var(--spacing-unit) * 2) !important;
 }
 
-body.compact-mode .p-6 {
+body.dashboard-context.compact-mode .p-6 {
   padding: 0.75rem !important;
 }
 
-body.compact-mode .p-4 {
+body.dashboard-context.compact-mode .p-4 {
   padding: 0.5rem !important;
 }
 
-body.compact-mode .gap-4 {
+body.dashboard-context.compact-mode .gap-4 {
   gap: 0.5rem !important;
 }
 
-body.compact-mode .py-3\.5 {
+body.dashboard-context.compact-mode .py-3\.5 {
   padding-top: 0.5rem !important;
   padding-bottom: 0.5rem !important;
 }
 
-/* Border radius */
-* {
+/* Border radius - APENAS NO DASHBOARD */
+body.dashboard-context * {
   border-radius: var(--border-radius-base);
 }
 
-/* Primary and Secondary Colors */
-.text-primary {
+/* Primary and Secondary Colors - APENAS NO DASHBOARD */
+body.dashboard-context .text-primary {
   color: var(--primary-color) !important;
 }
 
-.bg-primary {
+body.dashboard-context .bg-primary {
   background-color: var(--primary-color) !important;
 }
 
-.border-primary {
+body.dashboard-context .border-primary {
   border-color: var(--primary-color) !important;
 }
 
-.text-secondary {
+body.dashboard-context .text-secondary {
   color: var(--secondary-color) !important;
 }
 
-.bg-secondary {
+body.dashboard-context .bg-secondary {
   background-color: var(--secondary-color) !important;
 }
 
-.border-secondary {
+body.dashboard-context .border-secondary {
   border-color: var(--secondary-color) !important;
 }
 
-/* Buttons with primary color */
-.btn-primary {
+/* Buttons with primary color - APENAS NO DASHBOARD */
+body.dashboard-context .btn-primary {
   background: linear-gradient(to right, var(--primary-color), var(--secondary-color)) !important;
 }
 
-/* Apply primary color to Tailwind classes */
-.bg-blue-600 {
+/* Apply primary color to Tailwind classes - APENAS NO DASHBOARD */
+body.dashboard-context .bg-blue-600 {
   background-color: var(--primary-color) !important;
 }
 
-.text-blue-600 {
+body.dashboard-context .text-blue-600 {
   color: var(--primary-color) !important;
 }
 
-.border-blue-600 {
+body.dashboard-context .border-blue-600 {
   border-color: var(--primary-color) !important;
 }
 

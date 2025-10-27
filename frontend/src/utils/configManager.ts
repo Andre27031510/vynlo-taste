@@ -70,9 +70,23 @@ export const configManager: ConfigManager = {
   }
 }
 
-// Aplicar configurações automaticamente
+// Aplicar configurações automaticamente (APENAS NO DASHBOARD)
 export const applyConfigToSystem = (configs: Map<string, any>) => {
   if (typeof window === 'undefined') return
+  
+  // ✅ CORREÇÃO CRÍTICA: Aplicar configurações APENAS na área do dashboard
+  // Não afetar landing pages, páginas públicas, ou área de autenticação
+  const isDashboard = window.location.pathname.startsWith('/dashboard')
+  const isAuth = window.location.pathname.startsWith('/login') || window.location.pathname.startsWith('/register')
+  const isLanding = window.location.pathname === '/' || window.location.pathname.startsWith('/barbearias') || window.location.pathname.startsWith('/petshops') || window.location.pathname.startsWith('/saude') || window.location.pathname.startsWith('/igrejas') || window.location.pathname.startsWith('/educacao') || window.location.pathname.startsWith('/servicos') || window.location.pathname.startsWith('/taste')
+  
+  // Se não estiver no dashboard, não aplicar configurações
+  if (!isDashboard || isAuth || isLanding) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🚫 Configurações não aplicadas fora do dashboard:', { isDashboard, isAuth, isLanding })
+    }
+    return
+  }
 
   // Aparência
   const fontSize = configs.get('appearance.font_size')
