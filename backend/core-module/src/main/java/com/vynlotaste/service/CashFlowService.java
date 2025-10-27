@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -406,6 +407,22 @@ public class CashFlowService {
     @Transactional
     public CashFlow createFromFinancialTransaction(FinancialTransaction transaction) {
         log.info("💰 Criando entrada de fluxo de caixa para transação: {} - R$ {}", transaction.getId(), transaction.getAmount());
+
+        // ✅ CORREÇÃO: Verificar se já existe entrada para esta transação
+        List<CashFlow> existingCashFlows = cashFlowRepository.findByFinancialTransactionId(transaction.getId());
+        if (!existingCashFlows.isEmpty()) {
+            CashFlow existing = existingCashFlows.get(0);
+            log.info("✅ Entrada de fluxo de caixa já existe: ID={} para transação: {}", existing.getId(), transaction.getId());
+            
+            // Atualizar status se necessário
+            if ("COMPLETED".equals(transaction.getStatus().name()) && !"CONFIRMED".equals(existing.getStatus())) {
+                existing.setStatus("CONFIRMED");
+                cashFlowRepository.save(existing);
+                log.info("✅ Status da entrada de fluxo de caixa atualizado para CONFIRMED: ID={}", existing.getId());
+            }
+            
+            return existing;
+        }
 
         CashFlow cashFlow = new CashFlow();
         cashFlow.setType(transaction.getType().name());
