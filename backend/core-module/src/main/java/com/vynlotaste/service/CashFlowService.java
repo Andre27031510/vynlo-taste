@@ -170,8 +170,27 @@ public class CashFlowService {
         try {
             log.info("Calculando resumo do fluxo de caixa");
             
-            // Buscar todas as entradas confirmadas
-            Page<CashFlow> allEntries = cashFlowRepository.findByStatus("CONFIRMED", Pageable.unpaged());
+            // ✅ MULTI-TENANCY: Buscar apenas entradas do tenant atual
+            Long tenantId = com.vynlotaste.context.TenantContext.getCurrentTenantId();
+            Page<CashFlow> allEntries;
+            
+            if (tenantId == null) {
+                log.warn("⚠️ Tenant não definido - retornando valores vazios");
+                allEntries = Page.empty(Pageable.unpaged());
+            } else {
+                // Buscar todas as entradas confirmadas do tenant
+                log.debug("👤 Buscando entradas do tenant: {}", tenantId);
+                allEntries = cashFlowRepository.findAllByTenantId(tenantId, Pageable.unpaged())
+                    .stream()
+                    .filter(entry -> "CONFIRMED".equals(entry.getStatus()))
+                    .collect(java.util.stream.Collectors.collectingAndThen(
+                        java.util.stream.Collectors.toList(),
+                        list -> {
+                            org.springframework.data.domain.Pageable pageable = Pageable.unpaged();
+                            return new org.springframework.data.domain.PageImpl<>(list, pageable, list.size());
+                        }
+                    ));
+            }
             
             BigDecimal totalIncome = BigDecimal.ZERO;
             BigDecimal totalExpense = BigDecimal.ZERO;
@@ -187,13 +206,14 @@ public class CashFlowService {
             BigDecimal balance = totalIncome.subtract(totalExpense);
             
             Map<String, Object> summary = new HashMap<>();
-            summary.put("income", totalIncome);
-            summary.put("expense", totalExpense);
-            summary.put("balance", balance);
-            summary.put("totalEntries", allEntries.getTotalElements());
+            summary.put("totalInflow", totalIncome.doubleValue()); // ✅ Corrigido para o frontend
+            summary.put("totalOutflow", totalExpense.doubleValue());
+            summary.put("netCashFlow", balance.doubleValue());
+            summary.put("currentBalance", balance.doubleValue());
+            summary.put("projectedBalance", balance.doubleValue());
             
-            log.info("✅ Resumo do fluxo de caixa calculado - entradas: {}, saídas: {}, saldo: {}", 
-                totalIncome, totalExpense, balance);
+            log.info("✅ Resumo do fluxo de caixa calculado - entradas: R$ {}, saídas: R$ {}, saldo: R$ {} - Total: {} entradas", 
+                totalIncome, totalExpense, balance, allEntries.getTotalElements());
             
             return summary;
         } catch (Exception e) {
