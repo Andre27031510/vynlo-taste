@@ -266,7 +266,43 @@ export const apiRequest = async (
       })
     }
     
-    const response = await fetchWithCircuitBreaker(url, { ...options, headers: finalHeaders })
+    let response = await fetchWithCircuitBreaker(url, { ...options, headers: finalHeaders })
+    
+    // ✅ CORREÇÃO CRÍTICA: Retry automático em caso de 401 (token expirado)
+    if (response.status === 401 && typeof window !== 'undefined') {
+      try {
+        const { getAuthInstance } = await import('@/config/firebase')
+        const auth = getAuthInstance()
+        
+        // Forçar refresh do token
+        if (auth?.currentUser) {
+          console.log('🔄 Token expirado, forçando refresh...')
+          const newToken = await auth.currentUser.getIdToken(true) // true = force refresh
+          
+          // Tentar novamente com o novo token
+          const newAuthHeaders = {
+            ...authHeaders,
+            'Authorization': `Bearer ${newToken}`
+          }
+          
+          const retryHeaders: Record<string, string> = {
+            ...newAuthHeaders,
+            'X-Request-ID': generateUUID(),
+            'X-Client-Version': process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
+            ...(options.body && { 'Content-Type': 'application/json' })
+          }
+          
+          console.log('🔄 Retentando requisição com novo token...')
+          response = await fetchWithCircuitBreaker(url, { 
+            ...options, 
+            headers: retryHeaders 
+          })
+        }
+      } catch (refreshError) {
+        console.error('❌ Falha ao refresh token:', refreshError)
+        // Continuar com o 401 original
+      }
+    }
     
     // Log de sucesso em desenvolvimento
     if (process.env.NODE_ENV === 'development') {
