@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense, lazy, useEffect } from 'react'
+import { useState, Suspense, lazy, useEffect, startTransition } from 'react'
 import Sidebar from '@/components/ekklesia/Sidebar'
 import Header from '@/components/dashboard/Header'
 import DashboardStats from '@/components/dashboard/DashboardStats'
@@ -54,13 +54,15 @@ export default function EkklesiaDashboardPage() {
 
     const isRegister = activeSection === 'churches-register'
     return (
-      <Suspense fallback={<LoadingSpinner />}>
-        {activeSection.startsWith('churches-') ? (
-          <ChurchesList initialRegisterOpen={isRegister} />
-        ) : (
-          <Component />
-        )}
-      </Suspense>
+      <div className="transition-all duration-75 opacity-100">
+        <Suspense fallback={<LoadingSpinner />}>
+          {activeSection.startsWith('churches-') ? (
+            <ChurchesList initialRegisterOpen={isRegister} />
+          ) : (
+            <Component />
+          )}
+        </Suspense>
+      </div>
     )
   }
 
@@ -70,12 +72,14 @@ export default function EkklesiaDashboardPage() {
         <div className="flex">
           <Sidebar 
             activeSection={activeSection}
-            setActiveSection={(section) => setActiveSection(section as DashboardSection)}
+            setActiveSection={(section) => {
+              startTransition(() => setActiveSection(section as DashboardSection))
+            }}
             collapsed={sidebarCollapsed}
             setCollapsed={setSidebarCollapsed}
           />
           
-          <div className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+          <div className={`flex-1 transition-all duration-150 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
             <Header 
               sidebarCollapsed={sidebarCollapsed}
               setSidebarCollapsed={setSidebarCollapsed}

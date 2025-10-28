@@ -910,3 +910,31 @@ body.dashboard-context[data-theme="light"] .hover\:bg-gray-100:hover {
   background-color: #ffffff !important;
   color: #1f2937 !important;
 }
+
+/* ✅ CORREÇÃO CRÍTICA: Forçar texto escuro em todas as seções com fundo branco nas páginas page-white */
+.page-white section.bg-white *,
+.page-white .bg-white * {
+  color: #111827 !important; /* Preto absoluto para máximo contraste */
+}
+
+.page-white section.bg-white p,
+.page-white section.bg-white span,
+.page-white section.bg-white .text-gray-600,
+.page-white section.bg-white .text-gray-700,
+.page-white section.bg-white .text-gray-500,
+.page-white .bg-white p,
+.page-white .bg-white span,
+.page-white .bg-white .text-gray-600,
+.page-white .bg-white .text-gray-700,
+.page-white .bg-white .text-gray-500 {
+  color: #374151 !important; /* Cinza médio escuro para legibilidade */
+}
+
+/* ✅ Garantir bordas claras visíveis em fundos brancos */
+.page-white .border-gray-100 {
+  border-color: #e5e7eb !important;
+}
+
+.page-white .border-gray-200 {
+  border-color: #d1d5db !important;
+}
