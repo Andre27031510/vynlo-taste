@@ -53,6 +53,12 @@ services:
       MAIL_HOST: smtp.gmail.com
       MAIL_USERNAME: noreply@vynlotech.com
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      # ✅ CORREÇÃO CRÍTICA: Variáveis AWS para Firebase Admin via Secrets Manager
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      aws.region: ${AWS_REGION:-us-east-1}
+      firebase.aws-secret-name: ${FIREBASE_AWS_SECRET_NAME:-vynlo-taste-firebase-prod}
+      # Credenciais via IAM Role (IMDS) - RECOMENDADO em EC2/ECS
+      # Ou via AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY se necessário
     depends_on:
       - postgres
       - redis

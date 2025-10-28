@@ -177,6 +177,18 @@ logging:
     total-size-cap: 1GB
 
 # ============================================================================
+# AWS CONFIGURATION (Firebase Admin via Secrets Manager)
+# ============================================================================
+aws:
+  region: ${AWS_REGION:us-east-1}
+
+firebase:
+  aws-secret-name: ${FIREBASE_AWS_SECRET_NAME:vynlo-taste-firebase-prod}
+  project-id: ${FIREBASE_PROJECT_ID:}
+  private-key: ${FIREBASE_PRIVATE_KEY:}
+  client-email: ${FIREBASE_CLIENT_EMAIL:}
+
+# ============================================================================
 # SPRINGDOC/SWAGGER CONFIGURATION (Fase 3)
 # ============================================================================
 # Documentação API interativa - Usado por Stripe, Nubank, Ifood
