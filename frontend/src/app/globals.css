@@ -344,14 +344,52 @@ body {
 .page-white section,
 .page-white h2,
 .page-white h3,
+.page-white h1,
 .page-white .text-gray-900 {
   color: #1f2937 !important; /* cinza quase preto para alto contraste */
 }
 
 .page-white p,
 .page-white .text-gray-600,
-.page-white .text-gray-700 {
+.page-white .text-gray-700,
+.page-white .text-gray-300,
+.page-white .text-gray-400 {
   color: #374151 !important; /* cinza médio escuro para contraste */
+}
+
+/* ✅ CORREÇÃO CRÍTICA: Forçar contraste em seções com fundo claro (Branco) */
+.page-white section.bg-white,
+.page-white section.bg-white h2,
+.page-white section.bg-white h3,
+.page-white section.bg-white h1 {
+  color: #111827 !important; /* preto absoluto para fundo branco */
+}
+
+.page-white section.bg-white p,
+.page-white section.bg-white .text-gray-600,
+.page-white section.bg-white .text-gray-700 {
+  color: #1f2937 !important; /* cinza escuro para legibilidade */
+}
+
+.page-white section.bg-white button span.text-gray-900,
+.page-white section.bg-white span.text-gray-900 {
+  color: #111827 !important; /* preto absoluto */
+}
+
+/* ✅ CORREÇÃO: Cards em fundo branco precisam ter texto preto */
+.page-white section.bg-white .bg-gray-50,
+.page-white section.bg-white .hover\:bg-gray-100 {
+  border-color: #e5e7eb !important;
+}
+
+.page-white section.bg-white .text-gray-900,
+.page-white section.bg-white .font-bold.text-gray-900 {
+  color: #111827 !important; /* preto absoluto */
+}
+
+.page-white section.bg-white .text-gray-600,
+.page-white section.bg-white .text-gray-700 {
+  color: #374151 !important; /* cinza escuro legível */
 }
 
 [data-theme="dark"] .text-gray-900 {
