@@ -1,0 +1,121 @@
+/* CORREÇÃO CRÍTICA: CONTRASTE MÁXIMO PARA TODAS AS PÁGINAS DE SEGMENTOS */
+
+/* Forçar contraste máximo em todas as seções com fundo claro */
+.bg-white,
+.bg-gray-50,
+.bg-gray-100,
+section {
+  color: #000000 !important;
+}
+
+/* Títulos - PRETO ABSOLUTO */
+.bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6,
+.bg-gray-50 h1, .bg-gray-50 h2, .bg-gray-50 h3, .bg-gray-50 h4, .bg-gray-50 h5, .bg-gray-50 h6,
+.bg-gray-100 h1, .bg-gray-100 h2, .bg-gray-100 h3, .bg-gray-100 h4, .bg-gray-100 h5, .bg-gray-100 h6,
+section h1, section h2, section h3, section h4, section h5, section h6,
+h1, h2, h3, h4, h5, h6 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Parágrafos e texto - CINZA MUITO ESCURO */
+.bg-white p, .bg-white span, .bg-white div,
+.bg-gray-50 p, .bg-gray-50 span, .bg-gray-50 div,
+.bg-gray-100 p, .bg-gray-100 span, .bg-gray-100 div,
+section p, section span, section div,
+p {
+  color: #1f2937 !important;
+}
+
+/* Classes Tailwind - FORÇAR CONTRASTE */
+.text-gray-900 { color: #000000 !important; }
+.text-gray-800 { color: #111827 !important; }
+.text-gray-700 { color: #1f2937 !important; }
+.text-gray-600 { color: #374151 !important; }
+.text-gray-500 { color: #4b5563 !important; }
+.text-gray-400 { color: #6b7280 !important; }
+.text-gray-300 { color: #6b7280 !important; }
+
+/* Cards - FUNDO BRANCO COM TEXTO ESCURO */
+.feature-card, .solution-card, .pricing-card, .benefit-card, .faq-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.feature-card *, .solution-card *, .pricing-card *, .benefit-card *, .faq-card * {
+  color: #1f2937 !important;
+}
+
+.feature-card h1, .feature-card h2, .feature-card h3, .feature-card h4,
+.solution-card h1, .solution-card h2, .solution-card h3, .solution-card h4,
+.pricing-card h1, .pricing-card h2, .pricing-card h3, .pricing-card h4,
+.benefit-card h1, .benefit-card h2, .benefit-card h3, .benefit-card h4 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Botões - manter cores originais */
+button, .btn {
+  color: inherit;
+}
+
+/* Links - azul escuro */
+a {
+  color: #1d4ed8 !important;
+}
+
+a:hover {
+  color: #1e40af !important;
+}
+
+/* Listas */
+li {
+  color: #1f2937 !important;
+}
+
+/* Elementos específicos das landing pages */
+.container h1, .container h2, .container h3, .container h4 {
+  color: #000000 !important;
+}
+
+.container p {
+  color: #1f2937 !important;
+}
+
+/* Garantir que elementos com fundo escuro tenham texto claro */
+.bg-blue-600, .bg-blue-700, .bg-blue-800, .bg-blue-900,
+.bg-indigo-600, .bg-indigo-700, .bg-indigo-800, .bg-indigo-900,
+.bg-purple-600, .bg-purple-700, .bg-purple-800, .bg-purple-900,
+.bg-gray-800, .bg-gray-900 {
+  color: #ffffff !important;
+}
+
+.bg-blue-600 *, .bg-blue-700 *, .bg-blue-800 *, .bg-blue-900 *,
+.bg-indigo-600 *, .bg-indigo-700 *, .bg-indigo-800 *, .bg-indigo-900 *,
+.bg-purple-600 *, .bg-purple-700 *, .bg-purple-800 *, .bg-purple-900 *,
+.bg-gray-800 *, .bg-gray-900 * {
+  color: #ffffff !important;
+}
+
+/* Manter contraste mesmo no tema escuro para landing pages */
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .solution-card,
+[data-theme="dark"] .pricing-card,
+[data-theme="dark"] .benefit-card,
+[data-theme="dark"] .faq-card {
+  background-color: #ffffff !important;
+}
+
+[data-theme="dark"] .feature-card *,
+[data-theme="dark"] .solution-card *,
+[data-theme="dark"] .pricing-card *,
+[data-theme="dark"] .benefit-card *,
+[data-theme="dark"] .faq-card * {
+  color: #1f2937 !important;
+}
+
+[data-theme="dark"] .feature-card h1, [data-theme="dark"] .feature-card h2, [data-theme="dark"] .feature-card h3,
+[data-theme="dark"] .solution-card h1, [data-theme="dark"] .solution-card h2, [data-theme="dark"] .solution-card h3,
+[data-theme="dark"] .pricing-card h1, [data-theme="dark"] .pricing-card h2, [data-theme="dark"] .pricing-card h3 {
+  color: #000000 !important;
+}

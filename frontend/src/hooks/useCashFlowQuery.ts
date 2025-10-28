@@ -109,9 +109,15 @@ const fetchCashFlowSummary = async (filters?: {
 }
 
 const createCashFlowEntry = async (entryData: CreateCashFlowData): Promise<CashFlowEntry> => {
+  // ✅ CORREÇÃO: Mapear tipos do frontend (inflow/outflow) para backend (INCOME/EXPENSE)
+  const backendPayload = {
+    ...entryData,
+    type: entryData.type === 'inflow' ? 'INCOME' : 'EXPENSE'
+  }
+  
   const response = await apiRequest('core-service', 'v1/cashflow/entries', {
     method: 'POST',
-    body: JSON.stringify(entryData)
+    body: JSON.stringify(backendPayload)
   })
   
   if (!response.ok) {
@@ -119,7 +125,13 @@ const createCashFlowEntry = async (entryData: CreateCashFlowData): Promise<CashF
     throw new Error(`Erro ao criar entrada de fluxo de caixa: ${response.status} - ${errorText}`)
   }
   
-  return await response.json()
+  const data = await response.json()
+  
+  // ✅ Mapear tipos do backend para frontend na resposta
+  return {
+    ...data,
+    type: data.type === 'INCOME' ? 'inflow' : 'outflow'
+  }
 }
 
 export const useCashFlowQuery = (filters?: {

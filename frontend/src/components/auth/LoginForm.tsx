@@ -170,10 +170,21 @@ const LoginForm = memo(function LoginForm() {
         let redirectPath = '/dashboard'; // Default
         let userRole = 'user';
         
-        // PRIORIDADE 1: Super Admin (Vynlo Tech)
+        // PRIORIDADE 1: Super Admin (Vynlo Tech) - pode acessar qualquer produto
         if (claims.isSuperAdmin === true) {
-          redirectPath = '/super-admin';
-          userRole = 'super_admin';
+          // Super Admin pode escolher o produto via vynloProduct claim
+          const vynloProduct = (claims.vynloProduct as string)?.toUpperCase() || 'ALL';
+          
+          if (vynloProduct === 'EKKLESIA') {
+            redirectPath = '/ekklesia/dashboard';
+            userRole = 'super_admin';
+          } else if (vynloProduct === 'ALL' || !vynloProduct) {
+            redirectPath = '/super-admin';
+            userRole = 'super_admin';
+          } else {
+            redirectPath = '/dashboard';
+            userRole = 'super_admin';
+          }
         }
         // PRIORIDADE 2: Cliente Admin - Redirecionar por produto Vynlo
         else if (claims.level === 'CLIENT_ADMIN' || claims.role === 'ADMIN') {
@@ -184,7 +195,7 @@ const LoginForm = memo(function LoginForm() {
               redirectPath = '/dashboard';
               break;
             case 'EKKLESIA':
-              redirectPath = '/dashboard'; // TODO: Criar /dashboard-ekklesia
+              redirectPath = '/ekklesia/dashboard';
               break;
             case 'BOT':
               redirectPath = '/dashboard'; // TODO: Criar /dashboard-bot

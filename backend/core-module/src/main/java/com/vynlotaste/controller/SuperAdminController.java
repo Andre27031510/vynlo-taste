@@ -1,120 +1,102 @@
 package com.vynlotaste.controller;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
-import com.google.firebase.auth.ExportedUserRecord;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.*;
 
+/**
+ * ============================================================================
+ * Controller para Super Admin - Gestão de clientes
+ * ============================================================================
+ * 
+ * ENDPOINTS:
+ * GET    /v1/super-admin/clients         → Listar todos os clientes
+ * POST   /v1/super-admin/clients         → Criar novo cliente
+ * PUT    /v1/super-admin/clients/{uid}    → Atualizar cliente
+ * GET    /v1/super-admin/clients/{uid}    → Buscar cliente por UID
+ * PUT    /v1/super-admin/clients/{uid}/set-product → Atualizar produto do usuário
+ * 
+ * PERMISSÕES: Apenas SUPER_ADMIN pode acessar
+ * 
+ * @version 1.0.0
+ * @author Vynlo Tech
+ * ============================================================================
+ */
+@Slf4j
 @RestController
 @RequestMapping("/v1/super-admin")
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 public class SuperAdminController {
 
-    @GetMapping("/admins")
-    public ResponseEntity<List<Map<String, Object>>> getAllAdmins() {
+    /**
+     * PUT /v1/super-admin/clients/{uid}/set-product
+     * Atualizar produto (vynloProduct) de um usuário específico
+     * Útil para configurar Super Admin para acessar EKKLESIA diretamente
+     */
+    @PutMapping("/clients/{uid}/set-product")
+    public ResponseEntity<Map<String, Object>> setUserProduct(
+            @PathVariable String uid,
+            @RequestParam String vynloProduct) {
         try {
-            List<Map<String, Object>> admins = new ArrayList<>();
+            // Buscar usuário no Firebase
+            UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
             
-            // Listar todos os usuários admin
-            Iterable<ExportedUserRecord> users = FirebaseAuth.getInstance().listUsers(null).getValues();
-            
-            for (ExportedUserRecord user : users) {
-                Map<String, Object> claims = user.getCustomClaims();
-                if (claims != null && "admin".equals(claims.get("role"))) {
-                    Map<String, Object> adminInfo = new HashMap<>();
-                    adminInfo.put("uid", user.getUid());
-                    adminInfo.put("email", user.getEmail());
-                    adminInfo.put("displayName", user.getDisplayName());
-                    adminInfo.put("permissions", claims.get("permissions"));
-                    adminInfo.put("level", claims.get("level"));
-                    adminInfo.put("assignedBy", claims.get("assignedBy"));
-                    admins.add(adminInfo);
-                }
+            // Extrair custom claims atuais
+            Map<String, Object> currentClaims = userRecord.getCustomClaims();
+            if (currentClaims == null) {
+                currentClaims = new HashMap<>();
             }
             
-            return ResponseEntity.ok(admins);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @PostMapping("/assign-permissions")
-    public ResponseEntity<String> assignPermissions(
-            @RequestParam String adminUid,
-            @RequestBody List<String> permissions) {
-        try {
-            // Obter claims atuais
-            UserRecord user = FirebaseAuth.getInstance().getUser(adminUid);
-            Map<String, Object> currentClaims = user.getCustomClaims();
+            // Atualizar vynloProduct
+            Map<String, Object> updatedClaims = new HashMap<>(currentClaims);
+            updatedClaims.put("vynloProduct", vynloProduct.toUpperCase());
+            updatedClaims.put("updatedAt", System.currentTimeMillis());
             
-            // Atualizar permissões
-            Map<String, Object> newClaims = new HashMap<>(currentClaims);
-            newClaims.put("permissions", permissions);
-            newClaims.put("lastUpdated", System.currentTimeMillis());
+            // Aplicar custom claims atualizados
+            FirebaseAuth.getInstance().setCustomUserClaims(uid, updatedClaims);
             
-            FirebaseAuth.getInstance().setCustomUserClaims(adminUid, newClaims);
+            log.info("✅ vynloProduct atualizado para usuário {}: {}", uid, vynloProduct);
             
-            return ResponseEntity.ok("Permissões atualizadas com sucesso");
+            // Response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Produto atualizado com sucesso");
+            response.put("uid", uid);
+            response.put("vynloProduct", vynloProduct.toUpperCase());
+            
+            return ResponseEntity.ok(response);
+            
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+            log.error("❌ Erro ao atualizar produto do usuário: {}", e.getMessage());
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erro ao atualizar produto: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
         }
     }
 
-    @PostMapping("/create-admin")
-    public ResponseEntity<String> createAdmin(@RequestBody Map<String, Object> adminData) {
+    @GetMapping("/clients/{uid}")
+    public ResponseEntity<Map<String, Object>> getClient(@PathVariable String uid) {
         try {
-            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail((String) adminData.get("email"))
-                .setPassword((String) adminData.get("password"))
-                .setDisplayName((String) adminData.get("displayName"))
-                .setEmailVerified(true);
-
-            UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
-
-            // Definir permissões do admin
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("role", "admin");
-            claims.put("permissions", adminData.get("permissions"));
-            claims.put("isSuperAdmin", false);
-            claims.put("level", "ADMIN");
-            claims.put("assignedBy", adminData.get("assignedBy"));
-            claims.put("createdAt", System.currentTimeMillis());
-
-            FirebaseAuth.getInstance().setCustomUserClaims(userRecord.getUid(), claims);
-
-            return ResponseEntity.ok("Admin criado: " + userRecord.getUid());
+            UserRecord user = FirebaseAuth.getInstance().getUser(uid);
+            Map<String, Object> client = new HashMap<>();
+            client.put("uid", user.getUid());
+            client.put("email", user.getEmail());
+            client.put("displayName", user.getDisplayName());
+            client.put("disabled", user.isDisabled());
+            client.put("claims", user.getCustomClaims());
+            
+            return ResponseEntity.ok(client);
+            
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Erro ao buscar cliente: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
         }
-    }
-
-    @DeleteMapping("/remove-admin/{adminUid}")
-    public ResponseEntity<String> removeAdmin(@PathVariable String adminUid) {
-        try {
-            FirebaseAuth.getInstance().deleteUser(adminUid);
-            return ResponseEntity.ok("Admin removido com sucesso");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/permissions/available")
-    public ResponseEntity<List<String>> getAvailablePermissions() {
-        List<String> permissions = Arrays.asList(
-            "manage_products",
-            "manage_orders", 
-            "manage_customers",
-            "view_reports",
-            "manage_financial",
-            "manage_delivery",
-            "manage_menu",
-            "manage_team",
-            "system_settings",
-            "view_analytics"
-        );
-        return ResponseEntity.ok(permissions);
     }
 }

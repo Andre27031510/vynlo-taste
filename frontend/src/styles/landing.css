@@ -758,3 +758,229 @@
     transform: none;
   }
 }
+
+/* ✅ CORREÇÃO CRÍTICA: CONTRASTE MÁXIMO PARA TODAS AS PÁGINAS DE SEGMENTOS */
+
+/* Seções com fundo branco - CONTRASTE MÁXIMO */
+.bg-white h1,
+.bg-white h2,
+.bg-white h3,
+.bg-white h4,
+.bg-white h5,
+.bg-white h6 {
+  color: #000000 !important; /* Preto absoluto para títulos */
+  font-weight: 700 !important;
+}
+
+.bg-white p,
+.bg-white span,
+.bg-white div {
+  color: #1f2937 !important; /* Cinza muito escuro para texto */
+}
+
+.bg-white .text-gray-900 {
+  color: #000000 !important; /* Preto absoluto */
+}
+
+.bg-white .text-gray-800 {
+  color: #111827 !important; /* Quase preto */
+}
+
+.bg-white .text-gray-700 {
+  color: #1f2937 !important; /* Cinza muito escuro */
+}
+
+.bg-white .text-gray-600 {
+  color: #374151 !important; /* Cinza escuro */
+}
+
+.bg-white .text-gray-500 {
+  color: #4b5563 !important; /* Cinza médio escuro */
+}
+
+.bg-white .text-gray-400 {
+  color: #6b7280 !important; /* Cinza médio */
+}
+
+.bg-white .text-gray-300 {
+  color: #6b7280 !important; /* Cinza médio para contraste */
+}
+
+/* Cards e elementos específicos */
+.bg-white .feature-card h3,
+.bg-white .solution-card h3,
+.bg-white .pricing-card h3,
+.bg-white .benefit-card h3 {
+  color: #000000 !important; /* Preto absoluto para títulos de cards */
+}
+
+.bg-white .feature-card p,
+.bg-white .solution-card p,
+.bg-white .pricing-card p,
+.bg-white .benefit-card p {
+  color: #1f2937 !important; /* Cinza muito escuro para texto de cards */
+}
+
+/* Botões em seções brancas */
+.bg-white button span {
+  color: inherit !important; /* Herdar cor do botão */
+}
+
+/* Links em seções brancas */
+.bg-white a {
+  color: #1d4ed8 !important; /* Azul escuro para links */
+}
+
+.bg-white a:hover {
+  color: #1e40af !important; /* Azul mais escuro no hover */
+}
+
+/* Seções com fundo cinza claro */
+.bg-gray-50 h1,
+.bg-gray-50 h2,
+.bg-gray-50 h3,
+.bg-gray-50 h4,
+.bg-gray-50 h5,
+.bg-gray-50 h6 {
+  color: #000000 !important; /* Preto absoluto */
+}
+
+.bg-gray-50 p,
+.bg-gray-50 span,
+.bg-gray-50 div {
+  color: #1f2937 !important; /* Cinza muito escuro */
+}
+
+/* Seções com fundo cinza mais claro */
+.bg-gray-100 h1,
+.bg-gray-100 h2,
+.bg-gray-100 h3,
+.bg-gray-100 h4,
+.bg-gray-100 h5,
+.bg-gray-100 h6 {
+  color: #000000 !important; /* Preto absoluto */
+}
+
+.bg-gray-100 p,
+.bg-gray-100 span,
+.bg-gray-100 div {
+  color: #1f2937 !important; /* Cinza muito escuro */
+}
+
+/* Forçar contraste em elementos específicos das landing pages */
+body:not([data-theme]) h1,
+body:not([data-theme]) h2,
+body:not([data-theme]) h3,
+body:not([data-theme]) h4,
+body:not([data-theme]) h5,
+body:not([data-theme]) h6 {
+  color: #000000 !important; /* Preto absoluto para títulos */
+}
+
+body:not([data-theme]) p {
+  color: #1f2937 !important; /* Cinza muito escuro para parágrafos */
+}
+
+/* Elementos com classes específicas do Tailwind - FORÇAR CONTRASTE */
+.text-gray-900 {
+  color: #000000 !important;
+}
+
+.text-gray-800 {
+  color: #111827 !important;
+}
+
+.text-gray-700 {
+  color: #1f2937 !important;
+}
+
+.text-gray-600 {
+  color: #374151 !important;
+}
+
+.text-gray-500 {
+  color: #4b5563 !important;
+}
+
+/* Garantir que elementos com fundo escuro tenham texto claro */
+.bg-blue-600,
+.bg-blue-700,
+.bg-blue-800,
+.bg-blue-900,
+.bg-indigo-600,
+.bg-indigo-700,
+.bg-indigo-800,
+.bg-indigo-900,
+.bg-purple-600,
+.bg-purple-700,
+.bg-purple-800,
+.bg-purple-900 {
+  color: #ffffff !important;
+}
+
+.bg-blue-600 *,
+.bg-blue-700 *,
+.bg-blue-800 *,
+.bg-blue-900 *,
+.bg-indigo-600 *,
+.bg-indigo-700 *,
+.bg-indigo-800 *,
+.bg-indigo-900 *,
+.bg-purple-600 *,
+.bg-purple-700 *,
+.bg-purple-800 *,
+.bg-purple-900 * {
+  color: #ffffff !important;
+}
+
+/* CORREÇÃO ESPECÍFICA PARA SEÇÃO DE SEGMENTOS */
+.segments-section .segment-content h1,
+.segments-section .segment-content h2,
+.segments-section .segment-content h3 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+.segments-section .segment-content p,
+.segments-section .segment-content span,
+.segments-section .segment-content div {
+  color: #1f2937 !important;
+}
+
+/* CORREÇÃO PARA CARDS DE FEATURES */
+.feature-card,
+.solution-card,
+.pricing-card,
+.benefit-card {
+  background-color: #ffffff !important;
+}
+
+.feature-card h3,
+.solution-card h3,
+.pricing-card h3,
+.benefit-card h3 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+.feature-card p,
+.solution-card p,
+.pricing-card p,
+.benefit-card p {
+  color: #1f2937 !important;
+}
+
+/* CORREÇÃO PARA ELEMENTOS DE LISTA */
+.bg-white li,
+.bg-gray-50 li,
+.bg-gray-100 li {
+  color: #1f2937 !important;
+}
+
+/* CORREÇÃO PARA BADGES E LABELS */
+.bg-white .badge,
+.bg-white .label,
+.bg-gray-50 .badge,
+.bg-gray-50 .label {
+  color: #1f2937 !important;
+}
