@@ -17,6 +17,7 @@ export default function FinancialReport() {
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState<{ cash: number; pixCard: number; general: number; expenses: number }>({ cash: 0, pixCard: 0, general: 0, expenses: 0 })
   const [showModal, setShowModal] = useState(false)
+  const [isInitialMount, setIsInitialMount] = useState(true)
 
   const fetchSummary = async () => {
     setLoading(true)
@@ -33,7 +34,19 @@ export default function FinancialReport() {
     } finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchSummary() }, [year, month])
+  useEffect(() => {
+    if (isInitialMount) {
+      // Aguardar inicialização do Firebase Auth no primeiro mount
+      const timer = setTimeout(() => {
+        fetchSummary()
+        setIsInitialMount(false)
+      }, 1000)
+      return () => clearTimeout(timer)
+    } else {
+      // Chamadas subsequentes sem delay
+      fetchSummary()
+    }
+  }, [year, month])
 
   const net = useMemo(() => (data.cash + data.pixCard + data.general) - data.expenses, [data])
 

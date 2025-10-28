@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Users, Building2 } from 'lucide-react'
 import { apiRequest } from '@/services/api'
 
@@ -13,29 +13,36 @@ export default function EkklesiaStats() {
   const [stats, setStats] = useState<Stats>({ totalMembers: 0, totalChurches: 0 })
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Buscar membros
-        const membersRes = await apiRequest('core-service', '/v1/ekklesia/members?size=1')
-        const membersJson = await membersRes.json()
-        const totalMembers = membersJson.totalElements || 0
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true)
+      
+      // Buscar membros
+      const membersRes = await apiRequest('core-service', '/v1/ekklesia/members?size=1')
+      const membersJson = await membersRes.json()
+      const totalMembers = membersJson.totalElements || 0
 
-        // Buscar igrejas
-        const churchesRes = await apiRequest('core-service', '/v1/ekklesia/churches?size=1')
-        const churchesJson = await churchesRes.json()
-        const totalChurches = churchesJson.totalElements || 0
+      // Buscar igrejas
+      const churchesRes = await apiRequest('core-service', '/v1/ekklesia/churches?size=1')
+      const churchesJson = await churchesRes.json()
+      const totalChurches = churchesJson.totalElements || 0
 
-        setStats({ totalMembers, totalChurches })
-      } catch (e) {
-        console.error('Erro ao carregar estatísticas:', e)
-      } finally {
-        setLoading(false)
-      }
+      setStats({ totalMembers, totalChurches })
+    } catch (e) {
+      console.error('Erro ao carregar estatísticas:', e)
+    } finally {
+      setLoading(false)
     }
-
-    fetchStats()
   }, [])
+
+  useEffect(() => {
+    // Aguardar inicialização do Firebase Auth
+    const timer = setTimeout(() => {
+      fetchStats()
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [fetchStats])
 
   if (loading) {
     return (

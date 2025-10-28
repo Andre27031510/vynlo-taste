@@ -44,10 +44,10 @@ const MemberManagement: React.FC = () => {
   }
 
   useEffect(() => { 
-    // Aguardar um tick para garantir que o auth está inicializado
+    // Aguardar inicialização do Firebase Auth
     const timer = setTimeout(() => {
       fetchMembers()
-    }, 100)
+    }, 1000)
     return () => clearTimeout(timer)
   }, [])
 

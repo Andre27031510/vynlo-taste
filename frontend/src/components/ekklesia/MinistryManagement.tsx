@@ -33,7 +33,11 @@ export default function MinistryManagement() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    fetchChurches()
+    // Aguardar inicialização do Firebase Auth
+    const timer = setTimeout(() => {
+      fetchChurches()
+    }, 1000)
+    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {

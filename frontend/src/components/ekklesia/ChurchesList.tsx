@@ -39,7 +39,13 @@ const ChurchesList: React.FC<{ initialRegisterOpen?: boolean }> = ({ initialRegi
     }
   }
 
-  useEffect(() => { fetchChurches() }, [])
+  useEffect(() => { 
+    // Aguardar inicialização do Firebase Auth
+    const timer = setTimeout(() => {
+      fetchChurches()
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [])
   useEffect(() => { if (initialRegisterOpen) setIsRegisterOpen(true) }, [initialRegisterOpen])
 
   return (

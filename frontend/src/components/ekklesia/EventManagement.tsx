@@ -31,7 +31,11 @@ export default function EventManagement() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
 
   useEffect(() => {
-    fetchEvents()
+    // Aguardar inicialização do Firebase Auth
+    const timer = setTimeout(() => {
+      fetchEvents()
+    }, 1000)
+    return () => clearTimeout(timer)
   }, [])
 
   const fetchEvents = async () => {
