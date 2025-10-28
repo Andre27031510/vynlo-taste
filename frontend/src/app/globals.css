@@ -392,72 +392,72 @@ body {
   color: #374151 !important; /* cinza escuro legível */
 }
 
-[data-theme="dark"] .text-gray-900 {
+body.dashboard-context[data-theme="dark"] .text-gray-900 {
   color: #f8fafc !important;
 }
 
-[data-theme="dark"] .text-gray-600 {
+body.dashboard-context[data-theme="dark"] .text-gray-600 {
   color: #9ca3af !important;
 }
 
-[data-theme="dark"] .text-gray-500 {
+body.dashboard-context[data-theme="dark"] .text-gray-500 {
   color: #6b7280 !important;
 }
 
-[data-theme="dark"] .border-gray-100 {
+body.dashboard-context[data-theme="dark"] .border-gray-100 {
   border-color: #1e2937 !important;
 }
 
-[data-theme="dark"] .border-gray-200 {
+body.dashboard-context[data-theme="dark"] .border-gray-200 {
   border-color: #1e2937 !important;
 }
 
-[data-theme="dark"] .border-gray-300 {
+body.dashboard-context[data-theme="dark"] .border-gray-300 {
   border-color: #4b5563 !important;
 }
 
-[data-theme="dark"] .hover\:bg-gray-50:hover {
+body.dashboard-context[data-theme="dark"] .hover\:bg-gray-50:hover {
   background-color: #1e2937 !important;
 }
 
-[data-theme="dark"] .hover\:bg-gray-100:hover {
+body.dashboard-context[data-theme="dark"] .hover\:bg-gray-100:hover {
   background-color: #1e2937 !important;
 }
 
 /* Modo claro - FORÇAR APLICAÇÃO */
-[data-theme="light"] .bg-white {
+body.dashboard-context[data-theme="light"] .bg-white {
   background-color: #ffffff !important;
 }
 
-[data-theme="light"] .text-gray-900 {
+body.dashboard-context[data-theme="light"] .text-gray-900 {
   color: #1f2937 !important;
 }
 
-[data-theme="light"] .text-gray-600 {
+body.dashboard-context[data-theme="light"] .text-gray-600 {
   color: #4b5563 !important;
 }
 
-[data-theme="light"] .text-gray-500 {
+body.dashboard-context[data-theme="light"] .text-gray-500 {
   color: #6b7280 !important;
 }
 
-[data-theme="light"] .border-gray-100 {
+body.dashboard-context[data-theme="light"] .border-gray-100 {
   border-color: #f3f4f6 !important;
 }
 
-[data-theme="light"] .border-gray-200 {
+body.dashboard-context[data-theme="light"] .border-gray-200 {
   border-color: #e5e7eb !important;
 }
 
-[data-theme="light"] .border-gray-300 {
+body.dashboard-context[data-theme="light"] .border-gray-300 {
   border-color: #d1d5db !important;
 }
 
-[data-theme="light"] .hover\:bg-gray-50:hover {
+body.dashboard-context[data-theme="light"] .hover\:bg-gray-50:hover {
   background-color: #f9fafb !important;
 }
 
-[data-theme="light"] .hover\:bg-gray-100:hover {
+body.dashboard-context[data-theme="light"] .hover\:bg-gray-100:hover {
   background-color: #f3f4f6 !important;
 }
 
