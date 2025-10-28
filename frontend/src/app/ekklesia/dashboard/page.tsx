@@ -68,18 +68,16 @@ export default function EkklesiaDashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className={`min-h-screen transition-all duration-300 ${currentTheme === 'dark' ? 'bg-gray-950' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen transition-all duration-300 ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="flex">
           <Sidebar 
             activeSection={activeSection}
-            setActiveSection={(section) => {
-              startTransition(() => setActiveSection(section as DashboardSection))
-            }}
+            setActiveSection={(section) => setActiveSection(section as DashboardSection)}
             collapsed={sidebarCollapsed}
             setCollapsed={setSidebarCollapsed}
           />
           
-          <div className={`flex-1 transition-all duration-150 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+          <div className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
             <Header 
               sidebarCollapsed={sidebarCollapsed}
               setSidebarCollapsed={setSidebarCollapsed}
@@ -94,6 +92,22 @@ export default function EkklesiaDashboardPage() {
               {/* Conteúdo principal com lazy loading */}
               {renderContent()}
             </main>
+            
+            {/* Footer */}
+            <footer className={`border-t ${currentTheme === 'dark' ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'} px-6 py-4`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    © 2024 Vynlo Ekklesia. Todos os direitos reservados.
+                  </p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span className={`text-xs ${currentTheme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                    Versão 1.0.0
+                  </span>
+                </div>
+              </div>
+            </footer>
           </div>
         </div>
       </div>

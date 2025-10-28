@@ -168,7 +168,7 @@ const CreateMemberModal: React.FC<{ onClose: () => void; onCreated: () => void }
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
+      <div className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-3">
           <h4 className="font-semibold">Cadastrar Membro</h4>
           <button onClick={onClose} className="text-gray-500">✕</button>

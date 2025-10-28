@@ -8,8 +8,8 @@ import {
   Calendar,
   DollarSign,
   Building2,
-  
   ChevronRight,
+  ChevronLeft,
   Menu as MenuIcon,
   ChevronDown,
   ChevronUp,
@@ -26,7 +26,7 @@ import { useTheme } from '@/hooks/useTheme'
 
 interface SidebarProps {
   activeSection: string
-  setActiveSection: React.Dispatch<React.SetStateAction<string>>
+  setActiveSection: (section: string) => void
   collapsed: boolean
   setCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -70,8 +70,7 @@ export default function Sidebar({ activeSection, setActiveSection, collapsed, se
       items: [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Visão geral da igreja' },
         { id: 'members', label: 'Membros', icon: Users, description: 'Lista de membros' },
-        { id: 'churches-list', label: 'Relação de Igrejas', icon: Users, description: 'Lista de igrejas' },
-        { id: 'churches-register', label: 'Registrar Igreja', icon: Building2, description: 'Cadastrar nova igreja' }
+        { id: 'churches-list', label: 'Relação de Igrejas', icon: Users, description: 'Lista de igrejas' }
       ]
     },
     {
@@ -90,7 +89,7 @@ export default function Sidebar({ activeSection, setActiveSection, collapsed, se
       icon: DollarSign,
       color: 'yellow',
       items: [
-        { id: 'tithings', label: 'Dízimos', icon: DollarSign, description: 'Dízimos e ofertas' }
+        { id: 'tithings', label: 'Relatório Financeiro', icon: DollarSign, description: 'Entradas e saídas' }
       ]
     },
     {
@@ -131,140 +130,187 @@ export default function Sidebar({ activeSection, setActiveSection, collapsed, se
     }
   }
 
-  const SidebarContent = () => (
-    <nav
-      ref={sidebarRef}
-      className={`h-full overflow-y-auto transition-all duration-300 ${
-        currentTheme === 'dark' 
-          ? 'bg-gray-900 border-r border-gray-800' 
-          : 'bg-white border-r border-gray-200'
-      } ${collapsed ? 'w-16' : 'w-64'}`}
-      aria-label="Ekklesia Navigation"
-    >
-      {/* Header do Sidebar */}
-      <div className={`p-4 border-b ${currentTheme === 'dark' ? 'border-gray-800' : 'border-gray-200'} flex items-center justify-between`}>
-        {!collapsed && (
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-bold text-lg text-gray-900 dark:text-white">Vynlo Ekklesia</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Sistema de Igrejas</p>
-            </div>
-          </div>
-        )}
-        {collapsed && (
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mx-auto">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-        )}
-      </div>
-
-      {/* Menu por categorias (igual ao Taste) */}
-      <div className="p-4 space-y-3">
-        {menuCategories.map((category, cIdx) => {
-          const IconCategory = category.icon
-          const expanded = isCategoryExpanded(category.id)
-          const hasActive = category.items.some(i => i.id === activeSection)
-
-          return (
-            <div key={category.id} className="">
-              <button
-                onClick={() => toggleCategory(category.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all ${
-                  hasActive
-                    ? currentTheme === 'dark' ? 'text-white bg-gray-800/50' : 'text-gray-900 bg-blue-50'
-                    : currentTheme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-800/30' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-                aria-expanded={expanded}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
-                    <IconCategory className="w-4 h-4 text-white" />
-                  </div>
-                  {!collapsed && <span className="font-medium text-sm">{category.label}</span>}
-                </div>
-                {!collapsed && (expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />)}
-              </button>
-
-              {expanded && (
-                <div className="ml-6 mt-2 space-y-1">
-                  {category.items.map((item, iIdx) => {
-                    const IconItem = item.icon
-                    const isActive = activeSection === item.id
-                    const indexFlat = cIdx * 10 + iIdx
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => handleMenuClick(item.id)}
-                        onFocus={() => setFocusedIndex(indexFlat)}
-                        className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all ${
-                          isActive
-                            ? 'text-white'
-                            : currentTheme === 'dark' ? 'text-gray-400 hover:text-white hover:bg-gray-800/30' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                        }`}
-                        style={isActive ? { background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' } : {}}
-                        aria-current={isActive ? 'page' : undefined}
-                        title={collapsed ? item.label : undefined}
-                      >
-                        <IconItem className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : ''}`} />
-                        {!collapsed && (
-                          <div className="flex-1 text-left">
-                            <span className="font-medium text-sm">{item.label}</span>
-                            {item.description && <p className={`text-xs ${currentTheme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>{item.description}</p>}
-                          </div>
-                        )}
-                        {isActive && <div className="w-2 h-2 bg-white rounded-full" />}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    </nav>
-  )
-
-  // Mobile/Tablet: Menu lateral com overlay
-  if (isMobile || isTablet) {
-    return (
-      <>
-        {/* Botão hambúrguer */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className={`fixed top-4 left-4 z-50 p-2 rounded-lg ${
-            currentTheme === 'dark' ? 'bg-gray-800' : 'bg-white'
-          } shadow-lg`}
-          aria-label="Toggle menu"
-        >
-          <MenuIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-        </button>
-
-        {/* Overlay */}
-        {mobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-
-        {/* Sidebar mobile */}
-        <div
-          className={`fixed left-0 top-0 h-full z-50 transition-transform duration-300 ${
-            mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
-        >
-          <SidebarContent />
-        </div>
-      </>
-    )
+  const handleCategoryClick = (categoryId: string) => {
+    // Se sidebar está colapsado, expande automaticamente
+    if (collapsed && !isMobile) {
+      setCollapsed(false)
+    }
+    toggleCategory(categoryId)
   }
 
-  // Desktop: Sidebar fixo
-  return <SidebarContent />
+  const getCategoryColor = (color: string) => {
+    const colors = {
+      blue: 'from-blue-500 to-blue-600',
+      green: 'from-green-500 to-green-600',
+      purple: 'from-purple-500 to-purple-600',
+      yellow: 'from-yellow-500 to-yellow-600',
+      indigo: 'from-indigo-500 to-indigo-600',
+      pink: 'from-pink-500 to-pink-600',
+      gray: 'from-gray-500 to-gray-600'
+    }
+    return colors[color as keyof typeof colors] || 'from-blue-500 to-blue-600'
+  }
+
+  return (
+    <>
+      {/* Overlay para mobile */}
+      {isMobile && mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+      
+      <aside 
+        ref={sidebarRef}
+        className={`fixed left-0 top-0 h-full shadow-2xl transition-all duration-300 z-40 ${
+          isMobile 
+            ? mobileMenuOpen 
+              ? 'w-64 translate-x-0' 
+              : 'w-64 -translate-x-full'
+            : collapsed 
+              ? 'w-16' 
+              : isTablet 
+                ? 'w-56' 
+                : 'w-64'
+        }`} 
+        style={{ 
+          background: currentTheme === 'dark'
+            ? 'linear-gradient(180deg, #0d1117 0%, #1a1a1a 50%, #000000 100%)'
+            : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
+          borderRight: currentTheme === 'dark'
+            ? '1px solid rgba(59, 130, 246, 0.1)'
+            : '1px solid rgba(59, 130, 246, 0.2)'
+        }}
+        role="navigation"
+        aria-label="Menu principal de navegação"
+      >
+        {/* Logo */}
+        <div className={`p-6 border-b ${currentTheme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className="flex items-center space-x-3">
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' }}
+            >
+              <Building2 className="w-5 h-5 text-white" />
+            </div>
+            {(!collapsed || (isMobile && mobileMenuOpen)) && (
+              <div>
+                <h1 className={`font-bold ${isTablet ? 'text-lg' : 'text-xl'} ${currentTheme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  Vynlo <span style={{ color: '#60a5fa' }}>Ekklesia</span>
+                </h1>
+                <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Sistema de Igrejas</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav 
+          className={`mt-6 px-3 overflow-y-auto h-[calc(100vh-200px)] ${currentTheme === 'dark' ? 'scrollbar-dark' : 'scrollbar-light'}`}
+          role="menubar"
+          aria-label="Menu de navegação do dashboard"
+        >
+          {menuCategories.map((category) => {
+            const IconComponent = category.icon
+            const isExpanded = isCategoryExpanded(category.id)
+            const hasActiveItem = category.items.some(item => item.id === activeSection)
+
+            return (
+              <div key={category.id} className="mb-3">
+                {/* Category Header */}
+                <button
+                  onClick={() => handleCategoryClick(category.id)}
+                  className={`w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    hasActiveItem
+                      ? currentTheme === 'dark'
+                        ? 'text-white bg-gray-800/50'
+                        : 'text-gray-900 bg-blue-50'
+                      : currentTheme === 'dark'
+                        ? 'text-gray-300 hover:text-white hover:bg-gray-800/30'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                  role="menuitem"
+                  aria-expanded={isExpanded}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-r ${getCategoryColor(category.color)}`}>
+                      <IconComponent className="w-4 h-4 text-white" />
+                    </div>
+                    {(!collapsed || (isMobile && mobileMenuOpen)) && (
+                      <span className={`font-medium ${isTablet ? 'text-xs' : 'text-sm'}`}>{category.label}</span>
+                    )}
+                  </div>
+
+                  {(!collapsed || (isMobile && mobileMenuOpen)) && (
+                    <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  )}
+                </button>
+
+                {/* Category Items */}
+                {isExpanded && (
+                  <div className="ml-6 mt-2 space-y-1">
+                    {category.items.map((item) => {
+                      const ItemIconComponent = item.icon
+                      const isActive = activeSection === item.id
+            
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => handleMenuClick(item.id)}
+                          className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            isActive 
+                              ? 'text-white shadow-lg' 
+                              : currentTheme === 'dark'
+                                ? 'text-gray-400 hover:text-white hover:bg-gray-800/30'
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                          }`}
+                          style={isActive ? { 
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' 
+                          } : {}}
+                          role="menuitem"
+                          aria-current={isActive ? 'page' : undefined}
+                        >
+                          <ItemIconComponent className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : currentTheme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+                          <div className="flex-1 text-left">
+                            <span className={`font-medium ${isTablet ? 'text-xs' : 'text-sm'}`}>{item.label}</span>
+                            {item.description && !isTablet && (
+                              <p className={`text-xs ${currentTheme === 'dark' ? 'text-gray-500' : 'text-gray-400'} group-hover:${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'} truncate`}>
+                                {item.description}
+                              </p>
+                            )}
+                          </div>
+                
+                          {/* Active indicator */}
+                          {isActive && (
+                            <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+
+        </nav>
+
+        {/* Collapse Toggle - Desktop/Tablet */}
+        {!isMobile && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' }}
+            aria-label={collapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
+          >
+            {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+          </button>
+        )}
+      </aside>
+    </>
+  )
 }
 
