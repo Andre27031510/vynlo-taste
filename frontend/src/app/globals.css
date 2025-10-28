@@ -339,6 +339,21 @@ body {
 /* Removido: [data-theme="dark"] .bg-white - mantém fundo branco nas landing pages */
 /* Deploy trigger: 2025-10-09 - FORÇAR DEPLOY - PIPELINE TRAVADO */
 
+/* ✅ CORREÇÃO: Landing pages sempre em modo claro - FORÇAR cores de alto contraste */
+/* Landing pages não usam data-theme, então precisamos garantir cores adequadas */
+.page-white section,
+.page-white h2,
+.page-white h3,
+.page-white .text-gray-900 {
+  color: #1f2937 !important; /* cinza quase preto para alto contraste */
+}
+
+.page-white p,
+.page-white .text-gray-600,
+.page-white .text-gray-700 {
+  color: #374151 !important; /* cinza médio escuro para contraste */
+}
+
 [data-theme="dark"] .text-gray-900 {
   color: #f8fafc !important;
 }

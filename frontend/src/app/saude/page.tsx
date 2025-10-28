@@ -10,7 +10,7 @@ import Footer from '@/app/landingpages/Footer'
 
 export default function SaudePage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen page-white">
       <Header />
       
       {/* Hero Section - Azul/Preto Gradiente */}

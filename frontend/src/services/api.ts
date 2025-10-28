@@ -344,10 +344,7 @@ export const apiRequest = async (
           }
           
           // Tentar novamente com o novo token (marcar como retry para evitar loop)
-          const newAuthHeaders = {
-            ...authHeaders,
-            'Authorization': `Bearer ${newToken}`
-          }
+          const newAuthHeaders = await getAuthHeaders()
           
           const retryHeaders: Record<string, string> = {
             ...newAuthHeaders,
@@ -371,11 +368,13 @@ export const apiRequest = async (
           if (process.env.NODE_ENV === 'development' && response.ok) {
             console.log('✅ Retry bem-sucedido após refresh do token')
           } else if (process.env.NODE_ENV === 'development' && response.status === 401) {
-            console.error('❌ 401 persistente após refresh - usuário não autenticado ou sessão expirada')
+            console.error('❌ 401 persistente após refresh')
           }
         }
       } catch (refreshError) {
-        console.error('❌ Falha ao refresh token:', refreshError)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Falha ao refresh token:', refreshError)
+        }
         cachedToken = null // Limpar cache em caso de erro
       }
     }
