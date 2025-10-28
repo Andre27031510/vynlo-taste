@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/ekklesia/ministries")
 @RequiredArgsConstructor
@@ -26,6 +28,11 @@ public class MinistryController {
 	@GetMapping("/{id}")
 	public ResponseEntity<Ministry> findById(@PathVariable Long id) {
 		return ResponseEntity.ok(ministryService.findById(id));
+	}
+
+	@GetMapping("/church/{churchId}")
+	public ResponseEntity<List<Ministry>> findByChurchId(@PathVariable Long churchId) {
+		return ResponseEntity.ok(ministryService.findByChurchId(churchId));
 	}
 
 	@PostMapping

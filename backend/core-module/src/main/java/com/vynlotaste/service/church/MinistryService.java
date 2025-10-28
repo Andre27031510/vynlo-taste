@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -32,6 +34,11 @@ public class MinistryService {
 		return ministryRepository.findByIdAndTenantId(id, tenantId).orElseThrow();
 	}
 
+	@Transactional(readOnly = true)
+	public List<Ministry> findByChurchId(Long churchId) {
+		return ministryRepository.findByChurchIdAndDeletedAtIsNull(churchId);
+	}
+
 	public Ministry create(Ministry ministry) {
 		Long tenantId = TenantContext.getCurrentTenantId();
 		if (tenantId == null && !TenantContext.isSuperAdmin()) throw new RuntimeException("Tenant não definido");
@@ -41,9 +48,10 @@ public class MinistryService {
 
 	public Ministry update(Long id, Ministry data) {
 		Ministry existing = findById(id);
-		existing.setName(data.getName());
+		existing.setDepartmentType(data.getDepartmentType());
+		existing.setLeaderName(data.getLeaderName());
+		existing.setLeaderPhone(data.getLeaderPhone());
 		existing.setDescription(data.getDescription());
-		existing.setLeaderId(data.getLeaderId());
 		existing.setStatus(data.getStatus());
 		return ministryRepository.save(existing);
 	}

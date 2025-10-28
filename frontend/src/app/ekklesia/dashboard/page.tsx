@@ -68,8 +68,8 @@ export default function EkklesiaDashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className={`min-h-screen transition-all duration-300 ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="flex">
+      <div className={`min-h-screen flex ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="w-full flex">
           <Sidebar 
             activeSection={activeSection}
             setActiveSection={(section) => setActiveSection(section as DashboardSection)}
@@ -77,13 +77,13 @@ export default function EkklesiaDashboardPage() {
             setCollapsed={setSidebarCollapsed}
           />
           
-          <div className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+          <div className={`flex-1 flex flex-col transition-all duration-150 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
             <Header 
               sidebarCollapsed={sidebarCollapsed}
               setSidebarCollapsed={setSidebarCollapsed}
             />
             
-            <main className="p-6">
+            <main className={`flex-1 p-6 ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
               {/* Stats sempre visíveis no topo */}
               <div className="mb-6">
                 <DashboardStats />
@@ -92,22 +92,6 @@ export default function EkklesiaDashboardPage() {
               {/* Conteúdo principal com lazy loading */}
               {renderContent()}
             </main>
-            
-            {/* Footer */}
-            <footer className={`border-t ${currentTheme === 'dark' ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'} px-6 py-4`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <p className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                    © 2024 Vynlo Ekklesia. Todos os direitos reservados.
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className={`text-xs ${currentTheme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                    Versão 1.0.0
-                  </span>
-                </div>
-              </div>
-            </footer>
           </div>
         </div>
       </div>

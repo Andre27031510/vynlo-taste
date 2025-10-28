@@ -75,11 +75,11 @@ export default function Sidebar({ activeSection, setActiveSection, collapsed, se
     },
     {
       id: 'ministries',
-      label: 'Ministérios & Eventos',
+      label: 'Departamentos & Eventos',
       icon: Building2,
       color: 'green',
       items: [
-        { id: 'ministries', label: 'Ministérios', icon: Building2, description: 'Gestão de ministérios' },
+        { id: 'ministries', label: 'Departamentos', icon: Building2, description: 'Gestão de departamentos' },
         { id: 'events', label: 'Eventos', icon: Calendar, description: 'Cultos e eventos' }
       ]
     },

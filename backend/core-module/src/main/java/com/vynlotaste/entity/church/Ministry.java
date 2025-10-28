@@ -12,22 +12,22 @@ import java.time.LocalDateTime;
 
 /**
  * ============================================================================
- * Entidade Ministry - Ministérios da Igreja (EKKLESIA)
+ * Entidade Ministry - Departamentos das Igrejas (EKKLESIA)
  * ============================================================================
  * 
- * CONTEXTO: Ministérios como Louvor, Crianças, Jovens, etc
+ * CONTEXTO: Departamentos vinculados a igrejas (Jovens, Infantil, Social, etc)
  * PRODUTO: EKKLESIA
  * SEGURANÇA: Multi-Tenancy com tenant_id
  * 
- * @version 1.0.0
+ * @version 2.0.0
  * @author Vynlo Tech - EKKLESIA Implementation
  * @created 2025-10-28
  * ============================================================================
  */
 @Entity
-@Table(name = "ministries", indexes = {
+@Table(name = "departments", indexes = {
     @Index(name = "idx_ministries_tenant_id", columnList = "tenantId"),
-    @Index(name = "idx_ministries_leader_id", columnList = "leaderId"),
+    @Index(name = "idx_ministries_church_id", columnList = "churchId"),
     @Index(name = "idx_ministries_status", columnList = "status")
 })
 @Data
@@ -43,20 +43,29 @@ public class Ministry {
     @Column(name = "tenant_id", nullable = false)
     private Long tenantId;
     
+    @NotNull
+    @Column(name = "church_id", nullable = false)
+    private Long churchId;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "church_id", insertable = false, updatable = false)
+    private Church church;
+    
     @NotBlank
-    @Size(min = 2, max = 255)
-    @Column(nullable = false, length = 255)
-    private String name;
+    @Size(min = 2, max = 100)
+    @Column(nullable = false, length = 100)
+    private String departmentType; // JOVENS, INFANTIL, SOCIAL, ADOLESCENTES, etc
+    
+    @Size(max = 255)
+    @Column(name = "leader_name")
+    private String leaderName;
+    
+    @Size(max = 20)
+    @Column(name = "leader_phone")
+    private String leaderPhone;
     
     @Column(columnDefinition = "TEXT")
     private String description;
-    
-    @Column(name = "leader_id")
-    private Long leaderId;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "leader_id", insertable = false, updatable = false)
-    private Member leader;
     
     @NotBlank
     @Column(nullable = false, length = 50)

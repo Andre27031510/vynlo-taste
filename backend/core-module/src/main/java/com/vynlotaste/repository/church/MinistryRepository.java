@@ -15,5 +15,7 @@ public interface MinistryRepository extends JpaRepository<Ministry, Long> {
     Page<Ministry> findByTenantIdAndStatus(Long tenantId, String status, Pageable pageable);
     Optional<Ministry> findByIdAndTenantId(Long id, Long tenantId);
     List<Ministry> findAllByTenantIdAndStatusAndDeletedAtIsNull(Long tenantId, String status);
+    List<Ministry> findByChurchIdAndDeletedAtIsNull(Long churchId);
+    List<Ministry> findAllByTenantIdAndChurchId(Long tenantId, Long churchId);
 }
 
