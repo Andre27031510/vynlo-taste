@@ -162,7 +162,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         queryClient.clear();
         console.log('✅ React Query cache limpo no logout');
         
-        // 2. Limpar localStorage do tenant atual
+        // 2. Limpar cache de token do api.ts
+        const { clearTokenCache } = await import('@/services/api');
+        clearTokenCache();
+        console.log('✅ Token cache limpo no logout');
+        
+        // 3. Limpar localStorage do tenant atual
         if (currentUserUid) {
           clearTenantStorageOnLogout(currentUserUid);
         }

@@ -194,6 +194,14 @@ export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string 
 let cachedToken: { token: string; expiresAt: number } | null = null
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000 // 5 minutos antes de expirar
 
+// ✅ SEGURANÇA: Limpar cache do token no logout
+export const clearTokenCache = () => {
+  cachedToken = null
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🗑️ Token cache limpo')
+  }
+}
+
 // Headers padrão com autenticação (sem Content-Type para evitar preflight em GET)
 export const getAuthHeaders = async (): Promise<Record<string, string>> => {
   let token = null
