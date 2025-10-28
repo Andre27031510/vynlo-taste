@@ -33,11 +33,13 @@ const SobrePage: React.FC = () => {
   } = useInstitutional()
 
   React.useEffect(() => {
+    document.body.classList.add('page-white')
     try {
       logger.componentMount('SobrePage')
     } catch (error) {
       logger.error('Erro ao montar SobrePage', error as Error)
     }
+    return () => document.body.classList.remove('page-white')
   }, [])
 
   return (

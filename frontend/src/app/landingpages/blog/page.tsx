@@ -34,11 +34,13 @@ const BlogPage: React.FC = () => {
   } = useBlog()
 
   React.useEffect(() => {
+    document.body.classList.add('page-white')
     try {
       logger.componentMount('BlogPage')
     } catch (error) {
       logger.error('Erro ao montar BlogPage', error as Error)
     }
+    return () => document.body.classList.remove('page-white')
   }, [])
 
   return (

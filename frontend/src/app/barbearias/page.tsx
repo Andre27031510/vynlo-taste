@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import BarbeariasHero from '@/components/landing/BarbeariasHero'
 import BarbeariasFeatures from '@/components/landing/BarbeariasFeatures'
 import BarbeariasBenefits from '@/components/landing/BarbeariasBenefits'
@@ -9,6 +10,11 @@ import Header from '@/app/landingpages/Header'
 import Footer from '@/app/landingpages/Footer'
 
 export default function BarbeariasPage() {
+  useEffect(() => {
+    document.body.classList.add('page-white')
+    return () => document.body.classList.remove('page-white')
+  }, [])
+
   return (
     <main className="min-h-screen page-white">
       <Header />

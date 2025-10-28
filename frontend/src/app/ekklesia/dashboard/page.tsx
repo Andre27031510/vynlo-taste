@@ -66,7 +66,7 @@ export default function EkklesiaDashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className={`min-h-screen transition-all duration-300 ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen transition-all duration-300 ${currentTheme === 'dark' ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="flex">
           <Sidebar 
             activeSection={activeSection}
@@ -75,7 +75,7 @@ export default function EkklesiaDashboardPage() {
             setCollapsed={setSidebarCollapsed}
           />
           
-          <div className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+          <div className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
             <Header 
               sidebarCollapsed={sidebarCollapsed}
               setSidebarCollapsed={setSidebarCollapsed}

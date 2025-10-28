@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import SaudeHero from '@/components/landing/SaudeHero'
 import SaudeFeatures from '@/components/landing/SaudeFeatures'
 import SaudeBenefits from '@/components/landing/SaudeBenefits'
@@ -9,6 +10,11 @@ import Header from '@/app/landingpages/Header'
 import Footer from '@/app/landingpages/Footer'
 
 export default function SaudePage() {
+  useEffect(() => {
+    document.body.classList.add('page-white')
+    return () => document.body.classList.remove('page-white')
+  }, [])
+
   return (
     <main className="min-h-screen page-white">
       <Header />

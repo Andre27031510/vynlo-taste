@@ -42,11 +42,13 @@ const SuportePage: React.FC = () => {
   }
 
   React.useEffect(() => {
+    document.body.classList.add('page-white')
     try {
       logger.componentMount('SuportePage')
     } catch (error) {
       logger.error('Erro ao montar SuportePage', error as Error)
     }
+    return () => document.body.classList.remove('page-white')
   }, [])
 
   return (

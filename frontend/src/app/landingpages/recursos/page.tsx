@@ -34,11 +34,13 @@ const RecursosPage: React.FC = () => {
   } = useResources()
 
   React.useEffect(() => {
+    document.body.classList.add('page-white')
     try {
       logger.componentMount('RecursosPage')
     } catch (error) {
       logger.error('Erro ao montar RecursosPage', error as Error)
     }
+    return () => document.body.classList.remove('page-white')
   }, [])
 
   return (

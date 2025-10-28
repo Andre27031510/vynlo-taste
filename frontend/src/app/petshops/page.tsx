@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import PetshopsHero from '@/components/landing/PetshopsHero'
 import PetshopsFeatures from '@/components/landing/PetshopsFeatures'
 import PetshopsBenefits from '@/components/landing/PetshopsBenefits'
@@ -9,6 +10,11 @@ import Header from '@/app/landingpages/Header'
 import Footer from '@/app/landingpages/Footer'
 
 export default function PetshopsPage() {
+  useEffect(() => {
+    document.body.classList.add('page-white')
+    return () => document.body.classList.remove('page-white')
+  }, [])
+
   return (
     <main className="min-h-screen page-white">
       <Header />

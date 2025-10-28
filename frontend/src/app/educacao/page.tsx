@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import EducacaoHero from '@/components/landing/EducacaoHero'
 import EducacaoFeatures from '@/components/landing/EducacaoFeatures'
 import EducacaoBenefits from '@/components/landing/EducacaoBenefits'
@@ -9,6 +10,11 @@ import Header from '@/app/landingpages/Header'
 import Footer from '@/app/landingpages/Footer'
 
 export default function EducacaoPage() {
+  useEffect(() => {
+    document.body.classList.add('page-white')
+    return () => document.body.classList.remove('page-white')
+  }, [])
+
   return (
     <main className="min-h-screen page-white">
       <Header />

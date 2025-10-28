@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import ServicosHero from '@/components/landing/ServicosHero'
 import ServicosFeatures from '@/components/landing/ServicosFeatures'
 import ServicosBenefits from '@/components/landing/ServicosBenefits'
@@ -9,6 +10,11 @@ import Header from '@/app/landingpages/Header'
 import Footer from '@/app/landingpages/Footer'
 
 export default function ServicosPage() {
+  useEffect(() => {
+    document.body.classList.add('page-white')
+    return () => document.body.classList.remove('page-white')
+  }, [])
+
   return (
     <main className="min-h-screen page-white">
       <Header />
