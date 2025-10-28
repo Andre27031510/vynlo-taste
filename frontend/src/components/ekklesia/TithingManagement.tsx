@@ -100,32 +100,152 @@ export default function FinancialReport() {
         ))}
       </div>
 
-      {/* Gráfico */}
-      <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-        <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Gráfico de Entradas e Saídas</h4>
-        <svg viewBox="0 0 600 220" className="w-full h-56">
-          <line x1="40" y1="200" x2="580" y2="200" stroke="#e5e7eb" />
-          <line x1="40" y1="20" x2="40" y2="200" stroke="#e5e7eb" />
-          {(() => {
-            const points = [data.cash, data.pixCard, data.general, data.expenses]
-            const max = Math.max(1, ...points)
-            const xs = [80, 220, 360, 500]
-            const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#ef4444']
-            return points.map((v, i) => {
-              const y = 200 - (v / max) * 160
-              return (
-                <g key={i}>
-                  <line x1={xs[i]} y1={200} x2={xs[i]} y2={y} stroke={colors[i]} strokeWidth={3} />
-                  <circle cx={xs[i]} cy={y} r={5} fill={colors[i]} />
-                </g>
-              )
-            })
-          })()}
-          <text x="80" y="215" fontSize="12" textAnchor="middle" fill="#6b7280">Dinheiro</text>
-          <text x="220" y="215" fontSize="12" textAnchor="middle" fill="#6b7280">PIX/CARTÃO</text>
-          <text x="360" y="215" fontSize="12" textAnchor="middle" fill="#6b7280">Gerais</text>
-          <text x="500" y="215" fontSize="12" textAnchor="middle" fill="#6b7280">Saídas</text>
-        </svg>
+      {/* Gráfico Profissional */}
+      <div className="p-8 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h4 className="text-xl font-bold text-gray-900 dark:text-white">Análise Financeira</h4>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+              <span className="text-gray-600 dark:text-gray-400">Entradas</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <span className="text-gray-600 dark:text-gray-400">Saídas</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="relative h-80">
+          <svg viewBox="0 0 700 300" className="w-full h-full">
+            {/* Gradiente para efeito visual */}
+            <defs>
+              <linearGradient id="gradient-entradas" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
+              </linearGradient>
+            </defs>
+
+            {/* Grade de fundo */}
+            {[0, 1, 2, 3, 4].map((i) => (
+              <line
+                key={i}
+                x1="60"
+                y1={40 + i * 60}
+                x2="640"
+                y2={40 + i * 60}
+                stroke="#e5e7eb"
+                strokeWidth="1"
+                strokeDasharray="2,2"
+              />
+            ))}
+
+            {/* Labels do eixo Y */}
+            {(() => {
+              const totalEntradas = data.cash + data.pixCard + data.general
+              const maxValue = Math.max(1, totalEntradas, data.expenses)
+              const step = maxValue / 4
+              return [0, 1, 2, 3, 4].map((i) => {
+                const value = maxValue - (step * i)
+                return (
+                  <text
+                    key={i}
+                    x="55"
+                    y={45 + i * 60}
+                    fontSize="11"
+                    fill="#6b7280"
+                    textAnchor="end"
+                  >
+                    R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </text>
+                )
+              })
+            })()}
+
+            {/* Linhas do gráfico partindo do zero */}
+            {(() => {
+              const totalEntradas = data.cash + data.pixCard + data.general
+              const maxValue = Math.max(1, totalEntradas, data.expenses)
+              const spacing = 140
+              const startX = 120
+              
+              const barData = [
+                { label: 'Entradas em\nDinheiro', value: data.cash, color: '#10b981', x: startX },
+                { label: 'Entradas\nPIX/CARTÃO', value: data.pixCard, color: '#3b82f6', x: startX + spacing },
+                { label: 'Entradas\nGerais', value: data.general, color: '#8b5cf6', x: startX + spacing * 2 },
+                { label: 'Saídas', value: data.expenses, color: '#ef4444', x: startX + spacing * 3 }
+              ]
+
+              return barData.map((bar, i) => {
+                const height = maxValue > 0 ? (bar.value / maxValue) * 240 : 0
+                const y = 250 - height
+
+                return (
+                  <g key={i}>
+                    {/* Barra */}
+                    <rect
+                      x={bar.x - 50}
+                      y={y}
+                      width="100"
+                      height={height}
+                      fill={bar.color}
+                      rx="4"
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                    
+                    {/* Valor no topo */}
+                    {bar.value > 0 && (
+                      <text
+                        x={bar.x}
+                        y={y - 10}
+                        fontSize="13"
+                        fontWeight="600"
+                        fill={bar.color}
+                        textAnchor="middle"
+                      >
+                        R$ {bar.value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </text>
+                    )}
+                    
+                    {/* Label na base */}
+                    <text
+                      x={bar.x}
+                      y="280"
+                      fontSize="11"
+                      fill="#374151"
+                      textAnchor="middle"
+                      className="dark:fill-gray-400"
+                    >
+                      {bar.label.split('\n').map((line, j) => (
+                        <tspan key={j} x={bar.x} dy={j > 0 ? "12" : "0"}>{line}</tspan>
+                      ))}
+                    </text>
+                  </g>
+                )
+              })
+            })()}
+
+            {/* Eixos */}
+            <line x1="60" y1="250" x2="640" y2="250" stroke="#374151" strokeWidth="2" />
+            <line x1="60" y1="10" x2="60" y2="250" stroke="#374151" strokeWidth="2" />
+          </svg>
+        </div>
+
+        {/* Totais abaixo do gráfico */}
+        <div className="grid grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total de Entradas</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              R$ {(data.cash + data.pixCard + data.general).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total de Saídas</div>
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+              R$ {data.expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Modal de Registro */}

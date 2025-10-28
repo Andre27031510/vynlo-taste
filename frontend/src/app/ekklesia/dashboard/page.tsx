@@ -3,7 +3,7 @@
 import { useState, Suspense, lazy, useEffect, startTransition } from 'react'
 import Sidebar from '@/components/ekklesia/Sidebar'
 import Header from '@/components/dashboard/Header'
-import DashboardStats from '@/components/dashboard/DashboardStats'
+import EkklesiaStats from '@/components/ekklesia/EkklesiaStats'
 import { useTheme } from '@/hooks/useTheme'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 
@@ -69,8 +69,7 @@ export default function EkklesiaDashboardPage() {
   return (
     <ProtectedRoute>
       <div className={`min-h-screen flex ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="w-full flex">
-          <Sidebar 
+        <Sidebar 
             activeSection={activeSection}
             setActiveSection={(section) => setActiveSection(section as DashboardSection)}
             collapsed={sidebarCollapsed}
@@ -86,14 +85,25 @@ export default function EkklesiaDashboardPage() {
             <main className={`flex-1 p-6 ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
               {/* Stats sempre visíveis no topo */}
               <div className="mb-6">
-                <DashboardStats />
+                <EkklesiaStats />
               </div>
               
               {/* Conteúdo principal com lazy loading */}
               {renderContent()}
             </main>
+            
+            {/* Footer */}
+            <footer className={`border-t px-6 py-4 ${currentTheme === 'dark' ? 'border-gray-800 bg-gray-900' : 'border-gray-200 bg-white'}`}>
+              <div className="flex items-center justify-between">
+                <div className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Vynlo Ekklesia © {new Date().getFullYear()} - Todos os direitos reservados
+                </div>
+                <div className={`text-sm ${currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Sistema de Gestão para Igrejas
+                </div>
+              </div>
+            </footer>
           </div>
-        </div>
       </div>
     </ProtectedRoute>
   )

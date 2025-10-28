@@ -803,7 +803,7 @@
 }
 
 .bg-white .text-gray-300 {
-  color: #6b7280 !important; /* Cinza médio para contraste */
+  color: #4b5563 !important; /* Cinza escuro para melhor contraste em fundo branco */
 }
 
 /* Cards e elementos específicos */
@@ -867,36 +867,9 @@
   color: #1f2937 !important; /* Cinza muito escuro */
 }
 
-/* Forçar contraste em elementos específicos das landing pages */
-body:not([data-theme]) h1,
-body:not([data-theme]) h2,
-body:not([data-theme]) h3,
-body:not([data-theme]) h4,
-body:not([data-theme]) h5,
-body:not([data-theme]) h6 {
-  color: #000000 !important; /* Preto absoluto para títulos */
-}
-
-body:not([data-theme]) p {
-  color: #1f2937 !important; /* Cinza muito escuro para parágrafos */
-}
-
-/* Elementos com classes específicas do Tailwind - FORÇAR CONTRASTE */
-.text-gray-900 {
-  color: #000000 !important;
-}
-
-.text-gray-800 {
-  color: #111827 !important;
-}
-
-.text-gray-700 {
-  color: #1f2937 !important;
-}
-
-.text-gray-600 {
-  color: #374151 !important;
-}
+/* ✅ REMOVIDO: Regras globais perigosas que forçavam texto preto em fundos escuros */
+/* Essas regras causavam problemas de contraste em Heros e Segments com fundos escuros */
+/* As cores de texto devem ser definidas localmente, não globalmente */
 
 .text-gray-500 {
   color: #4b5563 !important;
@@ -933,18 +906,18 @@ body:not([data-theme]) p {
   color: #ffffff !important;
 }
 
-/* CORREÇÃO ESPECÍFICA PARA SEÇÃO DE SEGMENTOS */
+/* ✅ CORREÇÃO: Texto CLARO em fundos ESCUROS */
 .segments-section .segment-content h1,
 .segments-section .segment-content h2,
 .segments-section .segment-content h3 {
-  color: #000000 !important;
+  color: #ffffff !important;
   font-weight: 700 !important;
 }
 
 .segments-section .segment-content p,
 .segments-section .segment-content span,
 .segments-section .segment-content div {
-  color: #1f2937 !important;
+  color: #e5e7eb !important;
 }
 
 /* CORREÇÃO PARA CARDS DE FEATURES */

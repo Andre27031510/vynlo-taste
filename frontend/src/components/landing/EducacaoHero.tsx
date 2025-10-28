@@ -14,14 +14,14 @@ export default function EducacaoHero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center space-x-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-6 py-3">
-              <GraduationCap className="w-5 h-5 text-blue-400" />
-              <span className="text-blue-300 font-manrope font-semibold text-sm">Sistema para Educação</span>
+            <div className="inline-flex items-center space-x-2 bg-blue-600/40 backdrop-blur-sm border border-blue-400/30 rounded-full px-6 py-3">
+              <GraduationCap className="w-5 h-5 text-blue-200" />
+              <span className="text-white font-manrope font-semibold text-sm">Sistema para Educação</span>
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-manrope font-black text-white leading-tight">
               Gestão Completa para
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
+              <span className="block text-white">
                 Educação
               </span>
             </h1>

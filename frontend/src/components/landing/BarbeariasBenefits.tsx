@@ -71,7 +71,7 @@ export default function BarbeariasBenefits() {
           </div>
           <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-6">
             Transforme sua Barbearia
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
+            <span className="block text-white">
               em 30 dias
             </span>
           </h2>

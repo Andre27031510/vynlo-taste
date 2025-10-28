@@ -43,7 +43,13 @@ const MemberManagement: React.FC = () => {
     }
   }
 
-  useEffect(() => { fetchMembers() }, [])
+  useEffect(() => { 
+    // Aguardar um tick para garantir que o auth está inicializado
+    const timer = setTimeout(() => {
+      fetchMembers()
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleExport = async () => {
     try {
@@ -64,9 +70,25 @@ const MemberManagement: React.FC = () => {
     const form = new FormData()
     form.append('file', file)
     try {
+      // Obter token de autenticação
+      const { getAuthInstance } = await import('@/config/firebase')
+      const auth = getAuthInstance()
+      const token = auth?.currentUser ? await auth.currentUser.getIdToken() : null
+      
       const baseUrl = new URL((process as any).env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com')
       const endpoint = `${baseUrl.origin}/api/v1/ekklesia/members/import`
-      const res = await fetch(endpoint, { method: 'POST', body: form })
+      
+      // Incluir token no header Authorization
+      const headers: Record<string, string> = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      
+      const res = await fetch(endpoint, { 
+        method: 'POST', 
+        headers,
+        body: form 
+      })
       if (!res.ok) throw new Error('Falha ao importar')
       await fetchMembers()
     } catch (e) {

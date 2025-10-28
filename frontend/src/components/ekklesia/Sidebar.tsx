@@ -123,6 +123,7 @@ export default function Sidebar({ activeSection, setActiveSection, collapsed, se
   ]
 
   const handleMenuClick = (itemId: string) => {
+    // Usar callback direto sem startTransition aqui para resposta imediata
     setActiveSection(itemId)
     if (isMobile || isTablet) {
       setMobileMenuOpen(false)

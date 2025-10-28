@@ -93,7 +93,7 @@ const SuportePage: React.FC = () => {
             <div className="text-center mb-16">
               <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-6">
                 Níveis de
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
+                <span className="block text-white">
                   Suporte
                 </span>
               </h2>
@@ -131,7 +131,7 @@ const SuportePage: React.FC = () => {
             <div className="text-center mb-16">
               <h2 className="text-4xl lg:text-5xl font-manrope font-black text-gray-900 mb-6">
                 Ferramentas de
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600">
+                <span className="block text-gray-900">
                   Suporte
                 </span>
               </h2>
@@ -207,7 +207,7 @@ const SuportePage: React.FC = () => {
             <div className="text-center">
               <h2 className="text-4xl lg:text-5xl font-manrope font-black text-white mb-6">
                 Pronto para ter o melhor
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400">
+                <span className="block text-white">
                   suporte do mercado?
                 </span>
               </h2>
