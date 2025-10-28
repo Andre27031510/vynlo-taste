@@ -5,9 +5,6 @@
 /* Importar animações avançadas */
 @import '../styles/animations.css';
 
-/* Importar correções de contraste */
-@import '../styles/contrast-fix.css';
-
 /* Variáveis CSS para modo escuro */
 :root {
   --primary-color: #3b82f6;
