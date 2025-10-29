@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/ekklesia/churches")
+@RequestMapping("/v1/ekklesia/churches")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class ChurchController {

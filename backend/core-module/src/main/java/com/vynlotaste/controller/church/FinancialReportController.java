@@ -15,7 +15,7 @@ import java.time.YearMonth;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/ekklesia/financial-report")
+@RequestMapping("/v1/ekklesia/financial-report")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class FinancialReportController {

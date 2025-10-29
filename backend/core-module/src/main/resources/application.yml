@@ -33,7 +33,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: never
@@ -41,6 +41,9 @@ management:
     tags:
       application: ${spring.application.name}
       environment: ${spring.profiles.active}
+    export:
+      prometheus:
+        enabled: true
 
 logging:
   pattern:

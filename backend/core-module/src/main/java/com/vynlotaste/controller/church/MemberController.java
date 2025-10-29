@@ -40,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/ekklesia/members")
+@RequestMapping("/v1/ekklesia/members")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class MemberController {

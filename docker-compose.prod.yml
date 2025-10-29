@@ -35,7 +35,7 @@ services:
       - vynlo-network
 
   backend:
-    image: ghcr.io/andre27031510/vynlotaste-backend:latest
+    image: ghcr.io/andre27031510/vynlotaste-backend:${BACKEND_TAG:-latest}
     container_name: vynlo-backend
     ports:
       - "8080:8080"
@@ -77,7 +77,7 @@ services:
       start_period: 60s
 
   frontend:
-    image: ghcr.io/andre27031510/vynlotaste-frontend:latest
+    image: ghcr.io/andre27031510/vynlotaste-frontend:${FRONTEND_TAG:-latest}
     container_name: vynlo-frontend
     environment:
       NODE_ENV: production

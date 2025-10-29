@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/ekklesia/cell-groups")
+@RequestMapping("/v1/ekklesia/cell-groups")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class CellGroupController {

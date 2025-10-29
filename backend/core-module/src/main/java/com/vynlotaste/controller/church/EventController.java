@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/ekklesia/events")
+@RequestMapping("/v1/ekklesia/events")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class EventController {

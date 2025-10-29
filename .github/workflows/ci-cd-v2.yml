@@ -59,6 +59,35 @@ jobs:
           echo "Debug: frontend_any_changed = ${{ steps.changes.outputs.frontend_any_changed || 'null' }}"
           echo "Debug: infra_any_changed = ${{ steps.changes.outputs.infra_any_changed || 'null' }}"
           echo "Debug: context validation complete"
+      - name: "Fase 6 - Hardening: Verificar prefixo /api/ em controllers Ekklesia"
+        if: ${{ steps.changes.outputs.backend_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "🔍 Verificando padrão de roteamento Ekklesia (Fase 6 - Hardening)..."
+          echo ""
+          
+          # Buscar controllers Ekklesia que violam o padrão
+          VIOLATIONS=$(find backend/core-module/src/main/java/com/vynlotaste/controller/church -name "*.java" -type f 2>/dev/null | xargs grep -l '@RequestMapping.*"/api/' 2>/dev/null || true)
+          
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ ERRO: Encontrados controllers Ekklesia com prefixo /api/ no @RequestMapping:"
+            echo ""
+            echo "$VIOLATIONS"
+            echo ""
+            echo "📋 REGRA: Controllers Ekklesia NÃO devem ter /api/ no @RequestMapping"
+            echo "   Context-path=/api já está configurado em application.yml"
+            echo "   Use: @RequestMapping(\"/v1/ekklesia/...\")"
+            echo "   ❌ ERRADO: @RequestMapping(\"/api/v1/ekklesia/...\")"
+            echo ""
+            echo "🔧 Como corrigir:"
+            echo "   1. Remova /api do @RequestMapping"
+            echo "   2. Mantenha apenas /v1/ekklesia/..."
+            echo ""
+            exit 1
+          else
+            echo "✅ Nenhuma violação encontrada: controllers Ekklesia seguem o padrão correto"
+          fi
+          
+          echo "✅ Verificação de roteamento concluída"
       - uses: docker/setup-buildx-action@v3
 
       - name: Validate secrets
@@ -235,6 +264,12 @@ jobs:
           sudo systemctl start docker || true
           
           echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor || 'andre27031510' }}" --password-stdin
+          
+          # Fase 2: Exportar tags do commit SHA (segurança)
+          export BACKEND_TAG="${{ github.sha }}"
+          export FRONTEND_TAG="${{ github.sha }}"
+          echo "📦 BACKEND_TAG=${BACKEND_TAG}"
+          echo "📦 FRONTEND_TAG=${FRONTEND_TAG}"
           
           cd ~/app
           

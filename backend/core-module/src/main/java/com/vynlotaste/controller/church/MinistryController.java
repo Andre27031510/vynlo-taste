@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/ekklesia/ministries")
+@RequestMapping("/v1/ekklesia/ministries")
 @RequiredArgsConstructor
 @PreAuthorize("isAuthenticated()")
 public class MinistryController {
