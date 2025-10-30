@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller para Ministry/Departments - EKKLESIA
+ * Fase 1: Rota corrigida - removido /api do @RequestMapping (context-path=/api)
+ * Rota final: /api/v1/ekklesia/ministries
+ */
 @RestController
 @RequestMapping("/v1/ekklesia/ministries")
 @RequiredArgsConstructor

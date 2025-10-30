@@ -5,6 +5,7 @@ services:
     environment:
       POSTGRES_DB: vynlotaste
       POSTGRES_USER: vynlo_user
+      # Fase 2: Usar variável de ambiente para segurança
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
@@ -35,6 +36,7 @@ services:
       - vynlo-network
 
   backend:
+    # Fase 2: Tag parametrizada via BACKEND_TAG (commit SHA) para deploy seguro
     image: ghcr.io/andre27031510/vynlotaste-backend:${BACKEND_TAG:-latest}
     container_name: vynlo-backend
     ports:
@@ -77,6 +79,7 @@ services:
       start_period: 60s
 
   frontend:
+    # Fase 2: Tag parametrizada via FRONTEND_TAG (commit SHA) para deploy seguro
     image: ghcr.io/andre27031510/vynlotaste-frontend:${FRONTEND_TAG:-latest}
     container_name: vynlo-frontend
     environment:

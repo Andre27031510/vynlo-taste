@@ -3,6 +3,7 @@ package com.vynlotaste.service.church;
 import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.entity.church.CellGroup;
 import com.vynlotaste.repository.church.CellGroupRepository;
+import com.vynlotaste.repository.church.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CellGroupService {
 
 	private final CellGroupRepository cellGroupRepository;
+    private final MemberRepository memberRepository;
 
 	@Transactional(readOnly = true)
 	public Page<CellGroup> findAll(Pageable pageable) {
@@ -39,12 +41,26 @@ public class CellGroupService {
 	public CellGroup create(CellGroup cellGroup) {
 		Long tenantId = TenantContext.getCurrentTenantId();
 		if (tenantId == null && !TenantContext.isSuperAdmin()) throw new RuntimeException("Tenant não definido");
+        // Fase 1: leaderId deve pertencer ao mesmo tenant
+        if (cellGroup.getLeaderId() != null && !TenantContext.isSuperAdmin()) {
+            boolean exists = memberRepository.findByIdAndTenantId(cellGroup.getLeaderId(), tenantId).isPresent();
+            if (!exists) {
+                throw new IllegalArgumentException("leaderId não pertence ao tenant atual");
+            }
+        }
 		cellGroup.setTenantId(tenantId);
 		return cellGroupRepository.save(cellGroup);
 	}
 
 	public CellGroup update(Long id, CellGroup data) {
 		CellGroup existing = findById(id);
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (data.getLeaderId() != null && !TenantContext.isSuperAdmin()) {
+            boolean exists = memberRepository.findByIdAndTenantId(data.getLeaderId(), tenantId).isPresent();
+            if (!exists) {
+                throw new IllegalArgumentException("leaderId não pertence ao tenant atual");
+            }
+        }
 		existing.setName(data.getName());
 		existing.setLeaderId(data.getLeaderId());
 		existing.setLocation(data.getLocation());

@@ -31,7 +31,7 @@ const getConnectSrc = () => {
 }
 
 const nextConfig = {
-  // ✅ Fase 7: Configurar workspace root explicitamente para evitar warning de múltiplos lockfiles
+  // Fase 7: Configurar workspace root explicitamente para evitar warning de múltiplos lockfiles
   // Next.js detecta lockfiles para inferir workspace root - configurar explicitamente é boa prática
   outputFileTracingRoot: require('path').join(__dirname),
   // Build ID para forçar cache-busting (v2.1.1-fix-FORCE)

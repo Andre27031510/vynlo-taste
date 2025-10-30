@@ -60,6 +60,8 @@ logging:
 # Configuração do servidor para testes
 server:
   port: 0  # Porta aleatória para evitar conflitos
+  servlet:
+    context-path: /api  # Fase 1: Context-path necessário para testes de roteamento
 
 # Configuração Firebase para testes (mock)
 firebase:

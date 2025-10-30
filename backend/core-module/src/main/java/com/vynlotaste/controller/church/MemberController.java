@@ -18,6 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
  * ============================================================================
  * Controller para Member - EKKLESIA
  * ============================================================================
+ * Fase 1: Rota corrigida - removido /api do @RequestMapping (context-path=/api)
+ * Rota final: /api/v1/ekklesia/members
+ * ============================================================================
  * 
  * ENDPOINTS:
  * GET    /api/v1/ekklesia/members         → Listar membros (paginação)

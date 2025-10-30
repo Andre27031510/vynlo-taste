@@ -44,6 +44,7 @@ management:
     export:
       prometheus:
         enabled: true
+  # Fase 4: Prometheus habilitado para métricas Ekklesia (404 tracking)
 
 logging:
   pattern:
@@ -59,6 +60,13 @@ server:
   error:
     include-stacktrace: never
     include-message: always
+
+# Segurança operacional
+security:
+  superadmin:
+    # Segredo requerido via header X-Break-Glass para operações de escrita por Super Admin
+    # Lido do ambiente em produção; vazio por padrão em dev/test
+    break_glass: ${SECURITY_SUPERADMIN_BREAK_GLASS:}
 
 firebase:
   auth:

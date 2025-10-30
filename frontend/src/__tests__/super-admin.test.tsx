@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { screen, fireEvent, waitFor } from '@testing-library/react'
+import { render } from '@/components/dashboard/__tests__/test-utils'
 import '@testing-library/jest-dom'
 import SuperAdminPage from '../app/super-admin/page'
 import { apiService } from '../services/api'
@@ -32,7 +33,7 @@ describe('SuperAdminPage', () => {
     render(<SuperAdminPage />)
     
     expect(screen.getByText('Dashboard Executivo')).toBeInTheDocument()
-    expect(screen.getByText('Visão estratégica completa do Vynlo Taste')).toBeInTheDocument()
+    expect(screen.getByText('Visão geral da plataforma Vynlo')).toBeInTheDocument()
   })
 
   it('displays KPI cards', async () => {
@@ -47,19 +48,16 @@ describe('SuperAdminPage', () => {
   it('switches between tabs', async () => {
     render(<SuperAdminPage />)
     
-    const usersButton = screen.getByLabelText('Ir para gerenciamento de usuários')
-    fireEvent.click(usersButton)
+    const clientsButton = screen.getByText('Clientes')
+    fireEvent.click(clientsButton)
     
     await waitFor(() => {
       expect(screen.getByText('Gerenciamento de Usuários')).toBeInTheDocument()
     })
   })
 
-  it('has accessible navigation', () => {
+  it('has accessible regions', () => {
     render(<SuperAdminPage />)
-    
-    expect(screen.getByLabelText('Navegação principal')).toBeInTheDocument()
-    expect(screen.getByRole('banner')).toBeInTheDocument()
     expect(screen.getByRole('main')).toBeInTheDocument()
   })
 

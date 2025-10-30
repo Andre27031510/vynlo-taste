@@ -56,3 +56,22 @@ global.console = {
   warn: jest.fn(),
   error: jest.fn(),
 }
+
+// Mock Firebase para testes (padrão Big Tech - isolamento de dependências externas)
+jest.mock('@/config/firebase', () => ({
+  getAuthInstance: jest.fn(() => ({
+    currentUser: null,
+    onAuthStateChanged: jest.fn(),
+  })),
+}))
+
+// Mock Next.js router
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}))

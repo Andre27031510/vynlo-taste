@@ -3,6 +3,7 @@ package com.vynlotaste.service.church;
 import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.entity.church.Tithing;
 import com.vynlotaste.repository.church.TithingRepository;
+import com.vynlotaste.repository.church.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TithingService {
 
 	private final TithingRepository tithingRepository;
+    private final MemberRepository memberRepository;
 
 	@Transactional(readOnly = true)
 	public Page<Tithing> findAll(Pageable pageable) {
@@ -35,12 +37,27 @@ public class TithingService {
 	public Tithing create(Tithing tithing) {
 		Long tenantId = TenantContext.getCurrentTenantId();
 		if (tenantId == null && !TenantContext.isSuperAdmin()) throw new RuntimeException("Tenant não definido");
+        // Fase 1: Validação cruzada por tenant (memberId deve pertencer ao mesmo tenant)
+        if (tithing.getMemberId() != null && !TenantContext.isSuperAdmin()) {
+            boolean exists = memberRepository.findByIdAndTenantId(tithing.getMemberId(), tenantId).isPresent();
+            if (!exists) {
+                throw new IllegalArgumentException("memberId não pertence ao tenant atual");
+            }
+        }
 		tithing.setTenantId(tenantId);
 		return tithingRepository.save(tithing);
 	}
 
 	public Tithing update(Long id, Tithing data) {
 		Tithing existing = findById(id);
+        Long tenantId = TenantContext.getCurrentTenantId();
+        // Fase 1: Validação cruzada por tenant em updates
+        if (data.getMemberId() != null && !TenantContext.isSuperAdmin()) {
+            boolean exists = memberRepository.findByIdAndTenantId(data.getMemberId(), tenantId).isPresent();
+            if (!exists) {
+                throw new IllegalArgumentException("memberId não pertence ao tenant atual");
+            }
+        }
 		existing.setMemberId(data.getMemberId());
 		existing.setAmount(data.getAmount());
 		existing.setTitheType(data.getTitheType());

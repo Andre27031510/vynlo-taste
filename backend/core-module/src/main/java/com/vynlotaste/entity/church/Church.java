@@ -1,6 +1,7 @@
 package com.vynlotaste.entity.church;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ import java.time.LocalDateTime;
  * ============================================================================
  */
 @Entity
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Table(name = "churches", indexes = {
     @Index(name = "idx_churches_tenant_id", columnList = "tenantId"),
     @Index(name = "idx_churches_porte", columnList = "porte"),

@@ -32,6 +32,8 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private SuperAdminGuardFilter superAdminGuardFilter;
     
     // @Autowired
     // private SecurityAuditFilter securityAuditFilter;
@@ -149,7 +151,8 @@ public class SecurityConfig {
             
             // Filtros customizados
             // .addFilterBefore(securityAuditFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(superAdminGuardFilter, UsernamePasswordAuthenticationFilter.class);
             // REMOVIDO: .anonymous(AbstractHttpConfigurer::disable) 
             // Esta configuração causava retorno de 403 em vez de 401 para requisições não autenticadas
 

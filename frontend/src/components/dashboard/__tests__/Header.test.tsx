@@ -1,9 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import Header from '../Header'
-
-// Mock do hook useTheme
+// Mocks ANTES dos imports (padrão Big Tech - isolamento completo)
 const mockToggleTheme = jest.fn()
+const mockLogout = jest.fn()
+
 jest.mock('@/hooks/useTheme', () => ({
   useTheme: () => ({
     currentTheme: 'dark',
@@ -11,8 +9,6 @@ jest.mock('@/hooks/useTheme', () => ({
   }),
 }))
 
-// Mock do contexto de autenticação
-const mockLogout = jest.fn()
 jest.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     user: {
@@ -22,6 +18,16 @@ jest.mock('@/contexts/AuthContext', () => ({
     logout: mockLogout,
   }),
 }))
+
+jest.mock('@/components/user/UserProfileModal', () => {
+  return function MockUserProfileModal({ isOpen, onClose }: any) {
+    return isOpen ? <div data-testid="user-profile-modal">Profile Modal</div> : null
+  }
+})
+
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import Header from '../Header'
 
 // Wrapper para React Query
 const createWrapper = () => {

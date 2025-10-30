@@ -3,6 +3,7 @@ package com.vynlotaste.service.church;
 import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.entity.church.Event;
 import com.vynlotaste.repository.church.EventRepository;
+import com.vynlotaste.repository.church.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EventService {
 
 	private final EventRepository eventRepository;
+    private final MemberRepository memberRepository;
 
 	@Transactional(readOnly = true)
 	public Page<Event> findAll(Pageable pageable) {
@@ -35,12 +37,26 @@ public class EventService {
 	public Event create(Event event) {
 		Long tenantId = TenantContext.getCurrentTenantId();
 		if (tenantId == null && !TenantContext.isSuperAdmin()) throw new RuntimeException("Tenant não definido");
+        // Fase 1: organizerId deve pertencer ao mesmo tenant
+        if (event.getOrganizerId() != null && !TenantContext.isSuperAdmin()) {
+            boolean exists = memberRepository.findByIdAndTenantId(event.getOrganizerId(), tenantId).isPresent();
+            if (!exists) {
+                throw new IllegalArgumentException("organizerId não pertence ao tenant atual");
+            }
+        }
 		event.setTenantId(tenantId);
 		return eventRepository.save(event);
 	}
 
 	public Event update(Long id, Event data) {
 		Event existing = findById(id);
+        Long tenantId = TenantContext.getCurrentTenantId();
+        if (data.getOrganizerId() != null && !TenantContext.isSuperAdmin()) {
+            boolean exists = memberRepository.findByIdAndTenantId(data.getOrganizerId(), tenantId).isPresent();
+            if (!exists) {
+                throw new IllegalArgumentException("organizerId não pertence ao tenant atual");
+            }
+        }
 		existing.setTitle(data.getTitle());
 		existing.setDescription(data.getDescription());
 		existing.setEventType(data.getEventType());

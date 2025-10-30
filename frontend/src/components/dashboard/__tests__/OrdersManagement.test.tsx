@@ -1,12 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import axios from 'axios'
-import OrdersManagement from '../OrdersManagement'
-
-// Mock axios
-const mockedAxios = axios as jest.Mocked<typeof axios>
-
-// Mock dos hooks personalizados
+// Mocks ANTES dos imports (padrão Big Tech - isolamento completo)
 const mockRefetchOrders = jest.fn()
 const mockUpdateOrderMutation = {
   mutate: jest.fn(),
@@ -54,7 +46,14 @@ jest.mock('@/hooks/useOrdersQuery', () => ({
     isLoading: false,
   }),
   useUpdateOrderStatus: () => mockUpdateOrderMutation,
+  useCreateOrderMutation: () => ({ mutate: jest.fn(), isLoading: false }),
+  useUpdateOrderMutation: () => ({ mutate: jest.fn(), isLoading: false }),
+  useDeleteOrderMutation: () => ({ mutate: jest.fn(), isLoading: false }),
 }))
+
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import OrdersManagement from '../OrdersManagement'
 
 // Wrapper para React Query
 const createWrapper = () => {

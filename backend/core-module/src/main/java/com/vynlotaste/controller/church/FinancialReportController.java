@@ -14,6 +14,11 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Map;
 
+/**
+ * Controller para FinancialReport - EKKLESIA
+ * Fase 1: Rota corrigida - removido /api do @RequestMapping (context-path=/api)
+ * Rota final: /api/v1/ekklesia/financial-report
+ */
 @RestController
 @RequestMapping("/v1/ekklesia/financial-report")
 @RequiredArgsConstructor

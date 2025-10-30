@@ -266,6 +266,7 @@ jobs:
           echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor || 'andre27031510' }}" --password-stdin
           
           # Fase 2: Exportar tags do commit SHA (segurança)
+          # Essas variáveis são usadas pelo docker-compose.prod.yml para parametrizar as imagens
           export BACKEND_TAG="${{ github.sha }}"
           export FRONTEND_TAG="${{ github.sha }}"
           echo "📦 BACKEND_TAG=${BACKEND_TAG}"
@@ -302,6 +303,8 @@ jobs:
           echo "✅ Postgres, Redis, Prometheus e Grafana continuam rodando"
           
           echo "=== Baixando novas imagens ==="
+          # Fase 2: docker-compose pull requer variáveis de ambiente definidas (BACKEND_TAG, FRONTEND_TAG)
+          # Estas já foram exportadas acima e estão disponíveis no ambiente
           for i in {1..3}; do
             if docker compose -f docker-compose.prod.yml pull; then
               break

@@ -10,6 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller para Tithing - EKKLESIA
+ * Fase 1: Rota corrigida - removido /api do @RequestMapping (context-path=/api)
+ * Rota final: /api/v1/ekklesia/tithings
+ */
 @RestController
 @RequestMapping("/v1/ekklesia/tithings")
 @RequiredArgsConstructor
