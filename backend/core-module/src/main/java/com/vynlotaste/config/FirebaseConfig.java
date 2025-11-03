@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ public class FirebaseConfig {
     private String firebaseSecretName;
 
     @Bean(name = "firebaseApp")
+    @ConditionalOnMissingBean  // PADRÃO BIG TECH: Só cria se não existir (permite override em testes)
     @ConditionalOnProperty(name = "firebase.enabled", havingValue = "true", matchIfMissing = true)
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
