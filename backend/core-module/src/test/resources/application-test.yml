@@ -65,6 +65,7 @@ server:
 
 # Configuração Firebase para testes (mock)
 firebase:
+  enabled: false
   auth:
     enabled: false  # Desabilitar Firebase para testes
   project-id: test-project

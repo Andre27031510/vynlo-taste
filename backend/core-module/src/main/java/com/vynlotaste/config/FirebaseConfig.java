@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -35,6 +37,8 @@ public class FirebaseConfig {
     private String firebaseSecretName;
 
     @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(value = "firebase.enabled", havingValue = "true", matchIfMissing = true)
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
             
@@ -130,6 +134,8 @@ public class FirebaseConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(value = "firebase.enabled", havingValue = "true", matchIfMissing = true)
     public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
         return FirebaseAuth.getInstance(firebaseApp);
     }
