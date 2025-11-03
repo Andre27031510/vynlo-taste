@@ -1,6 +1,7 @@
 services:
 # Atualizado: validação fail-fast e eliminação de segredos hardcoded
 # Motivo: evitar novos incidentes de YAML inválido e manter segredos fora do repositório
+# touch: redeploy d96f8ca - comentário leve sem impacto funcional
   postgres:
     image: postgres:15-alpine
     container_name: vynlo-postgres

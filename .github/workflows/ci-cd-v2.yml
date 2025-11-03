@@ -1,5 +1,6 @@
 name: CI/CD-v2
 # Comentário leve: Workflow reforçado com validações fail-fast (YAML, segredos, conflitos)
+# touch: redeploy d96f8ca - comentário leve sem impacto funcional
 # Commit feb97aa: Implementado Zero Downtime Deploy
 # - Backup automático do PostgreSQL antes de deploy
 # - Para apenas backend/frontend (Postgres e Redis continuam rodando)

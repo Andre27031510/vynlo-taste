@@ -1,5 +1,5 @@
 # Plano de Rollback - Sistema Ekklesia
-<!-- touch: redeploy note (commit 112b089) - comentário leve sem impacto funcional -->
+<!-- touch: redeploy note (commit 112b089, d96f8ca) - comentário leve sem impacto funcional -->
 
 **Data de criação:** 2025-10-28  
 **Última atualização:** 2025-10-28  

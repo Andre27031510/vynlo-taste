@@ -1,5 +1,5 @@
 package com.vynlotaste.controller;
-// touch: redeploy note (commit 112b089) - comentário leve sem impacto funcional
+// touch: redeploy note (commit 112b089, d96f8ca) - comentário leve sem impacto funcional
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
