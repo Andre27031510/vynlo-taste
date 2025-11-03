@@ -1,5 +1,5 @@
 package com.vynlotaste.config;
-// touch: redeploy note (commit 112b089, d96f8ca) - comentário leve sem impacto funcional
+// touch: redeploy note (commit 112b089, d96f8ca, ce2d2e6) - comentário leve sem impacto funcional
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;

@@ -309,12 +309,14 @@ jobs:
             exit 1
           fi
           
-          # Detectar conflitos de merge Git
-          if grep -nE '<<<<<<<|=======|>>>>>>>' docker-compose.prod.yml >/dev/null 2>&1; then
+          # Detectar conflitos de merge Git (padrão mais específico para evitar falsos positivos)
+          # Busca por marcadores reais: <<<<<<<, =======, >>>>>>> no início da linha ou isolados
+          CONFLICT_MARKERS=$(grep -nE '^[[:space:]]*<<<<<<<[[:space:]]|^[[:space:]]*=======[[:space:]]*$|^[[:space:]]*>>>>>>>[[:space:]]' docker-compose.prod.yml 2>/dev/null || true)
+          if [ -n "${CONFLICT_MARKERS}" ]; then
             echo "❌ ERRO CRÍTICO: docker-compose.prod.yml contém marcadores de conflito de merge Git"
             echo ""
             echo "   Linhas com conflitos:"
-            grep -nE '<<<<<<<|=======|>>>>>>>' docker-compose.prod.yml | head -10
+            echo "${CONFLICT_MARKERS}" | head -10
             echo ""
             echo "🔧 Como corrigir:"
             echo "   1. Remova todas as linhas com <<<<<<< HEAD, =======, >>>>>>> origin/main"
