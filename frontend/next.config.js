@@ -31,6 +31,47 @@ const getConnectSrc = () => {
   return baseConnectSrc.join(' ')
 }
 
+// PADRÃO BIG TECH: Validação fail-fast de variáveis de ambiente no build
+// Padrão usado por: Netflix (validam env antes de build), Uber (fail-fast)
+const validateBuildEnv = () => {
+  // NEXT_PUBLIC_API_URL é crítico - deve estar definido
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+  
+  if (!apiUrl || apiUrl.trim() === '') {
+    console.error('❌ ERRO CRÍTICO: NEXT_PUBLIC_API_URL não está definido')
+    console.error('   Configure a variável NEXT_PUBLIC_API_URL antes do build')
+    console.error('   Exemplo: NEXT_PUBLIC_API_URL=https://api.vynlotech.com')
+    throw new Error('NEXT_PUBLIC_API_URL environment variable is required')
+  }
+  
+  // Validar formato de URL
+  try {
+    const url = new URL(apiUrl)
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      throw new Error('NEXT_PUBLIC_API_URL must use http:// or https://')
+    }
+    // Remover /api do final se presente (buildApiUrl adiciona)
+    if (apiUrl.endsWith('/api') || apiUrl.endsWith('/api/')) {
+      console.warn('⚠️ AVISO: NEXT_PUBLIC_API_URL termina com /api')
+      console.warn('   Recomendado: remover /api (buildApiUrl adiciona automaticamente)')
+      console.warn(`   Atual: ${apiUrl}`)
+      console.warn(`   Esperado: ${apiUrl.replace(/\/api\/?$/, '')}`)
+    }
+  } catch (urlError) {
+    console.error('❌ ERRO: NEXT_PUBLIC_API_URL não é uma URL válida:', apiUrl)
+    throw new Error(`Invalid NEXT_PUBLIC_API_URL: ${urlError.message}`)
+  }
+  
+  console.log('✅ Variáveis de ambiente validadas:', {
+    NEXT_PUBLIC_API_URL: apiUrl.replace(/\/api\/?$/, '') // Mostrar sem /api
+  })
+}
+
+// Executar validação apenas em build (não em dev para permitir fallbacks)
+if (process.env.NODE_ENV === 'production' || process.env.VERCEL || process.env.DOCKER_BUILD) {
+  validateBuildEnv()
+}
+
 const nextConfig = {
   // Fase 7: Configurar workspace root explicitamente para evitar warning de múltiplos lockfiles
   // Next.js detecta lockfiles para inferir workspace root - configurar explicitamente é boa prática

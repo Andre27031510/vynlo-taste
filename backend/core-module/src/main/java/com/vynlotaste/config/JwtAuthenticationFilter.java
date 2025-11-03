@@ -54,6 +54,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired(required = false)  // Opcional: pode não existir na fase de setup
     private TenantRepository tenantRepository;
+    
+    @Autowired(required = false)  // Opcional: Firebase pode não estar inicializado
+    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
@@ -114,8 +117,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void authenticateToken(String token, HttpServletRequest request) throws Exception {
+        // Verificar se Firebase está disponível
+        if (firebaseAuth == null) {
+            try {
+                // Tentar obter do contexto se não foi injetado
+                firebaseAuth = FirebaseAuth.getInstance();
+            } catch (IllegalStateException e) {
+                logger.error("Firebase não está inicializado - não é possível autenticar tokens");
+                throw new IllegalStateException("Firebase authentication not available", e);
+            }
+        }
+        
         // Verificar token Firebase
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+        FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
         String uid = decodedToken.getUid();
         
         // Extrair role do token (custom claims)

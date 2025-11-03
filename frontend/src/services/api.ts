@@ -3,20 +3,40 @@
 // Updated: 2025-10-11 13:47 UTC
 type ServiceName = 'core-service' | 'financial-service'
 
-// Service Discovery Simplificado
+// Service Discovery Simplificado - PADRÃO BIG TECH (Netflix, Uber)
 const getServiceUrl = (serviceName: ServiceName): string => {
-  // Em produção, sempre usar api.vynlotech.com
-  const isProd = typeof window !== 'undefined' && 
-                 (window.location.hostname === 'vynlotech.com' || 
-                  window.location.hostname === 'www.vynlotech.com')
+  // PADRÃO BIG TECH: Validação fail-fast de variáveis de ambiente
+  if (typeof window === 'undefined') {
+    // Server-side: usar variável de ambiente ou fallback
+    const envUrl = process.env.NEXT_PUBLIC_API_URL
+    if (!envUrl) {
+      console.error('❌ NEXT_PUBLIC_API_URL não está definido - build falhou validação')
+      throw new Error('NEXT_PUBLIC_API_URL environment variable is required')
+    }
+    // Remover /api do final se presente (buildApiUrl adiciona)
+    return envUrl.replace(/\/api\/?$/, '') || 'https://api.vynlotech.com'
+  }
+  
+  // Client-side: detecção inteligente de ambiente
+  const hostname = window.location.hostname
+  const isProd = hostname === 'vynlotech.com' || 
+                 hostname === 'www.vynlotech.com' ||
+                 hostname.endsWith('.vynlotech.com') ||
+                 hostname.endsWith('.vynlotaste.com')
   
   const baseUrl = isProd 
     ? 'https://api.vynlotech.com'
     : (process.env.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com')
   
+  // PADRÃO BIG TECH: Normalização de URL (remove trailing slashes e /api duplicado)
+  const normalizedUrl = baseUrl
+    .trim()
+    .replace(/\/api\/?$/, '') // Remove /api do final se presente
+    .replace(/\/+$/, '') // Remove trailing slashes
+  
   const urls: Record<ServiceName, string> = {
-    'core-service': baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl,
-    'financial-service': baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl
+    'core-service': normalizedUrl,
+    'financial-service': normalizedUrl
   }
   return urls[serviceName]
 }
@@ -74,25 +94,34 @@ class CircuitBreaker {
     }
   }
 
-  // ✅ Determinar se erro é recuperável (deve contar para circuit breaker)
+  // PADRÃO BIG TECH: Determinar se erro é recuperável (Netflix circuit breaker pattern)
   private isRecoverableError(error: any): boolean {
     const errorMessage = error?.message || ''
+    const errorType = error?.errorType || ''
     
-    // Erros de rede/timeout (recuperáveis)
-    if (errorMessage.includes('Failed to fetch') || 
+    // Erros de rede/timeout (recuperáveis) - conta para circuit breaker
+    if (errorType === 'NETWORK' || errorType === 'DNS' || errorType === 'TIMEOUT' ||
+        errorMessage.includes('Failed to fetch') || 
         errorMessage.includes('NetworkError') ||
-        errorMessage.includes('TimeoutError')) {
+        errorMessage.includes('TimeoutError') ||
+        errorMessage.includes('aborted')) {
       return true
     }
     
     // HTTP 5xx e 429 (sobrecarga/rate limit - recuperáveis)
     if (errorMessage.includes('HTTP 5') || 
-        errorMessage.includes('HTTP 429')) {
+        errorMessage.includes('HTTP 429') ||
+        errorType === 'SERVER_ERROR') {
       return true
     }
     
+    // ❌ CORS errors NÃO são recuperáveis sem mudança de configuração
+    if (errorType === 'CORS' || errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
+      return false // CORS requer correção de configuração, não retry
+    }
+    
     // ❌ 4xx NÃO são recuperáveis (autenticação/validação - não conta)
-    if (errorMessage.includes('HTTP 4')) {
+    if (errorMessage.includes('HTTP 4') || errorType === 'CLIENT_ERROR') {
       return false
     }
     
@@ -176,16 +205,26 @@ export const fetchWithCircuitBreaker = async (
   })
 }
 
-// Service-aware URL builder
+// Service-aware URL builder - PADRÃO BIG TECH (Uber, Airbnb)
 export const buildApiUrl = (serviceName: ServiceName, endpoint: string): string => {
   const baseUrl = getServiceUrl(serviceName)
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
   
-  // ✅ CRITICAL FIX: ALB routes /api/* to backend, so we MUST add /api prefix
-  // ALB Rule: /api/* → vynlo-backend-http (Spring Boot)
-  // Without /api: OPTIONS /v1/users/stats → 404 (Next.js) ❌
-  // With /api: OPTIONS /api/v1/users/stats → 200 (Spring Boot) ✅
-  return `${baseUrl}/api/${cleanEndpoint}`
+  // PADRÃO BIG TECH: Normalização robusta de URL
+  // - ALB routes /api/* to backend (Spring Boot context-path=/api)
+  // - Garante que não há duplicação de /api
+  const normalizedBase = baseUrl.replace(/\/api\/?$/, '')
+  const apiPath = cleanEndpoint.startsWith('api/') ? cleanEndpoint : `api/${cleanEndpoint}`
+  
+  const finalUrl = `${normalizedBase}/${apiPath}`
+  
+  // Validação fail-fast (desenvolvimento)
+  if (process.env.NODE_ENV === 'development' && finalUrl.includes('/api/api/')) {
+    console.error('❌ URL duplicada detectada:', finalUrl)
+    throw new Error(`Duplicate /api detected in URL: ${finalUrl}`)
+  }
+  
+  return finalUrl
 }
 
 // Cache do token para evitar múltiplas chamadas ao Firebase
@@ -395,16 +434,55 @@ export const apiRequest = async (
     
     return response
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error(`❌ API request failed:`, {
-        service: serviceName,
-        endpoint,
-        url: buildApiUrl(serviceName, endpoint),
-        error: error instanceof Error ? error.message : String(error),
-        method: options.method || 'GET'
-      })
+    // PADRÃO BIG TECH: Logging estruturado e diferenciação de tipos de erro
+    const errorObj = error instanceof Error ? error : new Error(String(error))
+    const errorMessage = errorObj.message || 'Unknown error'
+    const url = buildApiUrl(serviceName, endpoint)
+    
+    // Classificar erro para observabilidade (Datadog/Sentry pattern)
+    let errorType: 'NETWORK' | 'CORS' | 'TIMEOUT' | 'DNS' | 'UNKNOWN' = 'UNKNOWN'
+    let errorDetails: Record<string, any> = {
+      service: serviceName,
+      endpoint,
+      url,
+      method: options.method || 'GET'
     }
-    throw error
+    
+    if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+      // Tentar diferenciar causa raiz
+      if (errorMessage.includes('timeout') || errorMessage.includes('aborted')) {
+        errorType = 'TIMEOUT'
+        errorDetails.timeout_ms = API_CONFIG.TIMEOUT
+      } else if (errorMessage.includes('CORS') || errorMessage.includes('cross-origin')) {
+        errorType = 'CORS'
+        errorDetails.origin = typeof window !== 'undefined' ? window.location.origin : 'SSR'
+      } else {
+        errorType = 'NETWORK'
+        // Pode ser DNS, conexão recusada, ou backend offline
+        errorDetails.backendUrl = url
+      }
+    } else if (errorMessage.includes('getaddrinfo') || errorMessage.includes('ENOTFOUND')) {
+      errorType = 'DNS'
+    }
+    
+    errorDetails.errorType = errorType
+    errorDetails.errorMessage = errorMessage
+    errorDetails.timestamp = new Date().toISOString()
+    
+    // Log estruturado (padrão Big Tech - Datadog/Sentry)
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`❌ API request failed [${errorType}]:`, errorDetails)
+    } else {
+      // Em produção, enviar para observabilidade (Sentry/Datadog)
+      // TODO: Integrar com Sentry/Datadog aqui
+      console.error(`API request failed [${errorType}]: ${serviceName}/${endpoint}`)
+    }
+    
+    // Criar erro enriquecido para Error Boundary
+    const enrichedError = new Error(`API Error [${errorType}]: ${errorMessage}`)
+    ;(enrichedError as any).errorType = errorType
+    ;(enrichedError as any).errorDetails = errorDetails
+    throw enrichedError
   }
 }
 

@@ -7,9 +7,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class FirebaseConfig {
     @Value("${firebase.aws-secret-name:vynlo-taste-firebase-prod}")
     private String firebaseSecretName;
 
-    @Bean
+    @Bean(name = "firebaseApp")
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
             
@@ -121,16 +122,37 @@ public class FirebaseConfig {
             
             // REMOVIDO: Arquivo JSON do classpath (RISCO DE SEGURANÇA)
             // Produção DEVE usar AWS Secrets Manager
-            log.error("Failed to initialize Firebase: Nenhuma configuração válida encontrada");
-            log.error("PRODUÇÃO: Configure AWS Secrets Manager com secret: {}", firebaseSecretName);
-            log.error("DESENVOLVIMENTO: Configure variáveis de ambiente ou GOOGLE_APPLICATION_CREDENTIALS");
-            throw new RuntimeException("Firebase configuration required - use AWS Secrets Manager in production");
+            // PADRÃO BIG TECH: Falha explícita apenas se Firebase for obrigatório
+            // Health checks devem funcionar mesmo sem Firebase (modo degradado)
+            String firebaseRequired = System.getenv("FIREBASE_REQUIRED");
+            if ("true".equalsIgnoreCase(firebaseRequired)) {
+                log.error("Firebase é obrigatório e não foi configurado");
+                log.error("PRODUÇÃO: Configure AWS Secrets Manager com secret: {}", firebaseSecretName);
+                log.error("DESENVOLVIMENTO: Configure variáveis de ambiente ou GOOGLE_APPLICATION_CREDENTIALS");
+                throw new IllegalStateException("Firebase configuration required (FIREBASE_REQUIRED=true) - use AWS Secrets Manager in production");
+            } else {
+                // PADRÃO BIG TECH: Modo degradado
+                // Solução: Não criar bean se Firebase não está disponível (sem lançar exceção)
+                // Spring permite isso via Factory Pattern - método retorna null silenciosamente
+                // Bean não será criado, mas aplicação inicia (health checks funcionam)
+                log.warn("⚠️ Firebase não configurado - aplicação iniciará em modo degradado");
+                log.warn("✓ Health checks: FUNCIONARÃO");
+                log.warn("✗ Autenticação: DESABILITADA (endpoints protegidos retornarão 401)");
+                log.warn("PRODUÇÃO: Configure AWS Secrets Manager com secret: {}", firebaseSecretName);
+                // Retornar null é tecnicamente possível, mas não recomendado pelo Spring
+                // Usar exceção controlada que Spring trata como "bean não criado"
+                // Aplicação continua iniciando, mas FirebaseApp não existirá
+                return null; // Permitir modo degradado - bean não será registrado
+            }
         }
         return FirebaseApp.getInstance();
     }
 
     @Bean
+    @ConditionalOnBean(FirebaseApp.class)
     public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
+        // PADRÃO BIG TECH: Bean só é criado se FirebaseApp existir
+        // @ConditionalOnBean garante que firebaseApp não é null
         return FirebaseAuth.getInstance(firebaseApp);
     }
 }

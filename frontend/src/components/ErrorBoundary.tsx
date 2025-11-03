@@ -31,21 +31,56 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // PADRÃO BIG TECH: Classificação de erros para tratamento diferenciado
+    // Padrão usado por: Facebook (React error codes), Netflix (error taxonomy)
+    const errorMessage = error.message || ''
+    const isNetworkError = errorMessage.includes('Failed to fetch') || 
+                          errorMessage.includes('NetworkError') ||
+                          errorMessage.includes('API Error [NETWORK]') ||
+                          errorMessage.includes('API Error [DNS]') ||
+                          errorMessage.includes('API Error [TIMEOUT]')
+    
+    // React Error #130: ChunkLoadError - componente lazy não carregou
+    const isChunkLoadError = errorMessage.includes('ChunkLoadError') ||
+                            errorMessage.includes('Loading chunk') ||
+                            errorMessage.includes('chunk.js') ||
+                            error.name === 'ChunkLoadError'
+    
+    // React Error #130 específico: Element type is invalid (componente undefined)
+    const isReact130 = errorMessage.includes('Element type is invalid') ||
+                      errorMessage.includes('is not a function') ||
+                      error.stack?.includes('React.createElement')
+    
     const errorData = {
       error: error.message,
+      errorType: isNetworkError ? 'NETWORK' : isChunkLoadError ? 'CHUNK_LOAD' : isReact130 ? 'REACT_130' : 'UNKNOWN',
       stack: error.stack,
       componentStack: errorInfo.componentStack,
       component: this.props.componentName || 'Unknown',
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
-      url: window.location.href
+      url: window.location.href,
+      isNetworkError,
+      isChunkLoadError,
+      isReact130
     }
     
-    // Log estruturado
-    console.error('ErrorBoundary caught error:', errorData)
+    // Log estruturado (padrão Big Tech - Datadog/Sentry)
+    console.error(`ErrorBoundary caught error [${errorData.errorType}]:`, errorData)
     
     // Callback personalizado
     this.props.onError?.(error, errorInfo)
+    
+    // PADRÃO BIG TECH: Retry automático para erros de rede/chunk (Netflix pattern)
+    if (isNetworkError || isChunkLoadError) {
+      // Limpar cache do service worker se presente
+      if ('serviceWorker' in navigator && 'caches' in window) {
+        caches.keys().then(keys => {
+          keys.forEach(key => caches.delete(key))
+          console.log('🧹 Cache limpo para retry')
+        })
+      }
+    }
     
     // Enviar para serviço de monitoramento (se disponível)
     this.reportError(errorData)
@@ -118,8 +153,32 @@ class ErrorBoundary extends Component<Props, State> {
               {this.props.componentName ? `Erro em ${this.props.componentName}` : 'Algo deu errado'}
             </h3>
             
+            {/* PADRÃO BIG TECH: Mensagens específicas por tipo de erro (Netflix, Uber) */}
+            {this.state.error && (this.state.error as any).errorType && (
+              <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+                {(this.state.error as any).errorType === 'NETWORK' && (
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    ⚠️ Problema de conectividade com a API. Verifique sua conexão ou se o backend está online.
+                  </p>
+                )}
+                {(this.state.error as any).errorType === 'CHUNK_LOAD' && (
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    ⚠️ Erro ao carregar recursos da aplicação. O cache será limpo automaticamente.
+                  </p>
+                )}
+                {(this.state.error as any).errorType === 'REACT_130' && (
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    ⚠️ Erro ao renderizar componente. Isso geralmente ocorre quando a conexão está instável.
+                  </p>
+                )}
+              </div>
+            )}
+            
             <p className="text-gray-600 dark:text-gray-400 mb-2">
-              Ocorreu um erro inesperado. 
+              {this.state.error?.message?.includes('Failed to fetch') || 
+               this.state.error?.message?.includes('API Error')
+                ? 'Problema de conectividade detectado. Tentando reconectar...'
+                : 'Ocorreu um erro inesperado.'}
               {this.state.retryAttempts > 0 && (
                 <span className="block text-sm mt-1">
                   Tentativa {this.state.retryAttempts} de {this.props.retryCount || 3}

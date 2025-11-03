@@ -15,7 +15,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Configuração de segurança robusta para produção
@@ -163,15 +165,28 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Configurar origens permitidas (restritivo para produção)
-        configuration.setAllowedOriginPatterns(Arrays.asList(
+        // PADRÃO BIG TECH: CORS configurado para permitir todos os subdomínios necessários
+        // Padrão usado por: Netflix (subdomínios), Uber (multi-tenant), Spotify (apps)
+        List<String> allowedOrigins = new ArrayList<>(Arrays.asList(
             "https://vynlotech.com",
-            "https://*.vynlotech.com",
+            "https://www.vynlotech.com",
+            "https://*.vynlotech.com", // Todos os subdomínios (app., admin., etc)
             "https://vynlotaste.com",
-            "https://*.vynlotaste.com",
-            "http://localhost:3000", // Apenas para desenvolvimento
-            "http://localhost:3001"  // Apenas para desenvolvimento
+            "https://www.vynlotaste.com",
+            "https://*.vynlotaste.com", // Todos os subdomínios
+            "http://localhost:3000", // Desenvolvimento local
+            "http://localhost:3001",  // Desenvolvimento local (Grafana)
+            "http://127.0.0.1:3000",   // Desenvolvimento local (fallback)
+            "http://127.0.0.1:3001"    // Desenvolvimento local (fallback)
         ));
+        
+        // Adicionar origem customizada se configurada (para ambientes especiais)
+        String customOrigin = System.getenv("CORS_ALLOWED_ORIGIN");
+        if (customOrigin != null && !customOrigin.isEmpty()) {
+            allowedOrigins.add(customOrigin);
+        }
+        
+        configuration.setAllowedOriginPatterns(allowedOrigins);
         
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList(

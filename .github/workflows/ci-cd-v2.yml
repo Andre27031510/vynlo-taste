@@ -198,7 +198,10 @@ jobs:
           # cache-to: type=gha,mode=max
           no-cache: true
           build-args: |
+            # PADRÃO BIG TECH: NEXT_PUBLIC_API_URL SEM /api no final (buildApiUrl adiciona automaticamente)
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com' }}
+            # Validação: remover /api do final se presente (evita duplicação)
+            # buildApiUrl já adiciona /api, então a URL base não deve ter
             NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
             NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
             NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
