@@ -70,7 +70,7 @@ Crie um arquivo `github-role-trust-policy.json`:
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:andre27031510/Vynlo-Taste:*"
+          "token.actions.githubusercontent.com:sub": "repo:Andre27031510/vynlo-taste:*"
         }
       }
     }
@@ -78,7 +78,7 @@ Crie um arquivo `github-role-trust-policy.json`:
 }
 ```
 
-**⚠️ IMPORTANTE**: Ajuste `andre27031510/Vynlo-Taste` para o nome real do seu repositório GitHub.
+**⚠️ IMPORTANTE**: O repositório correto é `Andre27031510/vynlo-taste` (com "A" maiúsculo e sem hífen).
 
 ### 1.3 Criar IAM Policy para Secrets Manager
 

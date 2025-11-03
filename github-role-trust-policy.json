@@ -12,7 +12,7 @@
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:andre27031510/Vynlo-Taste:*"
+          "token.actions.githubusercontent.com:sub": "repo:Andre27031510/vynlo-taste:*"
         }
       }
     }

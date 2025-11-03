@@ -37,6 +37,7 @@ jobs:
       backend_changed: ${{ steps.changes.outputs.backend_any_changed }}
       frontend_changed: ${{ steps.changes.outputs.frontend_any_changed }}
       infra_changed: ${{ steps.changes.outputs.infra_any_changed }}
+      migrations_changed: ${{ steps.changes.outputs.migrations_any_changed }}
     steps:
       - uses: actions/checkout@v4
 
@@ -57,11 +58,14 @@ jobs:
             infra:
               - 'docker-compose.prod.yml'
               - '.github/workflows/**'
+            migrations:
+              - 'backend/**/db/migration/**'
       - name: Debug context outputs
         run: |
           echo "Debug: backend_any_changed = ${{ steps.changes.outputs.backend_any_changed || 'null' }}"
           echo "Debug: frontend_any_changed = ${{ steps.changes.outputs.frontend_any_changed || 'null' }}"
           echo "Debug: infra_any_changed = ${{ steps.changes.outputs.infra_any_changed || 'null' }}"
+          echo "Debug: migrations_any_changed = ${{ steps.changes.outputs.migrations_any_changed || 'null' }}"
           echo "Debug: context validation complete"
       - name: "Fase 6 - Hardening: Verificar prefixo /api/ em controllers Ekklesia"
         if: ${{ steps.changes.outputs.backend_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -160,7 +164,7 @@ jobs:
         if: ${{ steps.changes.outputs.backend_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
           
@@ -279,7 +283,10 @@ jobs:
     name: Flyway Migrations (Staging)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ github.event_name != 'pull_request' && (needs.build.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch') }}
+    # FASE 2: Executar sempre que não for PR (para validar migrations antes do deploy)
+    # Executa se backend mudou OU migrations mudaram OU se for workflow_dispatch
+    # PADRÃO BIG TECH: Sempre validar migrations antes do deploy em produção
+    if: ${{ github.event_name != 'pull_request' && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.migrations_changed == 'true' || github.event_name == 'workflow_dispatch') }}
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -287,7 +294,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: 'maven'
           
