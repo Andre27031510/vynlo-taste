@@ -2,6 +2,7 @@ package com.vynlotaste.controller;
 // touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push
 
 import com.vynlotaste.config.MetricsTestConfiguration;
+import com.vynlotaste.config.TestFirebaseConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
-@Import(MetricsTestConfiguration.class)
+@Import({MetricsTestConfiguration.class, TestFirebaseConfig.class})
 @AutoConfigureMockMvc
 @DisplayName("Testes de Roteamento Ekklesia - Fase 3")
 class EkklesiaRoutingTest {

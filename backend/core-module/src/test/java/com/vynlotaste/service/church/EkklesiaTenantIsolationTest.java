@@ -1,6 +1,7 @@
 package com.vynlotaste.service.church;
 
 import com.vynlotaste.config.MetricsTestConfiguration;
+import com.vynlotaste.config.TestFirebaseConfig;
 import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.entity.church.Member;
 import com.vynlotaste.entity.church.Tithing;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
-@Import(MetricsTestConfiguration.class)
+@Import({MetricsTestConfiguration.class, TestFirebaseConfig.class})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EkklesiaTenantIsolationTest {
 

@@ -64,9 +64,11 @@ server:
     context-path: /api  # Fase 1: Context-path necessário para testes de roteamento
 
 # Configuração Firebase para testes (mock)
+# PADRÃO BIG TECH: Desabilitar Firebase real em testes - usar TestFirebaseConfig com mocks
 firebase:
+  enabled: false  # Desabilitar Firebase real - TestFirebaseConfig fornece mocks
   auth:
-    enabled: false  # Desabilitar Firebase para testes
+    enabled: false
   project-id: test-project
   private-key: test-key
   client-email: test@test.com

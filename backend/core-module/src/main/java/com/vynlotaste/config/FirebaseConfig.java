@@ -37,6 +37,7 @@ public class FirebaseConfig {
     private String firebaseSecretName;
 
     @Bean(name = "firebaseApp")
+    @ConditionalOnProperty(name = "firebase.enabled", havingValue = "true", matchIfMissing = true)
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
             

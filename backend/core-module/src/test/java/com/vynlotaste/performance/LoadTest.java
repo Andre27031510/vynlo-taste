@@ -1,6 +1,7 @@
 package com.vynlotaste.performance;
 
 import com.vynlotaste.config.MetricsTestConfiguration;
+import com.vynlotaste.config.TestFirebaseConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
-@Import(MetricsTestConfiguration.class)
+@Import({MetricsTestConfiguration.class, TestFirebaseConfig.class})
 @DisplayName("Testes de Carga e Performance - Sistema Robusto")
 class LoadTest {
 

@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -27,6 +29,7 @@ import static org.mockito.Mockito.*;
  * @since 2025-11-03
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)  // PADRÃO BIG TECH: Evita UnnecessaryStubbingException
 @DisplayName("Testes Unitários - EkklesiaExceptionHandler")
 class EkklesiaExceptionHandlerTest {
 
@@ -41,9 +44,10 @@ class EkklesiaExceptionHandlerTest {
 
     @BeforeEach
     void setup() {
-        when(request.getHeader("X-Request-ID")).thenReturn("test-request-id");
-        when(request.getRequestURI()).thenReturn("/api/v1/ekklesia/tithings");
-        when(request.getMethod()).thenReturn("POST");
+        // PADRÃO BIG TECH: Lenient stubbing - evita falhas quando stubs não são usados
+        lenient().when(request.getHeader("X-Request-ID")).thenReturn("test-request-id");
+        lenient().when(request.getRequestURI()).thenReturn("/api/v1/ekklesia/tithings");
+        lenient().when(request.getMethod()).thenReturn("POST");
     }
 
     @Test
