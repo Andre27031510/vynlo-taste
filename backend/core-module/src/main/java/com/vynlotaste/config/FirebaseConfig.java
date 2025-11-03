@@ -1,5 +1,5 @@
 package com.vynlotaste.config;
-// touch: redeploy note (commit 0cc13bc, e32a9a9) - comentário leve sem impacto funcional
+// touch: redeploy note (commit 0cc13bc, e32a9a9, 2fb4255) - comentário leve sem impacto funcional
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
