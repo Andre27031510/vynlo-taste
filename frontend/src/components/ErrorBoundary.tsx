@@ -1,4 +1,5 @@
 'use client'
+// touch: redeploy note (commit 0cc13bc, e32a9a9) - comentário leve sem impacto funcional
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
@@ -90,9 +91,21 @@ class ErrorBoundary extends Component<Props, State> {
 
   private reportError = async (errorData: any) => {
     try {
+      // Log estruturado para observabilidade (Sentry/Datadog pattern)
+      const rootErrorData = {
+        ...errorData,
+        type: this.props.componentName === 'Root Layout' ? 'root_error' : 'component_error',
+        timestamp: new Date().toISOString(),
+        url: typeof window !== 'undefined' ? window.location.href : 'SSR'
+      }
+      
       // Em produção, enviar para serviço de monitoramento
       if (process.env.NODE_ENV === 'production') {
-        // await fetch('/api/errors', { method: 'POST', body: JSON.stringify(errorData) })
+        console.error(`[${rootErrorData.type}]`, rootErrorData)
+        // TODO: Integrar com Sentry/Datadog
+        // await fetch('/api/errors', { method: 'POST', body: JSON.stringify(rootErrorData) })
+      } else {
+        console.error('ErrorBoundary caught error:', rootErrorData)
       }
     } catch (e) {
       console.warn('Failed to report error:', e)

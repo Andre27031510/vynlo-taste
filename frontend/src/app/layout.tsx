@@ -118,26 +118,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {/* PADRÃO BIG TECH: Error Boundary global para capturar React #130 e erros de rede */}
+        {/* touch: redeploy note (commit 0cc13bc, e32a9a9) - comentário leve sem impacto funcional */}
         <ErrorBoundary
           componentName="Root Layout"
           retryCount={3}
-          onError={(error, errorInfo) => {
-            // Log estruturado para observabilidade (Sentry/Datadog pattern)
-            const errorData = {
-              type: 'root_error',
-              message: error.message,
-              stack: error.stack,
-              componentStack: errorInfo.componentStack,
-              timestamp: new Date().toISOString(),
-              url: typeof window !== 'undefined' ? window.location.href : 'SSR'
-            }
-            
-            // Em produção, enviar para monitoramento
-            if (process.env.NODE_ENV === 'production') {
-              // TODO: Integrar com Sentry/Datadog
-              console.error('Root Error:', errorData)
-            }
-          }}
         >
           <QueryProvider>
             <ThemeProvider>

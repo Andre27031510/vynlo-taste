@@ -1,4 +1,5 @@
 # Correções Aplicadas: Failed to Fetch e React Error #130
+<!-- touch: redeploy note (commit 0cc13bc, e32a9a9) - comentário leve sem impacto funcional -->
 
 **Data:** 2025-10-30  
 **Status:** ✅ Implementado seguindo padrões Big Tech

@@ -1,4 +1,5 @@
 package com.vynlotaste.config;
+// touch: redeploy note (commit 0cc13bc, e32a9a9) - comentário leve sem impacto funcional
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

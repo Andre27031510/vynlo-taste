@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-// touch: redeploy note (commit 112b089, d96f8ca, ce2d2e6) - comentário leve sem impacto funcional
+// touch: redeploy note (commit 112b089, d96f8ca, ce2d2e6, 0cc13bc, e32a9a9) - comentário leve sem impacto funcional
 
 // CSP condicional: desenvolvimento vs produção
 const isDevelopment = process.env.NODE_ENV === 'development'
