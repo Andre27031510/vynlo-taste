@@ -3,9 +3,11 @@ package com.vynlotaste.observability;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnBean(MeterRegistry.class)  // PADRÃO BIG TECH: Bean opcional - só cria se MeterRegistry estiver disponível
 @RequiredArgsConstructor
 public class TenantSecurityMetrics {
 

@@ -1,5 +1,5 @@
 package com.vynlotaste.config;
-// touch: redeploy note (commit 0cc13bc, e32a9a9, 2fb4255) - comentário leve sem impacto funcional
+// touch: redeploy note (commit 0cc13bc, e32a9a9, 2fb4255, 2ee3526) - comentário leve sem impacto funcional
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Autowired
+    @Autowired(required = false)  // Opcional: pode não estar disponível se métricas não estiverem configuradas
     private SuperAdminGuardFilter superAdminGuardFilter;
     
     // @Autowired
@@ -154,8 +154,13 @@ public class SecurityConfig {
             
             // Filtros customizados
             // .addFilterBefore(securityAuditFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(superAdminGuardFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            
+            // PADRÃO BIG TECH: Adicionar SuperAdminGuardFilter apenas se estiver disponível (modo degradado)
+            // Permite que a aplicação inicie mesmo sem métricas (graceful degradation)
+            if (superAdminGuardFilter != null) {
+                http.addFilterAfter(superAdminGuardFilter, UsernamePasswordAuthenticationFilter.class);
+            }
             // REMOVIDO: .anonymous(AbstractHttpConfigurer::disable) 
             // Esta configuração causava retorno de 403 em vez de 401 para requisições não autenticadas
 

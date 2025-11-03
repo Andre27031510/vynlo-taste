@@ -118,7 +118,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {/* PADRÃO BIG TECH: Error Boundary global para capturar React #130 e erros de rede */}
-        {/* touch: redeploy note (commit 0cc13bc, e32a9a9, 2fb4255) - comentário leve sem impacto funcional */}
+        {/* touch: redeploy note (commit 0cc13bc, e32a9a9, 2fb4255, 2ee3526) - comentário leve sem impacto funcional */}
         <ErrorBoundary
           componentName="Root Layout"
           retryCount={3}
