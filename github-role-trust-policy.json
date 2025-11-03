@@ -6,16 +6,20 @@
       "Principal": {
         "Federated": "arn:aws:iam::051826695275:oidc-provider/token.actions.githubusercontent.com"
       },
-      "Action": "sts:AssumeRole",
+      "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:Andre27031510/vynlo-taste:*"
+          "token.actions.githubusercontent.com:sub": [
+            "repo:Andre27031510/vynlo-taste:*",
+            "repo:Andre27031510/vynlo-taste:ref:refs/heads/*",
+            "repo:Andre27031510/vynlo-taste:pull_request",
+            "repo:Andre27031510/vynlo-taste:environment:*"
+          ]
         }
       }
     }
   ]
 }
-
