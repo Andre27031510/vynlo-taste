@@ -1,0 +1,56 @@
+-- V1: Migration Histórica (Fake)
+-- PADRÃO BIG TECH: Migration "fake" que marca o estado já existente
+-- Esta migration NÃO executa DDL - apenas documenta o estado histórico
+-- Utilizada para alinhar histórico do Flyway sem mexer diretamente no banco
+-- 
+-- OBJETIVO:
+-- - Ambientes já provisionados: esta migration marca o estado como "já aplicado"
+-- - Ambientes novos: Flyway ignora esta migration (fake) e aplica V2/V3 normalmente
+-- 
+-- Data: 2025-11-03
+-- Autor: Sistema Vynlo Taste
+-- touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional
+
+-- ============================================================================
+-- ESTADO HISTÓRICO DOCUMENTADO (sem DDL)
+-- ============================================================================
+-- As seguintes estruturas já existem em ambientes provisionados anteriormente:
+-- 
+-- ✅ Tabela 'users' (criada em V1__Create_users_table.sql)
+--    - Colunas: id, email, username, first_name, last_name, phone, address, cpf, role, active, email_verified, preferences, profile_image, created_at, updated_at, last_login_at, last_activity_at, deleted_at
+--    - Constraints: users_email_check, users_role_check, users_cpf_check
+--    - Índices: idx_users_email, idx_users_username, idx_users_role, idx_users_active, idx_users_created_at, idx_users_last_activity
+--    - Trigger: update_users_updated_at
+--    - Função: update_updated_at_column()
+-- 
+-- ✅ Tabela 'products' (criada em V2__Create_products_table.sql)
+--    - Colunas: id, name, description, price, image_url, category, available, preparation_time, stock_quantity, min_stock_level, created_at, updated_at, deleted_at
+--    - Constraints: products_price_positive, products_stock_non_negative, products_preparation_time_positive, products_min_stock_non_negative
+--    - Índices: idx_products_name, idx_products_category, idx_products_available, idx_products_price, idx_products_stock, idx_products_created_at, idx_products_category_available, idx_products_low_stock
+--    - Triggers: update_products_updated_at
+--    - Funções: check_low_stock()
+-- 
+-- ✅ Tabela 'orders' (criada em V3__Create_orders_table.sql)
+--    - Colunas: id, order_number, customer_id, status, type, total_amount, delivery_address, notes, estimated_delivery_time, delivered_at, created_at, updated_at, deleted_at
+--    - Constraints: orders_status_check, orders_type_check, orders_total_positive, orders_delivery_address_required
+--    - Foreign Keys: fk_orders_customer
+--    - Índices: idx_orders_customer_id, idx_orders_status, idx_orders_type, idx_orders_created_at, idx_orders_order_number, idx_orders_customer_status, idx_orders_status_created, idx_orders_delivery_time
+--    - Triggers: update_orders_updated_at, generate_order_number_trigger, validate_order_total_trigger
+--    - Funções: generate_order_number(), validate_order_total()
+-- 
+-- ✅ Tabela 'order_items' (criada em V3__Create_orders_table.sql)
+--    - Colunas: id, order_id, product_id, quantity, unit_price, total_price, notes, created_at
+--    - Constraints: order_items_quantity_positive, order_items_unit_price_positive, order_items_total_price_positive, order_items_total_price_calc
+--    - Foreign Keys: fk_order_items_order, fk_order_items_product
+--    - Índices: idx_order_items_order_id, idx_order_items_product_id, idx_order_items_order_product
+-- 
+-- ============================================================================
+-- NOTA: Esta migration NÃO executa nenhum DDL
+-- ============================================================================
+-- Flyway registrará esta migration como "aplicada" sem executar código
+-- Isso permite que ambientes existentes tenham histórico alinhado
+-- ============================================================================
+
+-- Migration fake: sem DDL, apenas documentação
+SELECT 1;
+

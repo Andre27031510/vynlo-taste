@@ -1,9 +1,14 @@
--- V3: Criação das tabelas de pedidos
+-- V3: Criação das tabelas de pedidos (CATCH-UP - Idempotente)
+-- PADRÃO BIG TECH: IF NOT EXISTS para evitar travamentos em ambientes já provisionados
 -- Autor: Sistema Vynlo Taste
 -- Data: 2024-01-03
+-- Atualizado: 2025-11-03 - Tornado idempotente com IF NOT EXISTS
+-- touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional
 
--- Tabela principal de pedidos
-CREATE TABLE orders (
+-- ============================================================================
+-- TABELA ORDERS
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS orders (
     id BIGSERIAL PRIMARY KEY,
     order_number VARCHAR(50) NOT NULL UNIQUE,
     customer_id BIGINT NOT NULL,
@@ -16,22 +21,60 @@ CREATE TABLE orders (
     delivered_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP WITH TIME ZONE,
-    
-    -- Foreign Keys
-    CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES users(id),
-    
-    -- Constraints
-    CONSTRAINT orders_status_check CHECK (status IN ('PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED')),
-    CONSTRAINT orders_type_check CHECK (type IN ('DELIVERY', 'PICKUP', 'DINE_IN')),
-    CONSTRAINT orders_total_positive CHECK (total_amount > 0),
-    CONSTRAINT orders_delivery_address_required CHECK (
-        (type != 'DELIVERY') OR (type = 'DELIVERY' AND delivery_address IS NOT NULL)
-    )
+    deleted_at TIMESTAMP WITH TIME ZONE
 );
 
--- Tabela de itens do pedido
-CREATE TABLE order_items (
+-- ============================================================================
+-- FOREIGN KEYS (Idempotentes)
+-- ============================================================================
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'fk_orders_customer'
+    ) THEN
+        ALTER TABLE orders ADD CONSTRAINT fk_orders_customer 
+            FOREIGN KEY (customer_id) REFERENCES users(id);
+    END IF;
+END $$;
+
+-- ============================================================================
+-- CONSTRAINTS (Idempotentes)
+-- ============================================================================
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'orders_status_check'
+    ) THEN
+        ALTER TABLE orders ADD CONSTRAINT orders_status_check 
+            CHECK (status IN ('PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELLED'));
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'orders_type_check'
+    ) THEN
+        ALTER TABLE orders ADD CONSTRAINT orders_type_check 
+            CHECK (type IN ('DELIVERY', 'PICKUP', 'DINE_IN'));
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'orders_total_positive'
+    ) THEN
+        ALTER TABLE orders ADD CONSTRAINT orders_total_positive 
+            CHECK (total_amount > 0);
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'orders_delivery_address_required'
+    ) THEN
+        ALTER TABLE orders ADD CONSTRAINT orders_delivery_address_required 
+            CHECK ((type != 'DELIVERY') OR (type = 'DELIVERY' AND delivery_address IS NOT NULL));
+    END IF;
+END $$;
+
+-- ============================================================================
+-- TABELA ORDER_ITEMS
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS order_items (
     id BIGSERIAL PRIMARY KEY,
     order_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
@@ -39,43 +82,85 @@ CREATE TABLE order_items (
     unit_price DECIMAL(10,2) NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Foreign Keys
-    CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products(id),
-    
-    -- Constraints
-    CONSTRAINT order_items_quantity_positive CHECK (quantity > 0),
-    CONSTRAINT order_items_unit_price_positive CHECK (unit_price > 0),
-    CONSTRAINT order_items_total_price_positive CHECK (total_price > 0),
-    CONSTRAINT order_items_total_price_calc CHECK (total_price = quantity * unit_price)
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Índices para orders
-CREATE INDEX idx_orders_customer_id ON orders(customer_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_orders_status ON orders(status) WHERE deleted_at IS NULL;
-CREATE INDEX idx_orders_type ON orders(type) WHERE deleted_at IS NULL;
-CREATE INDEX idx_orders_created_at ON orders(created_at);
-CREATE INDEX idx_orders_order_number ON orders(order_number) WHERE deleted_at IS NULL;
+-- ============================================================================
+-- FOREIGN KEYS PARA ORDER_ITEMS (Idempotentes)
+-- ============================================================================
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'fk_order_items_order'
+    ) THEN
+        ALTER TABLE order_items ADD CONSTRAINT fk_order_items_order 
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE;
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'fk_order_items_product'
+    ) THEN
+        ALTER TABLE order_items ADD CONSTRAINT fk_order_items_product 
+            FOREIGN KEY (product_id) REFERENCES products(id);
+    END IF;
+END $$;
 
--- Índices compostos para queries frequentes
-CREATE INDEX idx_orders_customer_status ON orders(customer_id, status) WHERE deleted_at IS NULL;
-CREATE INDEX idx_orders_status_created ON orders(status, created_at) WHERE deleted_at IS NULL;
-CREATE INDEX idx_orders_delivery_time ON orders(estimated_delivery_time) WHERE deleted_at IS NULL;
+-- ============================================================================
+-- CONSTRAINTS PARA ORDER_ITEMS (Idempotentes)
+-- ============================================================================
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'order_items_quantity_positive'
+    ) THEN
+        ALTER TABLE order_items ADD CONSTRAINT order_items_quantity_positive 
+            CHECK (quantity > 0);
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'order_items_unit_price_positive'
+    ) THEN
+        ALTER TABLE order_items ADD CONSTRAINT order_items_unit_price_positive 
+            CHECK (unit_price > 0);
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'order_items_total_price_positive'
+    ) THEN
+        ALTER TABLE order_items ADD CONSTRAINT order_items_total_price_positive 
+            CHECK (total_price > 0);
+    END IF;
+    
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'order_items_total_price_calc'
+    ) THEN
+        ALTER TABLE order_items ADD CONSTRAINT order_items_total_price_calc 
+            CHECK (total_price = quantity * unit_price);
+    END IF;
+END $$;
 
--- Índices para order_items
-CREATE INDEX idx_order_items_order_id ON order_items(order_id);
-CREATE INDEX idx_order_items_product_id ON order_items(product_id);
-CREATE INDEX idx_order_items_order_product ON order_items(order_id, product_id);
+-- ============================================================================
+-- ÍNDICES PARA ORDERS (Idempotentes)
+-- ============================================================================
+CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_type ON orders(type) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_customer_status ON orders(customer_id, status) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_status_created ON orders(status, created_at) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_orders_delivery_time ON orders(estimated_delivery_time) WHERE deleted_at IS NULL;
 
--- Triggers
-CREATE TRIGGER update_orders_updated_at 
-    BEFORE UPDATE ON orders 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
+-- ============================================================================
+-- ÍNDICES PARA ORDER_ITEMS (Idempotentes)
+-- ============================================================================
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_product ON order_items(order_id, product_id);
 
--- Função para gerar número do pedido
+-- ============================================================================
+-- FUNÇÕES (Idempotentes - CREATE OR REPLACE)
+-- ============================================================================
 CREATE OR REPLACE FUNCTION generate_order_number()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -86,12 +171,6 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER generate_order_number_trigger
-    BEFORE INSERT ON orders
-    FOR EACH ROW
-    EXECUTE FUNCTION generate_order_number();
-
--- Função para validar total do pedido
 CREATE OR REPLACE FUNCTION validate_order_total()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -111,12 +190,30 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- ============================================================================
+-- TRIGGERS (Idempotentes - DROP IF EXISTS antes de criar)
+-- ============================================================================
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
+CREATE TRIGGER update_orders_updated_at 
+    BEFORE UPDATE ON orders 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS generate_order_number_trigger ON orders;
+CREATE TRIGGER generate_order_number_trigger
+    BEFORE INSERT ON orders
+    FOR EACH ROW
+    EXECUTE FUNCTION generate_order_number();
+
+DROP TRIGGER IF EXISTS validate_order_total_trigger ON order_items;
 CREATE TRIGGER validate_order_total_trigger
     AFTER INSERT OR UPDATE OR DELETE ON order_items
     FOR EACH ROW
     EXECUTE FUNCTION validate_order_total();
 
--- Comentários
+-- ============================================================================
+-- COMENTÁRIOS (Idempotentes)
+-- ============================================================================
 COMMENT ON TABLE orders IS 'Tabela principal de pedidos';
 COMMENT ON TABLE order_items IS 'Itens dos pedidos';
 COMMENT ON COLUMN orders.order_number IS 'Número único do pedido gerado automaticamente';

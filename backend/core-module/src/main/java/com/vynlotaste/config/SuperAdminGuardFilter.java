@@ -9,12 +9,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
+// PADRÃO BIG TECH: Filtro NÃO é @Component - será criado manualmente no SecurityConfig apenas se necessário
+// Isso evita que o Spring tente registrá-lo automaticamente durante ServletContextInitializerBeans
+// Métricas são opcionais via ObjectProvider.getIfAvailable()
 public class SuperAdminGuardFilter extends OncePerRequestFilter {
 
     private final ObjectProvider<TenantSecurityMetrics> metricsProvider;

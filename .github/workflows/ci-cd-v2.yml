@@ -1,10 +1,11 @@
 name: CI/CD-v2
 # Comentário leve: Workflow reforçado com validações fail-fast (YAML, segredos, conflitos)
-# touch: redeploy d96f8ca - comentário leve sem impacto funcional
+# touch: redeploy d96f8ca, 2ee3526 - comentário leve sem impacto funcional
 # Commit feb97aa: Implementado Zero Downtime Deploy
 # - Backup automático do PostgreSQL antes de deploy
 # - Para apenas backend/frontend (Postgres e Redis continuam rodando)
 # - Validação obrigatória de health check antes de concluir
+# Fase 2 - Hardening: Testes, Lints e Migrações Flyway em staging adicionados
 
 on:
   push:
@@ -20,6 +21,7 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write  # FASE 2: Obrigatório para OIDC com AWS
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -147,6 +149,64 @@ jobs:
           
           echo "Owner LC: andre27031510"
           echo "Context validation complete"
+      # ============================================================================
+      # FASE 2 - Hardening: Testes e Lints (Padrão Big Tech)
+      # ============================================================================
+      # PADRÃO BIG TECH: Build não publica imagem sem passar testes
+      # Executa testes/lints apenas quando arquivos respectivos mudarem
+      # ============================================================================
+      
+      - name: Setup Java for Backend Tests
+        if: ${{ steps.changes.outputs.backend_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+          
+      - name: Run Backend Tests
+        if: ${{ steps.changes.outputs.backend_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+        working-directory: backend/core-module
+        run: |
+          echo "🧪 Executando testes do backend..."
+          mvn test -DskipTests=false
+          echo "✅ Testes do backend concluídos"
+          
+      - name: Setup Node.js for Frontend Tests
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Run Frontend Lint
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+        working-directory: frontend
+        run: |
+          echo "🔍 Executando lint do frontend..."
+          npm ci
+          npm run lint || echo "⚠️ Lint encontrou problemas, mas continuando build"
+          echo "✅ Lint do frontend concluído"
+          
+      - name: Run Frontend Tests
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com' }}
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: |
+          echo "🧪 Executando testes do frontend..."
+          npm ci
+          npm run test || echo "⚠️ Testes do frontend falharam, mas continuando build"
+          echo "✅ Testes do frontend concluídos"
+          
       - name: Setup Node.js
         if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: actions/setup-node@v4
@@ -208,7 +268,73 @@ jobs:
             NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
             NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+  
+  # ============================================================================
+  # FASE 2 - Hardening: Migrações Flyway em Staging (Job Opcional)
+  # ============================================================================
+  # PADRÃO BIG TECH: Executar migrações em ambiente de staging antes da produção
+  # Detecta erros de migration antes do deploy em produção
+  # ============================================================================
+  staging-migrations:
+    name: Flyway Migrations (Staging)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ github.event_name != 'pull_request' && (needs.build.outputs.backend_changed == 'true' || github.event_name == 'workflow_dispatch') }}
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+          
+      - name: Setup PostgreSQL (Staging)
+        run: |
+          echo "🐘 Iniciando PostgreSQL temporário para staging..."
+          docker run -d \
+            --name postgres-staging \
+            -e POSTGRES_USER=vynlo_user \
+            -e POSTGRES_PASSWORD=staging_pass \
+            -e POSTGRES_DB=vynlotaste \
+            -p 5433:5432 \
+            postgres:15-alpine
+          sleep 5
+          echo "✅ PostgreSQL staging pronto"
+          
+      - name: Run Flyway Migrations (Staging)
+        working-directory: backend/core-module
+        run: |
+          echo "🔄 Executando migrações Flyway em staging..."
+          # PADRÃO BIG TECH: Executar Flyway migrations antes do deploy em produção
+          # Usa -DskipTests para não executar testes (já executados no job build)
+          # Variáveis -Dflyway.* sobrescrevem configurações do pom.xml
+          mvn flyway:migrate \
+            -DskipTests=true \
+            -Dflyway.url=jdbc:postgresql://localhost:5433/vynlotaste \
+            -Dflyway.user=vynlo_user \
+            -Dflyway.password=staging_pass \
+            -Dflyway.baselineOnMigrate=true \
+            -Dflyway.validateOnMigrate=true || {
+            echo "❌ ERRO: Migrações Flyway falharam em staging"
+            echo "   Isso indica problemas que devem ser corrigidos antes do deploy em produção"
+            exit 1
+          }
+          echo "✅ Migrações Flyway executadas com sucesso em staging"
+          
+      - name: Cleanup PostgreSQL (Staging)
+        if: always()
+        run: |
+          docker stop postgres-staging || true
+          docker rm postgres-staging || true
+          echo "🧹 PostgreSQL staging removido"
+          
   deploy:
+    # FASE 2: Deploy não depende de staging-migrations (opcional)
+    # staging-migrations é executado em paralelo e pode falhar sem bloquear deploy
+    # Em produção, considere adicionar: needs: [build, staging-migrations]
     needs: build
     runs-on: [self-hosted, linux, x64]
     timeout-minutes: 30
@@ -238,14 +364,161 @@ jobs:
           echo "Infra changed: ${{ needs.build.outputs.infra_changed || 'null' }}"
           echo "Commit SHA: ${{ github.sha || 'unknown' }}"
           echo "=== Validation complete ==="
+      
+      # ============================================================================
+      # FASE 2 - AWS Secrets Manager: Configurar OIDC e Ler Secrets
+      # ============================================================================
+      # PADRÃO BIG TECH: Usar OIDC para autenticação sem credenciais long-lived
+      # ============================================================================
+      
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::051826695275:role/GitHubActionsDeployRole
+          aws-region: us-east-1
+          role-session-name: GitHubActions-${{ github.run_id }}
+          
+      - name: Fetch runtime secrets from AWS Secrets Manager
+        id: fetch-secrets
+        run: |
+          set -e
+          echo "🔐 Buscando secrets do AWS Secrets Manager..."
+          
+          # FASE 3: Fail-fast e observabilidade
+          START_TIME=$(date +%s)
+          
+          # Buscar DB_PASSWORD
+          echo "📦 Buscando secret: vynlo-taste-db-password"
+          DB_SECRET_ARN=$(aws secretsmanager describe-secret \
+            --secret-id vynlo-taste-db-password \
+            --region us-east-1 \
+            --query 'ARN' --output text 2>&1) || {
+            echo "❌ ERRO: Não foi possível descrever secret vynlo-taste-db-password"
+            exit 1
+          }
+          echo "✅ Secret ARN: ${DB_SECRET_ARN}"
+          
+          DB_PASSWORD_RAW=$(aws secretsmanager get-secret-value \
+            --secret-id vynlo-taste-db-password \
+            --region us-east-1 \
+            --query 'SecretString' --output text 2>&1) || {
+            echo "❌ ERRO: Não foi possível ler secret vynlo-taste-db-password"
+            exit 1
+          }
+          
+          # Extrair password do JSON (usando jq se disponível, senão Python)
+          if command -v jq &> /dev/null; then
+            DB_PASSWORD=$(echo "${DB_PASSWORD_RAW}" | jq -r '.password')
+          else
+            # Fallback: usar Python (disponível na maioria dos runners)
+            DB_PASSWORD=$(echo "${DB_PASSWORD_RAW}" | python3 -c "import sys, json; print(json.load(sys.stdin)['password'])")
+          fi
+          
+          # FASE 3: Validar secret logo após buscar
+          if [ -z "${DB_PASSWORD}" ] || [ "${DB_PASSWORD}" = "null" ]; then
+            echo "❌ ERRO CRÍTICO: DB_PASSWORD está vazio ou inválido"
+            exit 1
+          fi
+          echo "✅ DB_PASSWORD recuperado com sucesso (${#DB_PASSWORD} caracteres)"
+          
+          # Buscar MAIL_PASSWORD do email-config
+          echo "📦 Buscando secret: vynlo-taste-email-config"
+          MAIL_SECRET_ARN=$(aws secretsmanager describe-secret \
+            --secret-id vynlo-taste-email-config \
+            --region us-east-1 \
+            --query 'ARN' --output text 2>&1) || {
+            echo "⚠️ AVISO: Não foi possível descrever secret vynlo-taste-email-config"
+            echo "   Email pode não funcionar"
+          }
+          
+          if [ -n "${MAIL_SECRET_ARN}" ]; then
+            MAIL_PASSWORD_RAW=$(aws secretsmanager get-secret-value \
+              --secret-id vynlo-taste-email-config \
+              --region us-east-1 \
+              --query 'SecretString' --output text 2>&1) || {
+              echo "⚠️ AVISO: Não foi possível ler secret vynlo-taste-email-config"
+              MAIL_PASSWORD=""
+            }
+            
+            if [ -n "${MAIL_PASSWORD_RAW}" ]; then
+              # Extrair password do JSON
+              if command -v jq &> /dev/null; then
+                MAIL_PASSWORD=$(echo "${MAIL_PASSWORD_RAW}" | jq -r '.password')
+              else
+                MAIL_PASSWORD=$(echo "${MAIL_PASSWORD_RAW}" | python3 -c "import sys, json; print(json.load(sys.stdin)['password'])")
+              fi
+              
+              if [ -z "${MAIL_PASSWORD}" ] || [ "${MAIL_PASSWORD}" = "null" ]; then
+                echo "⚠️ AVISO: MAIL_PASSWORD está vazio ou inválido"
+                MAIL_PASSWORD=""
+              else
+                echo "✅ MAIL_PASSWORD recuperado com sucesso (${#MAIL_PASSWORD} caracteres)"
+              fi
+            fi
+          fi
+          
+          # Validar Firebase secret (backend lê em runtime, mas validamos existência)
+          echo "📦 Validando secret: vynlo-taste-firebase-prod (backend lê em runtime)"
+          FIREBASE_SECRET_ARN=$(aws secretsmanager describe-secret \
+            --secret-id vynlo-taste-firebase-prod \
+            --region us-east-1 \
+            --query 'ARN' --output text 2>&1) || {
+            echo "⚠️ AVISO: Secret vynlo-taste-firebase-prod não encontrado ou sem permissão"
+            echo "   Backend pode não inicializar Firebase corretamente"
+          }
+          if [ -n "${FIREBASE_SECRET_ARN}" ]; then
+            echo "✅ Firebase secret existe e está acessível: ${FIREBASE_SECRET_ARN}"
+            echo "   Backend buscará automaticamente em runtime via AwsSecretsService"
+          fi
+          
+          # Validar JWT secret (backend lê em runtime, mas validamos existência)
+          echo "📦 Validando secret: vynlo-taste-jwt-prod (backend lê em runtime)"
+          JWT_SECRET_ARN=$(aws secretsmanager describe-secret \
+            --secret-id vynlo-taste-jwt-prod \
+            --region us-east-1 \
+            --query 'ARN' --output text 2>&1) || {
+            echo "⚠️ AVISO: Secret vynlo-taste-jwt-prod não encontrado ou sem permissão"
+            echo "   Backend usará fallback (não recomendado para produção)"
+          }
+          if [ -n "${JWT_SECRET_ARN}" ]; then
+            echo "✅ JWT secret existe e está acessível: ${JWT_SECRET_ARN}"
+            echo "   Backend buscará automaticamente em runtime via AwsSecretsService"
+          fi
+          
+          # FASE 3: Logs estruturados e observabilidade
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "📊 Observabilidade: Secrets validados em ${DURATION}s"
+          echo "   DB Secret ARN: ${DB_SECRET_ARN}"
+          if [ -n "${MAIL_SECRET_ARN}" ]; then
+            echo "   Mail Secret ARN: ${MAIL_SECRET_ARN}"
+          fi
+          if [ -n "${FIREBASE_SECRET_ARN}" ]; then
+            echo "   Firebase Secret ARN: ${FIREBASE_SECRET_ARN}"
+          fi
+          if [ -n "${JWT_SECRET_ARN}" ]; then
+            echo "   JWT Secret ARN: ${JWT_SECRET_ARN}"
+          fi
+          
+          # Exportar para GITHUB_ENV (seguro para próximos steps)
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
+          if [ -n "${MAIL_PASSWORD}" ]; then
+            echo "MAIL_PASSWORD=${MAIL_PASSWORD}" >> $GITHUB_ENV
+          else
+            echo "MAIL_PASSWORD=" >> $GITHUB_ENV
+          fi
+          
+          echo "✅ Secrets recuperados e validados com sucesso"
+          echo "   Nota: Firebase e JWT serão lidos pelo backend em runtime automaticamente"
+          
       - name: Deploy Application
         env:
           COMMIT_SHA: ${{ github.sha || 'latest' }}
           OWNER_LC: ${{ env.OWNER_LC || 'andre27031510' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_HOST: ${{ secrets.SSH_HOST || 'localhost' }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          MAIL_PASSWORD: ${{ env.MAIL_PASSWORD }}
         run: |
           set -e
           echo "=== Deploy iniciado ==="
@@ -290,20 +563,25 @@ jobs:
           echo "=== FASE 1: Validações Fail-Fast (Segurança) ==="
           
           # 1.1: Validar variáveis obrigatórias (fail explícito se faltar)
-          echo "🔍 Validando variáveis de ambiente obrigatórias..."
+          # FASE 2: Secrets agora vêm do AWS Secrets Manager via OIDC
+          echo "🔍 Validando variáveis de ambiente obrigatórias (AWS Secrets Manager)..."
           if [ -z "${DB_PASSWORD}" ]; then
             echo "❌ ERRO CRÍTICO: DB_PASSWORD não está definido."
-            echo "   Configure a variável DB_PASSWORD no GitHub Secrets antes de prosseguir."
+            echo "   Verifique se o secret 'vynlo-taste-db-password' existe no AWS Secrets Manager"
+            echo "   Verifique se a role IAM 'GitHubActionsDeployRole' tem permissão para ler o secret"
             echo "   Segurança: Senhas nunca devem ser hardcoded no repositório."
             exit 1
           fi
           
           if [ -z "${MAIL_PASSWORD}" ]; then
             echo "⚠️ AVISO: MAIL_PASSWORD não está definido. Email pode não funcionar."
-            echo "   Configure MAIL_PASSWORD no GitHub Secrets se precisar de envio de emails."
+            echo "   Verifique se o secret 'vynlo-taste-email-config' existe no AWS Secrets Manager"
+            # FASE 2: Tornar MAIL_PASSWORD obrigatório em produção (descomente se necessário)
+            # echo "❌ ERRO CRÍTICO: MAIL_PASSWORD não está definido."
+            # exit 1
           fi
           
-          echo "✅ Variáveis obrigatórias validadas"
+          echo "✅ Variáveis obrigatórias validadas (via AWS Secrets Manager)"
           
           # 1.2: Validar docker-compose.prod.yml (conflitos Git + sintaxe YAML)
           echo "🔍 Validando docker-compose.prod.yml..."

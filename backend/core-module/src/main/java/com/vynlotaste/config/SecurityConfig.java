@@ -1,9 +1,12 @@
 package com.vynlotaste.config;
 // touch: redeploy note (commit 0cc13bc, e32a9a9, 2fb4255, 2ee3526) - comentário leve sem impacto funcional
 
+import com.vynlotaste.observability.TenantSecurityMetrics;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,12 +34,17 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
+@org.springframework.core.annotation.Order(2)  // PADRÃO BIG TECH: Ordem após ActuatorSecurityConfig (@Order(1))
 public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    @Autowired(required = false)  // Opcional: pode não estar disponível se métricas não estiverem configuradas
-    private SuperAdminGuardFilter superAdminGuardFilter;
+    
+    @Autowired
+    private ObjectProvider<TenantSecurityMetrics> tenantSecurityMetricsProvider;
+    
+    @Autowired
+    private Environment environment;
     
     // @Autowired
     // private SecurityAuditFilter securityAuditFilter;
@@ -156,9 +164,12 @@ public class SecurityConfig {
             // .addFilterBefore(securityAuditFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             
-            // PADRÃO BIG TECH: Adicionar SuperAdminGuardFilter apenas se estiver disponível (modo degradado)
+            // PADRÃO BIG TECH: Criar e adicionar SuperAdminGuardFilter apenas se métricas estiverem disponíveis
             // Permite que a aplicação inicie mesmo sem métricas (graceful degradation)
-            if (superAdminGuardFilter != null) {
+            TenantSecurityMetrics metrics = tenantSecurityMetricsProvider.getIfAvailable();
+            if (metrics != null) {
+                SuperAdminGuardFilter superAdminGuardFilter = new SuperAdminGuardFilter(
+                    tenantSecurityMetricsProvider, environment);
                 http.addFilterAfter(superAdminGuardFilter, UsernamePasswordAuthenticationFilter.class);
             }
             // REMOVIDO: .anonymous(AbstractHttpConfigurer::disable) 
