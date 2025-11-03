@@ -1,4 +1,5 @@
 package com.vynlotaste.controller.church;
+// touch: redeploy note (commit 112b089) - comentário leve sem impacto funcional
 
 import com.vynlotaste.entity.church.Tithing;
 import com.vynlotaste.service.church.TithingService;

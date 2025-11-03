@@ -1,4 +1,5 @@
 name: CI/CD-v2
+# Comentário leve: Workflow reforçado com validações fail-fast (YAML, segredos, conflitos)
 # Commit feb97aa: Implementado Zero Downtime Deploy
 # - Backup automático do PostgreSQL antes de deploy
 # - Para apenas backend/frontend (Postgres e Redis continuam rodando)
@@ -274,35 +275,116 @@ jobs:
           
           cd ~/app
           
-          echo "=== Verificando imagens ==="
+          # ============================================================================
+          # FASE 1: VALIDAÇÕES FAIL-FAST (antes de qualquer operação)
+          # ============================================================================
+          # Padrão Big Tech: Validar configuração antes de parar serviços
+          # Previne downtime desnecessário e rollback custoso
+          # ============================================================================
+          # Comentário: Bloco adicionado para impedir deploy com compose inválido ou segredos ausentes
+          
+          echo "=== FASE 1: Validações Fail-Fast (Segurança) ==="
+          
+          # 1.1: Validar variáveis obrigatórias (fail explícito se faltar)
+          echo "🔍 Validando variáveis de ambiente obrigatórias..."
+          if [ -z "${DB_PASSWORD}" ]; then
+            echo "❌ ERRO CRÍTICO: DB_PASSWORD não está definido."
+            echo "   Configure a variável DB_PASSWORD no GitHub Secrets antes de prosseguir."
+            echo "   Segurança: Senhas nunca devem ser hardcoded no repositório."
+            exit 1
+          fi
+          
+          if [ -z "${MAIL_PASSWORD}" ]; then
+            echo "⚠️ AVISO: MAIL_PASSWORD não está definido. Email pode não funcionar."
+            echo "   Configure MAIL_PASSWORD no GitHub Secrets se precisar de envio de emails."
+          fi
+          
+          echo "✅ Variáveis obrigatórias validadas"
+          
+          # 1.2: Validar docker-compose.prod.yml (conflitos Git + sintaxe YAML)
+          echo "🔍 Validando docker-compose.prod.yml..."
+          if [ ! -f "docker-compose.prod.yml" ]; then
+            echo "❌ ERRO: docker-compose.prod.yml não encontrado em ~/app"
+            exit 1
+          fi
+          
+          # Detectar conflitos de merge Git
+          if grep -nE '<<<<<<<|=======|>>>>>>>' docker-compose.prod.yml >/dev/null 2>&1; then
+            echo "❌ ERRO CRÍTICO: docker-compose.prod.yml contém marcadores de conflito de merge Git"
+            echo ""
+            echo "   Linhas com conflitos:"
+            grep -nE '<<<<<<<|=======|>>>>>>>' docker-compose.prod.yml | head -10
+            echo ""
+            echo "🔧 Como corrigir:"
+            echo "   1. Remova todas as linhas com <<<<<<< HEAD, =======, >>>>>>> origin/main"
+            echo "   2. Mantenha apenas a versão correta do código"
+            echo "   3. Valide com: docker compose -f docker-compose.prod.yml config -q"
+            echo ""
+            echo "   Exemplo (sed no servidor):"
+            echo "   sed -i '/<<<<<<< HEAD/,/>>>>>>> origin\/main/d' docker-compose.prod.yml"
+            echo ""
+            exit 1
+          fi
+          
+          echo "✅ Nenhum conflito Git detectado"
+          
+          # Validar sintaxe YAML (requer variáveis de ambiente setadas)
+          # Exportar variáveis temporárias para validação
+          export DB_PASSWORD="${DB_PASSWORD}"
+          export MAIL_PASSWORD="${MAIL_PASSWORD:-placeholder}"
+          export BACKEND_TAG="${BACKEND_TAG:-latest}"
+          export FRONTEND_TAG="${FRONTEND_TAG:-latest}"
+          
+          # Validar sintaxe YAML (captura erro corretamente) — impede replicar erro "line 8: expected ':'"
+          COMPOSE_ERROR=$(docker compose -f docker-compose.prod.yml config -q 2>&1) || COMPOSE_EXIT_CODE=$?
+          if [ "${COMPOSE_EXIT_CODE:-0}" != "0" ]; then
+            echo "❌ ERRO CRÍTICO: docker-compose.prod.yml tem erro de sintaxe YAML"
+            echo ""
+            echo "   Detalhes do erro:"
+            echo "${COMPOSE_ERROR}"
+            echo ""
+            echo "🔧 Como corrigir:"
+            echo "   1. Valide o YAML com: docker compose -f docker-compose.prod.yml config"
+            echo "   2. Verifique indentação, aspas, dois-pontos, etc."
+            echo "   3. Garanta que todas as variáveis obrigatórias estão definidas"
+            echo ""
+            exit 1
+          fi
+          
+          echo "✅ docker-compose.prod.yml válido (sintaxe YAML correta)"
+          echo ""
+          echo "✅ FASE 1 concluída: Todas as validações passaram"
+          echo ""
+          
+          # ============================================================================
+          # FASE 2: VERIFICAÇÃO DE IMAGENS E PREPARAÇÃO
+          # ============================================================================
+          
+          echo "=== FASE 2: Verificando disponibilidade de imagens ==="
           BACKEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-backend:${{ github.sha }} > /dev/null 2>&1 && echo "true" || echo "false")
           FRONTEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-frontend:${{ github.sha }} > /dev/null 2>&1 && echo "true" || echo "false")
           
           if [ "$BACKEND_EXISTS" = "false" ]; then
-            echo "⚠️ Imagem backend não encontrada, usando latest"
+            echo "⚠️ Imagem backend não encontrada para commit ${{ github.sha }}, usando latest"
             export BACKEND_TAG="latest"
           else
             export BACKEND_TAG="${{ github.sha }}"
+            echo "✅ Imagem backend encontrada: ${BACKEND_TAG}"
           fi
           
           if [ "$FRONTEND_EXISTS" = "false" ]; then
-            echo "⚠️ Imagem frontend não encontrada, usando latest"
+            echo "⚠️ Imagem frontend não encontrada para commit ${{ github.sha }}, usando latest"
             export FRONTEND_TAG="latest"
           else
             export FRONTEND_TAG="${{ github.sha }}"
+            echo "✅ Imagem frontend encontrada: ${FRONTEND_TAG}"
           fi
           
-          # Commit feb97aa: Zero Downtime Deploy - Backup automático + parada seletiva
-          echo "=== Backup do banco de dados (segurança) ==="
-          docker exec vynlo-postgres pg_dump -U vynlo_user vynlotaste > backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql 2>/dev/null || echo "⚠️ Backup falhou ou BD não está rodando"
+          echo "📦 BACKEND_TAG=${BACKEND_TAG}"
+          echo "📦 FRONTEND_TAG=${FRONTEND_TAG}"
+          echo ""
           
-          # Commit feb97aa: Para APENAS apps - DB/Cache continuam rodando = 0s downtime
-          echo "=== Parando APENAS backend e frontend (Zero Downtime) ==="
-          docker compose -f docker-compose.prod.yml stop backend frontend 2>/dev/null || true
-          docker rm vynlo-backend vynlo-frontend 2>/dev/null || true
-          echo "✅ Postgres, Redis, Prometheus e Grafana continuam rodando"
-          
-          echo "=== Baixando novas imagens ==="
+          echo "=== FASE 2: Baixando novas imagens (sem parar serviços ainda) ==="
           # Fase 2: docker-compose pull requer variáveis de ambiente definidas (BACKEND_TAG, FRONTEND_TAG)
           # Estas já foram exportadas acima e estão disponíveis no ambiente
           for i in {1..3}; do
@@ -313,9 +395,26 @@ jobs:
               sleep 10
             fi
           done
+          echo "✅ Imagens verificadas/baixadas com sucesso"
+          echo ""
           
-          echo "=== Iniciando containers (Backend e Frontend) ==="
+          # ============================================================================
+          # FASE 3: BACKUP E DEPLOY (Zero Downtime)
+          # ============================================================================
+          
+          # Commit feb97aa: Zero Downtime Deploy - Backup automático + parada seletiva
+          echo "=== FASE 3: Backup do banco de dados (segurança) ==="
+          docker exec vynlo-postgres pg_dump -U vynlo_user vynlotaste > backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql 2>/dev/null || echo "⚠️ Backup falhou ou BD não está rodando"
+
+          # Commit feb97aa: Para APENAS apps - DB/Cache continuam rodando = 0s downtime
+          echo "=== FASE 3: Parando APENAS backend e frontend (Zero Downtime) ==="
+          docker compose -f docker-compose.prod.yml stop backend frontend 2>/dev/null || true
+          docker rm vynlo-backend vynlo-frontend 2>/dev/null || true
+          echo "✅ Postgres, Redis, Prometheus e Grafana continuam rodando"
+          
+          echo "=== FASE 3: Iniciando containers (Backend e Frontend) ==="
           docker compose -f docker-compose.prod.yml up -d backend frontend --remove-orphans
+          echo ""
           
           echo "=== Containers ativos ==="
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

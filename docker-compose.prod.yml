@@ -1,11 +1,13 @@
 services:
+# Atualizado: validação fail-fast e eliminação de segredos hardcoded
+# Motivo: evitar novos incidentes de YAML inválido e manter segredos fora do repositório
   postgres:
     image: postgres:15-alpine
     container_name: vynlo-postgres
     environment:
       POSTGRES_DB: vynlotaste
       POSTGRES_USER: vynlo_user
-      # Fase 2: Usar variável de ambiente para segurança
+      # Nota: senha obtida via variável de ambiente (nunca hardcode)
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"

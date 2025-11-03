@@ -1,3 +1,4 @@
+# touch: redeploy note (commit 112b089) - comentário leve sem impacto funcional
 spring:
   application:
     name: vynlo-taste
