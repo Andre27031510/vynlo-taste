@@ -1,3 +1,4 @@
+// touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
