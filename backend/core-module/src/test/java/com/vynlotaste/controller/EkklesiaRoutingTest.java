@@ -1,12 +1,14 @@
 package com.vynlotaste.controller;
-// touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional - atualizado para forçar push
+// touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push
 
+import com.vynlotaste.config.MetricsTestConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -38,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
+@Import(MetricsTestConfiguration.class)
 @AutoConfigureMockMvc
 @DisplayName("Testes de Roteamento Ekklesia - Fase 3")
 class EkklesiaRoutingTest {

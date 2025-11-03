@@ -1,5 +1,6 @@
 package com.vynlotaste.service.church;
 
+import com.vynlotaste.config.MetricsTestConfiguration;
 import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.entity.church.Member;
 import com.vynlotaste.entity.church.Tithing;
@@ -7,6 +8,7 @@ import com.vynlotaste.repository.church.MemberRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -15,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
+@Import(MetricsTestConfiguration.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EkklesiaTenantIsolationTest {
 

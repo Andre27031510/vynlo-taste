@@ -1,10 +1,11 @@
 package com.vynlotaste.config;
+// touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push
 
 import com.vynlotaste.context.TenantContext;
 import com.vynlotaste.observability.TenantSecurityMetrics;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -15,10 +16,16 @@ import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
-@RequiredArgsConstructor
 public class EkklesiaExceptionHandler {
 
+    // PADRÃO BIG TECH: Bean opcional - permite modo degradado se TenantSecurityMetrics não estiver disponível
+    // @Autowired(required=false) permite que a aplicação inicie mesmo sem métricas configuradas
     private final TenantSecurityMetrics metrics;
+
+    // Construtor com injeção opcional (fallback para graceful degradation)
+    public EkklesiaExceptionHandler(@Autowired(required = false) TenantSecurityMetrics metrics) {
+        this.metrics = metrics;
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
@@ -31,7 +38,10 @@ public class EkklesiaExceptionHandler {
             String method = request.getMethod();
             Long tenantId = TenantContext.getCurrentTenantId();
 
-            metrics.incrementMismatch("tenant_mismatch", uri, method);
+            // PADRÃO BIG TECH: Null-safe check - incrementa métricas apenas se disponível
+            if (metrics != null) {
+                metrics.incrementMismatch("tenant_mismatch", uri, method);
+            }
             log.warn("SECURITY_TENANT_MISMATCH requestId={} uri={} method={} tenantId={} msg={}",
                     requestId, uri, method, tenantId, message);
 

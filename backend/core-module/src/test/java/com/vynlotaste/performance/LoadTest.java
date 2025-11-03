@@ -1,10 +1,12 @@
 package com.vynlotaste.performance;
 
+import com.vynlotaste.config.MetricsTestConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = com.vynlotaste.core.CoreModuleApplication.class)
 @ActiveProfiles("test")
+@Import(MetricsTestConfiguration.class)
 @DisplayName("Testes de Carga e Performance - Sistema Robusto")
 class LoadTest {
 
