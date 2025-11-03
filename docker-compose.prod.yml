@@ -5,8 +5,8 @@ services:
     environment:
       POSTGRES_DB: vynlotaste
       POSTGRES_USER: vynlo_user
-      # Fase 2: Usar variável de ambiente para segurança
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      # Fase 2: Usar variável de ambiente para segurança (falha se não definido)
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD not set}
     ports:
       - "5432:5432"
     volumes:
@@ -35,29 +35,28 @@ services:
     networks:
       - vynlo-network
 
-  backend:
-    # Fase 2: Tag parametrizada via BACKEND_TAG (commit SHA) para deploy seguro
-    image: ghcr.io/andre27031510/vynlotaste-backend:${BACKEND_TAG:-latest}
-    container_name: vynlo-backend
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SSL_ENABLED: "false"
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: vynlotaste
-      DB_USERNAME: vynlo_user
-      DB_PASSWORD: ${DB_PASSWORD}
-      REDIS_HOST: redis
-      SPRING_FLYWAY_ENABLED: "true"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      MAIL_HOST: smtp.gmail.com
-      MAIL_USERNAME: noreply@vynlotech.com
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      # ✅ CORREÇÃO CRÍTICA: Variáveis AWS para Firebase Admin via Secrets Manager
-      AWS_REGION: ${AWS_REGION:-us-east-1}
-      FIREBASE_AWS_SECRET_NAME: ${FIREBASE_AWS_SECRET_NAME:-vynlo-taste-firebase-prod}
+    backend:
+      # Fase 2: Tag parametrizada via BACKEND_TAG (commit SHA) para deploy seguro
+      image: ghcr.io/andre27031510/vynlotaste-backend:${BACKEND_TAG:-latest}
+      container_name: vynlo-backend
+      ports:
+        - "8080:8080"
+      environment:
+        SPRING_PROFILES_ACTIVE: prod
+        SSL_ENABLED: "false"
+        DB_HOST: postgres
+        DB_PORT: 5432
+        DB_NAME: vynlotaste
+        DB_USERNAME: vynlo_user
+        DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD not set}
+        REDIS_HOST: redis
+        SPRING_FLYWAY_ENABLED: "true"
+        SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+        MAIL_HOST: smtp.gmail.com
+        MAIL_USERNAME: noreply@vynlotech.com
+        MAIL_PASSWORD: ${MAIL_PASSWORD:?MAIL_PASSWORD not set}
+        AWS_REGION: ${AWS_REGION:-us-east-1}
+        FIREBASE_AWS_SECRET_NAME: ${FIREBASE_AWS_SECRET_NAME:-vynlo-taste-firebase-prod}
       # Credenciais via IAM Role (IMDS) - RECOMENDADO em EC2/ECS
       # Se não usar IMDS, injetar credenciais temporárias:
       # AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}

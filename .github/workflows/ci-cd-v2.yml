@@ -18,10 +18,11 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -211,6 +212,54 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ensure deployment tooling
+        run: |
+          set -euo pipefail
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+          fi
+          echo "jq version: $(jq --version)"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: github-${{ github.run_id }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Fetch runtime secrets from AWS Secrets Manager
+        env:
+          SECRET_ID: ${{ secrets.AWS_RUNTIME_SECRET_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SECRET_ID:-}" ]; then
+            echo "AWS_RUNTIME_SECRET_ID secret not configured" >&2
+            exit 1
+          fi
+          AWS_PAGER=""
+          secret_json=$(aws secretsmanager get-secret-value --secret-id "$SECRET_ID" --query 'SecretString' --output text)
+          if [ -z "$secret_json" ] || [ "$secret_json" = "None" ]; then
+            echo "Secret $SECRET_ID returned empty payload" >&2
+            exit 1
+          fi
+          db_pass=$(jq -r '.DB_PASSWORD // empty' <<<"$secret_json")
+          mail_pass=$(jq -r '.MAIL_PASSWORD // empty' <<<"$secret_json")
+          if [ -z "$db_pass" ]; then
+            echo "DB_PASSWORD ausente no secret $SECRET_ID" >&2
+            exit 1
+          fi
+          if [ -z "$mail_pass" ]; then
+            echo "MAIL_PASSWORD ausente no secret $SECRET_ID" >&2
+            exit 1
+          fi
+          {
+            echo "DB_PASSWORD=$db_pass"
+            echo "POSTGRES_PASSWORD=$db_pass"
+            echo "MAIL_PASSWORD=$mail_pass"
+            echo "AWS_REGION=${{ secrets.AWS_REGION || 'us-east-1' }}"
+          } >>"$GITHUB_ENV"
+
       - name: Debug build outputs for self-hosted runner
         run: |
           echo "=== Self-Hosted Runner Context Debug ==="
@@ -239,143 +288,140 @@ jobs:
           OWNER_LC: ${{ env.OWNER_LC || 'andre27031510' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SSH_HOST: ${{ secrets.SSH_HOST || 'localhost' }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         run: |
-          set -e
+          set -euo pipefail
           echo "=== Deploy iniciado ==="
           echo "Host: $(hostname)"
           echo "Commit: ${COMMIT_SHA}"
           echo "Runner: $(whoami)"
-          
+
           if [ -z "${COMMIT_SHA}" ]; then
             echo "Warning: COMMIT_SHA not available, using 'latest'"
             export COMMIT_SHA="latest"
           fi
-          
+
           if [ -z "${OWNER_LC}" ]; then
             echo "Warning: OWNER_LC not available, using fallback"
             export OWNER_LC="andre27031510"
           fi
-          
+
+          if [ -z "${DB_PASSWORD:-}" ]; then
+            echo "❌ DB_PASSWORD não disponível no ambiente" >&2
+            exit 1
+          fi
+
+          if [ -z "${MAIL_PASSWORD:-}" ]; then
+            echo "❌ MAIL_PASSWORD não disponível no ambiente" >&2
+            exit 1
+          fi
+
+          export AWS_REGION="${AWS_REGION:-${{ secrets.AWS_REGION || 'us-east-1' }}}"
           export COMMIT_SHA=${{ github.sha }}
           export OWNER_LC="andre27031510"
-          
-          sudo systemctl start docker || true
-          
-          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor || 'andre27031510' }}" --password-stdin
-          
-          # Fase 2: Exportar tags do commit SHA (segurança)
-          # Essas variáveis são usadas pelo docker-compose.prod.yml para parametrizar as imagens
           export BACKEND_TAG="${{ github.sha }}"
           export FRONTEND_TAG="${{ github.sha }}"
+
+          sudo systemctl start docker || true
+
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor || 'andre27031510' }}" --password-stdin
+
           echo "📦 BACKEND_TAG=${BACKEND_TAG}"
           echo "📦 FRONTEND_TAG=${FRONTEND_TAG}"
-          
+
           cd ~/app
-          
+
           echo "=== Verificando imagens ==="
-          BACKEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-backend:${{ github.sha }} > /dev/null 2>&1 && echo "true" || echo "false")
-          FRONTEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-frontend:${{ github.sha }} > /dev/null 2>&1 && echo "true" || echo "false")
-          
+          BACKEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-backend:${BACKEND_TAG} >/dev/null 2>&1 && echo "true" || echo "false")
+          FRONTEND_EXISTS=$(docker manifest inspect ghcr.io/andre27031510/vynlotaste-frontend:${FRONTEND_TAG} >/dev/null 2>&1 && echo "true" || echo "false")
+
           if [ "$BACKEND_EXISTS" = "false" ]; then
             echo "⚠️ Imagem backend não encontrada, usando latest"
-            export BACKEND_TAG="latest"
-          else
-            export BACKEND_TAG="${{ github.sha }}"
+            BACKEND_TAG="latest"
+            export BACKEND_TAG
           fi
-          
+
           if [ "$FRONTEND_EXISTS" = "false" ]; then
             echo "⚠️ Imagem frontend não encontrada, usando latest"
-            export FRONTEND_TAG="latest"
-          else
-            export FRONTEND_TAG="${{ github.sha }}"
+            FRONTEND_TAG="latest"
+            export FRONTEND_TAG
           fi
-          
-          # Commit feb97aa: Zero Downtime Deploy - Backup automático + parada seletiva
+
+
+          echo "=== Validando docker-compose.prod.yml ==="
+          docker compose -f docker-compose.prod.yml config -q
+
           echo "=== Backup do banco de dados (segurança) ==="
           docker exec vynlo-postgres pg_dump -U vynlo_user vynlotaste > backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql 2>/dev/null || echo "⚠️ Backup falhou ou BD não está rodando"
-          
-          # Commit feb97aa: Para APENAS apps - DB/Cache continuam rodando = 0s downtime
+
           echo "=== Parando APENAS backend e frontend (Zero Downtime) ==="
           docker compose -f docker-compose.prod.yml stop backend frontend 2>/dev/null || true
           docker rm vynlo-backend vynlo-frontend 2>/dev/null || true
           echo "✅ Postgres, Redis, Prometheus e Grafana continuam rodando"
-          
+
           echo "=== Baixando novas imagens ==="
-          # Fase 2: docker-compose pull requer variáveis de ambiente definidas (BACKEND_TAG, FRONTEND_TAG)
-          # Estas já foram exportadas acima e estão disponíveis no ambiente
           for i in {1..3}; do
             if docker compose -f docker-compose.prod.yml pull; then
               break
-            else
-              echo "Tentativa $i falhou, tentando novamente em 10s..."
-              sleep 10
             fi
+            echo "Tentativa $i falhou, tentando novamente em 10s..."
+            sleep 10
           done
-          
+
           echo "=== Iniciando containers (Backend e Frontend) ==="
           docker compose -f docker-compose.prod.yml up -d backend frontend --remove-orphans
-          
+
           echo "=== Containers ativos ==="
           docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-          
+
           echo "=== Verificando que serviços críticos estão rodando ==="
           docker ps | grep -q vynlo-postgres && echo "✅ Postgres rodando" || echo "⚠️ Postgres não encontrado"
           docker ps | grep -q vynlo-redis && echo "✅ Redis rodando" || echo "⚠️ Redis não encontrado"
-          
+
           echo "=== Verificando saúde dos serviços ==="
-          # Aguardar subida inicial
           sleep 30
-          
-          # Backend pela rede interna Docker (recomendado p/ produção)
+
           for i in {1..12}; do
-            if docker ps | grep -q "vynlo-frontend-prod" && docker exec vynlo-frontend-prod sh -lc 'curl -fsS http://backend:8080/api/actuator/health' >/dev/null 2>&1; then
-              echo "✅ Backend funcionando (rede interna Docker)"
+            if docker exec vynlo-backend curl -fsS http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
+              echo "✅ Backend funcionando (container)"
               break
-            else
-              echo "⏳ Aguardando backend (rede interna)... ($i/12)"
-              sleep 10
             fi
+            echo "⏳ Aguardando backend (container)... ($i/12)"
+            sleep 10
           done
-          
-          # Frontend + proxy externo (valida Nginx e roteamento)
+
           for i in {1..12}; do
-            if docker ps | grep -q "vynlo-frontend" && curl -fsS http://localhost:3000 >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/actuator/health >/dev/null 2>&1; then
+            if curl -fsS http://localhost:3000 >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/actuator/health >/dev/null 2>&1; then
               echo "✅ Frontend e proxy funcionando"
               break
-            else
-              echo "⏳ Aguardando frontend/proxy... ($i/12)"
-              sleep 10
             fi
+            echo "⏳ Aguardando frontend/proxy... ($i/12)"
+            sleep 10
           done
-          
-          # Commit feb97aa: Validação obrigatória de health - Deploy só confirma se tudo OK
+
           echo "=== Validação Final de Health (Segurança) ==="
           if curl -fsS http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
             echo "✅ Backend saudável - Deploy confirmado"
           else
             echo "❌ Backend não respondeu - ATENÇÃO: Verificar logs"
             docker logs vynlo-backend --tail 50
-            exit 1  # Rollback automático se falhar
+            exit 1
           fi
-          
+
           if curl -fsS http://localhost:3000 >/dev/null 2>&1; then
             echo "✅ Frontend saudável - Deploy confirmado"
           else
             echo "❌ Frontend não respondeu - ATENÇÃO: Verificar logs"
             docker logs vynlo-frontend --tail 50
-            exit 1  # Rollback automático se falhar
+            exit 1
           fi
-          
+
           echo "=== Limpando imagens antigas ==="
           docker image prune -f --filter "until=24h"
-          
+
           echo "=== Deploy concluído com sucesso! ==="
           echo "🚀 Vynlo Taste atualizado para commit: ${{ github.sha }}"
           echo "📊 Downtime: 0 segundos (Zero Downtime Deploy)"
           echo "💾 Backup criado: backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql"
-      
       - name: Notify deployment status
         if: always()
         env:
