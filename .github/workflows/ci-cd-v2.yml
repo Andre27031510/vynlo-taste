@@ -1,11 +1,6 @@
 name: CI/CD-v2
-# Comentário leve: Workflow reforçado com validações fail-fast (YAML, segredos, conflitos)
-# touch: redeploy d96f8ca, 2ee3526 - comentário leve sem impacto funcional
-# Commit feb97aa: Implementado Zero Downtime Deploy
-# - Backup automático do PostgreSQL antes de deploy
-# - Para apenas backend/frontend (Postgres e Redis continuam rodando)
-# - Validação obrigatória de health check antes de concluir
-# Fase 2 - Hardening: Testes, Lints e Migrações Flyway em staging adicionados
+# Workflow de CI/CD com validações fail-fast e deploy zero-downtime
+# Documentação: docs/BIG_TECH_PIPELINE_REFACTOR.md
 
 on:
   push:
@@ -13,15 +8,11 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
-  # schedule:
-    # - cron: '0 0 * * *' # Executa diariamente para debug - DESABILITADO
-    # FORÇAR DEPLOY - 2025-10-09 14:40 - CACHE LIMPO - RUNNER CORRIGIDO - RETRY
-    # PIPELINE TRAVADO - EXECUTAR MANUALMENTE
 
 permissions:
   contents: read
   packages: write
-  id-token: write  # FASE 2: Obrigatório para OIDC com AWS
+  id-token: write  # Obrigatório para OIDC com AWS
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -67,10 +58,10 @@ jobs:
           echo "Debug: infra_any_changed = ${{ steps.changes.outputs.infra_any_changed || 'null' }}"
           echo "Debug: migrations_any_changed = ${{ steps.changes.outputs.migrations_any_changed || 'null' }}"
           echo "Debug: context validation complete"
-      - name: "Fase 6 - Hardening: Verificar prefixo /api/ em controllers Ekklesia"
+      - name: Verify Ekklesia routing pattern
         if: ${{ steps.changes.outputs.backend_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         run: |
-          echo "🔍 Verificando padrão de roteamento Ekklesia (Fase 6 - Hardening)..."
+          echo "🔍 Verificando padrão de roteamento Ekklesia..."
           echo ""
           
           # Buscar controllers Ekklesia que violam o padrão
@@ -100,12 +91,13 @@ jobs:
 
       - name: Validate secrets
         run: |
+          set -euo pipefail
           echo "Validating required secrets..."
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
-            echo "Warning: GITHUB_TOKEN not available"
-          else
-            echo "GITHUB_TOKEN available"
+            echo "::error::GITHUB_TOKEN is required but not available"
+            exit 1
           fi
+          echo "✅ GITHUB_TOKEN available"
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -153,12 +145,7 @@ jobs:
           
           echo "Owner LC: andre27031510"
           echo "Context validation complete"
-      # ============================================================================
-      # FASE 2 - Hardening: Testes e Lints (Padrão Big Tech)
-      # ============================================================================
-      # PADRÃO BIG TECH: Build não publica imagem sem passar testes
-      # Executa testes/lints apenas quando arquivos respectivos mudarem
-      # ============================================================================
+      # Testes e lints - Build não publica imagem sem passar testes
       
       - name: Setup Java for Backend Tests
         if: ${{ steps.changes.outputs.backend_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -176,7 +163,7 @@ jobs:
           mvn test -DskipTests=false
           echo "✅ Testes do backend concluídos"
           
-      - name: Setup Node.js for Frontend Tests
+      - name: Setup Node.js for Frontend
         if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: actions/setup-node@v4
         with:
@@ -184,13 +171,20 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
           
+      - name: Install Frontend Dependencies
+        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
+        working-directory: frontend
+        run: |
+          echo "📦 Instalando dependências do frontend..."
+          npm ci
+          echo "✅ Dependências instaladas"
+          
       - name: Run Frontend Lint
         if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         working-directory: frontend
         run: |
           echo "🔍 Executando lint do frontend..."
-          npm ci
-          npm run lint || echo "⚠️ Lint encontrou problemas, mas continuando build"
+          npm run lint
           echo "✅ Lint do frontend concluído"
           
       - name: Run Frontend Tests
@@ -207,19 +201,10 @@ jobs:
           NEXT_TELEMETRY_DISABLED: '1'
         run: |
           echo "🧪 Executando testes do frontend..."
-          npm ci
-          npm run test || echo "⚠️ Testes do frontend falharam, mas continuando build"
+          npm run test
           echo "✅ Testes do frontend concluídos"
-          
-      - name: Setup Node.js
-        if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
 
-      - name: Frontend prebuild
+      - name: Frontend Build
         if: ${{ steps.changes.outputs.frontend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         working-directory: frontend
         env:
@@ -232,8 +217,9 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_TELEMETRY_DISABLED: '1'
         run: |
-          npm ci
+          echo "🔨 Build do frontend..."
           npm run build
+          echo "✅ Build concluído"
       - name: Build and push backend image
         if: ${{ steps.changes.outputs.backend_any_changed == 'true' || steps.changes.outputs.infra_any_changed == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: docker/build-push-action@v6
@@ -262,10 +248,8 @@ jobs:
           # cache-to: type=gha,mode=max
           no-cache: true
           build-args: |
-            # PADRÃO BIG TECH: NEXT_PUBLIC_API_URL SEM /api no final (buildApiUrl adiciona automaticamente)
+            # NEXT_PUBLIC_API_URL SEM /api no final (buildApiUrl adiciona automaticamente)
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL || 'https://api.vynlotech.com' }}
-            # Validação: remover /api do final se presente (evita duplicação)
-            # buildApiUrl já adiciona /api, então a URL base não deve ter
             NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
             NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
             NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
@@ -273,19 +257,11 @@ jobs:
             NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
   
-  # ============================================================================
-  # FASE 2 - Hardening: Migrações Flyway em Staging (Job Opcional)
-  # ============================================================================
-  # PADRÃO BIG TECH: Executar migrações em ambiente de staging antes da produção
-  # Detecta erros de migration antes do deploy em produção
-  # ============================================================================
   staging-migrations:
     name: Flyway Migrations (Staging)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # FASE 2: Executar sempre que não for PR (para validar migrations antes do deploy)
-    # Executa se backend mudou OU migrations mudaram OU se for workflow_dispatch
-    # PADRÃO BIG TECH: Sempre validar migrations antes do deploy em produção
+    # Gate obrigatório: valida migrations antes do deploy em produção
     if: ${{ github.event_name != 'pull_request' && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.migrations_changed == 'true' || github.event_name == 'workflow_dispatch') }}
     needs: build
     steps:
@@ -315,9 +291,7 @@ jobs:
         working-directory: backend/core-module
         run: |
           echo "🔄 Executando migrações Flyway em staging..."
-          # PADRÃO BIG TECH: Executar Flyway migrations antes do deploy em produção
           # Usa -DskipTests para não executar testes (já executados no job build)
-          # Variáveis -Dflyway.* sobrescrevem configurações do pom.xml
           mvn flyway:migrate \
             -DskipTests=true \
             -Dflyway.url=jdbc:postgresql://localhost:5433/vynlotaste \
@@ -339,13 +313,11 @@ jobs:
           echo "🧹 PostgreSQL staging removido"
           
   deploy:
-    # FASE 2: Deploy não depende de staging-migrations (opcional)
-    # staging-migrations é executado em paralelo e pode falhar sem bloquear deploy
-    # Em produção, considere adicionar: needs: [build, staging-migrations]
-    needs: build
+    needs: [build, staging-migrations]
     runs-on: [self-hosted, linux, x64]
     timeout-minutes: 30
-    if: ${{ always() && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
+    # Deploy apenas se build e staging-migrations passaram
+    if: ${{ needs.build.result == 'success' && needs.staging-migrations.result == 'success' && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -372,16 +344,11 @@ jobs:
           echo "Commit SHA: ${{ github.sha || 'unknown' }}"
           echo "=== Validation complete ==="
       
-      # ============================================================================
-      # FASE 2 - AWS Secrets Manager: Configurar OIDC e Ler Secrets
-      # ============================================================================
-      # PADRÃO BIG TECH: Usar OIDC para autenticação sem credenciais long-lived
-      # ============================================================================
+      # AWS Secrets Manager: Configurar OIDC e Ler Secrets
       
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # PADRÃO BIG TECH: Usar secrets do GitHub para maior flexibilidade
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN || 'arn:aws:iam::051826695275:role/GitHubActionsDeployRole' }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           role-session-name: GitHubActions-${{ github.run_id }}
@@ -389,17 +356,13 @@ jobs:
       - name: Fetch runtime secrets from AWS Secrets Manager
         id: fetch-secrets
         env:
-          # PADRÃO BIG TECH: Secrets do GitHub para flexibilidade
           AWS_RUNTIME_SECRET_ID: ${{ secrets.AWS_RUNTIME_SECRET_ID || 'vynlo-taste-runtime-secrets' }}
           AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
         run: |
-          set -euo pipefail  # PADRÃO BIG TECH: Fail-fast rigoroso
+          set -euo pipefail
           echo "🔐 Buscando secrets do AWS Secrets Manager..."
           
-          # FASE 3: Fail-fast e observabilidade
           START_TIME=$(date +%s)
-          
-          # PADRÃO BIG TECH: Usar secret único JSON do GitHub Secrets (flexibilidade)
           SECRET_ID="${AWS_RUNTIME_SECRET_ID}"
           AWS_REGION_VAR="${AWS_REGION}"
           
@@ -449,7 +412,7 @@ jobs:
             MAIL_PASSWORD=$(echo "${SECRET_JSON}" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('MAIL_PASSWORD') or d.get('mail_password') or '')")
           fi
           
-          # FASE 3: Validar secrets obrigatórios logo após buscar
+          # Validar secrets obrigatórios logo após buscar
           if [ -z "${DB_PASSWORD}" ] || [ "${DB_PASSWORD}" = "null" ]; then
             echo "❌ ERRO CRÍTICO: DB_PASSWORD não encontrado no secret ${SECRET_ID}"
             echo "   O secret deve conter campo 'DB_PASSWORD' ou 'password'"
@@ -495,7 +458,7 @@ jobs:
             echo "   Backend buscará automaticamente em runtime via AwsSecretsService"
           fi
           
-          # FASE 3: Logs estruturados e observabilidade
+          # Logs estruturados e observabilidade
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           echo "📊 Observabilidade: Secrets validados em ${DURATION}s"
@@ -518,519 +481,39 @@ jobs:
           echo "✅ Secrets recuperados e validados com sucesso"
           echo "   Nota: Firebase e JWT serão lidos pelo backend em runtime automaticamente"
           
+      - name: Validate deployment scripts
+        run: |
+          set -euo pipefail
+          echo "Validating deployment scripts..."
+          if [ ! -f "./deploy/scripts/deploy-application.sh" ]; then
+            echo "::error::deploy-application.sh not found"
+            exit 1
+          fi
+          if [ ! -f "./deploy/scripts/check-db-password.sh" ]; then
+            echo "::error::check-db-password.sh not found"
+            exit 1
+          fi
+          if [ ! -f "./deploy/scripts/validate-compose.sh" ]; then
+            echo "::error::validate-compose.sh not found"
+            exit 1
+          fi
+          chmod +x ./deploy/scripts/*.sh
+          echo "✅ All deployment scripts validated"
+      
       - name: Deploy Application
         env:
-          COMMIT_SHA: ${{ github.sha || 'latest' }}
+          COMMIT_SHA: ${{ github.sha }}
           OWNER_LC: ${{ env.OWNER_LC || 'andre27031510' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
           SSH_HOST: ${{ secrets.SSH_HOST || 'localhost' }}
           DB_PASSWORD: ${{ env.DB_PASSWORD }}
           MAIL_PASSWORD: ${{ env.MAIL_PASSWORD }}
+          DEPLOY_APP_DIR: ${{ env.DEPLOY_APP_DIR || '$HOME/app' }}
         run: |
-          set -euo pipefail  # PADRÃO BIG TECH: Fail-fast rigoroso (e, u, o, pipefail)
-          echo "=== Deploy iniciado ==="
-          echo "Host: $(hostname)"
-          echo "Commit: ${COMMIT_SHA}"
-          echo "Runner: $(whoami)"
-          
-          if [ -z "${COMMIT_SHA}" ]; then
-            echo "Warning: COMMIT_SHA not available, using 'latest'"
-            export COMMIT_SHA="latest"
-          fi
-          
-          if [ -z "${OWNER_LC}" ]; then
-            echo "Warning: OWNER_LC not available, using fallback"
-            export OWNER_LC="andre27031510"
-          fi
-          
-          export COMMIT_SHA=${{ github.sha }}
-          export OWNER_LC="andre27031510"
-          
-          sudo systemctl start docker || true
-          
-          # ============================================================================
-          # FASE 0: PRÉ-REQUISITOS E PADRONIZAÇÃO
-          # ============================================================================
-          echo "=== FASE 0: Pré-requisitos e Padronização ==="
-          
-          # Fase 0: Padronizar variáveis de registry e tags
-          export REGISTRY_BACKEND="ghcr.io/andre27031510/vynlotaste-backend"
-          export REGISTRY_FRONTEND="ghcr.io/andre27031510/vynlotaste-frontend"
-          export TAG="${{ github.sha }}"
-          echo "📦 REGISTRY_BACKEND=${REGISTRY_BACKEND}"
-          echo "📦 REGISTRY_FRONTEND=${REGISTRY_FRONTEND}"
-          echo "📦 TAG=${TAG}"
-          
-          # Fase 0: Docker login (pré-requisito)
-          echo "🔐 Autenticando no GitHub Container Registry..."
-          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor || 'andre27031510' }}" --password-stdin || {
-            echo "❌ ERRO: Falha ao autenticar no ghcr.io"
-            exit 1
-          }
-          echo "✅ Autenticação no registry bem-sucedida"
-          
-          # ============================================================================
-          # FASE 1: REGISTRO / AUTORIZAÇÃO
-          # ============================================================================
-          echo "=== FASE 1: Validação de Registro e Autorização ==="
-          
-          # Fase 1: Validar credenciais (AWS OIDC ou GitHub)
-          if command -v aws &> /dev/null; then
-            echo "🔍 Validando credenciais AWS (OIDC)..."
-            aws sts get-caller-identity --query 'Account' --output text > /dev/null 2>&1 && {
-              echo "✅ Credenciais AWS válidas (OIDC)"
-            } || {
-              echo "⚠️ AVISO: Credenciais AWS não disponíveis (continuando com GitHub token)"
-            }
-          fi
-          
-          # Fase 1: Validar acesso ao endpoint do registry
-          echo "🔍 Validando acesso ao endpoint do registry..."
-          if curl -I -sSfH "Authorization: Bearer ${GITHUB_TOKEN}" "https://ghcr.io/v2/" > /dev/null 2>&1; then
-            echo "✅ Endpoint do registry acessível"
-          else
-            echo "❌ ERRO: Não foi possível acessar endpoint do registry"
-            exit 1
-          fi
-          
-          # Fase 2: Exportar tags para docker-compose (compatibilidade)
-          export BACKEND_TAG="${TAG}"
-          export FRONTEND_TAG="${TAG}"
-          
-          cd ~/app
-          
-          # ============================================================================
-          # FASE 1: VALIDAÇÕES FAIL-FAST (antes de qualquer operação)
-          # ============================================================================
-          # Padrão Big Tech: Validar configuração antes de parar serviços
-          # Previne downtime desnecessário e rollback custoso
-          # ============================================================================
-          # Comentário: Bloco adicionado para impedir deploy com compose inválido ou segredos ausentes
-          
-          echo "=== FASE 1: Validações Fail-Fast (Segurança) ==="
-          
-          # 1.1: Validar variáveis obrigatórias (fail explícito se faltar)
-          # FASE 2: Secrets agora vêm do AWS Secrets Manager via OIDC
-          echo "🔍 Validando variáveis de ambiente obrigatórias (AWS Secrets Manager)..."
-          if [ -z "${DB_PASSWORD}" ]; then
-            echo "❌ ERRO CRÍTICO: DB_PASSWORD não está definido."
-            echo "   Verifique se o secret 'vynlo-taste-db-password' existe no AWS Secrets Manager"
-            echo "   Verifique se a role IAM 'GitHubActionsDeployRole' tem permissão para ler o secret"
-            echo "   Segurança: Senhas nunca devem ser hardcoded no repositório."
-            exit 1
-          fi
-          
-          if [ -z "${MAIL_PASSWORD}" ]; then
-            echo "⚠️ AVISO: MAIL_PASSWORD não está definido. Email pode não funcionar."
-            echo "   Verifique se o secret 'vynlo-taste-email-config' existe no AWS Secrets Manager"
-            # FASE 2: Tornar MAIL_PASSWORD obrigatório em produção (descomente se necessário)
-            # echo "❌ ERRO CRÍTICO: MAIL_PASSWORD não está definido."
-            # exit 1
-          fi
-          
-          echo "✅ Variáveis obrigatórias validadas (via AWS Secrets Manager)"
-          
-          # 1.2: Validar docker-compose.prod.yml (conflitos Git + sintaxe YAML)
-          echo "🔍 Validando docker-compose.prod.yml..."
-          if [ ! -f "docker-compose.prod.yml" ]; then
-            echo "❌ ERRO: docker-compose.prod.yml não encontrado em ~/app"
-            exit 1
-          fi
-          
-          # Detectar conflitos de merge Git (padrão mais específico para evitar falsos positivos)
-          # Busca por marcadores reais: <<<<<<<, =======, >>>>>>> no início da linha ou isolados
-          CONFLICT_MARKERS=$(grep -nE '^[[:space:]]*<<<<<<<[[:space:]]|^[[:space:]]*=======[[:space:]]*$|^[[:space:]]*>>>>>>>[[:space:]]' docker-compose.prod.yml 2>/dev/null || true)
-          if [ -n "${CONFLICT_MARKERS}" ]; then
-            echo "❌ ERRO CRÍTICO: docker-compose.prod.yml contém marcadores de conflito de merge Git"
-            echo ""
-            echo "   Linhas com conflitos:"
-            echo "${CONFLICT_MARKERS}" | head -10
-            echo ""
-            echo "🔧 Como corrigir:"
-            echo "   1. Remova todas as linhas com <<<<<<< HEAD, =======, >>>>>>> origin/main"
-            echo "   2. Mantenha apenas a versão correta do código"
-            echo "   3. Valide com: docker compose -f docker-compose.prod.yml config -q"
-            echo ""
-            echo "   Exemplo (sed no servidor):"
-            echo "   sed -i '/<<<<<<< HEAD/,/>>>>>>> origin\/main/d' docker-compose.prod.yml"
-            echo ""
-            exit 1
-          fi
-          
-          echo "✅ Nenhum conflito Git detectado"
-          
-          # Validar sintaxe YAML (requer variáveis de ambiente setadas)
-          # Exportar variáveis temporárias para validação
-          export DB_PASSWORD="${DB_PASSWORD}"
-          export MAIL_PASSWORD="${MAIL_PASSWORD:-placeholder}"
-          export BACKEND_TAG="${BACKEND_TAG:-latest}"
-          export FRONTEND_TAG="${FRONTEND_TAG:-latest}"
-          
-          # Validar sintaxe YAML (captura erro corretamente) — impede replicar erro "line 8: expected ':'"
-          COMPOSE_ERROR=$(docker compose -f docker-compose.prod.yml config -q 2>&1) || COMPOSE_EXIT_CODE=$?
-          if [ "${COMPOSE_EXIT_CODE:-0}" != "0" ]; then
-            echo "❌ ERRO CRÍTICO: docker-compose.prod.yml tem erro de sintaxe YAML"
-            echo ""
-            echo "   Detalhes do erro:"
-            echo "${COMPOSE_ERROR}"
-            echo ""
-            echo "🔧 Como corrigir:"
-            echo "   1. Valide o YAML com: docker compose -f docker-compose.prod.yml config"
-            echo "   2. Verifique indentação, aspas, dois-pontos, etc."
-            echo "   3. Garanta que todas as variáveis obrigatórias estão definidas"
-            echo ""
-            exit 1
-          fi
-          
-          echo "✅ docker-compose.prod.yml válido (sintaxe YAML correta)"
-          echo ""
-          echo "✅ FASE 1 concluída: Todas as validações passaram"
-          echo ""
-          
-          # ============================================================================
-          # FASE 2: EXISTÊNCIA FORMAL DA IMAGEM
-          # ============================================================================
-          echo "=== FASE 2: Verificação de Existência Formal das Imagens ==="
-          
-          # Fase 2: Verificar backend (com validação de schemaVersion)
-          echo "🔍 Verificando imagem backend: ${REGISTRY_BACKEND}:${TAG}"
-          BACKEND_MANIFEST=$(docker manifest inspect "${REGISTRY_BACKEND}:${TAG}" 2>&1) || BACKEND_EXISTS="false"
-          
-          if [ "${BACKEND_EXISTS:-true}" != "false" ]; then
-            # Validar schemaVersion do manifest
-            BACKEND_SCHEMA=$(echo "${BACKEND_MANIFEST}" | python3 -c "import sys, json; print(json.load(sys.stdin).get('schemaVersion', 'unknown'))" 2>/dev/null || echo "unknown")
-            if [ "${BACKEND_SCHEMA}" = "2" ]; then
-              echo "✅ Backend manifest válido (schemaVersion: ${BACKEND_SCHEMA})"
-              export BACKEND_TAG="${TAG}"
-              echo "::notice::Backend image ${TAG} verified (schemaVersion: ${BACKEND_SCHEMA})"
-            else
-              echo "⚠️ AVISO: Backend manifest schemaVersion inválido (${BACKEND_SCHEMA}), usando latest"
-              export BACKEND_TAG="latest"
-            fi
-          else
-            echo "⚠️ Imagem backend não encontrada para commit ${TAG}, usando latest"
-            export BACKEND_TAG="latest"
-          fi
-          
-          # Fase 2: Verificar frontend (com validação de schemaVersion)
-          echo "🔍 Verificando imagem frontend: ${REGISTRY_FRONTEND}:${TAG}"
-          FRONTEND_MANIFEST=$(docker manifest inspect "${REGISTRY_FRONTEND}:${TAG}" 2>&1) || FRONTEND_EXISTS="false"
-          
-          if [ "${FRONTEND_EXISTS:-true}" != "false" ]; then
-            # Validar schemaVersion do manifest
-            FRONTEND_SCHEMA=$(echo "${FRONTEND_MANIFEST}" | python3 -c "import sys, json; print(json.load(sys.stdin).get('schemaVersion', 'unknown'))" 2>/dev/null || echo "unknown")
-            if [ "${FRONTEND_SCHEMA}" = "2" ]; then
-              echo "✅ Frontend manifest válido (schemaVersion: ${FRONTEND_SCHEMA})"
-              export FRONTEND_TAG="${TAG}"
-              echo "::notice::Frontend image ${TAG} verified (schemaVersion: ${FRONTEND_SCHEMA})"
-            else
-              echo "⚠️ AVISO: Frontend manifest schemaVersion inválido (${FRONTEND_SCHEMA}), usando latest"
-              export FRONTEND_TAG="latest"
-            fi
-          else
-            echo "⚠️ Imagem frontend não encontrada para commit ${TAG}, usando latest"
-            export FRONTEND_TAG="latest"
-          fi
-          
-          echo "📦 BACKEND_TAG=${BACKEND_TAG}"
-          echo "📦 FRONTEND_TAG=${FRONTEND_TAG}"
-          echo ""
-          
-          # ============================================================================
-          # FASE 3: PULL CONTROLADO
-          # ============================================================================
-          echo "=== FASE 3: Pull Controlado das Imagens ==="
-          
-          # Fase 3: Pull backend e capturar hash
-          echo "📥 Fazendo pull da imagem backend..."
-          if docker pull "${REGISTRY_BACKEND}:${BACKEND_TAG}"; then
-            BACKEND_IMAGE_ID=$(docker image inspect "${REGISTRY_BACKEND}:${BACKEND_TAG}" --format '{{.Id}}' 2>/dev/null || echo "unknown")
-            echo "✅ Backend pull bem-sucedido (Image ID: ${BACKEND_IMAGE_ID:0:12}...)"
-            echo "::notice::Backend image pulled successfully (ID: ${BACKEND_IMAGE_ID:0:12})"
-          else
-            echo "❌ ERRO: Falha ao fazer pull da imagem backend"
-            exit 1
-          fi
-          
-          # Fase 3: Pull frontend e capturar hash
-          echo "📥 Fazendo pull da imagem frontend..."
-          if docker pull "${REGISTRY_FRONTEND}:${FRONTEND_TAG}"; then
-            FRONTEND_IMAGE_ID=$(docker image inspect "${REGISTRY_FRONTEND}:${FRONTEND_TAG}" --format '{{.Id}}' 2>/dev/null || echo "unknown")
-            echo "✅ Frontend pull bem-sucedido (Image ID: ${FRONTEND_IMAGE_ID:0:12}...)"
-            echo "::notice::Frontend image pulled successfully (ID: ${FRONTEND_IMAGE_ID:0:12})"
-          else
-            echo "❌ ERRO: Falha ao fazer pull da imagem frontend"
-            exit 1
-          fi
-          
-          # ============================================================================
-          # FASE 4: INTEGRIDADE PÓS-PULL
-          # ============================================================================
-          echo "=== FASE 4: Verificação de Integridade Pós-Pull ==="
-          
-          # Fase 4: Verificar histórico de camadas do backend
-          echo "🔍 Verificando histórico de camadas do backend..."
-          BACKEND_LAYERS=$(docker history "${REGISTRY_BACKEND}:${BACKEND_TAG}" --no-trunc --format "{{.CreatedBy}}" 2>/dev/null | head -5 || echo "")
-          if [ -n "${BACKEND_LAYERS}" ]; then
-            echo "✅ Backend layers verificadas (primeiras 5 camadas)"
-            echo "${BACKEND_LAYERS}" | while read -r layer; do
-              echo "   - ${layer:0:80}..."
-            done
-          else
-            echo "⚠️ AVISO: Não foi possível verificar camadas do backend"
-          fi
-          
-          # Fase 4: Sanity check backend (Java version)
-          echo "🔍 Executando sanity check do backend (Java version)..."
-          if docker run --rm "${REGISTRY_BACKEND}:${BACKEND_TAG}" java -version 2>&1 | head -3; then
-            echo "✅ Backend sanity check passou (Java disponível)"
-          else
-            echo "⚠️ AVISO: Backend sanity check falhou (continuando deploy)"
-          fi
-          
-          # Fase 4: Verificar histórico de camadas do frontend
-          echo "🔍 Verificando histórico de camadas do frontend..."
-          FRONTEND_LAYERS=$(docker history "${REGISTRY_FRONTEND}:${FRONTEND_TAG}" --no-trunc --format "{{.CreatedBy}}" 2>/dev/null | head -5 || echo "")
-          if [ -n "${FRONTEND_LAYERS}" ]; then
-            echo "✅ Frontend layers verificadas (primeiras 5 camadas)"
-            echo "${FRONTEND_LAYERS}" | while read -r layer; do
-              echo "   - ${layer:0:80}..."
-            done
-          else
-            echo "⚠️ AVISO: Não foi possível verificar camadas do frontend"
-          fi
-          
-          # Fase 4: Sanity check frontend (Node version)
-          echo "🔍 Executando sanity check do frontend (Node version)..."
-          if docker run --rm "${REGISTRY_FRONTEND}:${FRONTEND_TAG}" node --version 2>&1; then
-            echo "✅ Frontend sanity check passou (Node disponível)"
-          else
-            echo "⚠️ AVISO: Frontend sanity check falhou (continuando deploy)"
-          fi
-          
-          echo ""
-          echo "✅ FASE 2-4 concluídas: Imagens verificadas e validadas"
-          echo ""
-          
-          # ============================================================================
-          # FASE 5: FALLBACK PROGRAMADO (se Fase 2/3 falhar)
-          # ============================================================================
-          echo "=== FASE 5: Verificação de Fallback (se necessário) ==="
-          
-          # Fase 5: Se imagens não foram encontradas, verificar se build está em andamento
-          if [ "${BACKEND_TAG}" = "latest" ] && [ "${TAG}" != "latest" ]; then
-            echo "⚠️ Backend não encontrado para tag ${TAG}, verificando build em andamento..."
-            if command -v gh &> /dev/null; then
-              BUILD_STATUS=$(gh run list --limit 1 --json status --jq '.[0].status' 2>/dev/null || echo "unknown")
-              if [ "${BUILD_STATUS}" = "in_progress" ] || [ "${BUILD_STATUS}" = "queued" ]; then
-                echo "⚠️ Build ainda em andamento (status: ${BUILD_STATUS})"
-                echo "   Aguardando 30s antes de prosseguir com latest..."
-                sleep 30
-                # Tentar novamente com tag do commit
-                if docker manifest inspect "${REGISTRY_BACKEND}:${TAG}" > /dev/null 2>&1; then
-                  echo "✅ Backend encontrado após espera, usando tag ${TAG}"
-                  export BACKEND_TAG="${TAG}"
-                else
-                  echo "⚠️ Backend ainda não disponível, usando latest como fallback"
-                  echo "::warning::Backend image ${TAG} not found, using latest as fallback"
-                fi
-              else
-                echo "⚠️ Build não está em andamento (status: ${BUILD_STATUS}), usando latest"
-                echo "::warning::Backend build not in progress, using latest as fallback"
-              fi
-            else
-              echo "⚠️ GitHub CLI não disponível, usando latest como fallback"
-              echo "::warning::GitHub CLI not available, using latest as fallback"
-            fi
-          fi
-          
-          if [ "${FRONTEND_TAG}" = "latest" ] && [ "${TAG}" != "latest" ]; then
-            echo "⚠️ Frontend não encontrado para tag ${TAG}, verificando build em andamento..."
-            if command -v gh &> /dev/null; then
-              BUILD_STATUS=$(gh run list --limit 1 --json status --jq '.[0].status' 2>/dev/null || echo "unknown")
-              if [ "${BUILD_STATUS}" = "in_progress" ] || [ "${BUILD_STATUS}" = "queued" ]; then
-                echo "⚠️ Build ainda em andamento (status: ${BUILD_STATUS})"
-                echo "   Aguardando 30s antes de prosseguir com latest..."
-                sleep 30
-                # Tentar novamente com tag do commit
-                if docker manifest inspect "${REGISTRY_FRONTEND}:${TAG}" > /dev/null 2>&1; then
-                  echo "✅ Frontend encontrado após espera, usando tag ${TAG}"
-                  export FRONTEND_TAG="${TAG}"
-                else
-                  echo "⚠️ Frontend ainda não disponível, usando latest como fallback"
-                  echo "::warning::Frontend image ${TAG} not found, using latest as fallback"
-                fi
-              else
-                echo "⚠️ Build não está em andamento (status: ${BUILD_STATUS}), usando latest"
-                echo "::warning::Frontend build not in progress, using latest as fallback"
-              fi
-            else
-              echo "⚠️ GitHub CLI não disponível, usando latest como fallback"
-              echo "::warning::GitHub CLI not available, using latest as fallback"
-            fi
-          fi
-          
-          echo ""
-          
-          # ============================================================================
-          # FASE 6: GATE NO DEPLOY (abortar se imagem não passar validação)
-          # ============================================================================
-          echo "=== FASE 6: Image Gate - Validação Final Antes do Deploy ==="
-          
-          # Fase 6: Re-validar imagens antes de parar containers (fail-fast)
-          echo "🔍 Re-validando imagens antes de iniciar deploy..."
-          
-          # Backend: Verificar manifest novamente
-          if ! docker manifest inspect "${REGISTRY_BACKEND}:${BACKEND_TAG}" > /dev/null 2>&1; then
-            echo "❌ ERRO CRÍTICO: Backend image ${BACKEND_TAG} não encontrada no Image Gate"
-            echo "   Abortando deploy para evitar downtime desnecessário"
-            echo "::error::Backend image ${BACKEND_TAG} not found in Image Gate - deploy aborted"
-            exit 1
-          fi
-          
-          # Backend: Re-pull para garantir que temos a versão mais recente
-          if ! docker pull "${REGISTRY_BACKEND}:${BACKEND_TAG}" > /dev/null 2>&1; then
-            echo "❌ ERRO CRÍTICO: Falha ao fazer pull do backend ${BACKEND_TAG} no Image Gate"
-            echo "   Abortando deploy para evitar downtime desnecessário"
-            echo "::error::Backend pull failed in Image Gate - deploy aborted"
-            exit 1
-          fi
-          
-          echo "✅ Backend passou no Image Gate (${BACKEND_TAG})"
-          echo "::notice::Backend image ${BACKEND_TAG} passed Image Gate"
-          
-          # Frontend: Verificar manifest novamente
-          if ! docker manifest inspect "${REGISTRY_FRONTEND}:${FRONTEND_TAG}" > /dev/null 2>&1; then
-            echo "❌ ERRO CRÍTICO: Frontend image ${FRONTEND_TAG} não encontrada no Image Gate"
-            echo "   Abortando deploy para evitar downtime desnecessário"
-            echo "::error::Frontend image ${FRONTEND_TAG} not found in Image Gate - deploy aborted"
-            exit 1
-          fi
-          
-          # Frontend: Re-pull para garantir que temos a versão mais recente
-          if ! docker pull "${REGISTRY_FRONTEND}:${FRONTEND_TAG}" > /dev/null 2>&1; then
-            echo "❌ ERRO CRÍTICO: Falha ao fazer pull do frontend ${FRONTEND_TAG} no Image Gate"
-            echo "   Abortando deploy para evitar downtime desnecessário"
-            echo "::error::Frontend pull failed in Image Gate - deploy aborted"
-            exit 1
-          fi
-          
-          echo "✅ Frontend passou no Image Gate (${FRONTEND_TAG})"
-          echo "::notice::Frontend image ${FRONTEND_TAG} passed Image Gate"
-          
-          echo ""
-          echo "✅ FASE 6 concluída: Todas as imagens passaram no Image Gate"
-          echo "   Deploy pode prosseguir com segurança"
-          echo ""
-          
-          # ============================================================================
-          # FASE 3: BACKUP E DEPLOY (Zero Downtime)
-          # ============================================================================
-          
-          # ============================================================================
-          # FASE 7: VALIDAÇÃO DE SENHA DO BANCO (DB Password Alignment Gate)
-          # ============================================================================
-          echo "=== FASE 7: Validação de Senha do Banco de Dados ==="
-          
-          # PADRÃO BIG TECH: Validar senha antes de parar containers
-          # Evita deploy com senha incorreta (previne downtime)
-          echo "🔐 Validando alinhamento de senha do banco com AWS Secrets Manager..."
-          
-          # Exportar variáveis necessárias para o script
-          export AWS_REGION="${AWS_REGION:-us-east-1}"
-          export AWS_RUNTIME_SECRET_ID="${AWS_RUNTIME_SECRET_ID:-vynlo-taste-runtime-secrets}"
-          
-          # Executar script de validação
-          if [ -f "./deploy/scripts/check-db-password.sh" ]; then
-            chmod +x ./deploy/scripts/check-db-password.sh
-            ./deploy/scripts/check-db-password.sh || {
-              echo "❌ ERRO: Validação de senha do banco falhou"
-              echo "   Abortando deploy para evitar downtime"
-              echo "::error::DB password validation failed - deploy aborted"
-              exit 1
-            }
-          else
-            echo "⚠️ AVISO: Script de validação não encontrado (./deploy/scripts/check-db-password.sh)"
-            echo "   Continuando deploy sem validação de senha"
-            echo "::warning::DB password validation script not found"
-          fi
-          
-          echo "✅ FASE 7 concluída: Senha do banco validada"
-          echo "::notice::DB password check passed"
-          echo ""
-          
-          # Commit feb97aa: Zero Downtime Deploy - Backup automático + parada seletiva
-          echo "=== FASE 3: Backup do banco de dados (segurança) ==="
-          docker exec vynlo-postgres pg_dump -U vynlo_user vynlotaste > backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql 2>/dev/null || echo "⚠️ Backup falhou ou BD não está rodando"
-
-          # Commit feb97aa: Para APENAS apps - DB/Cache continuam rodando = 0s downtime
-          echo "=== FASE 3: Parando APENAS backend e frontend (Zero Downtime) ==="
-          docker compose -f docker-compose.prod.yml stop backend frontend 2>/dev/null || true
-          docker rm vynlo-backend vynlo-frontend 2>/dev/null || true
-          echo "✅ Postgres, Redis, Prometheus e Grafana continuam rodando"
-          
-          echo "=== FASE 3: Iniciando containers (Backend e Frontend) ==="
-          docker compose -f docker-compose.prod.yml up -d backend frontend --remove-orphans
-          echo ""
-          
-          echo "=== Containers ativos ==="
-          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-          
-          echo "=== Verificando que serviços críticos estão rodando ==="
-          docker ps | grep -q vynlo-postgres && echo "✅ Postgres rodando" || echo "⚠️ Postgres não encontrado"
-          docker ps | grep -q vynlo-redis && echo "✅ Redis rodando" || echo "⚠️ Redis não encontrado"
-          
-          echo "=== Verificando saúde dos serviços ==="
-          # Aguardar subida inicial
-          sleep 30
-          
-          # Backend pela rede interna Docker (recomendado p/ produção)
-          for i in {1..12}; do
-            if docker ps | grep -q "vynlo-frontend-prod" && docker exec vynlo-frontend-prod sh -lc 'curl -fsS http://backend:8080/api/actuator/health' >/dev/null 2>&1; then
-              echo "✅ Backend funcionando (rede interna Docker)"
-              break
-            else
-              echo "⏳ Aguardando backend (rede interna)... ($i/12)"
-              sleep 10
-            fi
-          done
-          
-          # Frontend + proxy externo (valida Nginx e roteamento)
-          for i in {1..12}; do
-            if docker ps | grep -q "vynlo-frontend" && curl -fsS http://localhost:3000 >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/actuator/health >/dev/null 2>&1; then
-              echo "✅ Frontend e proxy funcionando"
-              break
-            else
-              echo "⏳ Aguardando frontend/proxy... ($i/12)"
-              sleep 10
-            fi
-          done
-          
-          # Commit feb97aa: Validação obrigatória de health - Deploy só confirma se tudo OK
-          echo "=== Validação Final de Health (Segurança) ==="
-          if curl -fsS http://localhost:8080/api/actuator/health >/dev/null 2>&1; then
-            echo "✅ Backend saudável - Deploy confirmado"
-          else
-            echo "❌ Backend não respondeu - ATENÇÃO: Verificar logs"
-            docker logs vynlo-backend --tail 50
-            exit 1  # Rollback automático se falhar
-          fi
-          
-          if curl -fsS http://localhost:3000 >/dev/null 2>&1; then
-            echo "✅ Frontend saudável - Deploy confirmado"
-          else
-            echo "❌ Frontend não respondeu - ATENÇÃO: Verificar logs"
-            docker logs vynlo-frontend --tail 50
-            exit 1  # Rollback automático se falhar
-          fi
-          
-          echo "=== Limpando imagens antigas ==="
-          docker image prune -f --filter "until=24h"
-          
-          echo "=== Deploy concluído com sucesso! ==="
-          echo "🚀 Vynlo Taste atualizado para commit: ${{ github.sha }}"
-          echo "📊 Downtime: 0 segundos (Zero Downtime Deploy)"
-          echo "💾 Backup criado: backup-pre-deploy-$(date +%Y%m%d-%H%M%S).sql"
+          set -euo pipefail
+          chmod +x deploy/scripts/*.sh
+          ./deploy/scripts/deploy-application.sh
       
       - name: Notify deployment status
         if: always()
