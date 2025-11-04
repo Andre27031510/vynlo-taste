@@ -184,7 +184,13 @@ jobs:
         working-directory: frontend
         run: |
           echo "🔍 Executando lint do frontend..."
-          npm run lint
+          npm run lint || {
+            echo "⚠️ Lint encontrou problemas"
+            echo "   Errors críticos (react-hooks/rules-of-hooks) bloqueiam o build"
+            echo "   Warnings permitidos até 10 (meta: reduzir para 0)"
+            echo "   Ver: docs/ESLINT_WARNINGS_CLEANUP_PLAN.md"
+            exit 1
+          }
           echo "✅ Lint do frontend concluído"
           
       - name: Run Frontend Tests

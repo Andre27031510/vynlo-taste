@@ -7,4 +7,5 @@ out
 cypress
 public
 *.d.ts
+*.OLD.tsx
 

@@ -103,3 +103,10 @@ aws/
 actions-runner/
 .env
 .env
+
+# Arquivos de backup/legacy (não devem estar no repositório)
+*.OLD.tsx
+*.OLD.ts
+*.OLD.js
+*.backup.*
+legacy/

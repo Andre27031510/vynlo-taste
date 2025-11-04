@@ -1,5 +1,18 @@
 {
-  "extends": ["next/core-web-vitals"],
-  "ignorePatterns": ["node_modules", ".next", "out", "cypress", "*.config.js", "*.config.ts", "*.d.ts"]
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "ignorePatterns": ["node_modules", ".next", "out", "cypress", "*.config.js", "*.config.ts", "*.d.ts", "*.OLD.tsx"],
+  "rules": {
+    "react-hooks/exhaustive-deps": "warn",
+    "@next/next/no-img-element": "warn",
+    "react/no-unescaped-entities": "warn",
+    "react/display-name": "warn",
+    "react-hooks/rules-of-hooks": "error",
+    "react/jsx-no-comment-textnodes": "warn",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn"
+  }
 }
 
