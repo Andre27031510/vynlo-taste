@@ -1,5 +1,5 @@
 package com.vynlotaste.config;
-// touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push
+// touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional - atualizado para forçar push
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;

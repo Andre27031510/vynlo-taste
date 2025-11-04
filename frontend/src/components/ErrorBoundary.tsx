@@ -1,5 +1,5 @@
 'use client'
-// touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push
+// touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional - atualizado para forçar push
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'

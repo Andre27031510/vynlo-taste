@@ -1,7 +1,7 @@
 // Tipos para service discovery (v2.1.2 - circuit breaker robusto)
 // Fix: Threshold 4, isolamento por origem, não conta 4xx
 // Updated: 2025-10-11 13:47 UTC
-// touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push
+// touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional - atualizado para forçar push
 type ServiceName = 'core-service' | 'financial-service'
 
 // Service Discovery Simplificado - PADRÃO BIG TECH (Netflix, Uber)

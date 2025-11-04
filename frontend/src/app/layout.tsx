@@ -1,4 +1,4 @@
-// touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push
+// touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional - atualizado para forçar push
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -119,7 +119,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {/* PADRÃO BIG TECH: Error Boundary global para capturar React #130 e erros de rede */}
-        {/* touch: redeploy note (commit 63d07f0) - comentário leve sem impacto funcional - atualizado para forçar push */}
+        {/* touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional - atualizado para forçar push */}
         <ErrorBoundary
           componentName="Root Layout"
           retryCount={3}
