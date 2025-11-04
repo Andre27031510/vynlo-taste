@@ -33,6 +33,21 @@
 
 ---
 
+## ✅ **VERIFICAÇÃO 3: SECRETS E SENHAS (Segurança)**
+
+### **Secrets Sensíveis:**
+- [ ] ❌ **NUNCA commitar DB_PASSWORD, MAIL_PASSWORD ou outros secrets no repositório**
+- [ ] ✅ **Secrets devem estar apenas no AWS Secrets Manager**
+- [ ] ✅ **Ao modificar secrets sensíveis, alinhar com `docs/password-rotation.md`**
+- [ ] ✅ **Validar senha do banco antes de deploy (script `check-db-password.sh`)**
+- [ ] ✅ **Nunca usar conexão local (peer/trust) para testes - usar TCP (`-h 127.0.0.1`)**
+
+**Referência:** `docs/password-rotation.md` e `deploy/scripts/check-db-password.sh`
+
+**COBERTURA: Segurança de Secrets ✅**
+
+---
+
 ## ✅ **VERIFICAÇÃO 2: MIGRATIONS SQL**
 
 ### **V11__Create_tenants_table.sql:**
