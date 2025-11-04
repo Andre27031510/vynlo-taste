@@ -8,8 +8,9 @@ services:
     environment:
       POSTGRES_DB: vynlotaste
       POSTGRES_USER: vynlo_user
+      # PADRÃO BIG TECH: :? torna variável obrigatória - falha se não estiver definida
       # Nota: senha obtida via variável de ambiente (nunca hardcode)
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?}
     ports:
       - "5432:5432"
     volumes:
@@ -51,13 +52,15 @@ services:
       DB_PORT: 5432
       DB_NAME: vynlotaste
       DB_USERNAME: vynlo_user
-      DB_PASSWORD: ${DB_PASSWORD}
+      # PADRÃO BIG TECH: :? torna variável obrigatória - falha se não estiver definida
+      DB_PASSWORD: ${DB_PASSWORD:?}
       REDIS_HOST: redis
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       MAIL_HOST: smtp.gmail.com
       MAIL_USERNAME: noreply@vynlotech.com
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      # PADRÃO BIG TECH: :? torna variável obrigatória - falha se não estiver definida
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?}
       # ✅ CORREÇÃO CRÍTICA: Variáveis AWS para Firebase Admin via Secrets Manager
       AWS_REGION: ${AWS_REGION:-us-east-1}
       FIREBASE_AWS_SECRET_NAME: ${FIREBASE_AWS_SECRET_NAME:-vynlo-taste-firebase-prod}

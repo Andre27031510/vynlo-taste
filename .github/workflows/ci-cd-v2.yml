@@ -381,87 +381,90 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::051826695275:role/GitHubActionsDeployRole
-          aws-region: us-east-1
+          # PADRÃO BIG TECH: Usar secrets do GitHub para maior flexibilidade
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN || 'arn:aws:iam::051826695275:role/GitHubActionsDeployRole' }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           role-session-name: GitHubActions-${{ github.run_id }}
           
       - name: Fetch runtime secrets from AWS Secrets Manager
         id: fetch-secrets
+        env:
+          # PADRÃO BIG TECH: Secrets do GitHub para flexibilidade
+          AWS_RUNTIME_SECRET_ID: ${{ secrets.AWS_RUNTIME_SECRET_ID || 'vynlo-taste-runtime-secrets' }}
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
         run: |
-          set -e
+          set -euo pipefail  # PADRÃO BIG TECH: Fail-fast rigoroso
           echo "🔐 Buscando secrets do AWS Secrets Manager..."
           
           # FASE 3: Fail-fast e observabilidade
           START_TIME=$(date +%s)
           
-          # Buscar DB_PASSWORD
-          echo "📦 Buscando secret: vynlo-taste-db-password"
-          DB_SECRET_ARN=$(aws secretsmanager describe-secret \
-            --secret-id vynlo-taste-db-password \
-            --region us-east-1 \
-            --query 'ARN' --output text 2>&1) || {
-            echo "❌ ERRO: Não foi possível descrever secret vynlo-taste-db-password"
-            exit 1
-          }
-          echo "✅ Secret ARN: ${DB_SECRET_ARN}"
+          # PADRÃO BIG TECH: Usar secret único JSON do GitHub Secrets (flexibilidade)
+          SECRET_ID="${AWS_RUNTIME_SECRET_ID}"
+          AWS_REGION_VAR="${AWS_REGION}"
           
-          DB_PASSWORD_RAW=$(aws secretsmanager get-secret-value \
-            --secret-id vynlo-taste-db-password \
-            --region us-east-1 \
-            --query 'SecretString' --output text 2>&1) || {
-            echo "❌ ERRO: Não foi possível ler secret vynlo-taste-db-password"
-            exit 1
-          }
+          echo "📦 Buscando secret: ${SECRET_ID} (região: ${AWS_REGION_VAR})"
           
-          # Extrair password do JSON (usando jq se disponível, senão Python)
-          if command -v jq &> /dev/null; then
-            DB_PASSWORD=$(echo "${DB_PASSWORD_RAW}" | jq -r '.password')
-          else
-            # Fallback: usar Python (disponível na maioria dos runners)
-            DB_PASSWORD=$(echo "${DB_PASSWORD_RAW}" | python3 -c "import sys, json; print(json.load(sys.stdin)['password'])")
+          # Validar que secret ID foi fornecido
+          if [ -z "${SECRET_ID}" ]; then
+            echo "❌ ERRO CRÍTICO: AWS_RUNTIME_SECRET_ID não está definido"
+            echo "   Configure o secret 'AWS_RUNTIME_SECRET_ID' no GitHub ou defina como variável de ambiente"
+            exit 1
           fi
           
-          # FASE 3: Validar secret logo após buscar
+          # Descrever secret (valida existência e permissões)
+          SECRET_ARN=$(aws secretsmanager describe-secret \
+            --secret-id "${SECRET_ID}" \
+            --region "${AWS_REGION_VAR}" \
+            --query 'ARN' --output text 2>&1) || {
+            echo "❌ ERRO: Não foi possível descrever secret ${SECRET_ID}"
+            echo "   Verifique se o secret existe no AWS Secrets Manager"
+            echo "   Verifique se a role IAM tem permissão para ler o secret"
+            exit 1
+          }
+          echo "✅ Secret ARN: ${SECRET_ARN}"
+          
+          # Buscar valor do secret (JSON completo)
+          SECRET_JSON=$(aws secretsmanager get-secret-value \
+            --secret-id "${SECRET_ID}" \
+            --region "${AWS_REGION_VAR}" \
+            --query 'SecretString' --output text 2>&1) || {
+            echo "❌ ERRO: Não foi possível ler secret ${SECRET_ID}"
+            exit 1
+          }
+          
+          # Validar que JSON não está vazio
+          if [ -z "${SECRET_JSON}" ] || [ "${SECRET_JSON}" = "null" ]; then
+            echo "❌ ERRO CRÍTICO: Secret ${SECRET_ID} está vazio ou inválido"
+            exit 1
+          fi
+          
+          # Extrair campos do JSON (usando jq se disponível, senão Python)
+          if command -v jq &> /dev/null; then
+            DB_PASSWORD=$(echo "${SECRET_JSON}" | jq -r '.DB_PASSWORD // .password // empty')
+            MAIL_PASSWORD=$(echo "${SECRET_JSON}" | jq -r '.MAIL_PASSWORD // .mail_password // empty')
+          else
+            # Fallback: usar Python (disponível na maioria dos runners)
+            DB_PASSWORD=$(echo "${SECRET_JSON}" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('DB_PASSWORD') or d.get('password') or '')")
+            MAIL_PASSWORD=$(echo "${SECRET_JSON}" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('MAIL_PASSWORD') or d.get('mail_password') or '')")
+          fi
+          
+          # FASE 3: Validar secrets obrigatórios logo após buscar
           if [ -z "${DB_PASSWORD}" ] || [ "${DB_PASSWORD}" = "null" ]; then
-            echo "❌ ERRO CRÍTICO: DB_PASSWORD está vazio ou inválido"
+            echo "❌ ERRO CRÍTICO: DB_PASSWORD não encontrado no secret ${SECRET_ID}"
+            echo "   O secret deve conter campo 'DB_PASSWORD' ou 'password'"
+            echo "   Formato esperado: {\"DB_PASSWORD\": \"...\", \"MAIL_PASSWORD\": \"...\"}"
             exit 1
           fi
           echo "✅ DB_PASSWORD recuperado com sucesso (${#DB_PASSWORD} caracteres)"
           
-          # Buscar MAIL_PASSWORD do email-config
-          echo "📦 Buscando secret: vynlo-taste-email-config"
-          MAIL_SECRET_ARN=$(aws secretsmanager describe-secret \
-            --secret-id vynlo-taste-email-config \
-            --region us-east-1 \
-            --query 'ARN' --output text 2>&1) || {
-            echo "⚠️ AVISO: Não foi possível descrever secret vynlo-taste-email-config"
+          if [ -z "${MAIL_PASSWORD}" ] || [ "${MAIL_PASSWORD}" = "null" ]; then
+            echo "⚠️ AVISO: MAIL_PASSWORD não encontrado no secret ${SECRET_ID}"
             echo "   Email pode não funcionar"
-          }
-          
-          if [ -n "${MAIL_SECRET_ARN}" ]; then
-            MAIL_PASSWORD_RAW=$(aws secretsmanager get-secret-value \
-              --secret-id vynlo-taste-email-config \
-              --region us-east-1 \
-              --query 'SecretString' --output text 2>&1) || {
-              echo "⚠️ AVISO: Não foi possível ler secret vynlo-taste-email-config"
-              MAIL_PASSWORD=""
-            }
-            
-            if [ -n "${MAIL_PASSWORD_RAW}" ]; then
-              # Extrair password do JSON
-              if command -v jq &> /dev/null; then
-                MAIL_PASSWORD=$(echo "${MAIL_PASSWORD_RAW}" | jq -r '.password')
-              else
-                MAIL_PASSWORD=$(echo "${MAIL_PASSWORD_RAW}" | python3 -c "import sys, json; print(json.load(sys.stdin)['password'])")
-              fi
-              
-              if [ -z "${MAIL_PASSWORD}" ] || [ "${MAIL_PASSWORD}" = "null" ]; then
-                echo "⚠️ AVISO: MAIL_PASSWORD está vazio ou inválido"
-                MAIL_PASSWORD=""
-              else
-                echo "✅ MAIL_PASSWORD recuperado com sucesso (${#MAIL_PASSWORD} caracteres)"
-              fi
-            fi
+            echo "   O secret deve conter campo 'MAIL_PASSWORD' ou 'mail_password'"
+            MAIL_PASSWORD=""
+          else
+            echo "✅ MAIL_PASSWORD recuperado com sucesso (${#MAIL_PASSWORD} caracteres)"
           fi
           
           # Validar Firebase secret (backend lê em runtime, mas validamos existência)
@@ -496,10 +499,7 @@ jobs:
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           echo "📊 Observabilidade: Secrets validados em ${DURATION}s"
-          echo "   DB Secret ARN: ${DB_SECRET_ARN}"
-          if [ -n "${MAIL_SECRET_ARN}" ]; then
-            echo "   Mail Secret ARN: ${MAIL_SECRET_ARN}"
-          fi
+          echo "   Runtime Secret ARN: ${SECRET_ARN}"
           if [ -n "${FIREBASE_SECRET_ARN}" ]; then
             echo "   Firebase Secret ARN: ${FIREBASE_SECRET_ARN}"
           fi
@@ -527,7 +527,7 @@ jobs:
           DB_PASSWORD: ${{ env.DB_PASSWORD }}
           MAIL_PASSWORD: ${{ env.MAIL_PASSWORD }}
         run: |
-          set -e
+          set -euo pipefail  # PADRÃO BIG TECH: Fail-fast rigoroso (e, u, o, pipefail)
           echo "=== Deploy iniciado ==="
           echo "Host: $(hostname)"
           echo "Commit: ${COMMIT_SHA}"
