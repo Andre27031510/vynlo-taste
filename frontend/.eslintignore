@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+.vercel
+*.config.js
+*.config.ts
+cypress
+public
+*.d.ts
+
