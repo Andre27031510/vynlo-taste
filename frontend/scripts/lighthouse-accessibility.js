@@ -5,10 +5,30 @@
  * Executa testes de acessibilidade nos componentes do dashboard
  */
 
-const lighthouse = require('lighthouse');
-const chromeLauncher = require('chrome-launcher');
-const fs = require('fs');
-const path = require('path');
+let cachedLighthouse;
+let cachedChromeLauncher;
+
+const loadDependencies = async () => {
+  if (!cachedLighthouse) {
+    const lighthouseModule = await import('lighthouse');
+    cachedLighthouse = lighthouseModule.default ?? lighthouseModule;
+  }
+
+  if (!cachedChromeLauncher) {
+    const chromeModule = await import('chrome-launcher');
+    cachedChromeLauncher = chromeModule.default ?? chromeModule;
+  }
+};
+
+const getLighthouse = async () => {
+  await loadDependencies();
+  return cachedLighthouse;
+};
+
+const getChromeLauncher = async () => {
+  await loadDependencies();
+  return cachedChromeLauncher;
+};
 
 // Configuração do Lighthouse focada em acessibilidade
 const lighthouseConfig = {
@@ -49,6 +69,9 @@ const urlsToTest = [
 ];
 
 async function runLighthouse(url, options = {}) {
+  const chromeLauncher = await getChromeLauncher();
+  const lighthouse = await getLighthouse();
+
   const chrome = await chromeLauncher.launch({
     chromeFlags: ['--headless', '--no-sandbox', '--disable-dev-shm-usage']
   });
@@ -69,7 +92,6 @@ async function generateAccessibilityReport() {
   console.log('🚀 Iniciando verificação de acessibilidade com Lighthouse...\n');
   
   const results = [];
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   
   for (const testCase of urlsToTest) {
     console.log(`📊 Testando: ${testCase.name}`);

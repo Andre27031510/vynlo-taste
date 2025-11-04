@@ -5,6 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
+import { useTenantKey } from './useTenantKey'
 
 export interface AccountPayable {
   id: string
@@ -133,7 +134,6 @@ export const useAccountsPayableQuery = (filters?: {
   size?: number
 }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ content: AccountPayable[], totalElements: number, totalPages: number }>({
@@ -151,7 +151,6 @@ export const useAccountsReceivableQuery = (filters?: {
   size?: number
 }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ content: AccountReceivable[], totalElements: number, totalPages: number }>({
@@ -165,7 +164,6 @@ export const useAccountsReceivableQuery = (filters?: {
 
 export const useFinancialSummaryQuery = () => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<FinancialSummary>({

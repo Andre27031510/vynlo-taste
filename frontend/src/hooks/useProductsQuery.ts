@@ -19,6 +19,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
+import { useTenantKey } from './useTenantKey'
 import { 
   getProductsFallback, 
   getStatsFallback, 
@@ -205,7 +206,6 @@ export const useProductsQuery = (filters?: {
   // ✅ Amazon Q Recommendation: Cache resiliente + Retry conservador + Fallback
   // Para 3M+ usuários: staleTime 2min, retry máximo 2 tentativas, localStorage fallback
   // ✅ MULTI-TENANT: QueryKey inclui tenantKey para isolamento total entre usuários
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   const query = useQuery<{ products: Product[], total: number, totalPages: number }>({
@@ -246,7 +246,6 @@ export const useProductsQuery = (filters?: {
 export const useProductStatsQuery = () => {
   // ✅ Amazon Q Recommendation: Stats públicos + Cache otimizado + Fallback
   // ✅ MULTI-TENANT: QueryKey inclui tenantKey para isolamento total entre usuários
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   const query = useQuery<ProductStats>({

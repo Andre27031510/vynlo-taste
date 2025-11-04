@@ -7,6 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
+import { useTenantKey } from './useTenantKey'
 
 export interface TeamMember {
   id: string
@@ -89,7 +90,6 @@ export const useTeamQuery = (filters?: {
   limit?: number
 }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ members: TeamMember[], total: number, totalPages: number }>({
@@ -106,6 +106,7 @@ export const useTeamQuery = (filters?: {
 // Mutation para criar membro da equipe
 export const useCreateTeamMemberMutation = () => {
   const queryClient = useQueryClient()
+  const tenantKey = useTenantKey()
   
   return useMutation({
     mutationFn: async (memberData: {
@@ -140,8 +141,6 @@ export const useCreateTeamMemberMutation = () => {
     },
     onSuccess: () => {
       // ✅ MULTI-TENANT: Invalidar cache apenas do tenant atual
-      const { useTenantKey } = require('./useTenantKey')
-      const tenantKey = useTenantKey()
       queryClient.invalidateQueries({ queryKey: ['team', tenantKey] })
       console.log('✅ Membro da equipe criado com sucesso')
     },
@@ -154,15 +153,15 @@ export const useCreateTeamMemberMutation = () => {
 // Mutation para atualizar membro da equipe
 export const useUpdateTeamMemberMutation = () => {
   const queryClient = useQueryClient()
+  const tenantKey = useTenantKey()
   
   return useMutation({
-    mutationFn: async ({ id, name, email, role, status, permissions }: {
+    mutationFn: async ({ id, name, email, role, status }: {
       id: string
       name: string
       email: string
       role: string
       status?: 'active' | 'inactive'
-      permissions?: string[]
     }) => {
       const nameParts = name.trim().split(' ')
       const firstName = nameParts[0]
@@ -188,8 +187,6 @@ export const useUpdateTeamMemberMutation = () => {
     },
     onSuccess: () => {
       // ✅ MULTI-TENANT: Invalidar cache apenas do tenant atual
-      const { useTenantKey } = require('./useTenantKey')
-      const tenantKey = useTenantKey()
       queryClient.invalidateQueries({ queryKey: ['team', tenantKey] })
       console.log('✅ Membro da equipe atualizado com sucesso')
     },
@@ -202,6 +199,7 @@ export const useUpdateTeamMemberMutation = () => {
 // Mutation para deletar membro da equipe
 export const useDeleteTeamMemberMutation = () => {
   const queryClient = useQueryClient()
+  const tenantKey = useTenantKey()
   
   return useMutation({
     mutationFn: async (memberId: string) => {
@@ -216,8 +214,6 @@ export const useDeleteTeamMemberMutation = () => {
     },
     onSuccess: () => {
       // ✅ MULTI-TENANT: Invalidar cache apenas do tenant atual
-      const { useTenantKey } = require('./useTenantKey')
-      const tenantKey = useTenantKey()
       queryClient.invalidateQueries({ queryKey: ['team', tenantKey] })
       console.log('✅ Membro da equipe deletado com sucesso')
     },

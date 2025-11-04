@@ -12,6 +12,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
 import { useAuthReady } from './useAuthReady'
+import { useTenantKey } from './useTenantKey'
 
 export interface Client {
   id: string
@@ -100,7 +101,6 @@ export const useClientsQuery = (filters?: {
 }) => {
   const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ clients: Client[], total: number, totalPages: number }>({

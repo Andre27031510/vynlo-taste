@@ -5,9 +5,26 @@
  * Executa Jest com configurações de cobertura e gera relatórios detalhados
  */
 
-const { execSync } = require('child_process')
-const fs = require('fs')
-const path = require('path')
+let execSync
+let fs
+let path
+
+const ensureDependencies = async () => {
+  if (!execSync) {
+    const childProcessModule = await import('node:child_process')
+    execSync = childProcessModule.execSync
+  }
+
+  if (!fs) {
+    const fsModule = await import('node:fs')
+    fs = fsModule.default || fsModule
+  }
+
+  if (!path) {
+    const pathModule = await import('node:path')
+    path = pathModule.default || pathModule
+  }
+}
 
 // Configurações de cobertura
 const coverageConfig = {
@@ -40,7 +57,8 @@ const coverageConfig = {
 }
 
 // Função para executar testes com cobertura
-function runTestsWithCoverage() {
+async function runTestsWithCoverage() {
+  await ensureDependencies()
   console.log('🧪 Executando testes com análise de cobertura...\n')
   
   try {
@@ -66,7 +84,7 @@ function runTestsWithCoverage() {
     console.log('\n✅ Testes executados com sucesso!')
     
     // Gerar relatório resumido
-    generateSummaryReport()
+    await generateSummaryReport()
     
   } catch (error) {
     console.error('\n❌ Falha na execução dos testes:')
@@ -74,7 +92,7 @@ function runTestsWithCoverage() {
     
     // Ainda assim, tentar gerar relatório se houver dados
     try {
-      generateSummaryReport()
+      await generateSummaryReport()
     } catch (reportError) {
       console.error('Erro ao gerar relatório:', reportError.message)
     }
@@ -84,7 +102,8 @@ function runTestsWithCoverage() {
 }
 
 // Função para gerar relatório resumido
-function generateSummaryReport() {
+async function generateSummaryReport() {
+  await ensureDependencies()
   const coveragePath = path.join(process.cwd(), 'coverage', 'coverage-summary.json')
   
   if (!fs.existsSync(coveragePath)) {
@@ -163,7 +182,8 @@ function generateDetailedReport(coverageData) {
 }
 
 // Função para executar testes específicos
-function runSpecificTests(pattern) {
+async function runSpecificTests(pattern) {
+  await ensureDependencies()
   console.log(`🎯 Executando testes para: ${pattern}\n`)
   
   try {
@@ -184,7 +204,8 @@ function runSpecificTests(pattern) {
 }
 
 // Função para executar testes em modo watch
-function runWatchMode() {
+async function runWatchMode() {
+  await ensureDependencies()
   console.log('👀 Executando testes em modo watch...\n')
   
   try {
@@ -206,29 +227,40 @@ function runWatchMode() {
 const args = process.argv.slice(2)
 const command = args[0]
 
-switch (command) {
-  case 'watch':
-    runWatchMode()
-    break
-  case 'specific':
-    const pattern = args[1]
-    if (!pattern) {
-      console.error('❌ Padrão de teste não fornecido')
-      console.log('Uso: node test-coverage.js specific "nome-do-teste"')
-      process.exit(1)
-    }
-    runSpecificTests(pattern)
-    break
-  case 'help':
-    console.log('📚 Comandos disponíveis:')
-    console.log('  node test-coverage.js          - Executar todos os testes com cobertura')
-    console.log('  node test-coverage.js watch    - Executar em modo watch')
-    console.log('  node test-coverage.js specific "pattern" - Executar testes específicos')
-    console.log('  node test-coverage.js help     - Mostrar esta ajuda')
-    break
-  default:
-    runTestsWithCoverage()
-    break
+const main = async () => {
+  switch (command) {
+    case 'watch':
+      await runWatchMode()
+      break
+    case 'specific':
+      {
+        const pattern = args[1]
+        if (!pattern) {
+          console.error('❌ Padrão de teste não fornecido')
+          console.log('Uso: node test-coverage.js specific "nome-do-teste"')
+          process.exit(1)
+        }
+        await runSpecificTests(pattern)
+      }
+      break
+    case 'help':
+      console.log('📚 Comandos disponíveis:')
+      console.log('  node test-coverage.js          - Executar todos os testes com cobertura')
+      console.log('  node test-coverage.js watch    - Executar em modo watch')
+      console.log('  node test-coverage.js specific "pattern" - Executar testes específicos')
+      console.log('  node test-coverage.js help     - Mostrar esta ajuda')
+      break
+    default:
+      await runTestsWithCoverage()
+      break
+  }
+}
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.error('❌ Erro inesperado:', error)
+    process.exit(1)
+  })
 }
 
 module.exports = {

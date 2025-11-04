@@ -28,7 +28,7 @@ const generatePredictiveAnalysis = (type: string, data: any, timeframe: string) 
   const startTime = Date.now()
   
   let response = ''
-  let confidence = 0.85
+  const confidence = 0.85
   
   switch (type) {
     case 'sales_prediction':

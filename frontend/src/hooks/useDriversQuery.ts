@@ -11,6 +11,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
 import { useAuthReady } from './useAuthReady'
+import { useTenantKey } from './useTenantKey'
 
 export interface Driver {
   id: string
@@ -85,7 +86,6 @@ export const useDriversQuery = (filters?: {
 }) => {
   const isAuthReady = useAuthReady() // ✅ Auth guard (Cursor recommendation)
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ drivers: Driver[], total: number, totalPages: number }>({
@@ -106,7 +106,6 @@ export const useDriversQuery = (filters?: {
 // Hook para buscar estatísticas - OTIMIZADO PARA PRODUÇÃO
 export const useDriversStatsQuery = () => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<DriversStats>({

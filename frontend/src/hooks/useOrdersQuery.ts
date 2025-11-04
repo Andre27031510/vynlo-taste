@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { apiRequest } from '@/services/api'
 import { useAuthReady } from './useAuthReady'
+import { useTenantKey } from './useTenantKey'
 
 // Tipos para pedidos
 export interface Order {
@@ -77,7 +78,6 @@ const updateOrderStatus = async ({ orderId, status }: { orderId: string; status:
 // Custom hooks
 export const useOrdersQuery = (filters?: { status?: string; search?: string; page?: number; limit?: number }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   // ✅ AUTH GUARD: Prevenir race condition (Cursor recommendation)
@@ -99,7 +99,6 @@ export const useOrdersQuery = (filters?: { status?: string; search?: string; pag
 
 export const useOrdersStatsQuery = () => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   // ✅ AUTH GUARD: Prevenir race condition (Cursor recommendation)
@@ -121,7 +120,6 @@ export const useOrdersStatsQuery = () => {
 
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient()
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useMutation({
@@ -137,6 +135,7 @@ export const useUpdateOrderStatus = () => {
     onSuccess: () => {
       // Invalidar queries relacionadas para refetch
       queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', tenantKey] })
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
       toast.success('Status do pedido atualizado com sucesso!')
     },
@@ -178,7 +177,6 @@ export interface UpdateOrderData {
 
 export const useCreateOrderMutation = () => {
   const queryClient = useQueryClient()
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useMutation({
@@ -306,7 +304,6 @@ export const useCreateOrderMutation = () => {
 
 export const useUpdateOrderMutation = () => {
   const queryClient = useQueryClient()
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useMutation({
@@ -336,7 +333,6 @@ export const useUpdateOrderMutation = () => {
 
 export const useDeleteOrderMutation = () => {
   const queryClient = useQueryClient()
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useMutation({
