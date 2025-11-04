@@ -1,5 +1,5 @@
 package com.vynlotaste.controller;
-// touch: redeploy note (commit 2ee3526) - comentário leve sem impacto funcional - atualizado para forçar push
+// touch: redeploy note (commit 0b28909) - comentário leve sem impacto funcional - atualizado para forçar push
 
 import com.vynlotaste.config.MetricsTestConfiguration;
 import com.vynlotaste.config.TestFirebaseConfig;

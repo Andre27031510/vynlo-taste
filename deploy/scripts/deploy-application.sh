@@ -5,6 +5,10 @@ set -euo pipefail
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 APP_DIR="${DEPLOY_APP_DIR:-$HOME/app}"
 
+# Detectar diretório do repositório (onde o checkout foi feito)
+# GitHub Actions: $GITHUB_WORKSPACE, Self-hosted: diretório atual ou $GITHUB_WORKSPACE
+REPO_DIR="${GITHUB_WORKSPACE:-${PWD}}"
+
 log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
 
 : "${GITHUB_TOKEN:?GITHUB_TOKEN environment variable is required}"
@@ -35,6 +39,25 @@ export BACKEND_TAG="${TAG}"
 export FRONTEND_TAG="${TAG}"
 export DB_PASSWORD
 export MAIL_PASSWORD
+
+# Garantir que o diretório de deploy existe
+mkdir -p "${APP_DIR}"
+
+# Copiar docker-compose.prod.yml do repositório para o diretório de deploy
+COMPOSE_SOURCE="${REPO_DIR}/docker-compose.prod.yml"
+COMPOSE_TARGET="${APP_DIR}/docker-compose.prod.yml"
+
+if [[ ! -f "${COMPOSE_SOURCE}" ]]; then
+  log "ERROR: docker-compose.prod.yml not found in repository at ${COMPOSE_SOURCE}"
+  log "Current directory: ${PWD}"
+  log "Repository directory: ${REPO_DIR}"
+  log "Files in repo root:"
+  ls -la "${REPO_DIR}" || true
+  exit 1
+fi
+
+log "Copying docker-compose.prod.yml from repository to ${APP_DIR}"
+cp "${COMPOSE_SOURCE}" "${COMPOSE_TARGET}"
 
 log "Validating docker-compose.prod.yml"
 "${SCRIPT_DIR}/validate-compose.sh" "${APP_DIR}"
