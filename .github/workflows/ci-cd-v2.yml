@@ -186,9 +186,10 @@ jobs:
           echo "🔍 Executando lint do frontend..."
           npm run lint || {
             echo "⚠️ Lint encontrou problemas"
-            echo "   Errors críticos (react-hooks/rules-of-hooks) bloqueiam o build"
-            echo "   Warnings permitidos até 10 (meta: reduzir para 0)"
-            echo "   Ver: docs/ESLINT_WARNINGS_CLEANUP_PLAN.md"
+            echo "   Errors críticos bloqueiam o build"
+            echo "   Warnings permitidos: 750 (temporário - limpeza em progresso)"
+            echo "   Meta: reduzir para 0 em 2-3 sprints"
+            echo "   Estratégia: docs/ESLINT_CLEANUP_STRATEGY.md"
             exit 1
           }
           echo "✅ Lint do frontend concluído"
