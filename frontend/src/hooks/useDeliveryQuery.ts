@@ -8,6 +8,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
 import toast from 'react-hot-toast'
+import { useTenantKey } from './useTenantKey'
 
 export interface Delivery {
   id: string
@@ -83,7 +84,6 @@ export const useDeliveriesQuery = (filters?: {
   limit?: number
 }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ deliveries: Delivery[], total: number, totalPages: number }>({
@@ -102,7 +102,6 @@ export const useDeliveriesQuery = (filters?: {
 // Hook para buscar estatísticas - OTIMIZADO PARA PRODUÇÃO
 export const useDeliveryStatsQuery = () => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<DeliveryStats>({
@@ -136,7 +135,6 @@ const updateDeliveryStatus = async ({ deliveryId, status }: { deliveryId: string
 
 export const useUpdateDeliveryStatusMutation = () => {
   const queryClient = useQueryClient()
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useMutation({

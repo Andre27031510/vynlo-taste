@@ -415,7 +415,7 @@ export default function PaymentManagement() {
     
     // Atualizar datas automaticamente baseado no período
     const today = new Date()
-    let startDate = new Date()
+    const startDate = new Date()
     
     switch (period) {
       case '7':

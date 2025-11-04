@@ -4,6 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
+import { useTenantKey } from './useTenantKey'
 
 export interface FiscalDocument {
   id: string
@@ -111,7 +112,6 @@ export const useFiscalDocumentsQuery = (filters?: {
   size?: number
 }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ content: FiscalDocument[], totalElements: number, totalPages: number }>({
@@ -139,7 +139,6 @@ export const useCreateNFeMutation = () => {
 
 export const useSEFAZStatusQuery = () => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<SEFAZStatus>({

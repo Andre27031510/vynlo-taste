@@ -3,6 +3,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/services/api'
+import { useTenantKey } from './useTenantKey'
 
 export interface CashFlowEntry {
   id: string
@@ -143,7 +144,6 @@ export const useCashFlowQuery = (filters?: {
   size?: number
 }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<{ content: CashFlowEntry[], totalElements: number, totalPages: number }>({
@@ -160,7 +160,6 @@ export const useCashFlowSummaryQuery = (filters?: {
   endDate?: string
 }) => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery<CashFlowSummary>({

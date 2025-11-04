@@ -442,7 +442,7 @@ export const apiRequest = async (
     
     // Classificar erro para observabilidade (Datadog/Sentry pattern)
     let errorType: 'NETWORK' | 'CORS' | 'TIMEOUT' | 'DNS' | 'UNKNOWN' = 'UNKNOWN'
-    let errorDetails: Record<string, any> = {
+    const errorDetails: Record<string, any> = {
       service: serviceName,
       endpoint,
       url,

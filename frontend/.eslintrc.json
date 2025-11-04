@@ -3,7 +3,7 @@
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended"
   ],
-  "ignorePatterns": ["node_modules", ".next", "out", "cypress", "*.config.js", "*.config.ts", "*.d.ts", "*.OLD.tsx"],
+  "ignorePatterns": ["node_modules", ".next", "out", "cypress", "*.config.js", "*.config.ts", "*.d.ts", "*.OLD.tsx", "scripts/**/*"],
   "rules": {
     "react-hooks/exhaustive-deps": "warn",
     "@next/next/no-img-element": "warn",

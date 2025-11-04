@@ -127,7 +127,7 @@ export default function SefazConfigPage() {
         return
       }
 
-      let webservicesStatus: {
+      const webservicesStatus: {
         nfe: 'online' | 'offline' | 'error' | 'checking' | 'unknown'
         nfce: 'online' | 'offline' | 'error' | 'checking' | 'unknown'
         nfse: 'online' | 'offline' | 'error' | 'checking' | 'unknown'

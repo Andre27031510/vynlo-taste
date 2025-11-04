@@ -2,6 +2,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { queryAmazonQ } from '@/services/amazonQService'
 import { apiRequest } from '@/services/api'
+import { useTenantKey } from './useTenantKey'
 
 // Tipos para relatórios
 export interface SalesReport {
@@ -66,7 +67,6 @@ const runPredictiveAnalysis = async (): Promise<AnalyticsData> => {
 // Custom hooks
 export const useSalesReportQuery = (period: string = '7d') => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery({
@@ -79,7 +79,6 @@ export const useSalesReportQuery = (period: string = '7d') => {
 
 export const useAnalyticsQuery = () => {
   // ✅ MULTI-TENANT: Incluir tenantKey para isolamento de cache
-  const { useTenantKey } = require('./useTenantKey')
   const tenantKey = useTenantKey()
   
   return useQuery({

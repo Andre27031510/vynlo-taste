@@ -60,7 +60,7 @@ let cachedDb: Firestore | null = null
 let cachedAnalytics: Analytics | null = null
 let cachedPerformance: any | null = null
 let initializationPromise: Promise<FirebaseApp | null> | null = null
-let activeTraces: Map<string, any> = new Map()
+const activeTraces: Map<string, any> = new Map()
 
 // Simplified Firebase app initialization
 export const getFirebaseApp = (): FirebaseApp | null => {
