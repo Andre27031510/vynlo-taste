@@ -1,6 +1,7 @@
 name: CI/CD-v2
 # Workflow de CI/CD com validações fail-fast e deploy zero-downtime
 # Documentação: docs/BIG_TECH_PIPELINE_REFACTOR.md
+# touch: redeploy note (commit 0b28909) - comentário leve sem impacto funcional - atualizado para forçar push
 
 on:
   push:
