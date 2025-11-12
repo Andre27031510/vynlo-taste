@@ -270,7 +270,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Gate obrigatório: valida migrations antes do deploy em produção
-    if: ${{ github.event_name != 'pull_request' && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.migrations_changed == 'true' || github.event_name == 'workflow_dispatch') }}
+    # touch: redeploy note - ajuste para permitir execução mesmo sem mudanças detectadas
+    if: ${{ github.event_name != 'pull_request' && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.migrations_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -324,8 +325,9 @@ jobs:
     needs: [build, staging-migrations]
     runs-on: [self-hosted, linux, x64]
     timeout-minutes: 30
-    # Deploy apenas se build e staging-migrations passaram
-    if: ${{ needs.build.result == 'success' && needs.staging-migrations.result == 'success' && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
+    # Deploy apenas se build passou e staging-migrations passou ou foi skipped (sem mudanças backend/migrations)
+    # touch: redeploy note - ajuste para aceitar staging-migrations como skipped quando não há mudanças relevantes
+    if: ${{ needs.build.result == 'success' && (needs.staging-migrations.result == 'success' || needs.staging-migrations.result == 'skipped') && (needs.build.outputs.backend_changed == 'true' || needs.build.outputs.frontend_changed == 'true' || needs.build.outputs.infra_changed == 'true' || github.event_name == 'workflow_dispatch') }}
     steps:
       - uses: actions/checkout@v4
 
